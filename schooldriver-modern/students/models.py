@@ -1,0 +1,210 @@
+from django.db import models
+from django.contrib.auth.models import AbstractUser
+from django.core.validators import RegexValidator
+from PIL import Image
+import uuid
+
+
+class GradeLevel(models.Model):
+    """Grade levels like K, 1st, 2nd, etc."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=50, unique=True)
+    order = models.PositiveIntegerField(help_text="1=Kindergarten, 2=1st grade, etc.")
+    
+    class Meta:
+        ordering = ['order']
+        
+    def __str__(self):
+        return self.name
+
+
+class SchoolYear(models.Model):
+    """Academic year like 2024-2025"""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=50, unique=True, help_text="e.g. 2024-2025")
+    start_date = models.DateField()
+    end_date = models.DateField()
+    is_active = models.BooleanField(default=False)
+    
+    class Meta:
+        ordering = ['-start_date']
+        
+    def __str__(self):
+        return self.name
+
+
+class EmergencyContact(models.Model):
+    """Parent/Guardian contact information - modernized version of legacy model"""
+    RELATIONSHIP_CHOICES = [
+        ('mother', 'Mother'),
+        ('father', 'Father'),
+        ('guardian', 'Legal Guardian'),
+        ('grandparent', 'Grandparent'),
+        ('other', 'Other Relative'),
+        ('emergency', 'Emergency Contact'),
+    ]
+    
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    relationship = models.CharField(max_length=20, choices=RELATIONSHIP_CHOICES)
+    
+    # Contact information
+    email = models.EmailField(blank=True)
+    phone_primary = models.CharField(max_length=20, blank=True)
+    phone_secondary = models.CharField(max_length=20, blank=True)
+    
+    # Address
+    street = models.CharField(max_length=200, blank=True)
+    city = models.CharField(max_length=100, blank=True)
+    state = models.CharField(max_length=50, blank=True)
+    zip_code = models.CharField(max_length=10, blank=True)
+    
+    # Primary contact designation
+    is_primary = models.BooleanField(default=False, help_text="Primary contact for school communications")
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['last_name', 'first_name']
+        
+    def __str__(self):
+        return f"{self.first_name} {self.last_name} ({self.get_relationship_display()})"
+        
+    @property
+    def full_name(self):
+        return f"{self.first_name} {self.last_name}"
+
+
+class Student(models.Model):
+    """Modernized student model preserving legacy business logic"""
+    GENDER_CHOICES = [
+        ('M', 'Male'),
+        ('F', 'Female'),
+        ('O', 'Other'),
+        ('N', 'Prefer not to say'),
+    ]
+    
+    # Core identification
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    student_id = models.CharField(
+        max_length=20, 
+        unique=True, 
+        blank=True,
+        help_text="School-specific student ID number"
+    )
+    
+    # Personal information
+    first_name = models.CharField(max_length=100)
+    middle_name = models.CharField(max_length=100, blank=True)
+    last_name = models.CharField(max_length=100)
+    preferred_name = models.CharField(max_length=100, blank=True, help_text="Name student prefers to be called")
+    
+    date_of_birth = models.DateField()
+    gender = models.CharField(max_length=1, choices=GENDER_CHOICES, blank=True)
+    
+    # Profile photo
+    photo = models.ImageField(
+        upload_to='student_photos/', 
+        blank=True, 
+        null=True,
+        help_text="Student photo for ID purposes"
+    )
+    
+    # Academic information
+    grade_level = models.ForeignKey(GradeLevel, on_delete=models.PROTECT, null=True, blank=True)
+    graduation_year = models.IntegerField(null=True, blank=True)
+    enrollment_date = models.DateField()
+    graduation_date = models.DateField(null=True, blank=True)
+    
+    # Status
+    is_active = models.BooleanField(default=True)
+    withdrawal_date = models.DateField(null=True, blank=True)
+    withdrawal_reason = models.TextField(blank=True)
+    
+    # Contact relationships
+    emergency_contacts = models.ManyToManyField(
+        EmergencyContact, 
+        blank=True,
+        help_text="Parents, guardians, and emergency contacts"
+    )
+    
+    # Additional information
+    special_needs = models.TextField(blank=True, help_text="IEP, 504 plan, allergies, medical needs")
+    notes = models.TextField(blank=True, help_text="Administrative notes")
+    
+    # Cached primary contact info (for performance)
+    primary_contact_name = models.CharField(max_length=200, blank=True, editable=False)
+    primary_contact_email = models.EmailField(blank=True, editable=False)
+    primary_contact_phone = models.CharField(max_length=20, blank=True, editable=False)
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['last_name', 'first_name']
+        indexes = [
+            models.Index(fields=['student_id']),
+            models.Index(fields=['is_active', 'grade_level']),
+            models.Index(fields=['graduation_year']),
+        ]
+        
+    def __str__(self):
+        return f"{self.first_name} {self.last_name} ({self.student_id})"
+        
+    @property
+    def full_name(self):
+        if self.middle_name:
+            return f"{self.first_name} {self.middle_name} {self.last_name}"
+        return f"{self.first_name} {self.last_name}"
+    
+    @property
+    def display_name(self):
+        """Name to display in UI - preferred name if available"""
+        if self.preferred_name:
+            return f"{self.preferred_name} {self.last_name}"
+        return self.full_name
+        
+    def save(self, *args, **kwargs):
+        # Auto-generate student ID if not provided
+        if not self.student_id:
+            # Simple format: year + 4-digit sequence
+            year = str(self.enrollment_date.year)[2:]  # Last 2 digits of year
+            last_student = Student.objects.filter(
+                student_id__startswith=year
+            ).order_by('student_id').last()
+            
+            if last_student:
+                try:
+                    last_num = int(last_student.student_id[2:])
+                    next_num = last_num + 1
+                except (ValueError, IndexError):
+                    next_num = 1
+            else:
+                next_num = 1
+                
+            self.student_id = f"{year}{next_num:04d}"
+            
+        # Update cached contact info
+        primary_contact = self.emergency_contacts.filter(is_primary=True).first()
+        if primary_contact:
+            self.primary_contact_name = primary_contact.full_name
+            self.primary_contact_email = primary_contact.email
+            self.primary_contact_phone = primary_contact.phone_primary
+            
+        super().save(*args, **kwargs)
+        
+    def get_primary_contact(self):
+        """Get primary emergency contact"""
+        return self.emergency_contacts.filter(is_primary=True).first()
+        
+    def get_age(self):
+        """Calculate student's current age"""
+        from datetime import date
+        today = date.today()
+        return today.year - self.date_of_birth.year - (
+            (today.month, today.day) < (self.date_of_birth.month, self.date_of_birth.day)
+        )
