@@ -1,0 +1,132 @@
+{% extends "admin/base.html" %}
+{% load i18n %}
+
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | {{ site_title|default:_('SchoolDriver Modern') }}{% endblock %}
+
+{% block branding %}
+<div id="site-name"><a href="{% url 'admin:index' %}">SchoolDriver Modern</a></div>
+<div id="site-url">/admin/</div>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
+
+{% block usertools %}
+<div id="user-tools">
+    {% block welcome-msg %}
+        {% trans 'Welcome,' %}
+        <strong>{% firstof user.get_short_name user.get_username %}</strong>.
+    {% endblock %}
+    {% block userlinks %}
+        {% if site_url %}
+            <a href="{{ site_url }}">{% trans 'View site' %}</a> /
+        {% endif %}
+        {% if has_permission %}
+            <a href="{% url 'admin:password_change' %}">{% trans 'Change password' %}</a> /
+        {% endif %}
+        <!-- Dark mode toggle -->
+        <span id="dark-mode-toggle" style="cursor: pointer; margin-right: 8px;">🌙</span>
+        <a href="{% url 'admin:logout' %}">{% trans 'Log out' %}</a>
+        <!-- Analytics Dashboard button - only show if not already on dashboard -->
+        {% if request.resolver_match.url_name != 'dashboard' %}
+        <a href="{% url 'dashboard' %}" style="color: #ffc; text-decoration: none; font-weight: bold; background: rgba(255,255,255,0.2); padding: 8px 12px; border-radius: 4px; margin-left: 10px;">
+            📊 Analytics Dashboard
+        </a>
+        {% endif %}
+    {% endblock %}
+</div>
+
+<script>
+// Dark mode toggle functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const toggle = document.getElementById('dark-mode-toggle');
+    const body = document.body;
+    
+    // Check for saved dark mode preference or default to light mode
+    const isDarkMode = localStorage.getItem('darkMode') === 'true';
+    if (isDarkMode) {
+        body.classList.add('dark-mode');
+        toggle.textContent = '☀️';
+    }
+    
+    toggle.addEventListener('click', function() {
+        body.classList.toggle('dark-mode');
+        const isDark = body.classList.contains('dark-mode');
+        localStorage.setItem('darkMode', isDark);
+        toggle.textContent = isDark ? '☀️' : '🌙';
+    });
+});
+</script>
+
+<style>
+/* Dark mode styles for admin */
+body.dark-mode {
+    background-color: #0D1117 !important;
+    color: #E6EDF3 !important;
+}
+
+body.dark-mode #header {
+    background: linear-gradient(to right, #161B22, #21262D) !important;
+}
+
+body.dark-mode #branding h1,
+body.dark-mode #branding h1 a:link,
+body.dark-mode #branding h1 a:visited {
+    color: #E6EDF3 !important;
+}
+
+body.dark-mode #user-tools a {
+    color: #E6EDF3 !important;
+}
+
+body.dark-mode .module {
+    background: #161B22 !important;
+    border: 1px solid #30363D !important;
+}
+
+body.dark-mode .module h2 {
+    background: #21262D !important;
+    color: #E6EDF3 !important;
+}
+
+body.dark-mode .dashboard .module table th {
+    background: #21262D !important;
+    color: #E6EDF3 !important;
+}
+
+body.dark-mode .dashboard .module table tr:nth-child(odd) {
+    background: #161B22 !important;
+}
+
+body.dark-mode .dashboard .module table tr:nth-child(even) {
+    background: #0D1117 !important;
+}
+
+body.dark-mode .dashboard .module table td,
+body.dark-mode .dashboard .module table th {
+    border-bottom: 1px solid #30363D !important;
+    color: #E6EDF3 !important;
+}
+
+body.dark-mode .dashboard .module table a {
+    color: #1E88E5 !important;
+}
+
+body.dark-mode .dashboard .module table a:hover {
+    color: #1976D2 !important;
+}
+
+body.dark-mode #content {
+    background: #0D1117 !important;
+}
+
+body.dark-mode .breadcrumbs {
+    background: #161B22 !important;
+    color: #E6EDF3 !important;
+    border-bottom: 1px solid #30363D !important;
+}
+
+body.dark-mode .breadcrumbs a {
+    color: #1E88E5 !important;
+}
+</style>
+{% endblock %}

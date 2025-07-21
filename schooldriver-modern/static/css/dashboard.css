@@ -1,7 +1,7 @@
-/* SchoolDriver Modern - Dark Theme Dashboard Styles */
+/* SchoolDriver Modern - Admin Theme Dashboard Styles */
 
 :root {
-    /* Dark theme color palette */
+    /* Admin theme color palette */
     --bg-primary: #0D1117;
     --bg-secondary: #161B22;
     --bg-tertiary: #21262D;
@@ -21,24 +21,21 @@
     --chart-text-color: #E6EDF3;
 }
 
-/* Dark theme body override */
-body.dashboard-dark {
-    background-color: var(--bg-primary) !important;
-    color: var(--text-primary);
-    min-height: 100vh;
-}
-
 /* Dashboard container */
 .dashboard-container {
-    background-color: var(--bg-primary);
-    min-height: 100vh;
-    padding: 2rem 0;
+    padding: 1rem;
+    background: transparent;
 }
 
+/* Admin theme integration */
 .dashboard-content {
-    max-width: 80rem;
-    margin: 0 auto;
-    padding: 0 1rem;
+    background: #0D1117 !important;
+    color: #E6EDF3 !important;
+    padding: 2rem;
+}
+
+.dashboard-content .dashboard-header {
+    margin-bottom: 2rem;
 }
 
 /* Breadcrumb styling */

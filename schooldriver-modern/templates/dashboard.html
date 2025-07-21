@@ -1,55 +1,34 @@
-{% extends "base.html" %}
+{% extends "admin/base_site.html" %}
 {% load static %}
 
-{% block title %}Analytics Dashboard - SchoolDriver Modern{% endblock %}
+{% block title %}Analytics Dashboard{% endblock %}
 
-{% block extra_css %}
+{% block extrahead %}
+{{ block.super }}
 <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
-<script>
-    // Configure Tailwind for dark theme compatibility
-    tailwind.config = {
-        darkMode: 'class',
-        theme: {
-            extend: {
-                colors: {
-                    'dark-primary': '#0D1117',
-                    'dark-secondary': '#161B22',
-                    'dark-tertiary': '#21262D',
-                    'accent-primary': '#1E88E5',
-                    'accent-secondary': '#1976D2'
-                }
-            }
-        }
-    }
-</script>
-<script src="https://cdn.tailwindcss.com"></script>
+<script src="{% static 'js/chart.min.js' %}"></script>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">Home</a>
+    &rsaquo; Analytics Dashboard
+</div>
 {% endblock %}
 
 {% block content %}
-<script>
-    // Override base template body class for dashboard
-    document.addEventListener('DOMContentLoaded', function() {
-        document.body.className = 'dashboard-dark';
-    });
-</script>
-<div class="dashboard-container">
-    <div class="dashboard-content">
-        <!-- Breadcrumb Navigation -->
-        <nav class="dashboard-breadcrumb" aria-label="Breadcrumb">
-            <a href="{% url 'dashboard' %}">Home</a>
-            <span class="separator">/</span>
-            <span class="current">Analytics Dashboard</span>
-        </nav>
-
-        <!-- Header -->
-        <div class="dashboard-header">
-            <h1 class="dashboard-title">Admissions Analytics Dashboard</h1>
-            <p class="dashboard-subtitle">Real-time insights into your admissions pipeline</p>
-            <div class="dashboard-live-indicator">
-                <div class="live-dot"></div>
-                <span class="live-text">Live updates every 15 seconds</span>
-            </div>
+<div id="content" class="dashboard-content">
+    <!-- Header -->
+    <div class="dashboard-header">
+        <h1 class="dashboard-title">Admissions Analytics Dashboard</h1>
+        <p class="dashboard-subtitle">Real-time insights into your admissions pipeline</p>
+        <div class="dashboard-live-indicator">
+            <div class="live-dot"></div>
+            <span class="live-text">Live updates every 15 seconds</span>
         </div>
+    </div>
+
+    <div class="dashboard-container">
 
         <!-- Quick Action Buttons -->
         <div class="dashboard-actions">
@@ -172,8 +151,7 @@
 </div>
 {% endblock %}
 
-{% block extra_js %}
-<script src="{% static 'js/chart.min.js' %}"></script>
+{% block extrajs %}
 <script>
     // Dashboard data from Django view
     const dashboardData = {{ dashboard_data_json|safe }};
