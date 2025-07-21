@@ -1,9 +1,20 @@
 from django.test import TestCase
 from django.urls import reverse
+from django.contrib.auth.models import User
 import json
 
 
 class DashboardTemplateTests(TestCase):
+    def setUp(self):
+        """Create staff user for template tests."""
+        self.staff_user = User.objects.create_user(
+            username='staffuser',
+            email='staff@example.com',
+            password='testpass123',
+            is_staff=True
+        )
+        self.client.login(username='staffuser', password='testpass123')
+    
     def test_dashboard_status_200(self):
         """Test that the dashboard view returns HTTP 200."""
         response = self.client.get(reverse('dashboard'))
@@ -137,10 +148,95 @@ class DashboardTemplateTests(TestCase):
         self.assertContains(response, 'shadow')
 
 
+class DashboardAdminIntegrationTests(TestCase):
+    """Tests for Step 1.4: Admin integration and staff access."""
+    
+    def setUp(self):
+        """Create test users for authentication tests."""
+        # Staff user
+        self.staff_user = User.objects.create_user(
+            username='staffuser',
+            email='staff@example.com',
+            password='testpass123',
+            is_staff=True
+        )
+        
+        # Regular user (non-staff)
+        self.regular_user = User.objects.create_user(
+            username='regularuser',
+            email='regular@example.com',
+            password='testpass123',
+            is_staff=False
+        )
+    
+    def test_dashboard_staff_access(self):
+        """Test that staff user gets HTTP 200 for dashboard."""
+        self.client.login(username='staffuser', password='testpass123')
+        response = self.client.get(reverse('dashboard'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Analytics Dashboard')
+        
+    def test_dashboard_nonstaff_redirect(self):
+        """Test that non-staff user is redirected to login."""
+        self.client.login(username='regularuser', password='testpass123')
+        response = self.client.get(reverse('dashboard'))
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/admin/login/', response.url)
+        
+    def test_dashboard_anonymous_redirect(self):
+        """Test that anonymous user is redirected to login."""
+        response = self.client.get(reverse('dashboard'))
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/admin/login/', response.url)
+        
+    def test_admin_link_present(self):
+        """Test that admin index contains the Dashboard link."""
+        self.client.login(username='staffuser', password='testpass123')
+        response = self.client.get('/admin/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Analytics Dashboard')
+        self.assertContains(response, reverse('dashboard'))
+        
+    def test_dashboard_quick_actions_present(self):
+        """Test that dashboard contains all three quick-action buttons."""
+        self.client.login(username='staffuser', password='testpass123')
+        response = self.client.get(reverse('dashboard'))
+        
+        # Check for quick action buttons
+        self.assertContains(response, 'Download CSV')
+        self.assertContains(response, 'Refresh Data')
+        self.assertContains(response, 'Admissions Report')
+        
+        # Check for button functions
+        self.assertContains(response, 'downloadCSV()')
+        self.assertContains(response, 'refreshDataNow()')
+        self.assertContains(response, '/admin/admissions/applicant/')
+        
+    def test_dashboard_responsive_design(self):
+        """Test that dashboard includes responsive design elements."""
+        self.client.login(username='staffuser', password='testpass123')
+        response = self.client.get(reverse('dashboard'))
+        
+        # Check for responsive classes
+        self.assertContains(response, 'flex-wrap')
+        self.assertContains(response, 'md:justify-start')
+        self.assertContains(response, 'justify-center')
+
+
 class DashboardViewTest(TestCase):
     """Legacy tests for backward compatibility."""
     
+    def setUp(self):
+        """Create staff user for legacy tests."""
+        self.staff_user = User.objects.create_user(
+            username='staffuser',
+            email='staff@example.com',
+            password='testpass123',
+            is_staff=True
+        )
+    
     def test_dashboard_view_returns_200(self):
-        """Test that the dashboard view returns HTTP 200."""
+        """Test that the dashboard view returns HTTP 200 for staff."""
+        self.client.login(username='staffuser', password='testpass123')
         response = self.client.get(reverse('dashboard'))
         self.assertEqual(response.status_code, 200)

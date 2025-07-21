@@ -35,6 +35,30 @@
             </div>
         </div>
 
+        <!-- Quick Action Buttons -->
+        <div class="mb-6 flex flex-wrap gap-4 justify-center md:justify-start">
+            <button onclick="downloadCSV()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg shadow transition-colors duration-200 flex items-center space-x-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <span>Download CSV</span>
+            </button>
+            
+            <button onclick="refreshDataNow()" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg shadow transition-colors duration-200 flex items-center space-x-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                <span>Refresh Data</span>
+            </button>
+            
+            <a href="/admin/admissions/applicant/" class="bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-lg shadow transition-colors duration-200 flex items-center space-x-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <span>Admissions Report</span>
+            </a>
+        </div>
+
         <!-- Summary Stats -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
             <div class="stat-card bg-white rounded-lg shadow p-6">
@@ -306,6 +330,18 @@
                 container.classList.remove('updating');
             });
         }, 1000);
+    }
+
+    // Quick action functions
+    function downloadCSV() {
+        // Placeholder for CSV download functionality
+        alert('CSV download will be implemented in a future version.');
+        console.log('CSV download requested');
+    }
+    
+    function refreshDataNow() {
+        console.log('Manual refresh triggered');
+        updateChartData();
     }
 
     // Initialize charts when page loads

@@ -1,7 +1,9 @@
 from django.shortcuts import render
+from django.contrib.admin.views.decorators import staff_member_required
 import json
 
 
+@staff_member_required
 def dashboard_view(request):
     """Dashboard view with 4 interactive charts for admission analytics."""
     

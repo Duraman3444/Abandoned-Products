@@ -33,3 +33,36 @@ Quit the server with CONTROL-C.
 
 Watching for file changes with StatReloader
 INFO 2025-07-21 15:21:06,450 autoreload Watching for file changes with StatReloader
+[21/Jul/2025 15:24:14] "GET /dashboard/ HTTP/1.1" 200 14626
+Not Found: /
+WARNING 2025-07-21 15:25:10,271 log Not Found: /
+[21/Jul/2025 15:25:10] "GET / HTTP/1.1" 404 2453
+Not Found: /
+WARNING 2025-07-21 15:25:13,169 log Not Found: /
+[21/Jul/2025 15:25:13] "GET / HTTP/1.1" 404 2453
+[21/Jul/2025 15:25:20] "GET /dashboard/ HTTP/1.1" 200 14626
+[21/Jul/2025 15:25:20] "GET /static/js/chart.min.js HTTP/1.1" 304 0
+/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/schooldriver_modern/views.py changed, reloading.
+INFO 2025-07-21 15:27:37,453 autoreload /Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/schooldriver_modern/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+July 21, 2025 - 15:21:06
+Django version 4.2.16, using settings 'schooldriver_modern.settings'
+Starting development server at http://127.0.0.1:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+INFO 2025-07-21 15:27:37,731 autoreload Watching for file changes with StatReloader
+/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/schooldriver_modern/views.py changed, reloading.
+INFO 2025-07-21 15:27:47,062 autoreload /Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/schooldriver_modern/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+July 21, 2025 - 15:27:37
+Django version 4.2.16, using settings 'schooldriver_modern.settings'
+Starting development server at http://127.0.0.1:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+INFO 2025-07-21 15:27:47,244 autoreload Watching for file changes with StatReloader
