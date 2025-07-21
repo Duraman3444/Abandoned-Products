@@ -4,7 +4,7 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 from .models import (
     FeederSchool, AdmissionLevel, AdmissionCheck, ApplicationDecision,
-    Applicant, ContactLog, OpenHouse
+    Applicant, ContactLog, OpenHouse, ApplicantDocument
 )
 
 
@@ -52,6 +52,50 @@ class ApplicationDecisionAdmin(admin.ModelAdmin):
     ordering = ['order']
 
 
+class ApplicantDocumentInline(admin.TabularInline):
+    model = ApplicantDocument
+    extra = 1
+    readonly_fields = ['document_preview', 'file_info', 'uploaded_at']
+    fields = [
+        'document_type', 'title', 'file', 'document_preview', 'file_info',
+        'is_verified', 'uploaded_by', 'notes', 'uploaded_at'
+    ]
+    classes = ['collapse']
+    
+    def document_preview(self, obj):
+        if not obj.file:
+            return "No file uploaded"
+        
+        if obj.is_image():
+            return format_html(
+                '<img src="{}" style="max-width: 100px; max-height: 100px; border: 1px solid #ddd; border-radius: 4px;">',
+                obj.file.url
+            )
+        elif obj.is_pdf():
+            return format_html(
+                '<a href="{}" target="_blank" style="color: #007cba; text-decoration: none;">'
+                '📄 View PDF</a>',
+                obj.file.url
+            )
+        else:
+            return format_html(
+                '<a href="{}" target="_blank" style="color: #007cba; text-decoration: none;">'
+                '📎 Download File</a>',
+                obj.file.url
+            )
+    document_preview.short_description = 'Preview'
+    
+    def file_info(self, obj):
+        if obj.file:
+            return format_html(
+                '<small>{}<br>{} MB</small>',
+                obj.file_extension().upper(),
+                obj.file_size_mb()
+            )
+        return "No file"
+    file_info.short_description = 'File Info'
+
+
 class ContactLogInline(admin.TabularInline):
     model = ContactLog
     extra = 0
@@ -67,6 +111,7 @@ class ApplicantAdmin(admin.ModelAdmin):
         'display_name',
         'applying_for_grade', 
         'get_admission_progress',
+        'get_document_status',
         'current_school',
         'decision',
         'is_ready_for_enrollment',
@@ -158,7 +203,7 @@ class ApplicantAdmin(admin.ModelAdmin):
     
     filter_horizontal = ['completed_checks', 'parent_guardians', 'siblings']
     date_hierarchy = 'created_at'
-    inlines = [ContactLogInline]
+    inlines = [ApplicantDocumentInline, ContactLogInline]
     
     actions = ['mark_ready_for_enrollment', 'advance_to_next_level']
     
@@ -186,6 +231,29 @@ class ApplicantAdmin(admin.ModelAdmin):
             )
         return "Not Started"
     get_admission_progress.short_description = 'Progress'
+    
+    def get_document_status(self, obj):
+        total_docs = obj.documents.count()
+        verified_docs = obj.documents.filter(is_verified=True).count()
+        
+        if total_docs == 0:
+            return format_html('<span style="color: red;">📄 No documents</span>')
+        
+        if verified_docs == total_docs:
+            color = 'green'
+            icon = '✅'
+        elif verified_docs > 0:
+            color = 'orange' 
+            icon = '⚠️'
+        else:
+            color = 'red'
+            icon = '📄'
+            
+        return format_html(
+            '<span style="color: {};">{} {}/{} verified</span>',
+            color, icon, verified_docs, total_docs
+        )
+    get_document_status.short_description = 'Documents'
     
     def mark_ready_for_enrollment(self, request, queryset):
         updated = queryset.update(is_ready_for_enrollment=True)
@@ -269,3 +337,118 @@ class OpenHouseAdmin(admin.ModelAdmin):
             )
         return f"{count} attendees"
     get_attendance_info.short_description = 'Attendance'
+
+
+@admin.register(ApplicantDocument)
+class ApplicantDocumentAdmin(admin.ModelAdmin):
+    list_display = [
+        'get_document_preview',
+        'applicant',
+        'document_type',
+        'title',
+        'get_file_info',
+        'is_verified',
+        'uploaded_by',
+        'uploaded_at'
+    ]
+    list_filter = [
+        'document_type',
+        'is_verified',
+        'uploaded_at'
+    ]
+    search_fields = [
+        'applicant__first_name',
+        'applicant__last_name',
+        'applicant__applicant_id',
+        'title',
+        'uploaded_by'
+    ]
+    readonly_fields = [
+        'get_large_document_preview',
+        'file_size_mb',
+        'file_extension',
+        'uploaded_at',
+        'updated_at'
+    ]
+    list_editable = ['is_verified']
+    date_hierarchy = 'uploaded_at'
+    
+    fieldsets = (
+        ('Document Information', {
+            'fields': (
+                ('applicant', 'admission_check'),
+                ('document_type', 'title'),
+                'file',
+                'get_large_document_preview'
+            )
+        }),
+        ('File Details', {
+            'fields': (
+                ('file_extension', 'file_size_mb'),
+                'notes'
+            )
+        }),
+        ('Verification', {
+            'fields': (
+                ('is_verified', 'verified_by'),
+                'verified_date',
+                'uploaded_by'
+            )
+        }),
+        ('System Information', {
+            'fields': ('uploaded_at', 'updated_at'),
+            'classes': ('collapse',)
+        })
+    )
+    
+    def get_document_preview(self, obj):
+        if not obj.file:
+            return "No file"
+            
+        if obj.is_image():
+            return format_html(
+                '<img src="{}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">',
+                obj.file.url
+            )
+        elif obj.is_pdf():
+            return '📄 PDF'
+        else:
+            return '📎 File'
+    get_document_preview.short_description = 'Preview'
+    
+    def get_large_document_preview(self, obj):
+        if not obj.file:
+            return "No file uploaded"
+            
+        if obj.is_image():
+            return format_html(
+                '<div style="text-align: center;">'
+                '<img src="{}" style="max-width: 400px; max-height: 400px; border: 1px solid #ddd; border-radius: 4px;">'
+                '<br><a href="{}" target="_blank">View Full Size</a></div>',
+                obj.file.url, obj.file.url
+            )
+        elif obj.is_pdf():
+            return format_html(
+                '<div style="text-align: center;">'
+                '<a href="{}" target="_blank" style="font-size: 48px; color: #007cba; text-decoration: none;">📄</a>'
+                '<br><a href="{}" target="_blank">View PDF</a></div>',
+                obj.file.url, obj.file.url
+            )
+        else:
+            return format_html(
+                '<div style="text-align: center;">'
+                '<a href="{}" target="_blank" style="font-size: 48px; color: #007cba; text-decoration: none;">📎</a>'
+                '<br><a href="{}" target="_blank">Download File</a></div>',
+                obj.file.url, obj.file.url
+            )
+    get_large_document_preview.short_description = 'Document Preview'
+    
+    def get_file_info(self, obj):
+        if obj.file:
+            return format_html(
+                '{}<br><small>{} MB</small>',
+                obj.file_extension().upper(),
+                obj.file_size_mb()
+            )
+        return "No file"
+    get_file_info.short_description = 'File Info'

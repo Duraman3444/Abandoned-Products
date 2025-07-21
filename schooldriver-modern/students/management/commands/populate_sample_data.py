@@ -4,7 +4,7 @@ from datetime import datetime, date, timedelta
 from students.models import Student, GradeLevel, SchoolYear, EmergencyContact
 from admissions.models import (
     Applicant, AdmissionLevel, AdmissionCheck, FeederSchool, 
-    ApplicationDecision, ContactLog, OpenHouse
+    ApplicationDecision, ContactLog, OpenHouse, ApplicantDocument
 )
 import random
 from django.db import transaction
@@ -33,6 +33,7 @@ class Command(BaseCommand):
             self.create_feeder_schools()
             self.create_sample_students()
             self.create_sample_applicants()
+            self.create_sample_documents()
             self.create_open_houses()
 
         self.stdout.write(
@@ -46,7 +47,7 @@ class Command(BaseCommand):
     def clear_sample_data(self):
         """Clear existing sample data"""
         models_to_clear = [
-            OpenHouse, ContactLog, ApplicationDecision, Applicant, 
+            ApplicantDocument, OpenHouse, ContactLog, ApplicationDecision, Applicant, 
             EmergencyContact, Student, FeederSchool, AdmissionCheck, 
             AdmissionLevel, SchoolYear, GradeLevel
         ]
@@ -383,6 +384,52 @@ class Command(BaseCommand):
 
             self.stdout.write(f"  Created applicant: {first_name} {last_name} (Level: {level.name})")
 
+    def create_sample_documents(self):
+        """Create sample document records for applicants"""
+        # Sample document data
+        document_samples = [
+            ('birth_certificate', 'Birth Certificate', 'sample_birth_cert.pdf'),
+            ('immunization_records', 'Immunization Records', 'immunization_record.pdf'),
+            ('previous_school_records', 'Transcript from Previous School', 'school_transcript.pdf'),
+            ('special_needs_documentation', 'IEP Document', 'iep_document.pdf'),
+        ]
+        
+        applicants = Applicant.objects.all()[:15]  # Add documents to first 15 applicants
+        
+        for applicant in applicants:
+            # Randomly assign 2-4 documents per applicant
+            num_docs = random.randint(2, 4)
+            selected_docs = random.sample(document_samples, min(num_docs, len(document_samples)))
+            
+            for doc_type, title, filename in selected_docs:
+                # Find related admission check if it exists
+                admission_check = AdmissionCheck.objects.filter(
+                    name__icontains=doc_type.replace('_', ' ')
+                ).first()
+                
+                document = ApplicantDocument.objects.create(
+                    applicant=applicant,
+                    admission_check=admission_check,
+                    document_type=doc_type,
+                    title=f"{title} for {applicant.first_name} {applicant.last_name}",
+                    uploaded_by='Admin User',
+                    is_verified=random.choice([True, True, False]),  # Bias toward verified
+                    notes=random.choice([
+                        'Document received and processed',
+                        'Clear copy received',
+                        'Pending verification',
+                        'Original document verified',
+                        ''
+                    ])
+                )
+                
+                if document.is_verified:
+                    document.verified_by = 'Staff Member'
+                    document.verified_date = timezone.now() - timedelta(days=random.randint(1, 10))
+                    document.save()
+                
+                self.stdout.write(f"    Added {doc_type} document for {applicant.first_name} {applicant.last_name}")
+
     def create_open_houses(self):
         """Create sample open house events"""
         open_houses_data = [
@@ -418,4 +465,5 @@ class Command(BaseCommand):
         self.stdout.write(f"Feeder Schools: {FeederSchool.objects.count()}")
         self.stdout.write(f"Open Houses: {OpenHouse.objects.count()}")
         self.stdout.write(f"Contact Logs: {ContactLog.objects.count()}")
-        self.stdout.write(f"Application Decisions: {ApplicationDecision.objects.count()}") 
+        self.stdout.write(f"Application Decisions: {ApplicationDecision.objects.count()}")
+        self.stdout.write(f"Applicant Documents: {ApplicantDocument.objects.count()}") 

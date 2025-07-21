@@ -21,9 +21,9 @@
 ### **Estimated Time: 3-4 hours**
 
 #### **Step 1.1: Setup Chart.js Integration** (30 mins)
-- [ ] Add Chart.js to Django static files
-- [ ] Create base dashboard template
-- [ ] Configure URLs for dashboard views
+- [x] Add Chart.js to Django static files
+- [x] Create base dashboard template
+- [x] Configure URLs for dashboard views
 
 **Action Items:**
 ```bash

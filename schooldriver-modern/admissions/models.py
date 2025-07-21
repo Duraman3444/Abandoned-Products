@@ -2,6 +2,7 @@ from django.db import models
 from django.core.validators import RegexValidator
 from students.models import GradeLevel, SchoolYear, EmergencyContact, Student
 import uuid
+import os
 
 
 class FeederSchool(models.Model):
@@ -289,6 +290,85 @@ class Applicant(models.Model):
             
         current_position = self.level.order
         return min(100, (current_position / total_levels) * 100)
+
+
+def applicant_document_upload_path(instance, filename):
+    """Generate file path for applicant documents"""
+    # Create path like: applicant_documents/A240001/birth_certificate/filename.pdf
+    return f'applicant_documents/{instance.applicant.applicant_id}/{instance.document_type_slug()}/{filename}'
+
+
+class ApplicantDocument(models.Model):
+    """Uploaded documents for applicants (birth certificates, immunization records, etc.)"""
+    DOCUMENT_TYPES = [
+        ('birth_certificate', 'Birth Certificate'),
+        ('immunization_records', 'Immunization Records'),
+        ('previous_school_records', 'Previous School Records'),
+        ('special_needs_documentation', 'Special Needs Documentation'),
+        ('photo_id', 'Photo ID'),
+        ('proof_of_residency', 'Proof of Residency'),
+        ('other', 'Other Document'),
+    ]
+    
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    applicant = models.ForeignKey(Applicant, on_delete=models.CASCADE, related_name='documents')
+    admission_check = models.ForeignKey(
+        AdmissionCheck, 
+        on_delete=models.CASCADE, 
+        null=True, 
+        blank=True,
+        help_text="Related admission requirement"
+    )
+    
+    # Document information
+    document_type = models.CharField(max_length=50, choices=DOCUMENT_TYPES)
+    title = models.CharField(max_length=200, help_text="Document title or description")
+    file = models.FileField(
+        upload_to=applicant_document_upload_path,
+        help_text="Upload document image or PDF"
+    )
+    
+    # Metadata
+    uploaded_by = models.CharField(max_length=200, blank=True, help_text="Staff member who uploaded")
+    notes = models.TextField(blank=True, help_text="Additional notes about document")
+    is_verified = models.BooleanField(default=False, help_text="Document has been reviewed and approved")
+    verified_by = models.CharField(max_length=200, blank=True, help_text="Staff member who verified")
+    verified_date = models.DateTimeField(null=True, blank=True)
+    
+    # Timestamps
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-uploaded_at']
+        
+    def __str__(self):
+        return f"{self.get_document_type_display()} - {self.applicant}"
+        
+    def document_type_slug(self):
+        """Return document type as slug for file paths"""
+        return self.document_type.replace('_', '-')
+        
+    def file_extension(self):
+        """Get file extension"""
+        if self.file:
+            return os.path.splitext(self.file.name)[1].lower()
+        return ''
+        
+    def is_image(self):
+        """Check if uploaded file is an image"""
+        image_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp']
+        return self.file_extension() in image_extensions
+        
+    def is_pdf(self):
+        """Check if uploaded file is a PDF"""
+        return self.file_extension() == '.pdf'
+        
+    def file_size_mb(self):
+        """Get file size in MB"""
+        if self.file:
+            return round(self.file.size / (1024 * 1024), 2)
+        return 0
 
 
 class ContactLog(models.Model):
