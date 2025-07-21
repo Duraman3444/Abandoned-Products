@@ -66,3 +66,68 @@ Quit the server with CONTROL-C.
 
 Watching for file changes with StatReloader
 INFO 2025-07-21 15:27:47,244 autoreload Watching for file changes with StatReloader
+[21/Jul/2025 15:32:18] "HEAD /dashboard/ HTTP/1.1" 302 0
+[21/Jul/2025 15:32:49] "GET /admin/ HTTP/1.1" 200 11862
+[21/Jul/2025 15:32:49] "GET /static/admin/css/dashboard.css HTTP/1.1" 304 0
+[21/Jul/2025 15:32:49] "GET /static/admin/img/icon-changelink.svg HTTP/1.1" 304 0
+[21/Jul/2025 15:32:49] "GET /static/admin/js/theme.js HTTP/1.1" 304 0
+[21/Jul/2025 15:32:49] "GET /static/admin/css/dark_mode.css HTTP/1.1" 304 0
+[21/Jul/2025 15:32:49] "GET /static/admin/js/nav_sidebar.js HTTP/1.1" 304 0
+[21/Jul/2025 15:32:49] "GET /static/admin/css/nav_sidebar.css HTTP/1.1" 304 0
+[21/Jul/2025 15:32:49] "GET /static/admin/css/base.css HTTP/1.1" 304 0
+[21/Jul/2025 15:32:49] "GET /static/admin/css/responsive.css HTTP/1.1" 304 0
+[21/Jul/2025 15:32:49] "GET /static/admin/img/icon-addlink.svg HTTP/1.1" 304 0
+[21/Jul/2025 15:32:51] "GET /dashboard/ HTTP/1.1" 200 16935
+[21/Jul/2025 15:32:51] "GET /static/js/chart.min.js HTTP/1.1" 304 0
+[21/Jul/2025 16:44:03] "GET /admin/ HTTP/1.1" 200 11862
+[21/Jul/2025 16:44:03] "GET /static/admin/css/base.css HTTP/1.1" 304 0
+[21/Jul/2025 16:44:03] "GET /static/admin/js/theme.js HTTP/1.1" 304 0
+[21/Jul/2025 16:44:03] "GET /static/admin/css/responsive.css HTTP/1.1" 304 0
+[21/Jul/2025 16:44:03] "GET /static/admin/css/dashboard.css HTTP/1.1" 304 0
+[21/Jul/2025 16:44:03] "GET /static/admin/css/dark_mode.css HTTP/1.1" 304 0
+[21/Jul/2025 16:44:03] "GET /static/admin/js/nav_sidebar.js HTTP/1.1" 304 0
+[21/Jul/2025 16:44:03] "GET /static/admin/css/nav_sidebar.css HTTP/1.1" 304 0
+[21/Jul/2025 16:44:03] "GET /static/admin/img/icon-addlink.svg HTTP/1.1" 304 0
+[21/Jul/2025 16:44:03] "GET /static/admin/img/icon-changelink.svg HTTP/1.1" 304 0
+Not Found: /
+WARNING 2025-07-21 16:44:04,679 log Not Found: /
+[21/Jul/2025 16:44:04] "GET / HTTP/1.1" 404 2453
+[21/Jul/2025 16:44:07] "GET /dashboard/ HTTP/1.1" 200 16935
+[21/Jul/2025 16:44:07] "GET /static/js/chart.min.js HTTP/1.1" 304 0
+[21/Jul/2025 16:44:07] "GET /static/js/chart.min.js HTTP/1.1" 304 0
+/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/schooldriver_modern/urls.py changed, reloading.
+INFO 2025-07-21 16:47:38,176 autoreload /Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/schooldriver_modern/urls.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+July 21, 2025 - 15:27:47
+Django version 4.2.16, using settings 'schooldriver_modern.settings'
+Starting development server at http://127.0.0.1:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+INFO 2025-07-21 16:47:38,447 autoreload Watching for file changes with StatReloader
+/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/schooldriver_modern/settings.py changed, reloading.
+INFO 2025-07-21 16:47:45,718 autoreload /Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/schooldriver_modern/settings.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+July 21, 2025 - 16:47:38
+Django version 4.2.16, using settings 'schooldriver_modern.settings'
+Starting development server at http://127.0.0.1:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+INFO 2025-07-21 16:47:45,976 autoreload Watching for file changes with StatReloader
+/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/schooldriver_modern/urls.py changed, reloading.
+INFO 2025-07-21 16:49:01,084 autoreload /Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/schooldriver_modern/urls.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+July 21, 2025 - 16:47:46
+Django version 4.2.16, using settings 'schooldriver_modern.settings'
+Starting development server at http://127.0.0.1:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+INFO 2025-07-21 16:49:01,267 autoreload Watching for file changes with StatReloader

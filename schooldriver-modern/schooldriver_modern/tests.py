@@ -3,6 +3,9 @@ from django.urls import reverse
 from django.contrib.auth.models import User
 import json
 
+# Import auth tests
+from .auth_tests import AuthTests, PasswordValidationTests
+
 
 class DashboardTemplateTests(TestCase):
     def setUp(self):
