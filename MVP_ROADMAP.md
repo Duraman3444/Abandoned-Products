@@ -74,10 +74,10 @@ curl -o chart.min.js https://cdn.jsdelivr.net/npm/chart.js
 - [x] Add forgot password workflow
 
 #### **Step 2.2: Role-Based Access Control** (1 hour)
-- [ ] Define user roles (Admin, Staff, Parent, Student)
-- [ ] Create permission groups
-- [ ] Implement role-based redirects
-- [ ] Add role indicators in UI
+- [x] Define user roles (Admin, Staff, Parent, Student)
+- [x] Create permission groups
+- [x] Implement role-based redirects
+- [x] Add role indicators in UI
 
 #### **Step 2.3: Profile Management** (45 mins)  
 - [ ] Create user profile pages
