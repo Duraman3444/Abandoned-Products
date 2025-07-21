@@ -25,6 +25,7 @@ from .profile_views import profile_view, ProfileEditView, CustomPasswordChangeVi
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('dashboard/', views.dashboard_view, name='dashboard'),
+    path('dashboard/admin/', views.admin_dashboard_view, name='admin_dashboard'),
     path('parent/', views.parent_view, name='parent'),
     path('student/', views.student_view, name='student'),
     path('profile/', profile_view, name='profile'),
@@ -35,8 +36,8 @@ urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls')),
     path('health/', views.health_check, name='health_check'),
     
-    # API endpoints
-    path('api/', include('schooldriver_modern.api_urls')),
+    # API endpoints (temporarily disabled until all dependencies installed)
+    # path('api/', include('schooldriver_modern.api_urls')),
 ]
 
 # Serve media and static files during development

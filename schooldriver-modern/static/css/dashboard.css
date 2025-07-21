@@ -344,6 +344,27 @@ body.dashboard-dark {
     background-color: transparent !important;
 }
 
+/* Canvas styling for dark theme */
+canvas {
+    background-color: transparent !important;
+    border-radius: 0.5rem;
+}
+
+/* Chart container dark theme fixes */
+.chart-container canvas {
+    max-width: 100% !important;
+    height: auto !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* Force Chart.js canvas visibility */
+.chart-container .chartjs-render-monitor {
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: block !important;
+}
+
 /* Loading state */
 .loading {
     opacity: 0.6;

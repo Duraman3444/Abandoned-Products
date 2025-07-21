@@ -181,13 +181,23 @@
     // Chart instances for updates
     let pipelineChart, documentsChart, statusChart, trendsChart;
     
-    // Dark theme Chart.js defaults
-    Chart.defaults.color = '#E6EDF3';
-    Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
-    Chart.defaults.backgroundColor = 'rgba(30, 136, 229, 0.2)';
+    // Wait for Chart.js to be fully loaded before setting defaults
+    function setupChartDefaults() {
+        // Dark theme Chart.js defaults
+        Chart.defaults.color = '#E6EDF3';
+        Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
+        Chart.defaults.backgroundColor = 'rgba(30, 136, 229, 0.2)';
+        Chart.defaults.plugins.legend.labels.color = '#E6EDF3';
+        Chart.defaults.scales.category.ticks.color = '#E6EDF3';
+        Chart.defaults.scales.linear.ticks.color = '#E6EDF3';
+        Chart.defaults.scales.category.grid.color = 'rgba(255, 255, 255, 0.1)';
+        Chart.defaults.scales.linear.grid.color = 'rgba(255, 255, 255, 0.1)';
+    }
 
     // Initialize all charts
     function initializeCharts() {
+        // Ensure Chart.js defaults are set for dark theme
+        setupChartDefaults();
         // 1. Admission Pipeline Progress (Funnel Chart - using horizontal bar)
         const pipelineCtx = document.getElementById('pipelineChart').getContext('2d');
         pipelineChart = new Chart(pipelineCtx, {
@@ -403,12 +413,23 @@
 
     // Initialize charts when page loads
     document.addEventListener('DOMContentLoaded', function() {
-        initializeCharts();
+        console.log('Dashboard DOM loaded, Chart.js version:', Chart.version);
+        console.log('Dashboard data received:', dashboardData);
         
-        // Start realtime updates every 15 seconds
-        setInterval(updateChartData, 15000);
-        
-        console.log('Dashboard initialized with 4 interactive charts');
+        try {
+            initializeCharts();
+            console.log('Dashboard initialized with 4 interactive charts');
+            
+            // Start realtime updates every 15 seconds
+            setInterval(updateChartData, 15000);
+        } catch (error) {
+            console.error('Failed to initialize charts:', error);
+            
+            // Show error message to user
+            const errorMessage = document.createElement('div');
+            errorMessage.innerHTML = '<p style="color: #EF4444; text-align: center; padding: 2rem;">Chart initialization failed. Please refresh the page.</p>';
+            document.querySelector('.charts-grid').prepend(errorMessage);
+        }
     });
 </script>
 {% endblock %}

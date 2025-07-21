@@ -1,0 +1,556 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}Analytics Dashboard - SchoolDriver Modern Administration{% endblock %}
+
+{% block extrahead %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<style>
+    /* Admin-style dark theme matching the interface */
+    .admin-dashboard {
+        background-color: #1e1e1e;
+        color: #e0e0e0;
+        min-height: 100vh;
+    }
+    
+    .dashboard-content {
+        background-color: #2d2d2d;
+        border-radius: 8px;
+        margin: 20px;
+        padding: 20px;
+    }
+    
+    .dashboard-section {
+        background-color: #3a3a3a;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        padding: 15px;
+        border: 1px solid #4a4a4a;
+    }
+    
+    .dashboard-section h2 {
+        color: #79aec8;
+        font-size: 13px;
+        text-transform: uppercase;
+        margin: 0 0 15px 0;
+        padding: 0;
+        font-weight: normal;
+    }
+    
+    .section-content {
+        display: grid;
+        gap: 10px;
+    }
+    
+    .admin-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 12px;
+        background-color: #404040;
+        border-radius: 4px;
+        border: 1px solid #505050;
+    }
+    
+    .admin-row:hover {
+        background-color: #4a4a4a;
+    }
+    
+    .admin-row-label {
+        color: #79aec8;
+        font-weight: normal;
+        text-decoration: none;
+    }
+    
+    .admin-row-actions {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .admin-action {
+        color: #79aec8;
+        text-decoration: none;
+        font-size: 11px;
+        padding: 4px 8px;
+        border-radius: 3px;
+        background-color: #555555;
+        border: 1px solid #666666;
+    }
+    
+    .admin-action:hover {
+        background-color: #666666;
+        color: #ffffff;
+    }
+    
+    .admin-action.add {
+        background-color: #1e7e34;
+        border-color: #1c7430;
+    }
+    
+    .admin-action.add:hover {
+        background-color: #28a745;
+    }
+    
+    .admin-action.change {
+        background-color: #007bff;
+        border-color: #0056b3;
+    }
+    
+    .admin-action.change:hover {
+        background-color: #0056b3;
+    }
+    
+    .stats-overview {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .stat-box {
+        background-color: #404040;
+        border: 1px solid #505050;
+        border-radius: 6px;
+        padding: 15px;
+        text-align: center;
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #79aec8;
+        display: block;
+    }
+    
+    .stat-label {
+        color: #b0b0b0;
+        font-size: 0.9rem;
+        margin-top: 5px;
+    }
+    
+    .chart-section {
+        background-color: #2d2d2d;
+        border-radius: 6px;
+        padding: 20px;
+        margin: 20px 0;
+    }
+    
+    .chart-container {
+        min-height: 300px;
+        background-color: #3a3a3a;
+        border-radius: 4px;
+        padding: 15px;
+        margin-top: 10px;
+    }
+    
+    .dashboard-title {
+        color: #79aec8;
+        font-size: 18px;
+        margin: 0 0 20px 0;
+        font-weight: normal;
+    }
+    
+    /* Light mode styles */
+    .admin-dashboard.light-mode {
+        background-color: #f8f8f8;
+        color: #333333;
+    }
+    
+    .light-mode .dashboard-content {
+        background-color: #ffffff;
+    }
+    
+    .light-mode .dashboard-section {
+        background-color: #f5f5f5;
+        border-color: #dddddd;
+    }
+    
+    .light-mode .admin-row {
+        background-color: #ffffff;
+        border-color: #dddddd;
+    }
+    
+    .light-mode .admin-row:hover {
+        background-color: #f0f0f0;
+    }
+    
+    .light-mode .stat-box {
+        background-color: #ffffff;
+        border-color: #dddddd;
+    }
+    
+    .light-mode .chart-section {
+        background-color: #ffffff;
+    }
+    
+    .light-mode .chart-container {
+        background-color: #f8f8f8;
+    }
+    
+    /* Theme toggle button */
+    .theme-toggle {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background-color: #79aec8;
+        color: white;
+        border: none;
+        border-radius: 20px;
+        padding: 8px 16px;
+        cursor: pointer;
+        font-size: 12px;
+        z-index: 1000;
+    }
+    
+    .theme-toggle:hover {
+        background-color: #5a8ca8;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<button class="theme-toggle" id="themeToggle">🌙 Dark Mode</button>
+
+<div class="admin-dashboard" id="adminDashboard">
+    <div class="dashboard-content">
+        <h1 class="dashboard-title">Analytics Dashboard</h1>
+        
+        <!-- Statistics Overview -->
+        <div class="stats-overview">
+            <div class="stat-box">
+                <span class="stat-number">{{ dashboard_data.summary.total_applications }}</span>
+                <div class="stat-label">Total Applications</div>
+            </div>
+            <div class="stat-box">
+                <span class="stat-number">{{ dashboard_data.summary.total_acceptances }}</span>
+                <div class="stat-label">Acceptances</div>
+            </div>
+            <div class="stat-box">
+                <span class="stat-number">{{ dashboard_data.summary.acceptance_rate }}%</span>
+                <div class="stat-label">Acceptance Rate</div>
+            </div>
+            <div class="stat-box">
+                <span class="stat-number">{{ dashboard_data.summary.pending_applications }}</span>
+                <div class="stat-label">Pending Review</div>
+            </div>
+        </div>
+        
+        <!-- Admissions Management Section -->
+        <div class="dashboard-section">
+            <h2>Admissions Management</h2>
+            <div class="section-content">
+                <div class="admin-row">
+                    <a href="/admin/admissions/applicant/" class="admin-row-label">Applicants</a>
+                    <div class="admin-row-actions">
+                        <a href="/admin/admissions/applicant/add/" class="admin-action add">+ Add</a>
+                        <a href="/admin/admissions/applicant/" class="admin-action change">Change</a>
+                    </div>
+                </div>
+                <div class="admin-row">
+                    <a href="/admin/admissions/admissionlevel/" class="admin-row-label">Admission levels</a>
+                    <div class="admin-row-actions">
+                        <a href="/admin/admissions/admissionlevel/add/" class="admin-action add">+ Add</a>
+                        <a href="/admin/admissions/admissionlevel/" class="admin-action change">Change</a>
+                    </div>
+                </div>
+                <div class="admin-row">
+                    <a href="/admin/admissions/admissioncheck/" class="admin-row-label">Admission checks</a>
+                    <div class="admin-row-actions">
+                        <a href="/admin/admissions/admissioncheck/add/" class="admin-action add">+ Add</a>
+                        <a href="/admin/admissions/admissioncheck/" class="admin-action change">Change</a>
+                    </div>
+                </div>
+                <div class="admin-row">
+                    <a href="/admin/admissions/feederschool/" class="admin-row-label">Feeder schools</a>
+                    <div class="admin-row-actions">
+                        <a href="/admin/admissions/feederschool/add/" class="admin-action add">+ Add</a>
+                        <a href="/admin/admissions/feederschool/" class="admin-action change">Change</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Students Management Section -->
+        <div class="dashboard-section">
+            <h2>Students</h2>
+            <div class="section-content">
+                <div class="admin-row">
+                    <a href="/admin/students/student/" class="admin-row-label">Students</a>
+                    <div class="admin-row-actions">
+                        <a href="/admin/students/student/add/" class="admin-action add">+ Add</a>
+                        <a href="/admin/students/student/" class="admin-action change">Change</a>
+                    </div>
+                </div>
+                <div class="admin-row">
+                    <a href="/admin/students/gradelevel/" class="admin-row-label">Grade levels</a>
+                    <div class="admin-row-actions">
+                        <a href="/admin/students/gradelevel/add/" class="admin-action add">+ Add</a>
+                        <a href="/admin/students/gradelevel/" class="admin-action change">Change</a>
+                    </div>
+                </div>
+                <div class="admin-row">
+                    <a href="/admin/students/schoolyear/" class="admin-row-label">School years</a>
+                    <div class="admin-row-actions">
+                        <a href="/admin/students/schoolyear/add/" class="admin-action add">+ Add</a>
+                        <a href="/admin/students/schoolyear/" class="admin-action change">Change</a>
+                    </div>
+                </div>
+                <div class="admin-row">
+                    <a href="/admin/students/emergencycontact/" class="admin-row-label">Emergency contacts</a>
+                    <div class="admin-row-actions">
+                        <a href="/admin/students/emergencycontact/add/" class="admin-action add">+ Add</a>
+                        <a href="/admin/students/emergencycontact/" class="admin-action change">Change</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Charts Section -->
+        <div class="chart-section">
+            <h2 style="color: #79aec8; margin-bottom: 15px;">Analytics Charts</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="chart-container">
+                    <h3 style="color: #79aec8; margin-bottom: 10px;">Admission Pipeline</h3>
+                    <canvas id="pipelineChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3 style="color: #79aec8; margin-bottom: 10px;">Document Completion</h3>
+                    <canvas id="documentsChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3 style="color: #79aec8; margin-bottom: 10px;">Status Distribution</h3>
+                    <canvas id="statusChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3 style="color: #79aec8; margin-bottom: 10px;">Monthly Trends</h3>
+                    <canvas id="trendsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'js/chart.min.js' %}"></script>
+<script>
+    // Dashboard data from Django view
+    const dashboardData = {{ dashboard_data_json|safe }};
+    
+    // Chart instances
+    let pipelineChart, documentsChart, statusChart, trendsChart;
+    
+    // Theme management
+    const themeToggle = document.getElementById('themeToggle');
+    const adminDashboard = document.getElementById('adminDashboard');
+    
+    // Load saved theme preference
+    const savedTheme = localStorage.getItem('dashboardTheme') || 'dark';
+    setTheme(savedTheme);
+    
+    themeToggle.addEventListener('click', () => {
+        const currentTheme = adminDashboard.classList.contains('light-mode') ? 'light' : 'dark';
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        setTheme(newTheme);
+        localStorage.setItem('dashboardTheme', newTheme);
+    });
+    
+    function setTheme(theme) {
+        if (theme === 'light') {
+            adminDashboard.classList.add('light-mode');
+            themeToggle.textContent = '🌞 Light Mode';
+        } else {
+            adminDashboard.classList.remove('light-mode');
+            themeToggle.textContent = '🌙 Dark Mode';
+        }
+        
+        // Update chart colors based on theme
+        if (window.Chart) {
+            updateChartTheme(theme);
+        }
+    }
+    
+    function updateChartTheme(theme) {
+        const textColor = theme === 'light' ? '#333333' : '#e0e0e0';
+        const gridColor = theme === 'light' ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)';
+        
+        Chart.defaults.color = textColor;
+        Chart.defaults.borderColor = gridColor;
+        
+        // Reinitialize charts with new theme
+        if (pipelineChart) initializeCharts();
+    }
+    
+    // Chart initialization
+    function initializeCharts() {
+        const theme = adminDashboard.classList.contains('light-mode') ? 'light' : 'dark';
+        const textColor = theme === 'light' ? '#333333' : '#e0e0e0';
+        const gridColor = theme === 'light' ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)';
+        
+        Chart.defaults.color = textColor;
+        Chart.defaults.borderColor = gridColor;
+        
+        // Destroy existing charts
+        if (pipelineChart) pipelineChart.destroy();
+        if (documentsChart) documentsChart.destroy();
+        if (statusChart) statusChart.destroy();
+        if (trendsChart) trendsChart.destroy();
+        
+        // 1. Pipeline Chart
+        const pipelineCtx = document.getElementById('pipelineChart').getContext('2d');
+        pipelineChart = new Chart(pipelineCtx, {
+            type: 'bar',
+            data: {
+                labels: dashboardData.pipeline.labels,
+                datasets: [{
+                    label: 'Applicants',
+                    data: dashboardData.pipeline.values,
+                    backgroundColor: dashboardData.pipeline.colors,
+                    borderColor: dashboardData.pipeline.colors.map(color => color + 'CC'),
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: { 
+                        beginAtZero: true,
+                        ticks: { color: textColor },
+                        grid: { color: gridColor }
+                    },
+                    y: {
+                        ticks: { color: textColor },
+                        grid: { color: gridColor }
+                    }
+                }
+            }
+        });
+        
+        // 2. Documents Chart
+        const documentsCtx = document.getElementById('documentsChart').getContext('2d');
+        documentsChart = new Chart(documentsCtx, {
+            type: 'bar',
+            data: {
+                labels: dashboardData.documents.labels,
+                datasets: [{
+                    label: 'Completion Rate (%)',
+                    data: dashboardData.documents.completion_rates,
+                    backgroundColor: dashboardData.documents.colors,
+                    borderColor: dashboardData.documents.colors.map(color => color + 'CC'),
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: textColor },
+                        grid: { color: gridColor }
+                    },
+                    y: { 
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: { 
+                            color: textColor,
+                            callback: value => value + '%' 
+                        },
+                        grid: { color: gridColor }
+                    }
+                }
+            }
+        });
+        
+        // 3. Status Chart
+        const statusCtx = document.getElementById('statusChart').getContext('2d');
+        statusChart = new Chart(statusCtx, {
+            type: 'pie',
+            data: {
+                labels: dashboardData.status.labels,
+                datasets: [{
+                    data: dashboardData.status.values,
+                    backgroundColor: dashboardData.status.colors,
+                    borderColor: theme === 'light' ? '#ffffff' : '#2d2d2d',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { 
+                            color: textColor,
+                            padding: 10,
+                            font: { size: 10 }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // 4. Trends Chart
+        const trendsCtx = document.getElementById('trendsChart').getContext('2d');
+        trendsChart = new Chart(trendsCtx, {
+            type: 'line',
+            data: {
+                labels: dashboardData.trends.labels,
+                datasets: [
+                    {
+                        label: 'Applications',
+                        data: dashboardData.trends.applications,
+                        borderColor: '#79aec8',
+                        backgroundColor: 'rgba(121, 174, 200, 0.2)',
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Acceptances',
+                        data: dashboardData.trends.acceptances,
+                        borderColor: '#10B981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                        fill: true,
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { 
+                        position: 'top',
+                        labels: { 
+                            color: textColor,
+                            font: { size: 10 }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: textColor },
+                        grid: { color: gridColor }
+                    },
+                    y: { 
+                        beginAtZero: true,
+                        ticks: { color: textColor },
+                        grid: { color: gridColor }
+                    }
+                }
+            }
+        });
+    }
+    
+    // Initialize charts when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeCharts();
+    });
+</script>
+{% endblock %}
