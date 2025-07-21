@@ -1,5 +1,8 @@
 from django.shortcuts import render
 from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseForbidden
+from .roles import get_user_role, UserRoles
 import json
 
 
@@ -55,3 +58,46 @@ def dashboard_view(request):
     }
     
     return render(request, 'dashboard.html', context)
+
+
+@login_required
+def parent_view(request):
+    """Parent portal view - restricted to parents."""
+    user_role = get_user_role(request.user)
+    
+    if user_role != UserRoles.PARENT:
+        return HttpResponseForbidden("Access restricted to parents only.")
+    
+    context = {
+        'user_role': user_role,
+        'children': [
+            {'name': 'Alice Johnson', 'grade': '5th Grade', 'teacher': 'Mrs. Smith'},
+            {'name': 'Bob Johnson', 'grade': '3rd Grade', 'teacher': 'Mr. Brown'},
+        ]  # Dummy data for demonstration
+    }
+    
+    return render(request, 'parent_portal.html', context)
+
+
+@login_required
+def student_view(request):
+    """Student portal view - restricted to students."""
+    user_role = get_user_role(request.user)
+    
+    if user_role != UserRoles.STUDENT:
+        return HttpResponseForbidden("Access restricted to students only.")
+    
+    context = {
+        'user_role': user_role,
+        'courses': [
+            {'name': 'Mathematics', 'teacher': 'Mrs. Wilson', 'grade': 'A-'},
+            {'name': 'English Literature', 'teacher': 'Mr. Davis', 'grade': 'B+'},
+            {'name': 'Biology', 'teacher': 'Dr. Martinez', 'grade': 'A'},
+        ],  # Dummy data for demonstration
+        'assignments': [
+            {'title': 'Math Homework #5', 'due_date': 'Tomorrow', 'status': 'Pending'},
+            {'title': 'English Essay', 'due_date': 'Friday', 'status': 'Submitted'},
+        ]
+    }
+    
+    return render(request, 'student_portal.html', context)

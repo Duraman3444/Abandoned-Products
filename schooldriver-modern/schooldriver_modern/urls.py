@@ -20,11 +20,18 @@ from django.conf import settings
 from django.conf.urls.static import static
 from . import views
 from .auth_views import CustomLoginView
+from .profile_views import profile_view, ProfileEditView, CustomPasswordChangeView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('dashboard/', views.dashboard_view, name='dashboard'),
+    path('parent/', views.parent_view, name='parent'),
+    path('student/', views.student_view, name='student'),
+    path('profile/', profile_view, name='profile'),
+    path('profile/edit/', ProfileEditView.as_view(), name='edit_profile'),
+    path('profile/password/', CustomPasswordChangeView.as_view(), name='password_change'),
     path('accounts/login/', CustomLoginView.as_view(), name='login'),
+    path('accounts/password_change/', CustomPasswordChangeView.as_view(), name='accounts_password_change'),
     path('accounts/', include('django.contrib.auth.urls')),
 ]
 

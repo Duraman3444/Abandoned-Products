@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'rest_framework',
     
     # Modern SchoolDriver apps
+    'schooldriver_modern',
     'students',
     'admissions',
 ]

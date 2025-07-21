@@ -80,10 +80,10 @@ curl -o chart.min.js https://cdn.jsdelivr.net/npm/chart.js
 - [x] Add role indicators in UI
 
 #### **Step 2.3: Profile Management** (45 mins)  
-- [ ] Create user profile pages
-- [ ] Add avatar upload functionality
-- [ ] Implement profile edit forms
-- [ ] Add password change workflow
+- [x] Create user profile pages
+- [x] Add avatar upload functionality
+- [x] Implement profile edit forms
+- [x] Add password change workflow
 
 #### **Step 2.4: Security Enhancements** (30 mins)
 - [ ] Add login attempt limiting

@@ -1,15 +1,16 @@
 from django.contrib.auth.views import LoginView
 from django.contrib.auth import login
 from django.http import HttpResponseRedirect
+from .roles import get_redirect_url_for_user
 
 
 class CustomLoginView(LoginView):
-    """Custom login view with Remember Me functionality."""
+    """Custom login view with Remember Me functionality and role-based redirects."""
     
     template_name = 'registration/login.html'
     
     def form_valid(self, form):
-        """Handle successful login with remember me functionality."""
+        """Handle successful login with remember me functionality and role-based redirects."""
         # Check if remember me is checked
         remember_me = self.request.POST.get('remember_me')
         
@@ -24,4 +25,7 @@ class CustomLoginView(LoginView):
             # Use default session expiry (browser session)
             self.request.session.set_expiry(0)
         
-        return HttpResponseRedirect(self.get_success_url())
+        # Get role-based redirect URL
+        redirect_url = get_redirect_url_for_user(form.get_user())
+        
+        return HttpResponseRedirect(redirect_url)

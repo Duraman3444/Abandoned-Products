@@ -131,3 +131,225 @@ Quit the server with CONTROL-C.
 
 Watching for file changes with StatReloader
 INFO 2025-07-21 16:49:01,267 autoreload Watching for file changes with StatReloader
+[21/Jul/2025 16:53:58] "GET /dashboard/ HTTP/1.1" 200 16935
+[21/Jul/2025 16:53:58] "GET /static/js/chart.min.js HTTP/1.1" 304 0
+[21/Jul/2025 16:53:59] "GET /dashboard/ HTTP/1.1" 200 16935
+[21/Jul/2025 16:53:59] "GET /dashboard/ HTTP/1.1" 200 16935
+[21/Jul/2025 16:54:05] "GET /admin/ HTTP/1.1" 200 11862
+[21/Jul/2025 16:54:13] "POST /admin/logout/ HTTP/1.1" 302 0
+[21/Jul/2025 16:54:13] "GET /accounts/login/ HTTP/1.1" 200 8375
+[21/Jul/2025 16:54:17] "POST /accounts/login/ HTTP/1.1" 302 0
+[21/Jul/2025 16:54:17] "GET /dashboard/ HTTP/1.1" 200 16935
+[21/Jul/2025 16:54:25] "GET /admin/ HTTP/1.1" 200 11862
+/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/schooldriver_modern/settings.py changed, reloading.
+INFO 2025-07-21 16:57:38,700 autoreload /Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/schooldriver_modern/settings.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+July 21, 2025 - 16:49:01
+Django version 4.2.16, using settings 'schooldriver_modern.settings'
+Starting development server at http://127.0.0.1:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+INFO 2025-07-21 16:57:38,966 autoreload Watching for file changes with StatReloader
+/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/schooldriver_modern/auth_views.py changed, reloading.
+INFO 2025-07-21 16:58:10,910 autoreload /Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/schooldriver_modern/auth_views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+July 21, 2025 - 16:57:39
+Django version 4.2.16, using settings 'schooldriver_modern.settings'
+Starting development server at http://127.0.0.1:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+INFO 2025-07-21 16:58:11,136 autoreload Watching for file changes with StatReloader
+/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/schooldriver_modern/views.py changed, reloading.
+INFO 2025-07-21 16:58:31,768 autoreload /Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/schooldriver_modern/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+July 21, 2025 - 16:58:11
+Django version 4.2.16, using settings 'schooldriver_modern.settings'
+Starting development server at http://127.0.0.1:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+INFO 2025-07-21 16:58:31,949 autoreload Watching for file changes with StatReloader
+/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/schooldriver_modern/views.py changed, reloading.
+INFO 2025-07-21 16:58:47,456 autoreload /Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/schooldriver_modern/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+July 21, 2025 - 16:58:31
+Django version 4.2.16, using settings 'schooldriver_modern.settings'
+Starting development server at http://127.0.0.1:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+INFO 2025-07-21 16:58:47,655 autoreload Watching for file changes with StatReloader
+/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/schooldriver_modern/urls.py changed, reloading.
+INFO 2025-07-21 16:59:01,109 autoreload /Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/schooldriver_modern/urls.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+July 21, 2025 - 16:58:47
+Django version 4.2.16, using settings 'schooldriver_modern.settings'
+Starting development server at http://127.0.0.1:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+INFO 2025-07-21 16:59:01,304 autoreload Watching for file changes with StatReloader
+Not Found: /
+WARNING 2025-07-21 17:03:26,969 log Not Found: /
+[21/Jul/2025 17:03:26] "HEAD / HTTP/1.1" 404 0
+Internal Server Error: /accounts/login/
+Traceback (most recent call last):
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/defaulttags.py", line 1026, in find_library
+    return parser.libraries[name]
+KeyError: 'custom_tags'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/core/handlers/base.py", line 220, in _get_response
+    response = response.render()
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/response.py", line 114, in render
+    self.content = self.rendered_content
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/backends/django.py", line 61, in render
+    return self.template.render(context)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/base.py", line 175, in render
+    return self._render(context)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/base.py", line 167, in _render
+    return self.nodelist.render(context)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/base.py", line 1005, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/base.py", line 1005, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/base.py", line 966, in render_annotated
+    return self.render(context)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/loader_tags.py", line 132, in render
+    compiled_parent = self.get_parent(context)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/loader_tags.py", line 129, in get_parent
+    return self.find_template(parent, context)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/loader_tags.py", line 107, in find_template
+    template, origin = context.template.engine.find_template(
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/engine.py", line 157, in find_template
+    template = loader.get_template(name, skip=skip)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/loaders/cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/loaders/base.py", line 28, in get_template
+    return Template(
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/base.py", line 200, in compile_nodelist
+    return parser.parse()
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/base.py", line 513, in parse
+    raise self.error(token, e)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/base.py", line 511, in parse
+    compiled_result = compile_func(self, token)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/defaulttags.py", line 953, in do_if
+    nodelist = parser.parse(("elif", "else", "endif"))
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/base.py", line 513, in parse
+    raise self.error(token, e)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/base.py", line 511, in parse
+    compiled_result = compile_func(self, token)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/defaulttags.py", line 1088, in load
+    lib = find_library(parser, name)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/defaulttags.py", line 1028, in find_library
+    raise TemplateSyntaxError(
+django.template.exceptions.TemplateSyntaxError: 'custom_tags' is not a registered tag library. Must be one of:
+admin_list
+admin_modify
+admin_urls
+cache
+i18n
+l10n
+log
+rest_framework
+static
+tz
+ERROR 2025-07-21 17:03:30,622 log Internal Server Error: /accounts/login/
+Traceback (most recent call last):
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/defaulttags.py", line 1026, in find_library
+    return parser.libraries[name]
+KeyError: 'custom_tags'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/core/handlers/base.py", line 220, in _get_response
+    response = response.render()
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/response.py", line 114, in render
+    self.content = self.rendered_content
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/response.py", line 92, in rendered_content
+    return template.render(context, self._request)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/backends/django.py", line 61, in render
+    return self.template.render(context)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/base.py", line 175, in render
+    return self._render(context)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/base.py", line 167, in _render
+    return self.nodelist.render(context)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/base.py", line 1005, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/base.py", line 1005, in <listcomp>
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/base.py", line 966, in render_annotated
+    return self.render(context)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/loader_tags.py", line 132, in render
+    compiled_parent = self.get_parent(context)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/loader_tags.py", line 129, in get_parent
+    return self.find_template(parent, context)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/loader_tags.py", line 107, in find_template
+    template, origin = context.template.engine.find_template(
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/engine.py", line 157, in find_template
+    template = loader.get_template(name, skip=skip)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/loaders/cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/loaders/base.py", line 28, in get_template
+    return Template(
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/base.py", line 200, in compile_nodelist
+    return parser.parse()
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/base.py", line 513, in parse
+    raise self.error(token, e)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/base.py", line 511, in parse
+    compiled_result = compile_func(self, token)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/defaulttags.py", line 953, in do_if
+    nodelist = parser.parse(("elif", "else", "endif"))
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/base.py", line 513, in parse
+    raise self.error(token, e)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/base.py", line 511, in parse
+    compiled_result = compile_func(self, token)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/defaulttags.py", line 1088, in load
+    lib = find_library(parser, name)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/defaulttags.py", line 1028, in find_library
+    raise TemplateSyntaxError(
+django.template.exceptions.TemplateSyntaxError: 'custom_tags' is not a registered tag library. Must be one of:
+admin_list
+admin_modify
+admin_urls
+cache
+i18n
+l10n
+log
+rest_framework
+static
+tz
+[21/Jul/2025 17:03:30] "HEAD /accounts/login/ HTTP/1.1" 500 0
+Performing system checks...
+
+System check identified no issues (0 silenced).
+July 21, 2025 - 16:59:01
+Django version 4.2.16, using settings 'schooldriver_modern.settings'
+Starting development server at http://127.0.0.1:8000/
+Quit the server with CONTROL-C.
+
