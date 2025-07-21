@@ -1,7 +1,8 @@
 from django.shortcuts import render
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, JsonResponse
+from django.db import connection
 from .roles import get_user_role, UserRoles
 import json
 
@@ -101,3 +102,23 @@ def student_view(request):
     }
     
     return render(request, 'student_portal.html', context)
+
+
+def health_check(request):
+    """Health check endpoint for monitoring and Docker health checks."""
+    try:
+        # Test database connection
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT 1")
+            cursor.fetchone()
+        
+        return JsonResponse({
+            'status': 'healthy',
+            'database': 'connected',
+            'timestamp': json.dumps(None)  # Will be set by client
+        })
+    except Exception as e:
+        return JsonResponse({
+            'status': 'unhealthy',
+            'error': str(e)
+        }, status=500)

@@ -33,6 +33,7 @@ urlpatterns = [
     path('accounts/login/', CustomLoginView.as_view(), name='login'),
     path('accounts/password_change/', CustomPasswordChangeView.as_view(), name='accounts_password_change'),
     path('accounts/', include('django.contrib.auth.urls')),
+    path('health/', views.health_check, name='health_check'),
 ]
 
 # Serve media and static files during development
