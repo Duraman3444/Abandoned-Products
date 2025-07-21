@@ -208,15 +208,33 @@
     
     // Wait for Chart.js to be fully loaded before setting defaults
     function setupChartDefaults() {
-        // Dark theme Chart.js defaults
+        // Dark theme Chart.js defaults - Chart.js 4.x compatible
         Chart.defaults.color = '#E6EDF3';
         Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
         Chart.defaults.backgroundColor = 'rgba(30, 136, 229, 0.2)';
-        Chart.defaults.plugins.legend.labels.color = '#E6EDF3';
-        Chart.defaults.scales.category.ticks.color = '#E6EDF3';
-        Chart.defaults.scales.linear.ticks.color = '#E6EDF3';
-        Chart.defaults.scales.category.grid.color = 'rgba(255, 255, 255, 0.1)';
-        Chart.defaults.scales.linear.grid.color = 'rgba(255, 255, 255, 0.1)';
+        
+        // Safe plugin defaults setup
+        if (Chart.defaults.plugins && Chart.defaults.plugins.legend) {
+            Chart.defaults.plugins.legend.labels = Chart.defaults.plugins.legend.labels || {};
+            Chart.defaults.plugins.legend.labels.color = '#E6EDF3';
+        }
+        
+        // Safe scale defaults setup
+        if (Chart.defaults.scales) {
+            // Category scale defaults
+            Chart.defaults.scales.category = Chart.defaults.scales.category || {};
+            Chart.defaults.scales.category.ticks = Chart.defaults.scales.category.ticks || {};
+            Chart.defaults.scales.category.grid = Chart.defaults.scales.category.grid || {};
+            Chart.defaults.scales.category.ticks.color = '#E6EDF3';
+            Chart.defaults.scales.category.grid.color = 'rgba(255, 255, 255, 0.1)';
+            
+            // Linear scale defaults
+            Chart.defaults.scales.linear = Chart.defaults.scales.linear || {};
+            Chart.defaults.scales.linear.ticks = Chart.defaults.scales.linear.ticks || {};
+            Chart.defaults.scales.linear.grid = Chart.defaults.scales.linear.grid || {};
+            Chart.defaults.scales.linear.ticks.color = '#E6EDF3';
+            Chart.defaults.scales.linear.grid.color = 'rgba(255, 255, 255, 0.1)';
+        }
     }
 
     // Initialize all charts
