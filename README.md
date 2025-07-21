@@ -2,6 +2,15 @@
 
 > A comprehensive student information system featuring both legacy and modernized codebases for educational institutions.
 
+## 🙏 Attribution
+
+**This project is based on the original SchoolDriver by Burke Software and Contributors:**
+- **Original Repository:** [burke-software/schooldriver](https://github.com/burke-software/schooldriver)
+- **Original Authors:** Burke Software and the SchoolDriver community
+- **License:** Original project licensing applies to legacy codebase
+
+This repository serves as a **modernization study** and **educational demonstration** of the SchoolDriver system, showcasing both the original legacy implementation and a modernized Django 4.2+ version with sample data for learning and evaluation purposes.
+
 ## 📚 Project Overview
 
 This repository contains two versions of SchoolDriver, a comprehensive Student Information System (SIS) designed for K-12 educational institutions:
@@ -152,18 +161,24 @@ Extensive documentation available in:
 - **User manuals** - Feature documentation and guides
 - **Developer docs** - Architecture and development guidance
 
-## 🤝 Contributing
+## 🤝 Purpose & Use Cases
 
-This repository demonstrates the evolution from legacy to modern educational software architecture. Perfect for:
+This repository demonstrates the evolution from legacy to modern educational software architecture. **This is a study/demonstration project, not the official SchoolDriver development.**
 
+**Perfect for:**
 - Educational institutions evaluating SIS options
 - Developers learning Django and educational software patterns  
 - Students studying software modernization techniques
 - Researchers analyzing educational technology systems
+- Understanding legacy-to-modern migration patterns
+
+**Note:** For official SchoolDriver development and support, please visit the [original repository](https://github.com/burke-software/schooldriver).
 
 ## 📄 License
 
-This project includes components under various licenses. See individual files for specific license information.
+- **Legacy SchoolDriver:** Licensed under the original SchoolDriver project terms (see [burke-software/schooldriver](https://github.com/burke-software/schooldriver))
+- **Modern Implementation:** Educational/demonstration code - see individual files for specific licensing
+- **Sample Data & Documentation:** Created for this demonstration project
 
 ---
 
