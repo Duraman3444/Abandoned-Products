@@ -29,8 +29,9 @@
     <h1>Dashboard</h1>
     
     <div class="chart-container">
-        <h2>Sample Chart</h2>
-        <canvas id="sampleChart" width="400" height="200"></canvas>
+        <h2>Student Enrollment by Grade Level</h2>
+        <p>Total Students: {{ student_data.total_students }}</p>
+        <canvas id="studentChart" width="400" height="200"></canvas>
     </div>
 </div>
 {% endblock %}
@@ -38,38 +39,56 @@
 {% block extra_js %}
 <script src="{% static 'js/chart.min.js' %}"></script>
 <script>
-    // Initialize a sample chart
-    const ctx = document.getElementById('sampleChart').getContext('2d');
-    const chart = new Chart(ctx, {
+    // Student enrollment data from Django view
+    const studentData = {{ student_data_json|safe }};
+    
+    // Initialize student enrollment bar chart
+    const ctx = document.getElementById('studentChart').getContext('2d');
+    const studentChart = new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+            labels: studentData.labels,
             datasets: [{
-                label: '# of Votes',
-                data: [12, 19, 3, 5, 2, 3],
+                label: 'Number of Students',
+                data: studentData.counts,
                 backgroundColor: [
-                    'rgba(255, 99, 132, 0.2)',
-                    'rgba(54, 162, 235, 0.2)',
-                    'rgba(255, 205, 86, 0.2)',
-                    'rgba(75, 192, 192, 0.2)',
-                    'rgba(153, 102, 255, 0.2)',
-                    'rgba(255, 159, 64, 0.2)'
+                    'rgba(54, 162, 235, 0.8)',
+                    'rgba(255, 99, 132, 0.8)',
+                    'rgba(255, 205, 86, 0.8)',
+                    'rgba(75, 192, 192, 0.8)',
+                    'rgba(153, 102, 255, 0.8)'
                 ],
                 borderColor: [
-                    'rgba(255, 99, 132, 1)',
                     'rgba(54, 162, 235, 1)',
+                    'rgba(255, 99, 132, 1)',
                     'rgba(255, 205, 86, 1)',
                     'rgba(75, 192, 192, 1)',
-                    'rgba(153, 102, 255, 1)',
-                    'rgba(255, 159, 64, 1)'
+                    'rgba(153, 102, 255, 1)'
                 ],
-                borderWidth: 1
+                borderWidth: 2
             }]
         },
         options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Student Enrollment by Grade Level'
+                }
+            },
             scales: {
                 y: {
-                    beginAtZero: true
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Number of Students'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Grade Level'
+                    }
                 }
             }
         }
