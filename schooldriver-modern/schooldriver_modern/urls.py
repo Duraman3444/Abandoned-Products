@@ -34,6 +34,9 @@ urlpatterns = [
     path('accounts/password_change/', CustomPasswordChangeView.as_view(), name='accounts_password_change'),
     path('accounts/', include('django.contrib.auth.urls')),
     path('health/', views.health_check, name='health_check'),
+    
+    # API endpoints
+    path('api/', include('schooldriver_modern.api_urls')),
 ]
 
 # Serve media and static files during development
