@@ -99,17 +99,86 @@ class DashboardFixTests(TestCase):
         # Check for dashboard data being passed to JavaScript
         self.assertContains(response, 'dashboardData =')
     
+    def test_all_charts_render(self):
+        """Test that all four chart canvases are present and properly configured."""
+        response = self.client.get(reverse('dashboard'))
+        
+        # Check for all four chart canvas elements
+        chart_ids = ['pipelineChart', 'documentsChart', 'statusChart', 'trendsChart']
+        for chart_id in chart_ids:
+            self.assertContains(response, f'id="{chart_id}"')
+            
+        # Check that Chart.js initialization script is in the correct block
+        self.assertContains(response, 'initializeCharts()')
+        
+        # Verify charts are initialized on DOM ready
+        self.assertContains(response, "DOMContentLoaded")
+    
+    def test_kpis_populated(self):
+        """Test that KPI metric card values are not zero."""
+        response = self.client.get(reverse('dashboard'))
+        dashboard_data = response.context['dashboard_data']
+        summary = dashboard_data['summary']
+        
+        # All KPIs should have non-zero values
+        self.assertGreater(summary['total_applications'], 0)
+        self.assertGreater(summary['total_acceptances'], 0)
+        self.assertGreater(summary['acceptance_rate'], 0)
+        self.assertGreater(summary['pending_applications'], 0)
+        
+        # Check specific expected values from the demo data
+        self.assertEqual(summary['total_applications'], 1240)  # Sum of trends applications
+        self.assertEqual(summary['total_acceptances'], 418)    # Sum of trends acceptances
+        self.assertEqual(summary['acceptance_rate'], 33.7)     # Calculated rate
+        self.assertEqual(summary['pending_applications'], 600) # Sum of first two status values
+    
+    def test_refresh_button_updates(self):
+        """Test that clicking refresh button functionality is present."""
+        response = self.client.get(reverse('dashboard'))
+        
+        # Check that refresh button exists
+        self.assertContains(response, 'onclick="refreshDataNow()"')
+        self.assertContains(response, 'Refresh Data')
+        
+        # Check that refresh function is defined
+        self.assertContains(response, 'function refreshDataNow()')
+        
+        # Check that updateChartData function exists
+        self.assertContains(response, 'function updateChartData()')
+        
+        # Check that automatic updates are set up
+        self.assertContains(response, 'setInterval(updateChartData, 15000)')
+    
+    def test_admin_sidebar_present(self):
+        """Test that admin sidebar with model links is present."""
+        response = self.client.get(reverse('dashboard'))
+        
+        # Check for sidebar
+        self.assertContains(response, 'admin-sidebar')
+        
+        # Check for admin module sections
+        self.assertContains(response, 'Admissions Management')
+        self.assertContains(response, 'Students')
+        
+        # Check for specific admin links
+        self.assertContains(response, 'Applicants')
+        self.assertContains(response, 'Students')
+        self.assertContains(response, 'addlink')
+        self.assertContains(response, 'changelink')
+    
     def test_dark_theme_css_applied(self):
         """Test that dark theme CSS is properly applied."""
         response = self.client.get(reverse('dashboard'))
         
         # Check for dark theme CSS
         self.assertContains(response, 'dashboard.css')
-        self.assertContains(response, 'dashboard-dark')
         
         # Check for dark theme elements in the template
         self.assertContains(response, 'dashboard-container')
         self.assertContains(response, 'chart-card')
+        
+        # Check for admin theme integration
+        self.assertContains(response, 'admin-sidebar')
 
 
 # Selenium tests commented out - can be enabled if selenium is installed

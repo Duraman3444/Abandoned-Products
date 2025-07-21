@@ -147,11 +147,58 @@
                 </div>
             </div>
         </div>
+
+        <!-- Admin Quick Links -->
+        <div class="admin-sidebar">
+            <div class="module">
+                <h2>Admissions Management</h2>
+                <table>
+                    <tbody>
+                        <tr>
+                            <th scope="row"><a href="{% url 'admin:admissions_applicant_changelist' %}">Applicants</a></th>
+                            <td><a href="{% url 'admin:admissions_applicant_add' %}" class="addlink">Add</a></td>
+                            <td><a href="{% url 'admin:admissions_applicant_changelist' %}" class="changelink">Change</a></td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><a href="{% url 'admin:admissions_applicationdecision_changelist' %}">Application decisions</a></th>
+                            <td><a href="{% url 'admin:admissions_applicationdecision_add' %}" class="addlink">Add</a></td>
+                            <td><a href="{% url 'admin:admissions_applicationdecision_changelist' %}" class="changelink">Change</a></td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><a href="{% url 'admin:admissions_applicantdocument_changelist' %}">Applicant documents</a></th>
+                            <td><a href="{% url 'admin:admissions_applicantdocument_add' %}" class="addlink">Add</a></td>
+                            <td><a href="{% url 'admin:admissions_applicantdocument_changelist' %}" class="changelink">Change</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="module">
+                <h2>Students</h2>
+                <table>
+                    <tbody>
+                        <tr>
+                            <th scope="row"><a href="{% url 'admin:students_student_changelist' %}">Students</a></th>
+                            <td><a href="{% url 'admin:students_student_add' %}" class="addlink">Add</a></td>
+                            <td><a href="{% url 'admin:students_student_changelist' %}" class="changelink">Change</a></td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><a href="{% url 'admin:students_gradelevel_changelist' %}">Grade levels</a></th>
+                            <td><a href="{% url 'admin:students_gradelevel_add' %}" class="addlink">Add</a></td>
+                            <td><a href="{% url 'admin:students_gradelevel_changelist' %}" class="changelink">Change</a></td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><a href="{% url 'admin:students_emergencycontact_changelist' %}">Emergency contacts</a></th>
+                            <td><a href="{% url 'admin:students_emergencycontact_add' %}" class="addlink">Add</a></td>
+                            <td><a href="{% url 'admin:students_emergencycontact_changelist' %}" class="changelink">Change</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
-{% endblock %}
 
-{% block extrajs %}
 <script>
     // Dashboard data from Django view
     const dashboardData = {{ dashboard_data_json|safe }};
