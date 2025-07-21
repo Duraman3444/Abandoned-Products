@@ -8,7 +8,7 @@ from django.views.generic import UpdateView
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django import forms
-from .models import UserProfile
+from .models import UserProfile, SecurityEvent
 
 
 class UserProfileForm(forms.ModelForm):
@@ -86,7 +86,14 @@ class CustomPasswordChangeView(LoginRequiredMixin, SuccessMessageMixin, Password
     success_message = "Password changed successfully!"
     
     def form_valid(self, form):
-        """Override to ensure proper redirect"""
+        """Override to ensure proper redirect and log password change"""
+        # Log password change event
+        SecurityEvent.log_event(
+            'PASSWORD_CHANGE',
+            user=self.request.user,
+            request=self.request
+        )
+        
         response = super().form_valid(form)
         return response
 

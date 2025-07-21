@@ -47,3 +47,65 @@ def save_user_profile(sender, instance, **kwargs):
     """Save UserProfile when User is saved"""
     if hasattr(instance, 'profile'):
         instance.profile.save()
+
+
+class SecurityEvent(models.Model):
+    """Security audit log model"""
+    EVENT_TYPES = [
+        ('LOGIN_SUCCESS', 'Successful Login'),
+        ('LOGIN_FAILED', 'Failed Login Attempt'),
+        ('PASSWORD_CHANGE', 'Password Changed'),
+        ('ACCOUNT_LOCKED', 'Account Locked'),
+        ('ACCOUNT_UNLOCKED', 'Account Unlocked'),
+        ('LOGOUT', 'Logout'),
+    ]
+    
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    username = models.CharField(max_length=150, help_text="Username attempted (for failed logins)")
+    event_type = models.CharField(max_length=20, choices=EVENT_TYPES)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.TextField(blank=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    details = models.JSONField(default=dict, blank=True)
+    
+    class Meta:
+        ordering = ['-timestamp']
+        indexes = [
+            models.Index(fields=['user', 'event_type']),
+            models.Index(fields=['username', 'event_type']),
+            models.Index(fields=['timestamp']),
+            models.Index(fields=['ip_address']),
+        ]
+    
+    def __str__(self):
+        user_identifier = self.user.username if self.user else self.username
+        return f"{self.get_event_type_display()} - {user_identifier} at {self.timestamp}"
+    
+    @classmethod
+    def log_event(cls, event_type, user=None, username=None, request=None, **extra_details):
+        """Helper method to log security events"""
+        ip_address = None
+        user_agent = ''
+        
+        if request:
+            # Get real IP address
+            x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+            if x_forwarded_for:
+                ip_address = x_forwarded_for.split(',')[0].strip()
+            else:
+                ip_address = request.META.get('REMOTE_ADDR')
+            
+            user_agent = request.META.get('HTTP_USER_AGENT', '')
+        
+        if not username and user:
+            username = user.username
+            
+        return cls.objects.create(
+            user=user,
+            username=username,
+            event_type=event_type,
+            ip_address=ip_address,
+            user_agent=user_agent,
+            details=extra_details
+        )
