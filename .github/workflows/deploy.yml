@@ -30,9 +30,7 @@ jobs:
             --region $REGION \
             --platform managed \
             --allow-unauthenticated \
-            --set-env-vars DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }},\
-FIREBASE_CREDENTIALS_JSON="${{ secrets.FIREBASE_CREDENTIALS_JSON }}",\
-GCS_BUCKET_NAME=${{ secrets.GCS_BUCKET_NAME }}
+            --set-env-vars "DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }},FIREBASE_CREDENTIALS_JSON=${{ secrets.FIREBASE_CREDENTIALS_JSON }},GCS_BUCKET_NAME=${{ secrets.GCS_BUCKET_NAME }}"
 
       - name: Deploy Firebase Hosting
         uses: FirebaseExtended/action-hosting-deploy@v0
