@@ -1,0 +1,259 @@
+{% extends "student_base.html" %}
+
+{% block title %}Student Dashboard - SchoolDriver Modern{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item active">Dashboard</li>
+{% endblock %}
+
+{% block student_content %}
+<!-- Welcome Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h2 class="text-info mb-2">Welcome back, {{ user.first_name|default:user.username }}!</h2>
+                        <p class="text-muted mb-0">Here's your academic overview for today.</p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <div class="text-muted">
+                            <i class="bi bi-calendar-date me-1"></i>
+                            <span id="current-date"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Stats -->
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="bi bi-bar-chart-fill text-success" style="font-size: 2.5rem;"></i>
+                <h4 class="mt-2 mb-0">3.7</h4>
+                <p class="text-muted">Current GPA</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="bi bi-calendar-check text-primary" style="font-size: 2.5rem;"></i>
+                <h4 class="mt-2 mb-0">95%</h4>
+                <p class="text-muted">Attendance Rate</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="bi bi-book text-warning" style="font-size: 2.5rem;"></i>
+                <h4 class="mt-2 mb-0">6</h4>
+                <p class="text-muted">Current Courses</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="bi bi-clipboard-check text-info" style="font-size: 2.5rem;"></i>
+                <h4 class="mt-2 mb-0">3</h4>
+                <p class="text-muted">Pending Assignments</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Today's Schedule & Assignments -->
+<div class="row g-4 mb-4">
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 text-info">
+                    <i class="bi bi-calendar-event me-2"></i>Today's Schedule
+                </h5>
+                <a href="{% url 'student_portal:schedule' %}" class="btn btn-sm btn-outline-info">View Full Schedule</a>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item bg-transparent border-secondary">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">Mathematics - Algebra II</h6>
+                                <small class="text-muted">Room 205 • Mr. Johnson</small>
+                            </div>
+                            <span class="badge bg-primary">8:00 AM</span>
+                        </div>
+                    </div>
+                    <div class="list-group-item bg-transparent border-secondary">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">English Literature</h6>
+                                <small class="text-muted">Room 112 • Ms. Davis</small>
+                            </div>
+                            <span class="badge bg-primary">9:15 AM</span>
+                        </div>
+                    </div>
+                    <div class="list-group-item bg-transparent border-secondary">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">Chemistry</h6>
+                                <small class="text-muted">Lab 301 • Dr. Wilson</small>
+                            </div>
+                            <span class="badge bg-primary">10:45 AM</span>
+                        </div>
+                    </div>
+                    <div class="list-group-item bg-transparent border-secondary">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">World History</h6>
+                                <small class="text-muted">Room 208 • Mr. Garcia</small>
+                            </div>
+                            <span class="badge bg-primary">1:00 PM</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 text-info">
+                    <i class="bi bi-clipboard-list me-2"></i>Upcoming Assignments
+                </h5>
+                <a href="#" class="btn btn-sm btn-outline-info">View All</a>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item bg-transparent border-secondary">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1">Math Quiz - Chapter 5</h6>
+                                <small class="text-muted">Algebra II</small>
+                            </div>
+                            <span class="badge bg-danger">Due Tomorrow</span>
+                        </div>
+                    </div>
+                    <div class="list-group-item bg-transparent border-secondary">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1">Essay: Shakespeare Analysis</h6>
+                                <small class="text-muted">English Literature</small>
+                            </div>
+                            <span class="badge bg-warning text-dark">Due Friday</span>
+                        </div>
+                    </div>
+                    <div class="list-group-item bg-transparent border-secondary">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1">Lab Report: Acids & Bases</h6>
+                                <small class="text-muted">Chemistry</small>
+                            </div>
+                            <span class="badge bg-info">Due Next Week</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Grades & Announcements -->
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 text-info">
+                    <i class="bi bi-trophy me-2"></i>Recent Grades
+                </h5>
+                <a href="{% url 'student_portal:grades' %}" class="btn btn-sm btn-outline-info">View All Grades</a>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item bg-transparent border-secondary">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">History Test - WWI</h6>
+                                <small class="text-muted">World History</small>
+                            </div>
+                            <span class="badge bg-success">A-</span>
+                        </div>
+                    </div>
+                    <div class="list-group-item bg-transparent border-secondary">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">Chemistry Lab #4</h6>
+                                <small class="text-muted">Chemistry</small>
+                            </div>
+                            <span class="badge bg-success">B+</span>
+                        </div>
+                    </div>
+                    <div class="list-group-item bg-transparent border-secondary">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">Math Homework #12</h6>
+                                <small class="text-muted">Algebra II</small>
+                            </div>
+                            <span class="badge bg-warning text-dark">B-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0 text-info">
+                    <i class="bi bi-megaphone me-2"></i>School Announcements
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item bg-transparent border-secondary">
+                        <h6 class="mb-1">Spring Break Schedule</h6>
+                        <p class="mb-1">School will be closed March 25-29. Classes resume March 30.</p>
+                        <small class="text-muted">Posted 2 days ago</small>
+                    </div>
+                    <div class="list-group-item bg-transparent border-secondary">
+                        <h6 class="mb-1">Science Fair Registration</h6>
+                        <p class="mb-1">Registration for the annual science fair is now open. Deadline is February 15.</p>
+                        <small class="text-muted">Posted 1 week ago</small>
+                    </div>
+                    <div class="list-group-item bg-transparent border-secondary">
+                        <h6 class="mb-1">New Library Hours</h6>
+                        <p class="mb-1">The library will now be open until 6 PM on weekdays.</p>
+                        <small class="text-muted">Posted 2 weeks ago</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+    // Display current date
+    document.addEventListener('DOMContentLoaded', function() {
+        const currentDate = new Date();
+        const options = { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        };
+        document.getElementById('current-date').textContent = 
+            currentDate.toLocaleDateString('en-US', options);
+    });
+</script>
+{% endblock %}

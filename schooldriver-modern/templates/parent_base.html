@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% load custom_tags %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb" class="bg-dark border-bottom border-secondary">
+    <div class="container">
+        <ol class="breadcrumb py-2 mb-0">
+            <li class="breadcrumb-item"><a href="{% url 'parent_portal:dashboard' %}" class="text-info">Parent Portal</a></li>
+            {% block breadcrumb_items %}{% endblock %}
+        </ol>
+    </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Sidebar Navigation -->
+        <div class="col-md-3 col-lg-2">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="bi bi-people-fill me-2"></i>Parent Menu</h6>
+                </div>
+                <div class="card-body p-0">
+                    <nav class="nav flex-column">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active bg-teal text-white{% endif %}" 
+                           href="{% url 'parent_portal:dashboard' %}">
+                            <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                        </a>
+                        <a class="nav-link {% if request.resolver_match.url_name == 'children' %}active bg-teal text-white{% endif %}" 
+                           href="{% url 'parent_portal:children' %}">
+                            <i class="bi bi-people me-2"></i>My Children
+                        </a>
+                        <a class="nav-link {% if request.resolver_match.url_name == 'messages' %}active bg-teal text-white{% endif %}" 
+                           href="{% url 'parent_portal:messages' %}">
+                            <i class="bi bi-chat-dots me-2"></i>Messages
+                        </a>
+                        <a class="nav-link {% if request.resolver_match.url_name == 'profile' %}active bg-teal text-white{% endif %}" 
+                           href="{% url 'parent_portal:profile' %}">
+                            <i class="bi bi-person me-2"></i>My Profile
+                        </a>
+                    </nav>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10">
+            {% block parent_content %}{% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+    .nav-link {
+        color: var(--text-light) !important;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid var(--dark-border);
+    }
+    
+    .nav-link:hover {
+        background-color: var(--dark-border);
+        color: var(--teal-primary) !important;
+    }
+    
+    .nav-link.active {
+        background-color: var(--teal-primary) !important;
+        color: white !important;
+    }
+    
+    .bg-teal {
+        background-color: var(--teal-primary) !important;
+    }
+</style>
+{% endblock %}

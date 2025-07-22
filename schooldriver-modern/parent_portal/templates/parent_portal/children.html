@@ -1,0 +1,348 @@
+{% extends "parent_base.html" %}
+
+{% block title %}My Children - SchoolDriver Modern{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item active">My Children</li>
+{% endblock %}
+
+{% block parent_content %}
+<!-- Page Header -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h2 class="text-info mb-2">My Children</h2>
+                        <p class="text-muted mb-0">Overview of all your children's academic information</p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <button class="btn btn-outline-info me-2">
+                            <i class="bi bi-download me-1"></i>Export Report
+                        </button>
+                        <button class="btn btn-teal">
+                            <i class="bi bi-printer me-1"></i>Print Summary
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Children Cards -->
+<div class="row g-4 mb-4">
+    <!-- Emma Johnson -->
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <div class="bg-warning rounded-circle me-3 d-flex align-items-center justify-content-center" 
+                         style="width: 50px; height: 50px;">
+                        <span class="text-dark fw-bold">EJ</span>
+                    </div>
+                    <div>
+                        <h5 class="mb-0 text-info">Emma Johnson</h5>
+                        <small class="text-muted">Student ID: STU-2024-1157</small>
+                    </div>
+                </div>
+                <span class="badge bg-warning text-dark">Grade 11</span>
+            </div>
+            <div class="card-body">
+                <!-- Academic Overview -->
+                <div class="row text-center mb-3">
+                    <div class="col-3">
+                        <h6 class="text-success mb-0">3.7</h6>
+                        <small class="text-muted">GPA</small>
+                    </div>
+                    <div class="col-3">
+                        <h6 class="text-primary mb-0">95%</h6>
+                        <small class="text-muted">Attendance</small>
+                    </div>
+                    <div class="col-3">
+                        <h6 class="text-info mb-0">6</h6>
+                        <small class="text-muted">Courses</small>
+                    </div>
+                    <div class="col-3">
+                        <h6 class="text-warning mb-0">3</h6>
+                        <small class="text-muted">Pending</small>
+                    </div>
+                </div>
+                
+                <!-- Recent Grades -->
+                <h6 class="text-info mb-2">Recent Grades</h6>
+                <div class="list-group list-group-flush mb-3">
+                    <div class="list-group-item bg-transparent border-secondary py-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small>History Test - WWI</small>
+                            <span class="badge bg-success">A-</span>
+                        </div>
+                    </div>
+                    <div class="list-group-item bg-transparent border-secondary py-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small>Chemistry Lab #4</small>
+                            <span class="badge bg-success">B+</span>
+                        </div>
+                    </div>
+                    <div class="list-group-item bg-transparent border-secondary py-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small>Math Quiz Ch.5</small>
+                            <span class="badge bg-success">A</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Current Teachers -->
+                <h6 class="text-info mb-2">Current Teachers</h6>
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <small class="text-muted">Mathematics</small><br>
+                        <small>Mr. Johnson</small>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted">English</small><br>
+                        <small>Ms. Davis</small>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted">Chemistry</small><br>
+                        <small>Dr. Wilson</small>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted">History</small><br>
+                        <small>Mr. Garcia</small>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="d-flex gap-2 flex-wrap">
+                    <a href="{% url 'parent_portal:child_grades' child_id=1 %}" class="btn btn-sm btn-teal">
+                        <i class="bi bi-bar-chart me-1"></i>View Grades
+                    </a>
+                    <a href="#" class="btn btn-sm btn-outline-info">
+                        <i class="bi bi-calendar-event me-1"></i>Schedule
+                    </a>
+                    <a href="#" class="btn btn-sm btn-outline-secondary">
+                        <i class="bi bi-chat-dots me-1"></i>Messages
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Jake Johnson -->
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <div class="bg-primary rounded-circle me-3 d-flex align-items-center justify-content-center" 
+                         style="width: 50px; height: 50px;">
+                        <span class="text-white fw-bold">JJ</span>
+                    </div>
+                    <div>
+                        <h5 class="mb-0 text-info">Jake Johnson</h5>
+                        <small class="text-muted">Student ID: STU-2024-0892</small>
+                    </div>
+                </div>
+                <span class="badge bg-primary">Grade 8</span>
+            </div>
+            <div class="card-body">
+                <!-- Academic Overview -->
+                <div class="row text-center mb-3">
+                    <div class="col-3">
+                        <h6 class="text-success mb-0">3.4</h6>
+                        <small class="text-muted">GPA</small>
+                    </div>
+                    <div class="col-3">
+                        <h6 class="text-warning mb-0">88%</h6>
+                        <small class="text-muted">Attendance</small>
+                    </div>
+                    <div class="col-3">
+                        <h6 class="text-info mb-0">7</h6>
+                        <small class="text-muted">Courses</small>
+                    </div>
+                    <div class="col-3">
+                        <h6 class="text-warning mb-0">2</h6>
+                        <small class="text-muted">Pending</small>
+                    </div>
+                </div>
+                
+                <!-- Recent Grades -->
+                <h6 class="text-info mb-2">Recent Grades</h6>
+                <div class="list-group list-group-flush mb-3">
+                    <div class="list-group-item bg-transparent border-secondary py-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small>Science Project</small>
+                            <span class="badge bg-success">B+</span>
+                        </div>
+                    </div>
+                    <div class="list-group-item bg-transparent border-secondary py-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small>Math Test Ch.3</small>
+                            <span class="badge bg-warning text-dark">C+</span>
+                        </div>
+                    </div>
+                    <div class="list-group-item bg-transparent border-secondary py-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small>English Essay</small>
+                            <span class="badge bg-success">B</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Current Teachers -->
+                <h6 class="text-info mb-2">Current Teachers</h6>
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <small class="text-muted">Mathematics</small><br>
+                        <small>Mr. Peterson</small>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted">English</small><br>
+                        <small>Ms. Taylor</small>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted">Science</small><br>
+                        <small>Mrs. Brown</small>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted">Social Studies</small><br>
+                        <small>Mr. Lee</small>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="d-flex gap-2 flex-wrap">
+                    <a href="{% url 'parent_portal:child_grades' child_id=2 %}" class="btn btn-sm btn-teal">
+                        <i class="bi bi-bar-chart me-1"></i>View Grades
+                    </a>
+                    <a href="#" class="btn btn-sm btn-outline-info">
+                        <i class="bi bi-calendar-event me-1"></i>Schedule
+                    </a>
+                    <a href="#" class="btn btn-sm btn-outline-secondary">
+                        <i class="bi bi-chat-dots me-1"></i>Messages
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Comparative Analytics -->
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0 text-info">
+                    <i class="bi bi-graph-up me-2"></i>Academic Performance Comparison
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-dark table-striped">
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Current GPA</th>
+                                <th>Previous GPA</th>
+                                <th>Attendance</th>
+                                <th>Pending Assignments</th>
+                                <th>Trend</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-warning rounded-circle me-2 d-flex align-items-center justify-content-center" 
+                                             style="width: 30px; height: 30px;">
+                                            <span class="text-dark fw-bold small">EJ</span>
+                                        </div>
+                                        Emma Johnson
+                                    </div>
+                                </td>
+                                <td><span class="badge bg-success">3.7</span></td>
+                                <td>3.5</td>
+                                <td><span class="badge bg-success">95%</span></td>
+                                <td>3</td>
+                                <td><i class="bi bi-arrow-up text-success"></i> Improving</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-primary rounded-circle me-2 d-flex align-items-center justify-content-center" 
+                                             style="width: 30px; height: 30px;">
+                                            <span class="text-white fw-bold small">JJ</span>
+                                        </div>
+                                        Jake Johnson
+                                    </div>
+                                </td>
+                                <td><span class="badge bg-warning text-dark">3.4</span></td>
+                                <td>3.6</td>
+                                <td><span class="badge bg-warning text-dark">88%</span></td>
+                                <td>2</td>
+                                <td><i class="bi bi-arrow-down text-warning"></i> Needs Attention</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0 text-info">
+                    <i class="bi bi-exclamation-triangle me-2"></i>Action Items
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item bg-transparent border-secondary">
+                        <div class="d-flex align-items-start">
+                            <div class="bg-warning rounded-circle me-2 d-flex align-items-center justify-content-center" 
+                                 style="width: 20px; height: 20px;">
+                                <span class="text-dark fw-bold" style="font-size: 0.7rem;">!</span>
+                            </div>
+                            <div>
+                                <small class="fw-bold">Jake's Attendance</small><br>
+                                <small class="text-muted">Below 90% threshold</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="list-group-item bg-transparent border-secondary">
+                        <div class="d-flex align-items-start">
+                            <div class="bg-info rounded-circle me-2 d-flex align-items-center justify-content-center" 
+                                 style="width: 20px; height: 20px;">
+                                <span class="text-white fw-bold" style="font-size: 0.7rem;">i</span>
+                            </div>
+                            <div>
+                                <small class="fw-bold">Parent Conference</small><br>
+                                <small class="text-muted">Requested by Ms. Davis</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="list-group-item bg-transparent border-secondary">
+                        <div class="d-flex align-items-start">
+                            <div class="bg-success rounded-circle me-2 d-flex align-items-center justify-content-center" 
+                                 style="width: 20px; height: 20px;">
+                                <span class="text-white fw-bold" style="font-size: 0.7rem;">✓</span>
+                            </div>
+                            <div>
+                                <small class="fw-bold">Emma's Progress</small><br>
+                                <small class="text-muted">Excellent improvement</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <button class="btn btn-sm btn-teal w-100">
+                        <i class="bi bi-calendar-check me-1"></i>Schedule Conference
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

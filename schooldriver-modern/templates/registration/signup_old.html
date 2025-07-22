@@ -1,0 +1,459 @@
+{% extends "auth_base.html" %}
+{% load static %}
+
+{% block title %}Sign Up - SchoolDriver Modern{% endblock %}
+
+{% endblock %}
+
+{% block content %}
+    .admin-auth-container {
+        background-color: #1e1e1e;
+        color: #e0e0e0;
+        min-height: 100vh;
+        padding: 20px;
+    }
+    
+    .auth-content {
+        background-color: #2d2d2d;
+        border-radius: 8px;
+        margin: 20px auto;
+        padding: 30px;
+        max-width: 480px;
+        border: 1px solid #4a4a4a;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    }
+    
+    .auth-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    
+    .auth-title {
+        color: #79aec8;
+        font-size: 24px;
+        font-weight: normal;
+        margin: 0 0 10px 0;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .auth-subtitle {
+        color: #b0b0b0;
+        font-size: 14px;
+        margin: 0;
+    }
+    
+    .auth-form {
+        margin-top: 20px;
+    }
+    
+    .form-row {
+        margin-bottom: 20px;
+    }
+    
+    .form-label {
+        display: block;
+        color: #79aec8;
+        font-size: 13px;
+        font-weight: normal;
+        margin-bottom: 5px;
+        text-transform: uppercase;
+    }
+    
+    .form-input {
+        width: 100%;
+        padding: 10px 12px;
+        background-color: #404040;
+        border: 1px solid #505050;
+        border-radius: 4px;
+        color: #e0e0e0;
+        font-size: 14px;
+        box-sizing: border-box;
+    }
+    
+    .form-input:focus {
+        outline: none;
+        border-color: #79aec8;
+        background-color: #4a4a4a;
+    }
+    
+    .form-input::placeholder {
+        color: #999999;
+    }
+    
+    .form-select {
+        width: 100%;
+        padding: 10px 12px;
+        background-color: #404040;
+        border: 1px solid #505050;
+        border-radius: 4px;
+        color: #e0e0e0;
+        font-size: 14px;
+        box-sizing: border-box;
+    }
+    
+    .form-select:focus {
+        outline: none;
+        border-color: #79aec8;
+        background-color: #4a4a4a;
+    }
+    
+    .submit-button {
+        width: 100%;
+        padding: 12px;
+        background-color: #1e7e34;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        margin-top: 20px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .submit-button:hover {
+        background-color: #28a745;
+    }
+    
+    .auth-links {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+        font-size: 12px;
+    }
+    
+    .auth-link {
+        color: #79aec8;
+        text-decoration: none;
+        padding: 4px 8px;
+        border-radius: 3px;
+        background-color: #404040;
+        border: 1px solid #505050;
+    }
+    
+    .auth-link:hover {
+        background-color: #4a4a4a;
+        color: #ffffff;
+    }
+    
+    .error-messages {
+        background-color: #552222;
+        border: 1px solid #773333;
+        border-radius: 4px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .error-title {
+        color: #ff6666;
+        font-size: 13px;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    
+    .error-text {
+        color: #ff9999;
+        font-size: 12px;
+    }
+    
+    .field-error {
+        color: #ff6666;
+        font-size: 11px;
+        margin-top: 3px;
+    }
+    
+    .password-strength {
+        font-size: 11px;
+        margin-top: 3px;
+    }
+    
+    .password-strength-weak { color: #ff6666; }
+    .password-strength-medium { color: #ffaa00; }
+    .password-strength-strong { color: #00aa00; }
+    
+    .auth-footer {
+        text-align: center;
+        margin-top: 25px;
+        padding-top: 15px;
+        border-top: 1px solid #4a4a4a;
+    }
+    
+    .auth-footer-text {
+        color: #777777;
+        font-size: 11px;
+    }
+    
+    .help-text {
+        color: #999999;
+        font-size: 11px;
+        margin-top: 3px;
+        font-style: italic;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-auth-container">
+    <div class="auth-content">
+        <!-- Header -->
+        <div class="auth-header">
+            <h1 class="auth-title">Create your account</h1>
+            <p class="auth-subtitle">Join SchoolDriver Modern</p>
+        </div>
+
+        <!-- Signup Form -->
+        <form class="auth-form" action="{% url 'signup' %}" method="post" id="signupForm">
+            {% csrf_token %}
+            
+            <!-- Error Messages -->
+            {% if form.errors %}
+                <div class="error-messages">
+                    <div class="error-title">Registration Error</div>
+                    <div class="error-text">
+                        {% for field, errors in form.errors.items %}
+                            {% for error in errors %}
+                                {{ error }}<br>
+                            {% endfor %}
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Username Field -->
+            <div class="form-row">
+                <label for="{{ form.username.id_for_label }}" class="form-label">
+                    Username
+                </label>
+                <input 
+                    id="{{ form.username.id_for_label }}" 
+                    name="{{ form.username.name }}" 
+                    type="text" 
+                    required 
+                    class="form-input"
+                    placeholder="Choose a username"
+                    value="{{ form.username.value|default_if_none:'' }}"
+                >
+                {% if form.username.errors %}
+                    {% for error in form.username.errors %}
+                        <div class="field-error">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+                <div class="help-text">{{ form.username.help_text }}</div>
+            </div>
+
+            <!-- Email Field -->
+            <div class="form-row">
+                <label for="{{ form.email.id_for_label }}" class="form-label">
+                    Email Address
+                </label>
+                <input 
+                    id="{{ form.email.id_for_label }}" 
+                    name="{{ form.email.name }}" 
+                    type="email" 
+                    required 
+                    class="form-input"
+                    placeholder="Enter your email address"
+                    value="{{ form.email.value|default_if_none:'' }}"
+                >
+                {% if form.email.errors %}
+                    {% for error in form.email.errors %}
+                        <div class="field-error">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            <!-- First Name Field -->
+            <div class="form-row">
+                <label for="{{ form.first_name.id_for_label }}" class="form-label">
+                    First Name
+                </label>
+                <input 
+                    id="{{ form.first_name.id_for_label }}" 
+                    name="{{ form.first_name.name }}" 
+                    type="text" 
+                    required 
+                    class="form-input"
+                    placeholder="Enter your first name"
+                    value="{{ form.first_name.value|default_if_none:'' }}"
+                >
+                {% if form.first_name.errors %}
+                    {% for error in form.first_name.errors %}
+                        <div class="field-error">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            <!-- Last Name Field -->
+            <div class="form-row">
+                <label for="{{ form.last_name.id_for_label }}" class="form-label">
+                    Last Name
+                </label>
+                <input 
+                    id="{{ form.last_name.id_for_label }}" 
+                    name="{{ form.last_name.name }}" 
+                    type="text" 
+                    required 
+                    class="form-input"
+                    placeholder="Enter your last name"
+                    value="{{ form.last_name.value|default_if_none:'' }}"
+                >
+                {% if form.last_name.errors %}
+                    {% for error in form.last_name.errors %}
+                        <div class="field-error">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            <!-- Password Field -->
+            <div class="form-row">
+                <label for="{{ form.password1.id_for_label }}" class="form-label">
+                    Password
+                </label>
+                <input 
+                    id="{{ form.password1.id_for_label }}" 
+                    name="{{ form.password1.name }}" 
+                    type="password" 
+                    required 
+                    class="form-input"
+                    placeholder="Enter your password"
+                    onkeyup="checkPasswordStrength(this.value)"
+                >
+                {% if form.password1.errors %}
+                    {% for error in form.password1.errors %}
+                        <div class="field-error">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+                <div class="help-text">{{ form.password1.help_text }}</div>
+                <!-- Password Strength Indicator -->
+                <div id="password-strength" class="password-strength" style="display: none;"></div>
+            </div>
+
+            <!-- Confirm Password Field -->
+            <div class="form-row">
+                <label for="{{ form.password2.id_for_label }}" class="form-label">
+                    Confirm Password
+                </label>
+                <input 
+                    id="{{ form.password2.id_for_label }}" 
+                    name="{{ form.password2.name }}" 
+                    type="password" 
+                    required 
+                    class="form-input"
+                    placeholder="Confirm your password"
+                >
+                {% if form.password2.errors %}
+                    {% for error in form.password2.errors %}
+                        <div class="field-error">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            <!-- Role Field -->
+            <div class="form-row">
+                <label for="{{ form.role.id_for_label }}" class="form-label">
+                    Account Type
+                </label>
+                <select 
+                    id="{{ form.role.id_for_label }}" 
+                    name="{{ form.role.name }}" 
+                    required 
+                    class="form-select"
+                >
+                    <option value="">Select your role</option>
+                    <option value="parent" {% if form.role.value == 'parent' %}selected{% endif %}>Parent</option>
+                    <option value="student" {% if form.role.value == 'student' %}selected{% endif %}>Student</option>
+                </select>
+                {% if form.role.errors %}
+                    {% for error in form.role.errors %}
+                        <div class="field-error">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="submit-button">
+                Create Account
+            </button>
+
+            <!-- Helper Links -->
+            <div class="auth-links">
+                <a href="{% url 'login' %}" class="auth-link">
+                    Already have an account? Sign In
+                </a>
+            </div>
+        </form>
+
+        <!-- Additional Info -->
+        <div class="auth-footer">
+            <p class="auth-footer-text">
+                By creating an account, you agree to our terms of service and privacy policy.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Password strength validation (same as login)
+    function checkPasswordStrength(password) {
+        const strengthDiv = document.getElementById('password-strength');
+        
+        if (password.length === 0) {
+            strengthDiv.style.display = 'none';
+            return;
+        }
+        
+        strengthDiv.style.display = 'block';
+        
+        let score = 0;
+        let feedback = [];
+        
+        // Length check
+        if (password.length >= 8) score += 1;
+        else feedback.push('At least 8 characters');
+        
+        // Uppercase check
+        if (/[A-Z]/.test(password)) score += 1;
+        else feedback.push('One uppercase letter');
+        
+        // Lowercase check
+        if (/[a-z]/.test(password)) score += 1;
+        else feedback.push('One lowercase letter');
+        
+        // Number check
+        if (/\d/.test(password)) score += 1;
+        else feedback.push('One number');
+        
+        // Special character check
+        if (/[^A-Za-z0-9]/.test(password)) score += 1;
+        else feedback.push('One special character');
+        
+        // Display strength
+        if (score < 2) {
+            strengthDiv.className = 'password-strength password-strength-weak';
+            strengthDiv.textContent = 'Weak password. Missing: ' + feedback.join(', ');
+        } else if (score < 4) {
+            strengthDiv.className = 'password-strength password-strength-medium';
+            strengthDiv.textContent = 'Medium password. Consider adding: ' + feedback.join(', ');
+        } else {
+            strengthDiv.className = 'password-strength password-strength-strong';
+            strengthDiv.textContent = 'Strong password!';
+        }
+    }
+
+    // Form validation
+    document.getElementById('signupForm').addEventListener('submit', function(e) {
+        const password1 = document.getElementById('{{ form.password1.id_for_label }}').value;
+        const password2 = document.getElementById('{{ form.password2.id_for_label }}').value;
+        
+        if (password1 !== password2) {
+            e.preventDefault();
+            alert('Passwords do not match. Please try again.');
+            return false;
+        }
+    });
+</script>
+{% endblock %}

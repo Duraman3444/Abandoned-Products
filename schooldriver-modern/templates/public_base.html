@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb" class="bg-dark border-bottom border-secondary">
+    <div class="container">
+        <ol class="breadcrumb py-2 mb-0">
+            <li class="breadcrumb-item"><a href="{% url 'public:home' %}" class="text-info">Home</a></li>
+            {% block breadcrumb_items %}{% endblock %}
+        </ol>
+    </div>
+</nav>
+{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, var(--dark-card) 0%, var(--teal-dark) 100%);
+        padding: 4rem 0;
+    }
+    
+    .feature-card {
+        transition: transform 0.2s ease;
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .breadcrumb-item a {
+        text-decoration: none;
+    }
+    
+    .breadcrumb-item.active {
+        color: var(--text-muted);
+    }
+</style>
+{% endblock %}

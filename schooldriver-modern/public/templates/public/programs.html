@@ -1,0 +1,216 @@
+{% extends "public_base.html" %}
+
+{% block title %}Academic Programs - SchoolDriver Modern{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item active">Programs</li>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Page Header -->
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+            <h1 class="display-4 fw-bold text-info mb-3">Academic Programs</h1>
+            <p class="lead">Comprehensive education from elementary through high school</p>
+        </div>
+    </div>
+    
+    <!-- Program Levels -->
+    <div class="row g-4 mb-5">
+        <div class="col-lg-4">
+            <div class="card h-100">
+                <div class="card-header text-center bg-primary">
+                    <i class="bi bi-emoji-smile text-white" style="font-size: 3rem;"></i>
+                    <h3 class="card-title text-white mt-2 mb-0">Elementary School</h3>
+                    <p class="text-white-50 mb-0">Grades K-5</p>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        Our elementary program focuses on building strong foundational skills in reading, 
+                        writing, mathematics, and science while fostering creativity and social development.
+                    </p>
+                    <h6 class="text-info">Key Features:</h6>
+                    <ul>
+                        <li>Small class sizes (15-18 students)</li>
+                        <li>Integrated STEAM curriculum</li>
+                        <li>Daily physical education</li>
+                        <li>Art and music programs</li>
+                        <li>Character education</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card h-100">
+                <div class="card-header text-center bg-success">
+                    <i class="bi bi-book text-white" style="font-size: 3rem;"></i>
+                    <h3 class="card-title text-white mt-2 mb-0">Middle School</h3>
+                    <p class="text-white-50 mb-0">Grades 6-8</p>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        Our middle school program bridges elementary and high school, helping students 
+                        develop independence while exploring their interests and talents.
+                    </p>
+                    <h6 class="text-info">Key Features:</h6>
+                    <ul>
+                        <li>Departmentalized instruction</li>
+                        <li>Advanced placement options</li>
+                        <li>Leadership opportunities</li>
+                        <li>Clubs and athletics</li>
+                        <li>Peer mentoring program</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card h-100">
+                <div class="card-header text-center bg-warning">
+                    <i class="bi bi-mortarboard text-white" style="font-size: 3rem;"></i>
+                    <h3 class="card-title text-white mt-2 mb-0">High School</h3>
+                    <p class="text-white-50 mb-0">Grades 9-12</p>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        Our high school program prepares students for college and career success through 
+                        rigorous academics and extensive extracurricular opportunities.
+                    </p>
+                    <h6 class="text-info">Key Features:</h6>
+                    <ul>
+                        <li>AP and dual enrollment courses</li>
+                        <li>Career pathway programs</li>
+                        <li>College counseling</li>
+                        <li>Internship opportunities</li>
+                        <li>Comprehensive athletics</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Special Programs -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title mb-0 text-info">
+                        <i class="bi bi-star me-2"></i>Special Programs & Services
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="card border-info">
+                                <div class="card-body">
+                                    <h5 class="card-title text-info">
+                                        <i class="bi bi-lightbulb me-2"></i>Gifted & Talented
+                                    </h5>
+                                    <p class="card-text">
+                                        Advanced curriculum and enrichment activities for high-achieving students. 
+                                        Includes specialized classes, independent study projects, and academic competitions.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="card border-info">
+                                <div class="card-body">
+                                    <h5 class="card-title text-info">
+                                        <i class="bi bi-heart me-2"></i>Special Education
+                                    </h5>
+                                    <p class="card-text">
+                                        Comprehensive support services for students with diverse learning needs. 
+                                        Individualized education plans and specialized instruction in inclusive settings.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="card border-info">
+                                <div class="card-body">
+                                    <h5 class="card-title text-info">
+                                        <i class="bi bi-translate me-2"></i>ESL Program
+                                    </h5>
+                                    <p class="card-text">
+                                        English as a Second Language support for non-native speakers. 
+                                        Intensive language instruction with cultural integration activities.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="card border-info">
+                                <div class="card-body">
+                                    <h5 class="card-title text-info">
+                                        <i class="bi bi-laptop me-2"></i>Technology Integration
+                                    </h5>
+                                    <p class="card-text">
+                                        1:1 device program with integrated digital literacy curriculum. 
+                                        Coding, robotics, and digital design courses across all grade levels.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Extracurricular Activities -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title mb-0 text-info">
+                        <i class="bi bi-trophy me-2"></i>Extracurricular Activities
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h5 class="text-info">Athletics</h5>
+                            <ul>
+                                <li>Basketball</li>
+                                <li>Soccer</li>
+                                <li>Track & Field</li>
+                                <li>Swimming</li>
+                                <li>Tennis</li>
+                                <li>Volleyball</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-4">
+                            <h5 class="text-info">Academic Clubs</h5>
+                            <ul>
+                                <li>Debate Team</li>
+                                <li>Model UN</li>
+                                <li>Science Olympiad</li>
+                                <li>Math Competition Team</li>
+                                <li>Robotics Club</li>
+                                <li>Honor Society</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-4">
+                            <h5 class="text-info">Arts & Culture</h5>
+                            <ul>
+                                <li>Drama Club</li>
+                                <li>School Band</li>
+                                <li>Choir</li>
+                                <li>Art Club</li>
+                                <li>Photography Club</li>
+                                <li>Creative Writing</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

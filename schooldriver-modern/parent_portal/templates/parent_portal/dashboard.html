@@ -1,0 +1,280 @@
+{% extends "parent_base.html" %}
+
+{% block title %}Parent Dashboard - SchoolDriver Modern{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item active">Dashboard</li>
+{% endblock %}
+
+{% block parent_content %}
+<!-- Welcome Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h2 class="text-info mb-2">Welcome, {{ user.first_name|default:user.username }}!</h2>
+                        <p class="text-muted mb-0">Here's an overview of your children's academic progress.</p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <div class="text-muted">
+                            <i class="bi bi-calendar-date me-1"></i>
+                            <span id="current-date"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Children Overview -->
+<div class="row g-4 mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 text-info">
+                    <i class="bi bi-person-graduation me-2"></i>Emma Johnson
+                </h5>
+                <span class="badge bg-warning text-dark">Grade 11</span>
+            </div>
+            <div class="card-body">
+                <div class="row text-center mb-3">
+                    <div class="col-4">
+                        <h5 class="text-success mb-0">3.7</h5>
+                        <small class="text-muted">GPA</small>
+                    </div>
+                    <div class="col-4">
+                        <h5 class="text-primary mb-0">95%</h5>
+                        <small class="text-muted">Attendance</small>
+                    </div>
+                    <div class="col-4">
+                        <h5 class="text-warning mb-0">3</h5>
+                        <small class="text-muted">Pending</small>
+                    </div>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{% url 'parent_portal:child_grades' child_id=1 %}" class="btn btn-sm btn-outline-info">View Grades</a>
+                    <a href="#" class="btn btn-sm btn-outline-secondary">Messages</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 text-info">
+                    <i class="bi bi-person-graduation me-2"></i>Jake Johnson
+                </h5>
+                <span class="badge bg-primary">Grade 8</span>
+            </div>
+            <div class="card-body">
+                <div class="row text-center mb-3">
+                    <div class="col-4">
+                        <h5 class="text-success mb-0">3.4</h5>
+                        <small class="text-muted">GPA</small>
+                    </div>
+                    <div class="col-4">
+                        <h5 class="text-warning mb-0">88%</h5>
+                        <small class="text-muted">Attendance</small>
+                    </div>
+                    <div class="col-4">
+                        <h5 class="text-info mb-0">2</h5>
+                        <small class="text-muted">Pending</small>
+                    </div>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{% url 'parent_portal:child_grades' child_id=2 %}" class="btn btn-sm btn-outline-info">View Grades</a>
+                    <a href="#" class="btn btn-sm btn-outline-secondary">Messages</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Updates & Quick Actions -->
+<div class="row g-4 mb-4">
+    <div class="col-lg-8">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 text-info">
+                    <i class="bi bi-bell me-2"></i>Recent Updates
+                </h5>
+                <a href="{% url 'parent_portal:messages' %}" class="btn btn-sm btn-outline-info">View All</a>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item bg-transparent border-secondary">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1">New Grade Posted</h6>
+                                <p class="mb-1">Emma received an A- on her History test (WWI Research Paper)</p>
+                                <small class="text-muted">Mr. Garcia • 2 hours ago</small>
+                            </div>
+                            <span class="badge bg-success">A-</span>
+                        </div>
+                    </div>
+                    <div class="list-group-item bg-transparent border-secondary">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1">Attendance Alert</h6>
+                                <p class="mb-1">Jake was marked tardy for Mathematics class this morning</p>
+                                <small class="text-muted">Mr. Peterson • 4 hours ago</small>
+                            </div>
+                            <span class="badge bg-warning text-dark">Tardy</span>
+                        </div>
+                    </div>
+                    <div class="list-group-item bg-transparent border-secondary">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1">Assignment Due Soon</h6>
+                                <p class="mb-1">Emma has a Chemistry lab report due tomorrow</p>
+                                <small class="text-muted">Dr. Wilson • Yesterday</small>
+                            </div>
+                            <span class="badge bg-danger">Due Soon</span>
+                        </div>
+                    </div>
+                    <div class="list-group-item bg-transparent border-secondary">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1">New Message</h6>
+                                <p class="mb-1">Ms. Davis would like to schedule a parent conference</p>
+                                <small class="text-muted">Ms. Davis • 2 days ago</small>
+                            </div>
+                            <span class="badge bg-info">Message</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0 text-info">
+                    <i class="bi bi-lightning me-2"></i>Quick Actions
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'parent_portal:children' %}" class="btn btn-outline-info">
+                        <i class="bi bi-people me-2"></i>View All Children
+                    </a>
+                    <a href="{% url 'parent_portal:messages' %}" class="btn btn-outline-info">
+                        <i class="bi bi-chat-dots me-2"></i>Messages
+                    </a>
+                    <a href="#" class="btn btn-outline-info">
+                        <i class="bi bi-calendar-event me-2"></i>School Calendar
+                    </a>
+                    <a href="#" class="btn btn-outline-info">
+                        <i class="bi bi-download me-2"></i>Report Cards
+                    </a>
+                    <a href="#" class="btn btn-outline-info">
+                        <i class="bi bi-credit-card me-2"></i>Payment Portal
+                    </a>
+                    <a href="{% url 'parent_portal:profile' %}" class="btn btn-outline-info">
+                        <i class="bi bi-person me-2"></i>Update Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Upcoming Events & Important Dates -->
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0 text-info">
+                    <i class="bi bi-calendar-event me-2"></i>Upcoming Events
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item bg-transparent border-secondary">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1">Parent-Teacher Conferences</h6>
+                                <p class="mb-1">Individual meetings with teachers</p>
+                                <small class="text-muted">February 15-16, 2025</small>
+                            </div>
+                            <span class="badge bg-primary">Upcoming</span>
+                        </div>
+                    </div>
+                    <div class="list-group-item bg-transparent border-secondary">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1">Science Fair</h6>
+                                <p class="mb-1">Student science project presentations</p>
+                                <small class="text-muted">March 5, 2025</small>
+                            </div>
+                            <span class="badge bg-info">Event</span>
+                        </div>
+                    </div>
+                    <div class="list-group-item bg-transparent border-secondary">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1">Spring Break</h6>
+                                <p class="mb-1">No classes scheduled</p>
+                                <small class="text-muted">March 25-29, 2025</small>
+                            </div>
+                            <span class="badge bg-secondary">Holiday</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0 text-info">
+                    <i class="bi bi-megaphone me-2"></i>School Announcements
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item bg-transparent border-secondary">
+                        <h6 class="mb-1">New School App Available</h6>
+                        <p class="mb-1">Download the new SchoolDriver mobile app for easier access to grades and announcements.</p>
+                        <small class="text-muted">Posted 1 day ago</small>
+                    </div>
+                    <div class="list-group-item bg-transparent border-secondary">
+                        <h6 class="mb-1">Cafeteria Menu Update</h6>
+                        <p class="mb-1">New healthy options have been added to the lunch menu starting next week.</p>
+                        <small class="text-muted">Posted 3 days ago</small>
+                    </div>
+                    <div class="list-group-item bg-transparent border-secondary">
+                        <h6 class="mb-1">Early Dismissal Notice</h6>
+                        <p class="mb-1">School will dismiss 2 hours early on Friday for teacher professional development.</p>
+                        <small class="text-muted">Posted 1 week ago</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+    // Display current date
+    document.addEventListener('DOMContentLoaded', function() {
+        const currentDate = new Date();
+        const options = { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        };
+        document.getElementById('current-date').textContent = 
+            currentDate.toLocaleDateString('en-US', options);
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,318 @@
+{% extends "student_base.html" %}
+
+{% block title %}My Grades - SchoolDriver Modern{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item active">Grades</li>
+{% endblock %}
+
+{% block student_content %}
+<!-- Page Header -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <h2 class="text-info mb-2">My Grades</h2>
+                        <p class="text-muted mb-0">View your academic progress and performance</p>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="row text-center">
+                            <div class="col-6">
+                                <h4 class="text-success mb-0">3.7</h4>
+                                <small class="text-muted">Current GPA</small>
+                            </div>
+                            <div class="col-6">
+                                <h4 class="text-info mb-0">3.5</h4>
+                                <small class="text-muted">Cumulative GPA</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Grade Filters -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-4">
+                        <label for="semester" class="form-label">Semester</label>
+                        <select class="form-select bg-dark border-secondary text-light" id="semester">
+                            <option value="current">Current Semester</option>
+                            <option value="fall2024">Fall 2024</option>
+                            <option value="spring2024">Spring 2024</option>
+                            <option value="fall2023">Fall 2023</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="course" class="form-label">Course</label>
+                        <select class="form-select bg-dark border-secondary text-light" id="course">
+                            <option value="all">All Courses</option>
+                            <option value="math">Mathematics</option>
+                            <option value="english">English Literature</option>
+                            <option value="chemistry">Chemistry</option>
+                            <option value="history">World History</option>
+                            <option value="pe">Physical Education</option>
+                            <option value="art">Art</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button class="btn btn-teal me-2">Apply Filters</button>
+                        <button class="btn btn-outline-secondary">Reset</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Current Semester Grades -->
+<div class="row g-4 mb-4">
+    <!-- Mathematics -->
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="mb-0 text-info">Mathematics - Algebra II</h5>
+                    <small class="text-muted">Mr. Johnson • Period 1</small>
+                </div>
+                <span class="badge bg-success fs-6">A-</span>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Current Grade</span>
+                        <span>91%</span>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-success" style="width: 91%"></div>
+                    </div>
+                </div>
+                <div class="row text-center">
+                    <div class="col-4">
+                        <small class="text-muted">Tests</small>
+                        <div class="fw-bold">88%</div>
+                    </div>
+                    <div class="col-4">
+                        <small class="text-muted">Homework</small>
+                        <div class="fw-bold">95%</div>
+                    </div>
+                    <div class="col-4">
+                        <small class="text-muted">Participation</small>
+                        <div class="fw-bold">90%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- English Literature -->
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="mb-0 text-info">English Literature</h5>
+                    <small class="text-muted">Ms. Davis • Period 2</small>
+                </div>
+                <span class="badge bg-success fs-6">B+</span>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Current Grade</span>
+                        <span>87%</span>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-success" style="width: 87%"></div>
+                    </div>
+                </div>
+                <div class="row text-center">
+                    <div class="col-4">
+                        <small class="text-muted">Essays</small>
+                        <div class="fw-bold">85%</div>
+                    </div>
+                    <div class="col-4">
+                        <small class="text-muted">Tests</small>
+                        <div class="fw-bold">89%</div>
+                    </div>
+                    <div class="col-4">
+                        <small class="text-muted">Participation</small>
+                        <div class="fw-bold">88%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Chemistry -->
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="mb-0 text-info">Chemistry</h5>
+                    <small class="text-muted">Dr. Wilson • Period 3</small>
+                </div>
+                <span class="badge bg-warning text-dark fs-6">B</span>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Current Grade</span>
+                        <span>83%</span>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-warning" style="width: 83%"></div>
+                    </div>
+                </div>
+                <div class="row text-center">
+                    <div class="col-4">
+                        <small class="text-muted">Labs</small>
+                        <div class="fw-bold">86%</div>
+                    </div>
+                    <div class="col-4">
+                        <small class="text-muted">Tests</small>
+                        <div class="fw-bold">80%</div>
+                    </div>
+                    <div class="col-4">
+                        <small class="text-muted">Homework</small>
+                        <div class="fw-bold">85%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- World History -->
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="mb-0 text-info">World History</h5>
+                    <small class="text-muted">Mr. Garcia • Period 5</small>
+                </div>
+                <span class="badge bg-success fs-6">A</span>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Current Grade</span>
+                        <span>94%</span>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-success" style="width: 94%"></div>
+                    </div>
+                </div>
+                <div class="row text-center">
+                    <div class="col-4">
+                        <small class="text-muted">Tests</small>
+                        <div class="fw-bold">92%</div>
+                    </div>
+                    <div class="col-4">
+                        <small class="text-muted">Projects</small>
+                        <div class="fw-bold">96%</div>
+                    </div>
+                    <div class="col-4">
+                        <small class="text-muted">Participation</small>
+                        <div class="fw-bold">95%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Assignments -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 text-info">
+                    <i class="bi bi-clock-history me-2"></i>Recent Assignments
+                </h5>
+                <button class="btn btn-sm btn-outline-info">View All</button>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-dark table-striped">
+                        <thead>
+                            <tr>
+                                <th>Assignment</th>
+                                <th>Course</th>
+                                <th>Type</th>
+                                <th>Date Submitted</th>
+                                <th>Grade</th>
+                                <th>Feedback</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Chapter 5 Quiz</td>
+                                <td>Mathematics</td>
+                                <td><span class="badge bg-primary">Quiz</span></td>
+                                <td>Jan 18, 2025</td>
+                                <td><span class="badge bg-success">92%</span></td>
+                                <td><button class="btn btn-sm btn-outline-info">View</button></td>
+                            </tr>
+                            <tr>
+                                <td>WWI Research Paper</td>
+                                <td>World History</td>
+                                <td><span class="badge bg-warning text-dark">Essay</span></td>
+                                <td>Jan 15, 2025</td>
+                                <td><span class="badge bg-success">A-</span></td>
+                                <td><button class="btn btn-sm btn-outline-info">View</button></td>
+                            </tr>
+                            <tr>
+                                <td>Lab Report #4</td>
+                                <td>Chemistry</td>
+                                <td><span class="badge bg-info">Lab</span></td>
+                                <td>Jan 12, 2025</td>
+                                <td><span class="badge bg-warning text-dark">B+</span></td>
+                                <td><button class="btn btn-sm btn-outline-info">View</button></td>
+                            </tr>
+                            <tr>
+                                <td>Homework Set #12</td>
+                                <td>Mathematics</td>
+                                <td><span class="badge bg-secondary">Homework</span></td>
+                                <td>Jan 10, 2025</td>
+                                <td><span class="badge bg-warning text-dark">B-</span></td>
+                                <td><button class="btn btn-sm btn-outline-info">View</button></td>
+                            </tr>
+                            <tr>
+                                <td>Poetry Analysis</td>
+                                <td>English Literature</td>
+                                <td><span class="badge bg-warning text-dark">Essay</span></td>
+                                <td>Jan 8, 2025</td>
+                                <td><span class="badge bg-success">B+</span></td>
+                                <td><button class="btn btn-sm btn-outline-info">View</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+    .progress-bar {
+        transition: width 0.6s ease;
+    }
+    
+    .form-control:focus,
+    .form-select:focus {
+        background-color: var(--dark-card);
+        border-color: var(--teal-primary);
+        color: var(--text-light);
+        box-shadow: 0 0 0 0.2rem rgba(20, 184, 166, 0.25);
+    }
+</style>
+{% endblock %}

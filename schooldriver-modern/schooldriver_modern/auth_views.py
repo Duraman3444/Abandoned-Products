@@ -1,7 +1,12 @@
 from django.contrib.auth.views import LoginView
 from django.contrib.auth import login, authenticate
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
 from django.contrib import messages
+from django.shortcuts import render, redirect
+from django.views.generic import CreateView
+from django import forms
 from .roles import get_redirect_url_for_user
 from .middleware import check_login_allowed
 from .models import SecurityEvent
@@ -44,3 +49,63 @@ class CustomLoginView(LoginView):
         redirect_url = get_redirect_url_for_user(form.get_user())
         
         return HttpResponseRedirect(redirect_url)
+
+
+class CustomUserCreationForm(UserCreationForm):
+    """Custom user creation form with additional fields."""
+    
+    email = forms.EmailField(required=True)
+    first_name = forms.CharField(max_length=30, required=True)
+    last_name = forms.CharField(max_length=30, required=True)
+    role = forms.ChoiceField(
+        choices=[
+            ('', 'Select your role'),
+            ('parent', 'Parent'),
+            ('student', 'Student'),
+        ],
+        required=True
+    )
+    
+    class Meta:
+        model = User
+        fields = ("username", "email", "first_name", "last_name", "password1", "password2", "role")
+    
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.email = self.cleaned_data["email"]
+        user.first_name = self.cleaned_data["first_name"]
+        user.last_name = self.cleaned_data["last_name"]
+        
+        if commit:
+            user.save()
+            # You can add role assignment logic here if needed
+            # For now, we'll just save the user
+        
+        return user
+
+
+class SignUpView(CreateView):
+    """Custom signup view with role-based redirects."""
+    
+    form_class = CustomUserCreationForm
+    template_name = 'registration/signup.html'
+    
+    def form_valid(self, form):
+        """Handle successful signup."""
+        user = form.save()
+        
+        # Log the user in automatically after signup
+        login(self.request, user)
+        
+        # Add success message
+        messages.success(self.request, f'Welcome to SchoolDriver Modern, {user.first_name}!')
+        
+        # Get role-based redirect URL
+        redirect_url = get_redirect_url_for_user(user)
+        
+        return HttpResponseRedirect(redirect_url)
+    
+    def form_invalid(self, form):
+        """Handle invalid form submission."""
+        messages.error(self.request, 'Please correct the errors below.')
+        return super().form_invalid(form)

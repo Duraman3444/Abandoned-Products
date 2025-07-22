@@ -1,0 +1,288 @@
+{% extends "public_base.html" %}
+
+{% block title %}Admissions - SchoolDriver Modern{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item active">Admissions</li>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Page Header -->
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+            <h1 class="display-4 fw-bold text-info mb-3">Admissions</h1>
+            <p class="lead">Join our community of learners and achievers</p>
+        </div>
+    </div>
+    
+    <!-- Application Process -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title mb-0 text-info">
+                        <i class="bi bi-list-check me-2"></i>Application Process
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <div class="text-center">
+                                <div class="bg-info rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" 
+                                     style="width: 60px; height: 60px;">
+                                    <span class="text-white fw-bold">1</span>
+                                </div>
+                                <h5>Submit Application</h5>
+                                <p class="text-muted">Complete our online application form with required documents.</p>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <div class="text-center">
+                                <div class="bg-info rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" 
+                                     style="width: 60px; height: 60px;">
+                                    <span class="text-white fw-bold">2</span>
+                                </div>
+                                <h5>Document Review</h5>
+                                <p class="text-muted">Our admissions team reviews your application and transcripts.</p>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <div class="text-center">
+                                <div class="bg-info rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" 
+                                     style="width: 60px; height: 60px;">
+                                    <span class="text-white fw-bold">3</span>
+                                </div>
+                                <h5>Interview & Assessment</h5>
+                                <p class="text-muted">Meet with our team and complete any required assessments.</p>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <div class="text-center">
+                                <div class="bg-info rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" 
+                                     style="width: 60px; height: 60px;">
+                                    <span class="text-white fw-bold">4</span>
+                                </div>
+                                <h5>Admission Decision</h5>
+                                <p class="text-muted">Receive your admission decision and enrollment information.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Requirements by Grade Level -->
+    <div class="row g-4 mb-5">
+        <div class="col-lg-4">
+            <div class="card h-100">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="card-title mb-0">Elementary (K-5)</h4>
+                </div>
+                <div class="card-body">
+                    <h6 class="text-info">Required Documents:</h6>
+                    <ul>
+                        <li>Completed application form</li>
+                        <li>Birth certificate</li>
+                        <li>Immunization records</li>
+                        <li>Previous school records (if applicable)</li>
+                        <li>Parent/guardian identification</li>
+                    </ul>
+                    <h6 class="text-info mt-3">Assessment:</h6>
+                    <p>Age-appropriate readiness evaluation for kindergarten applicants.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card h-100">
+                <div class="card-header bg-success text-white">
+                    <h4 class="card-title mb-0">Middle School (6-8)</h4>
+                </div>
+                <div class="card-body">
+                    <h6 class="text-info">Required Documents:</h6>
+                    <ul>
+                        <li>Completed application form</li>
+                        <li>Official transcripts (2 years)</li>
+                        <li>Teacher recommendations (2)</li>
+                        <li>Standardized test scores</li>
+                        <li>Immunization records</li>
+                    </ul>
+                    <h6 class="text-info mt-3">Assessment:</h6>
+                    <p>Entrance exam covering math, reading, and writing skills.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card h-100">
+                <div class="card-header bg-warning text-white">
+                    <h4 class="card-title mb-0">High School (9-12)</h4>
+                </div>
+                <div class="card-body">
+                    <h6 class="text-info">Required Documents:</h6>
+                    <ul>
+                        <li>Completed application form</li>
+                        <li>Official transcripts (all years)</li>
+                        <li>Teacher recommendations (3)</li>
+                        <li>Personal essay</li>
+                        <li>Extracurricular activity list</li>
+                    </ul>
+                    <h6 class="text-info mt-3">Assessment:</h6>
+                    <p>Comprehensive entrance exam and personal interview.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Important Dates -->
+    <div class="row mb-5">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title mb-0 text-info">
+                        <i class="bi bi-calendar-event me-2"></i>Important Dates
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item bg-transparent border-secondary">
+                            <div class="d-flex justify-content-between">
+                                <strong>Application Opens</strong>
+                                <span>November 1, 2024</span>
+                            </div>
+                        </div>
+                        <div class="list-group-item bg-transparent border-secondary">
+                            <div class="d-flex justify-content-between">
+                                <strong>Application Deadline</strong>
+                                <span>March 15, 2025</span>
+                            </div>
+                        </div>
+                        <div class="list-group-item bg-transparent border-secondary">
+                            <div class="d-flex justify-content-between">
+                                <strong>Admission Decisions</strong>
+                                <span>April 15, 2025</span>
+                            </div>
+                        </div>
+                        <div class="list-group-item bg-transparent border-secondary">
+                            <div class="d-flex justify-content-between">
+                                <strong>Enrollment Deadline</strong>
+                                <span>May 15, 2025</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title mb-0 text-info">
+                        <i class="bi bi-cash-stack me-2"></i>Tuition & Fees
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-dark table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Grade Level</th>
+                                    <th>Annual Tuition</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Elementary (K-5)</td>
+                                    <td>$8,500</td>
+                                </tr>
+                                <tr>
+                                    <td>Middle School (6-8)</td>
+                                    <td>$9,800</td>
+                                </tr>
+                                <tr>
+                                    <td>High School (9-12)</td>
+                                    <td>$11,200</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="text-muted small">
+                        *Additional fees may apply for materials, activities, and technology.
+                        Financial aid is available for qualifying families.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Financial Aid & Scholarships -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title mb-0 text-info">
+                        <i class="bi bi-award me-2"></i>Financial Aid & Scholarships
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5 class="text-info">Need-Based Financial Aid</h5>
+                            <p>
+                                We believe that financial circumstances should not prevent qualified students 
+                                from receiving an excellent education. Our need-based financial aid program 
+                                assists families who demonstrate financial need.
+                            </p>
+                            <ul>
+                                <li>Up to 75% tuition assistance</li>
+                                <li>Payment plans available</li>
+                                <li>Sibling discounts</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="text-info">Merit Scholarships</h5>
+                            <p>
+                                Outstanding students may qualify for merit-based scholarships based on 
+                                academic achievement, leadership potential, and special talents.
+                            </p>
+                            <ul>
+                                <li>Academic Excellence Scholarship</li>
+                                <li>Leadership Award</li>
+                                <li>Arts & Athletics Scholarships</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Contact & Apply -->
+    <div class="row">
+        <div class="col-12 text-center">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="text-info mb-3">Ready to Apply?</h3>
+                    <p class="mb-4">
+                        Take the first step toward joining our school community. Our admissions team 
+                        is here to help you through every step of the process.
+                    </p>
+                    <div class="d-flex flex-wrap justify-content-center gap-3">
+                        <a href="#" class="btn btn-teal btn-lg">
+                            <i class="bi bi-pencil-square me-2"></i>Start Application
+                        </a>
+                        <a href="#" class="btn btn-outline-info btn-lg">
+                            <i class="bi bi-calendar-check me-2"></i>Schedule Tour
+                        </a>
+                        <a href="{% url 'public:contact' %}" class="btn btn-outline-secondary btn-lg">
+                            <i class="bi bi-envelope me-2"></i>Contact Admissions
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

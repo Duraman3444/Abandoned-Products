@@ -1,0 +1,341 @@
+{% extends "student_base.html" %}
+
+{% block title %}My Schedule - SchoolDriver Modern{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item active">Schedule</li>
+{% endblock %}
+
+{% block student_content %}
+<!-- Page Header -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h2 class="text-info mb-2">My Class Schedule</h2>
+                        <p class="text-muted mb-0">Spring Semester 2025 • Week of January 20-24, 2025</p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <button class="btn btn-outline-info me-2">
+                            <i class="bi bi-download me-1"></i>Export
+                        </button>
+                        <button class="btn btn-teal">
+                            <i class="bi bi-printer me-1"></i>Print
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Weekly Schedule -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0 text-info">
+                    <i class="bi bi-calendar-week me-2"></i>Weekly Schedule
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-dark table-bordered mb-0">
+                        <thead>
+                            <tr>
+                                <th style="width: 120px;">Time</th>
+                                <th>Monday</th>
+                                <th>Tuesday</th>
+                                <th>Wednesday</th>
+                                <th>Thursday</th>
+                                <th>Friday</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="fw-bold">8:00 - 9:10</td>
+                                <td class="bg-primary bg-opacity-25">
+                                    <strong>Mathematics</strong><br>
+                                    <small>Algebra II</small><br>
+                                    <small class="text-muted">Room 205 • Mr. Johnson</small>
+                                </td>
+                                <td class="bg-primary bg-opacity-25">
+                                    <strong>Mathematics</strong><br>
+                                    <small>Algebra II</small><br>
+                                    <small class="text-muted">Room 205 • Mr. Johnson</small>
+                                </td>
+                                <td class="bg-primary bg-opacity-25">
+                                    <strong>Mathematics</strong><br>
+                                    <small>Algebra II</small><br>
+                                    <small class="text-muted">Room 205 • Mr. Johnson</small>
+                                </td>
+                                <td class="bg-primary bg-opacity-25">
+                                    <strong>Mathematics</strong><br>
+                                    <small>Algebra II</small><br>
+                                    <small class="text-muted">Room 205 • Mr. Johnson</small>
+                                </td>
+                                <td class="bg-primary bg-opacity-25">
+                                    <strong>Mathematics</strong><br>
+                                    <small>Algebra II</small><br>
+                                    <small class="text-muted">Room 205 • Mr. Johnson</small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">9:15 - 10:25</td>
+                                <td class="bg-success bg-opacity-25">
+                                    <strong>English Literature</strong><br>
+                                    <small>American Literature</small><br>
+                                    <small class="text-muted">Room 112 • Ms. Davis</small>
+                                </td>
+                                <td class="bg-success bg-opacity-25">
+                                    <strong>English Literature</strong><br>
+                                    <small>American Literature</small><br>
+                                    <small class="text-muted">Room 112 • Ms. Davis</small>
+                                </td>
+                                <td class="bg-success bg-opacity-25">
+                                    <strong>English Literature</strong><br>
+                                    <small>American Literature</small><br>
+                                    <small class="text-muted">Room 112 • Ms. Davis</small>
+                                </td>
+                                <td class="bg-success bg-opacity-25">
+                                    <strong>English Literature</strong><br>
+                                    <small>American Literature</small><br>
+                                    <small class="text-muted">Room 112 • Ms. Davis</small>
+                                </td>
+                                <td class="bg-success bg-opacity-25">
+                                    <strong>English Literature</strong><br>
+                                    <small>American Literature</small><br>
+                                    <small class="text-muted">Room 112 • Ms. Davis</small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">10:30 - 10:45</td>
+                                <td colspan="5" class="text-center bg-secondary bg-opacity-25">
+                                    <strong>BREAK</strong>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">10:45 - 11:55</td>
+                                <td class="bg-warning bg-opacity-25">
+                                    <strong>Chemistry</strong><br>
+                                    <small>General Chemistry</small><br>
+                                    <small class="text-muted">Lab 301 • Dr. Wilson</small>
+                                </td>
+                                <td class="bg-warning bg-opacity-25">
+                                    <strong>Chemistry</strong><br>
+                                    <small>General Chemistry</small><br>
+                                    <small class="text-muted">Lab 301 • Dr. Wilson</small>
+                                </td>
+                                <td class="bg-warning bg-opacity-25">
+                                    <strong>Chemistry</strong><br>
+                                    <small>General Chemistry</small><br>
+                                    <small class="text-muted">Lab 301 • Dr. Wilson</small>
+                                </td>
+                                <td class="bg-info bg-opacity-25">
+                                    <strong>Art</strong><br>
+                                    <small>Studio Art</small><br>
+                                    <small class="text-muted">Art Room • Ms. Chen</small>
+                                </td>
+                                <td class="bg-warning bg-opacity-25">
+                                    <strong>Chemistry</strong><br>
+                                    <small>General Chemistry</small><br>
+                                    <small class="text-muted">Lab 301 • Dr. Wilson</small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">12:00 - 12:55</td>
+                                <td colspan="5" class="text-center bg-secondary bg-opacity-25">
+                                    <strong>LUNCH</strong>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">1:00 - 2:10</td>
+                                <td class="bg-danger bg-opacity-25">
+                                    <strong>World History</strong><br>
+                                    <small>Modern World History</small><br>
+                                    <small class="text-muted">Room 208 • Mr. Garcia</small>
+                                </td>
+                                <td class="bg-danger bg-opacity-25">
+                                    <strong>World History</strong><br>
+                                    <small>Modern World History</small><br>
+                                    <small class="text-muted">Room 208 • Mr. Garcia</small>
+                                </td>
+                                <td class="bg-danger bg-opacity-25">
+                                    <strong>World History</strong><br>
+                                    <small>Modern World History</small><br>
+                                    <small class="text-muted">Room 208 • Mr. Garcia</small>
+                                </td>
+                                <td class="bg-danger bg-opacity-25">
+                                    <strong>World History</strong><br>
+                                    <small>Modern World History</small><br>
+                                    <small class="text-muted">Room 208 • Mr. Garcia</small>
+                                </td>
+                                <td class="bg-danger bg-opacity-25">
+                                    <strong>World History</strong><br>
+                                    <small>Modern World History</small><br>
+                                    <small class="text-muted">Room 208 • Mr. Garcia</small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">2:15 - 3:25</td>
+                                <td class="bg-info bg-opacity-25">
+                                    <strong>Physical Education</strong><br>
+                                    <small>Health & Fitness</small><br>
+                                    <small class="text-muted">Gymnasium • Coach Thompson</small>
+                                </td>
+                                <td class="bg-info bg-opacity-25">
+                                    <strong>Physical Education</strong><br>
+                                    <small>Health & Fitness</small><br>
+                                    <small class="text-muted">Gymnasium • Coach Thompson</small>
+                                </td>
+                                <td class="bg-info bg-opacity-25">
+                                    <strong>Art</strong><br>
+                                    <small>Studio Art</small><br>
+                                    <small class="text-muted">Art Room • Ms. Chen</small>
+                                </td>
+                                <td class="bg-info bg-opacity-25">
+                                    <strong>Physical Education</strong><br>
+                                    <small>Health & Fitness</small><br>
+                                    <small class="text-muted">Gymnasium • Coach Thompson</small>
+                                </td>
+                                <td class="bg-secondary bg-opacity-25">
+                                    <strong>Study Hall</strong><br>
+                                    <small>Self-Study Period</small><br>
+                                    <small class="text-muted">Library • Ms. Parker</small>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Course Details -->
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0 text-info">
+                    <i class="bi bi-book me-2"></i>Course Details
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item bg-transparent border-secondary">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1">Mathematics - Algebra II</h6>
+                                <p class="mb-1">Advanced algebraic concepts and functions</p>
+                                <small class="text-muted">Credits: 1.0 • Prerequisites: Algebra I</small>
+                            </div>
+                            <span class="badge bg-primary">Core</span>
+                        </div>
+                    </div>
+                    <div class="list-group-item bg-transparent border-secondary">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1">English Literature</h6>
+                                <p class="mb-1">American literature and composition</p>
+                                <small class="text-muted">Credits: 1.0 • Prerequisites: English I & II</small>
+                            </div>
+                            <span class="badge bg-primary">Core</span>
+                        </div>
+                    </div>
+                    <div class="list-group-item bg-transparent border-secondary">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1">Chemistry</h6>
+                                <p class="mb-1">General chemistry with laboratory work</p>
+                                <small class="text-muted">Credits: 1.0 • Prerequisites: Biology, Algebra I</small>
+                            </div>
+                            <span class="badge bg-primary">Core</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0 text-info">
+                    <i class="bi bi-person-badge me-2"></i>Teachers & Contact
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item bg-transparent border-secondary">
+                        <div class="d-flex align-items-center">
+                            <div class="me-3">
+                                <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center" 
+                                     style="width: 40px; height: 40px;">
+                                    <span class="text-white fw-bold">MJ</span>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-0">Mr. Johnson</h6>
+                                <small class="text-muted">Mathematics Department</small>
+                            </div>
+                            <button class="btn btn-sm btn-outline-info">Contact</button>
+                        </div>
+                    </div>
+                    <div class="list-group-item bg-transparent border-secondary">
+                        <div class="d-flex align-items-center">
+                            <div class="me-3">
+                                <div class="bg-success rounded-circle d-flex align-items-center justify-content-center" 
+                                     style="width: 40px; height: 40px;">
+                                    <span class="text-white fw-bold">SD</span>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-0">Ms. Davis</h6>
+                                <small class="text-muted">English Department</small>
+                            </div>
+                            <button class="btn btn-sm btn-outline-info">Contact</button>
+                        </div>
+                    </div>
+                    <div class="list-group-item bg-transparent border-secondary">
+                        <div class="d-flex align-items-center">
+                            <div class="me-3">
+                                <div class="bg-warning rounded-circle d-flex align-items-center justify-content-center" 
+                                     style="width: 40px; height: 40px;">
+                                    <span class="text-dark fw-bold">DW</span>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-0">Dr. Wilson</h6>
+                                <small class="text-muted">Science Department</small>
+                            </div>
+                            <button class="btn btn-sm btn-outline-info">Contact</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+    .table td {
+        vertical-align: middle;
+        padding: 0.75rem;
+    }
+    
+    .table td small {
+        display: block;
+        margin-top: 0.25rem;
+    }
+    
+    .bg-opacity-25 {
+        opacity: 0.15;
+    }
+</style>
+{% endblock %}

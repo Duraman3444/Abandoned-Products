@@ -1,10 +1,15 @@
 from django.core.management.base import BaseCommand
 from django.utils import timezone
+from django.contrib.auth.models import User
 from datetime import datetime, date, timedelta
 from students.models import Student, GradeLevel, SchoolYear, EmergencyContact
 from admissions.models import (
     Applicant, AdmissionLevel, AdmissionCheck, FeederSchool, 
     ApplicationDecision, ContactLog, OpenHouse, ApplicantDocument
+)
+from academics.models import (
+    Department, Course, CourseSection, Enrollment, AssignmentCategory,
+    Assignment, Grade, Schedule, Attendance, Announcement, Message
 )
 import random
 from django.db import transaction
@@ -31,10 +36,13 @@ class Command(BaseCommand):
             self.create_school_years()
             self.create_admission_infrastructure()
             self.create_feeder_schools()
+            self.create_sample_users()
+            self.create_academic_infrastructure()
             self.create_sample_students()
             self.create_sample_applicants()
             self.create_sample_documents()
             self.create_open_houses()
+            self.create_academic_data()
 
         self.stdout.write(
             self.style.SUCCESS(
@@ -46,8 +54,14 @@ class Command(BaseCommand):
 
     def clear_sample_data(self):
         """Clear existing sample data"""
+        # Clear in dependency order to avoid foreign key constraints
         models_to_clear = [
-            ApplicantDocument, OpenHouse, ContactLog, ApplicationDecision, Applicant, 
+            # Academic models first
+            Message, Announcement, Attendance, Grade, Assignment, 
+            Schedule, Enrollment, CourseSection, Course, Department, 
+            AssignmentCategory,
+            # Admission models
+            ApplicantDocument, OpenHouse, ContactLog, Applicant, ApplicationDecision,
             EmergencyContact, Student, FeederSchool, AdmissionCheck, 
             AdmissionLevel, SchoolYear, GradeLevel
         ]
@@ -466,4 +480,372 @@ class Command(BaseCommand):
         self.stdout.write(f"Open Houses: {OpenHouse.objects.count()}")
         self.stdout.write(f"Contact Logs: {ContactLog.objects.count()}")
         self.stdout.write(f"Application Decisions: {ApplicationDecision.objects.count()}")
-        self.stdout.write(f"Applicant Documents: {ApplicantDocument.objects.count()}") 
+        self.stdout.write(f"Applicant Documents: {ApplicantDocument.objects.count()}")
+        self.stdout.write(f"Departments: {Department.objects.count()}")
+        self.stdout.write(f"Courses: {Course.objects.count()}")
+        self.stdout.write(f"Course Sections: {CourseSection.objects.count()}")
+        self.stdout.write(f"Enrollments: {Enrollment.objects.count()}")
+        self.stdout.write(f"Assignments: {Assignment.objects.count()}")
+        self.stdout.write(f"Grades: {Grade.objects.count()}")
+        self.stdout.write(f"Schedules: {Schedule.objects.count()}")
+        self.stdout.write(f"Attendance Records: {Attendance.objects.count()}")
+        self.stdout.write(f"Announcements: {Announcement.objects.count()}")
+        self.stdout.write(f"Messages: {Message.objects.count()}")
+
+    def create_sample_users(self):
+        """Create sample teachers and parent users"""
+        # Create teacher users
+        teacher_data = [
+            ('john.johnson', 'John', 'Johnson', 'john.johnson@school.edu'),
+            ('mary.davis', 'Mary', 'Davis', 'mary.davis@school.edu'),
+            ('robert.smith', 'Robert', 'Smith', 'robert.smith@school.edu'),
+            ('susan.wilson', 'Susan', 'Wilson', 'susan.wilson@school.edu'),
+            ('michael.brown', 'Michael', 'Brown', 'michael.brown@school.edu'),
+            ('lisa.garcia', 'Lisa', 'Garcia', 'lisa.garcia@school.edu'),
+            ('david.martinez', 'David', 'Martinez', 'david.martinez@school.edu'),
+            ('jennifer.taylor', 'Jennifer', 'Taylor', 'jennifer.taylor@school.edu'),
+        ]
+        
+        for username, first_name, last_name, email in teacher_data:
+            user, created = User.objects.get_or_create(
+                username=username,
+                defaults={
+                    'first_name': first_name,
+                    'last_name': last_name,
+                    'email': email,
+                    'is_active': True,
+                }
+            )
+            if created:
+                user.set_password('teacher123')
+                user.save()
+                self.stdout.write(f"  Created teacher user: {username}")
+
+    def create_academic_infrastructure(self):
+        """Create departments, courses, and assignment categories"""
+        # Create departments
+        departments_data = [
+            ('Mathematics', 'Mathematics and Algebra Department'),
+            ('English', 'English Language Arts Department'),
+            ('Science', 'Science and Laboratory Department'),
+            ('Social Studies', 'History and Social Sciences Department'),
+            ('Arts', 'Visual and Performing Arts Department'),
+            ('Physical Education', 'Physical Education and Health Department'),
+            ('Foreign Languages', 'World Languages Department'),
+            ('Technology', 'Computer Science and Technology Department'),
+        ]
+        
+        for name, description in departments_data:
+            # Get a random teacher as head
+            teachers = User.objects.filter(username__endswith=('.johnson', '.davis', '.smith', '.wilson'))
+            head = random.choice(teachers) if teachers else None
+            
+            dept, created = Department.objects.get_or_create(
+                name=name,
+                defaults={'description': description, 'head': head}
+            )
+            if created:
+                self.stdout.write(f"  Created department: {name}")
+        
+        # Create courses
+        courses_data = [
+            # Elementary/Middle School
+            ('MATH-K', 'Kindergarten Math', 'Mathematics', 'Basic counting and number concepts'),
+            ('MATH-1', '1st Grade Math', 'Mathematics', 'Addition and subtraction basics'),
+            ('MATH-2', '2nd Grade Math', 'Mathematics', 'Multi-digit addition and subtraction'),
+            ('MATH-3', '3rd Grade Math', 'Mathematics', 'Multiplication and division introduction'),
+            ('MATH-4', '4th Grade Math', 'Mathematics', 'Fractions and decimals'),
+            ('MATH-5', '5th Grade Math', 'Mathematics', 'Advanced arithmetic and pre-algebra concepts'),
+            ('MATH-6', '6th Grade Math', 'Mathematics', 'Ratios, proportions, and beginning algebra'),
+            ('MATH-7', '7th Grade Math', 'Mathematics', 'Linear equations and geometry'),
+            ('MATH-8', '8th Grade Math', 'Mathematics', 'Advanced algebra and coordinate geometry'),
+            
+            # High School Math
+            ('ALG1', 'Algebra I', 'Mathematics', 'Fundamental algebraic concepts'),
+            ('GEO', 'Geometry', 'Mathematics', 'Plane and solid geometry'),
+            ('ALG2', 'Algebra II', 'Mathematics', 'Advanced algebraic functions'),
+            ('PRECALC', 'Pre-Calculus', 'Mathematics', 'Preparation for calculus'),
+            ('CALC', 'Calculus', 'Mathematics', 'Differential and integral calculus'),
+            
+            # English
+            ('ENG-K', 'Kindergarten Reading', 'English', 'Letter recognition and phonics'),
+            ('ENG-1', '1st Grade Reading', 'English', 'Beginning reading skills'),
+            ('ENG-2', '2nd Grade Reading', 'English', 'Reading comprehension development'),
+            ('ENG-3', '3rd Grade Language Arts', 'English', 'Reading fluency and writing basics'),
+            ('ENG-4', '4th Grade Language Arts', 'English', 'Literature and creative writing'),
+            ('ENG-5', '5th Grade Language Arts', 'English', 'Advanced reading and grammar'),
+            ('ENG-6', '6th Grade Language Arts', 'English', 'Literary analysis introduction'),
+            ('ENG-7', '7th Grade Language Arts', 'English', 'Writing and research skills'),
+            ('ENG-8', '8th Grade Language Arts', 'English', 'Advanced composition'),
+            ('ENG9', 'English 9', 'English', 'World literature and composition'),
+            ('ENG10', 'English 10', 'English', 'American literature'),
+            ('ENG11', 'English 11', 'English', 'British literature'),
+            ('ENG12', 'English 12', 'English', 'Advanced composition and literature'),
+            
+            # Science
+            ('SCI-K', 'Kindergarten Science', 'Science', 'Basic science concepts'),
+            ('SCI-1', '1st Grade Science', 'Science', 'Plants, animals, and weather'),
+            ('SCI-2', '2nd Grade Science', 'Science', 'Life cycles and matter'),
+            ('SCI-3', '3rd Grade Science', 'Science', 'Earth science basics'),
+            ('SCI-4', '4th Grade Science', 'Science', 'Energy and motion'),
+            ('SCI-5', '5th Grade Science', 'Science', 'Physical science introduction'),
+            ('SCI-6', '6th Grade Science', 'Science', 'Earth and space science'),
+            ('SCI-7', '7th Grade Science', 'Science', 'Life science'),
+            ('SCI-8', '8th Grade Science', 'Science', 'Physical science'),
+            ('BIO', 'Biology', 'Science', 'High school biology'),
+            ('CHEM', 'Chemistry', 'Science', 'High school chemistry'),
+            ('PHYS', 'Physics', 'Science', 'High school physics'),
+            
+            # Social Studies
+            ('SS-K', 'Kindergarten Social Studies', 'Social Studies', 'Community helpers and families'),
+            ('SS-1', '1st Grade Social Studies', 'Social Studies', 'School and neighborhood'),
+            ('SS-2', '2nd Grade Social Studies', 'Social Studies', 'Communities and citizenship'),
+            ('SS-3', '3rd Grade Social Studies', 'Social Studies', 'Local communities and geography'),
+            ('SS-4', '4th Grade Social Studies', 'Social Studies', 'State history and geography'),
+            ('SS-5', '5th Grade Social Studies', 'Social Studies', 'United States history'),
+            ('SS-6', '6th Grade Social Studies', 'Social Studies', 'Ancient civilizations'),
+            ('SS-7', '7th Grade Social Studies', 'Social Studies', 'World history'),
+            ('SS-8', '8th Grade Social Studies', 'Social Studies', 'American history'),
+            ('HIST9', 'World History', 'Social Studies', 'High school world history'),
+            ('HIST10', 'US History', 'Social Studies', 'American history'),
+            ('GOV', 'Government', 'Social Studies', 'Civics and government'),
+            ('ECON', 'Economics', 'Social Studies', 'Economic principles'),
+            
+            # Arts
+            ('ART-K', 'Kindergarten Art', 'Arts', 'Basic art concepts and creativity'),
+            ('ART-EL', 'Elementary Art', 'Arts', 'Drawing, painting, and sculpture'),
+            ('ART-MS', 'Middle School Art', 'Arts', 'Advanced art techniques'),
+            ('ART-HS', 'High School Art', 'Arts', 'Portfolio development'),
+            ('MUSIC-EL', 'Elementary Music', 'Arts', 'Basic music concepts'),
+            ('BAND', 'Band', 'Arts', 'Instrumental music'),
+            ('CHOIR', 'Choir', 'Arts', 'Vocal music'),
+            
+            # PE
+            ('PE-EL', 'Elementary PE', 'Physical Education', 'Basic movement and games'),
+            ('PE-MS', 'Middle School PE', 'Physical Education', 'Team sports and fitness'),
+            ('PE-HS', 'High School PE', 'Physical Education', 'Advanced fitness and sports'),
+            ('HEALTH', 'Health', 'Physical Education', 'Health and wellness education'),
+        ]
+        
+        for course_code, name, dept_name, description in courses_data:
+            department = Department.objects.filter(name=dept_name).first()
+            if department:
+                course, created = Course.objects.get_or_create(
+                    course_code=course_code,
+                    defaults={
+                        'name': name,
+                        'department': department,
+                        'description': description,
+                        'credit_hours': 1.0
+                    }
+                )
+                if created:
+                    self.stdout.write(f"  Created course: {course_code}")
+        
+        # Create assignment categories
+        categories_data = [
+            ('Homework', 'Daily homework assignments', 0.20),
+            ('Quiz', 'Short assessments', 0.15),
+            ('Test', 'Major assessments', 0.40),
+            ('Project', 'Long-term projects', 0.15),
+            ('Participation', 'Class participation and engagement', 0.10),
+            ('Essay', 'Written essays and reports', 0.25),
+            ('Lab', 'Laboratory work and experiments', 0.20),
+            ('Presentation', 'Oral presentations', 0.15),
+        ]
+        
+        for name, description, weight in categories_data:
+            category, created = AssignmentCategory.objects.get_or_create(
+                name=name,
+                defaults={'description': description, 'default_weight': weight}
+            )
+            if created:
+                self.stdout.write(f"  Created assignment category: {name}")
+
+    def create_academic_data(self):
+        """Create course sections, enrollments, assignments, grades, schedules, and attendance"""
+        current_school_year = SchoolYear.objects.filter(is_active=True).first()
+        if not current_school_year:
+            self.stdout.write(self.style.WARNING("No active school year found. Skipping academic data."))
+            return
+        
+        # Create course sections for active students
+        students = Student.objects.filter(is_active=True)
+        teachers = User.objects.filter(username__contains='.')[:8]  # Get teacher users
+        
+        if not teachers:
+            self.stdout.write(self.style.WARNING("No teacher users found. Skipping academic data."))
+            return
+        
+        # Group students by grade level
+        students_by_grade = {}
+        for student in students:
+            grade = student.grade_level.name
+            if grade not in students_by_grade:
+                students_by_grade[grade] = []
+            students_by_grade[grade].append(student)
+        
+        # Create sections for each grade
+        sections_created = []
+        for grade, grade_students in students_by_grade.items():
+            # Get appropriate courses for this grade
+            grade_courses = Course.objects.filter(course_code__endswith=f'-{grade}') | \
+                           Course.objects.filter(course_code__endswith=grade)
+            
+            # For high school grades, also include non-grade-specific courses
+            if grade in ['9', '10', '11', '12']:
+                hs_courses = Course.objects.filter(
+                    course_code__in=['ALG1', 'GEO', 'ALG2', 'PRECALC', 'CALC', 'ENG9', 'ENG10', 'ENG11', 'ENG12',
+                                    'BIO', 'CHEM', 'PHYS', 'HIST9', 'HIST10', 'GOV', 'ECON', 'ART-HS', 'PE-HS']
+                )
+                grade_courses = grade_courses | hs_courses
+            
+            # For middle school
+            elif grade in ['6', '7', '8']:
+                ms_courses = Course.objects.filter(course_code__in=['ART-MS', 'PE-MS', 'BAND', 'CHOIR'])
+                grade_courses = grade_courses | ms_courses
+            
+            # For elementary
+            else:
+                el_courses = Course.objects.filter(course_code__in=['ART-EL', 'PE-EL', 'MUSIC-EL'])
+                grade_courses = grade_courses | el_courses
+            
+            for course in grade_courses[:8]:  # Limit to 8 courses per grade
+                teacher = random.choice(teachers)
+                
+                section, created = CourseSection.objects.get_or_create(
+                    course=course,
+                    school_year=current_school_year,
+                    section_name='A',
+                    defaults={
+                        'teacher': teacher,
+                        'room': f'Room {random.randint(100, 299)}',
+                        'max_students': 25
+                    }
+                )
+                if created:
+                    sections_created.append(section)
+                    self.stdout.write(f"  Created section: {section}")
+                    
+                    # Enroll students in this section
+                    for student in grade_students:
+                        Enrollment.objects.get_or_create(
+                            student=student,
+                            section=section
+                        )
+                    
+                    # Create schedule for this section
+                    days = ['MON', 'TUE', 'WED', 'THU', 'FRI']
+                    start_times = ['08:00', '09:00', '10:00', '11:00', '13:00', '14:00', '15:00']
+                    
+                    for day in random.sample(days, 3):  # 3 days per week
+                        start_time = random.choice(start_times)
+                        Schedule.objects.get_or_create(
+                            section=section,
+                            day_of_week=day,
+                            start_time=start_time,
+                            end_time=f'{int(start_time[:2])+1:02d}:00',
+                            room=section.room
+                        )
+        
+        # Create assignments and grades
+        categories = list(AssignmentCategory.objects.all())
+        if not categories:
+            self.stdout.write(self.style.WARNING("No assignment categories found. Skipping assignments."))
+            return
+        
+        assignment_templates = [
+            'Quiz 1', 'Quiz 2', 'Quiz 3', 'Test 1', 'Test 2', 'Midterm Exam',
+            'Homework Set 1', 'Homework Set 2', 'Homework Set 3',
+            'Project 1', 'Final Project', 'Research Paper',
+            'Lab Report 1', 'Lab Report 2', 'Class Presentation'
+        ]
+        
+        for section in sections_created[:20]:  # Limit to first 20 sections to avoid too much data
+            # Create 5-8 assignments per section
+            num_assignments = random.randint(5, 8)
+            
+            for i in range(num_assignments):
+                assignment_name = random.choice(assignment_templates)
+                category = random.choice(categories)
+                
+                assigned_date = current_school_year.start_date + timedelta(days=random.randint(0, 90))
+                due_date = assigned_date + timedelta(days=random.randint(1, 14))
+                
+                assignment = Assignment.objects.create(
+                    section=section,
+                    category=category,
+                    name=f"{assignment_name} - {section.course.name}",
+                    assigned_date=assigned_date,
+                    due_date=due_date,
+                    max_points=random.choice([10, 20, 50, 100]),
+                    is_published=True
+                )
+                
+                # Create grades for each enrolled student
+                for enrollment in section.enrollments.all():
+                    # 90% chance student has a grade
+                    if random.random() < 0.9:
+                        points_earned = random.uniform(0.6, 1.0) * float(assignment.max_points)
+                        is_late = random.random() < 0.1  # 10% chance of late submission
+                        
+                        Grade.objects.create(
+                            enrollment=enrollment,
+                            assignment=assignment,
+                            points_earned=round(points_earned, 2),
+                            is_late=is_late,
+                            graded_by=section.teacher,
+                            graded_date=due_date + timedelta(days=random.randint(1, 5))
+                        )
+        
+        # Create attendance records for the past 30 days
+        end_date = timezone.now().date()
+        start_date = end_date - timedelta(days=30)
+        
+        for enrollment in Enrollment.objects.all()[:50]:  # Limit to first 50 enrollments
+            current_date = start_date
+            while current_date <= end_date:
+                # Skip weekends
+                if current_date.weekday() < 5:  # Monday=0, Friday=4
+                    status = random.choices(
+                        ['P', 'A', 'T', 'E'],
+                        weights=[85, 5, 8, 2]  # 85% present, 5% absent, 8% tardy, 2% excused
+                    )[0]
+                    
+                    Attendance.objects.get_or_create(
+                        enrollment=enrollment,
+                        date=current_date,
+                        defaults={
+                            'status': status,
+                            'recorded_by': enrollment.section.teacher
+                        }
+                    )
+                
+                current_date += timedelta(days=1)
+        
+        # Create sample announcements
+        announcements_data = [
+            ("Welcome Back to School!", "We're excited to welcome all students back for the new school year. Please review the updated handbook and safety protocols.", "ALL"),
+            ("Parent-Teacher Conferences", "Parent-teacher conferences are scheduled for next week. Please check your email for your appointment time.", "PARENTS"),
+            ("Science Fair Registration", "The annual science fair is coming up! Students interested in participating should register by Friday.", "STUDENTS"),
+            ("Staff Meeting Reminder", "Monthly staff meeting is scheduled for this Friday at 3:30 PM in the main conference room.", "TEACHERS"),
+            ("Early Dismissal Notice", "School will dismiss early on Wednesday due to professional development. Dismissal time is 1:00 PM.", "ALL"),
+        ]
+        
+        for title, content, audience in announcements_data:
+            Announcement.objects.create(
+                title=title,
+                content=content,
+                audience=audience,
+                is_published=True,
+                publish_date=timezone.now(),
+                created_by=random.choice(teachers) if teachers else User.objects.filter(is_superuser=True).first()
+            )
+        
+        self.stdout.write(f"  Created {len(sections_created)} course sections")
+        self.stdout.write(f"  Created {Enrollment.objects.count()} enrollments")
+        self.stdout.write(f"  Created {Assignment.objects.count()} assignments")
+        self.stdout.write(f"  Created {Grade.objects.count()} grades")
+        self.stdout.write(f"  Created {Schedule.objects.count()} schedules")
+        self.stdout.write(f"  Created {Attendance.objects.count()} attendance records")
+        self.stdout.write(f"  Created {Announcement.objects.count()} announcements") 

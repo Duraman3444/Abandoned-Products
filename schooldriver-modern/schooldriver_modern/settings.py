@@ -53,7 +53,12 @@ INSTALLED_APPS = [
     'schooldriver_modern',
     'students',
     'admissions',
+    'academics',
     'notifications',
+    'authentication',
+    'public',
+    'student_portal',
+    'parent_portal',
 ]
 
 MIDDLEWARE = [

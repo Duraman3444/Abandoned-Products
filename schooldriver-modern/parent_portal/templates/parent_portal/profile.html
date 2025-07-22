@@ -1,0 +1,385 @@
+{% extends "parent_base.html" %}
+
+{% block title %}My Profile - SchoolDriver Modern{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item active">Profile</li>
+{% endblock %}
+
+{% block parent_content %}
+<!-- Page Header -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h2 class="text-info mb-2">My Profile</h2>
+                        <p class="text-muted mb-0">Manage your personal information and account settings</p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <button class="btn btn-teal" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+                            <i class="bi bi-pencil me-1"></i>Edit Profile
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Profile Information -->
+<div class="row g-4">
+    <div class="col-lg-4">
+        <!-- Profile Picture & Basic Info -->
+        <div class="card">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <div class="bg-teal rounded-circle mx-auto d-flex align-items-center justify-content-center" 
+                         style="width: 120px; height: 120px;">
+                        <i class="bi bi-person-fill text-white" style="font-size: 4rem;"></i>
+                    </div>
+                </div>
+                <h4 class="mb-1">{{ user.first_name }} {{ user.last_name }}</h4>
+                <p class="text-muted mb-2">Parent</p>
+                <span class="badge bg-success mb-3">Active Account</span>
+                
+                <div class="row text-center">
+                    <div class="col-6">
+                        <h6 class="mb-0">2</h6>
+                        <small class="text-muted">Children</small>
+                    </div>
+                    <div class="col-6">
+                        <h6 class="mb-0">2023</h6>
+                        <small class="text-muted">Member Since</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- My Children -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="mb-0 text-info">My Children</h6>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item bg-transparent border-secondary">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-warning rounded-circle me-3 d-flex align-items-center justify-content-center" 
+                                 style="width: 40px; height: 40px;">
+                                <span class="text-dark fw-bold">EJ</span>
+                            </div>
+                            <div>
+                                <h6 class="mb-0">Emma Johnson</h6>
+                                <small class="text-muted">Grade 11 • GPA: 3.7</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="list-group-item bg-transparent border-secondary">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-primary rounded-circle me-3 d-flex align-items-center justify-content-center" 
+                                 style="width: 40px; height: 40px;">
+                                <span class="text-white fw-bold">JJ</span>
+                            </div>
+                            <div>
+                                <h6 class="mb-0">Jake Johnson</h6>
+                                <small class="text-muted">Grade 8 • GPA: 3.4</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-8">
+        <!-- Personal Information -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0 text-info">
+                    <i class="bi bi-person me-2"></i>Personal Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">First Name</label>
+                        <div class="fw-bold">{{ user.first_name|default:"Sarah" }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Last Name</label>
+                        <div class="fw-bold">{{ user.last_name|default:"Johnson" }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Email Address</label>
+                        <div class="fw-bold">{{ user.email|default:"sarah.johnson@email.com" }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Phone Number</label>
+                        <div class="fw-bold">(555) 987-6543</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Relationship</label>
+                        <div class="fw-bold">Mother</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Occupation</label>
+                        <div class="fw-bold">Marketing Manager</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Contact Information -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0 text-info">
+                    <i class="bi bi-house me-2"></i>Contact Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label text-muted">Home Address</label>
+                        <div class="fw-bold">123 Maple Street, Springfield, IL 62701</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Work Phone</label>
+                        <div class="fw-bold">(555) 987-6544</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Emergency Contact</label>
+                        <div class="fw-bold">Michael Johnson (Father)</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Preferred Contact Method</label>
+                        <div class="fw-bold">Email</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Best Time to Call</label>
+                        <div class="fw-bold">Evening (6-8 PM)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Portal Settings -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0 text-info">
+                    <i class="bi bi-gear me-2"></i>Portal Settings
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <h6 class="text-info mb-3">Notification Preferences</h6>
+                        
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="gradeNotifications" checked>
+                            <label class="form-check-label" for="gradeNotifications">
+                                <strong>Grade Notifications</strong><br>
+                                <small class="text-muted">Receive alerts when new grades are posted</small>
+                            </label>
+                        </div>
+                        
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="attendanceNotifications" checked>
+                            <label class="form-check-label" for="attendanceNotifications">
+                                <strong>Attendance Notifications</strong><br>
+                                <small class="text-muted">Receive alerts for absences and tardies</small>
+                            </label>
+                        </div>
+                        
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="assignmentReminders" checked>
+                            <label class="form-check-label" for="assignmentReminders">
+                                <strong>Assignment Reminders</strong><br>
+                                <small class="text-muted">Receive reminders for upcoming assignments</small>
+                            </label>
+                        </div>
+                        
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="schoolAnnouncements">
+                            <label class="form-check-label" for="schoolAnnouncements">
+                                <strong>School Announcements</strong><br>
+                                <small class="text-muted">Receive general school announcements and events</small>
+                            </label>
+                        </div>
+                        
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="emergencyAlerts" checked>
+                            <label class="form-check-label" for="emergencyAlerts">
+                                <strong>Emergency Alerts</strong><br>
+                                <small class="text-muted">Receive urgent notifications via SMS and email</small>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="col-12">
+                        <h6 class="text-info mb-3 mt-4">Communication Preferences</h6>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="form-label">Preferred Language</label>
+                                <select class="form-select bg-dark border-secondary text-light">
+                                    <option>English</option>
+                                    <option>Spanish</option>
+                                    <option>French</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Email Frequency</label>
+                                <select class="form-select bg-dark border-secondary text-light">
+                                    <option>Immediate</option>
+                                    <option>Daily Digest</option>
+                                    <option>Weekly Summary</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Account Security -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0 text-info">
+                    <i class="bi bi-shield-check me-2"></i>Account Security
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Last Login</label>
+                        <div class="fw-bold">Today at 9:15 AM</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted">Account Created</label>
+                        <div class="fw-bold">August 15, 2023</div>
+                    </div>
+                    <div class="col-12 mt-4">
+                        <div class="d-flex gap-2 flex-wrap">
+                            <button class="btn btn-outline-warning">
+                                <i class="bi bi-key me-1"></i>Change Password
+                            </button>
+                            <button class="btn btn-outline-info">
+                                <i class="bi bi-shield-lock me-1"></i>Enable 2FA
+                            </button>
+                            <button class="btn btn-teal">
+                                <i class="bi bi-check-lg me-1"></i>Save All Settings
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Profile Modal -->
+<div class="modal fade" id="editProfileModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content bg-dark">
+            <div class="modal-header">
+                <h5 class="modal-title text-info">Edit Profile</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="editFirstName" class="form-label">First Name</label>
+                            <input type="text" class="form-control bg-dark border-secondary text-light" 
+                                   id="editFirstName" value="{{ user.first_name|default:'Sarah' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="editLastName" class="form-label">Last Name</label>
+                            <input type="text" class="form-control bg-dark border-secondary text-light" 
+                                   id="editLastName" value="{{ user.last_name|default:'Johnson' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="editEmail" class="form-label">Email Address</label>
+                            <input type="email" class="form-control bg-dark border-secondary text-light" 
+                                   id="editEmail" value="{{ user.email|default:'sarah.johnson@email.com' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="editPhone" class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control bg-dark border-secondary text-light" 
+                                   id="editPhone" value="(555) 987-6543">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="editWorkPhone" class="form-label">Work Phone</label>
+                            <input type="tel" class="form-control bg-dark border-secondary text-light" 
+                                   id="editWorkPhone" value="(555) 987-6544">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="editOccupation" class="form-label">Occupation</label>
+                            <input type="text" class="form-control bg-dark border-secondary text-light" 
+                                   id="editOccupation" value="Marketing Manager">
+                        </div>
+                        <div class="col-12">
+                            <label for="editAddress" class="form-label">Home Address</label>
+                            <input type="text" class="form-control bg-dark border-secondary text-light" 
+                                   id="editAddress" value="123 Maple Street, Springfield, IL 62701">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="editContactMethod" class="form-label">Preferred Contact Method</label>
+                            <select class="form-select bg-dark border-secondary text-light" id="editContactMethod">
+                                <option selected>Email</option>
+                                <option>Phone</option>
+                                <option>Text Message</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="editBestTime" class="form-label">Best Time to Call</label>
+                            <select class="form-select bg-dark border-secondary text-light" id="editBestTime">
+                                <option>Morning (8-11 AM)</option>
+                                <option>Afternoon (12-5 PM)</option>
+                                <option selected>Evening (6-8 PM)</option>
+                                <option>Anytime</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-teal">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+    .bg-teal {
+        background-color: var(--teal-primary) !important;
+    }
+    
+    .form-control:focus,
+    .form-select:focus {
+        background-color: var(--dark-card);
+        border-color: var(--teal-primary);
+        color: var(--text-light);
+        box-shadow: 0 0 0 0.2rem rgba(20, 184, 166, 0.25);
+    }
+    
+    .form-check-input:checked {
+        background-color: var(--teal-primary);
+        border-color: var(--teal-primary);
+    }
+    
+    .form-check-input:focus {
+        box-shadow: 0 0 0 0.2rem rgba(20, 184, 166, 0.25);
+    }
+    
+    .form-check-label {
+        cursor: pointer;
+    }
+</style>
+{% endblock %}

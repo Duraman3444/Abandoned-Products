@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% load custom_tags %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb" class="bg-dark border-bottom border-secondary">
+    <div class="container">
+        <ol class="breadcrumb py-2 mb-0">
+            <li class="breadcrumb-item"><a href="{% url 'student_portal:dashboard' %}" class="text-info">Student Portal</a></li>
+            {% block breadcrumb_items %}{% endblock %}
+        </ol>
+    </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Sidebar Navigation -->
+        <div class="col-md-3 col-lg-2">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="bi bi-person-graduation me-2"></i>Student Menu</h6>
+                </div>
+                <div class="card-body p-0">
+                    <nav class="nav flex-column">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active bg-teal text-white{% endif %}" 
+                           href="{% url 'student_portal:dashboard' %}">
+                            <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                        </a>
+                        <a class="nav-link {% if request.resolver_match.url_name == 'grades' %}active bg-teal text-white{% endif %}" 
+                           href="{% url 'student_portal:grades' %}">
+                            <i class="bi bi-bar-chart me-2"></i>Grades
+                        </a>
+                        <a class="nav-link {% if request.resolver_match.url_name == 'schedule' %}active bg-teal text-white{% endif %}" 
+                           href="{% url 'student_portal:schedule' %}">
+                            <i class="bi bi-calendar-event me-2"></i>Schedule
+                        </a>
+                        <a class="nav-link {% if request.resolver_match.url_name == 'attendance' %}active bg-teal text-white{% endif %}" 
+                           href="{% url 'student_portal:attendance' %}">
+                            <i class="bi bi-clipboard-check me-2"></i>Attendance
+                        </a>
+                        <a class="nav-link {% if request.resolver_match.url_name == 'profile' %}active bg-teal text-white{% endif %}" 
+                           href="{% url 'student_portal:profile' %}">
+                            <i class="bi bi-person me-2"></i>My Profile
+                        </a>
+                    </nav>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10">
+            {% block student_content %}{% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+    .nav-link {
+        color: var(--text-light) !important;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid var(--dark-border);
+    }
+    
+    .nav-link:hover {
+        background-color: var(--dark-border);
+        color: var(--teal-primary) !important;
+    }
+    
+    .nav-link.active {
+        background-color: var(--teal-primary) !important;
+        color: white !important;
+    }
+    
+    .bg-teal {
+        background-color: var(--teal-primary) !important;
+    }
+</style>
+{% endblock %}

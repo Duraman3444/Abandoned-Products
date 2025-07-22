@@ -18,30 +18,43 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from django.shortcuts import redirect
 from . import views
-from .auth_views import CustomLoginView
+from .auth_views import CustomLoginView, SignUpView
 from .profile_views import profile_view, ProfileEditView, CustomPasswordChangeView
 
-def home_redirect(request):
-    """Redirect home page to login"""
-    return redirect('/accounts/login/')
-
 urlpatterns = [
-    path('', home_redirect, name='home'),
+    # Public URLs (no authentication required)
+    path('', include('public.urls')),
+    
+    # Authentication URLs
+    path('accounts/login/', CustomLoginView.as_view(), name='login'),
+    path('accounts/signup/', SignUpView.as_view(), name='signup'),
+    path('accounts/password_change/', CustomPasswordChangeView.as_view(), name='accounts_password_change'),
+    path('accounts/', include('django.contrib.auth.urls')),
+    
+    # Role-based portal URLs (authentication required)
+    path('student/', include('student_portal.urls')),
+    path('parent/', include('parent_portal.urls')),
+    
+    # Admin and general authenticated areas
     path('admin/', admin.site.urls),
     path('dashboard/', views.dashboard_view, name='dashboard'),
     path('dashboard/admin/', views.admin_dashboard_view, name='admin_dashboard'),
-    path('parent/', views.parent_view, name='parent'),
-    path('student/', views.student_view, name='student'),
+    
+    # Profile management
     path('profile/', profile_view, name='profile'),
     path('profile/edit/', ProfileEditView.as_view(), name='edit_profile'),
     path('profile/password/', CustomPasswordChangeView.as_view(), name='password_change'),
-    path('accounts/login/', CustomLoginView.as_view(), name='login'),
-    path('accounts/password_change/', CustomPasswordChangeView.as_view(), name='accounts_password_change'),
-    path('accounts/', include('django.contrib.auth.urls')),
+    
+    # Legacy views (to be phased out)
+    path('parent-legacy/', views.parent_view, name='parent_legacy'),
+    path('student-legacy/', views.student_view, name='student_legacy'),
+    
+    # Other app URLs
+    path('admissions-old/', include('admissions.urls')),
+    
+    # Health check and utilities
     path('health/', views.health_check, name='health_check'),
-    path('admissions/', include('admissions.urls')),
     
     # API endpoints (temporarily disabled until all dependencies installed)
     # path('api/', include('schooldriver_modern.api_urls')),

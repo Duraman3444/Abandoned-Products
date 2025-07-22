@@ -1,0 +1,153 @@
+{% extends "public_base.html" %}
+
+{% block title %}Welcome - SchoolDriver Modern{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold text-white mb-4">
+                    Welcome to SchoolDriver Modern
+                </h1>
+                <p class="lead text-white-50 mb-4">
+                    A comprehensive school management system designed for modern educational institutions. 
+                    Streamline administration, enhance communication, and improve student outcomes.
+                </p>
+                <div class="d-flex gap-3">
+                    <a href="{% url 'public:admissions' %}" class="btn btn-teal btn-lg">
+                        <i class="bi bi-pencil-square me-2"></i>Apply Now
+                    </a>
+                    <a href="{% url 'public:about' %}" class="btn btn-outline-light btn-lg">
+                        Learn More
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center">
+                <i class="bi bi-mortarboard-fill text-white" style="font-size: 12rem; opacity: 0.7;"></i>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Quick Access Cards -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">Quick Access</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card feature-card h-100 text-center">
+                    <div class="card-body">
+                        <i class="bi bi-person-graduation text-warning" style="font-size: 3rem;"></i>
+                        <h5 class="card-title mt-3">Student Portal</h5>
+                        <p class="card-text">Access grades, schedules, and assignments.</p>
+                        <a href="{% url 'login' %}" class="btn btn-teal">Student Login</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card feature-card h-100 text-center">
+                    <div class="card-body">
+                        <i class="bi bi-people-fill text-success" style="font-size: 3rem;"></i>
+                        <h5 class="card-title mt-3">Parent Portal</h5>
+                        <p class="card-text">Monitor your child's progress and communicate with teachers.</p>
+                        <a href="{% url 'login' %}" class="btn btn-teal">Parent Login</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card feature-card h-100 text-center">
+                    <div class="card-body">
+                        <i class="bi bi-person-badge text-primary" style="font-size: 3rem;"></i>
+                        <h5 class="card-title mt-3">Staff Portal</h5>
+                        <p class="card-text">Manage classes, grades, and student records.</p>
+                        <a href="{% url 'login' %}" class="btn btn-teal">Staff Login</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- School News Section -->
+<section class="py-5 bg-dark">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <h2 class="mb-4">Latest News & Updates</h2>
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title text-info">Welcome Back - Spring Semester 2025</h5>
+                        <p class="card-text">We're excited to welcome all students back for the spring semester. 
+                        Please check your student portal for updated schedules and important announcements.</p>
+                        <small class="text-muted">January 15, 2025</small>
+                    </div>
+                </div>
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title text-info">New Parent Portal Features</h5>
+                        <p class="card-text">We've added new features to the parent portal including real-time 
+                        notifications and improved grade tracking. Log in to explore these updates.</p>
+                        <small class="text-muted">January 10, 2025</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <h3 class="mb-4">Quick Links</h3>
+                <div class="list-group">
+                    <a href="{% url 'public:programs' %}" class="list-group-item list-group-item-action bg-dark border-secondary">
+                        <i class="bi bi-book me-2"></i>Academic Programs
+                    </a>
+                    <a href="{% url 'public:admissions' %}" class="list-group-item list-group-item-action bg-dark border-secondary">
+                        <i class="bi bi-pencil-square me-2"></i>Admissions
+                    </a>
+                    <a href="{% url 'public:contact' %}" class="list-group-item list-group-item-action bg-dark border-secondary">
+                        <i class="bi bi-envelope me-2"></i>Contact Us
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action bg-dark border-secondary">
+                        <i class="bi bi-calendar-event me-2"></i>School Calendar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">Why Choose SchoolDriver Modern?</h2>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="text-center">
+                    <i class="bi bi-shield-check text-info" style="font-size: 3rem;"></i>
+                    <h5 class="mt-3">Secure & Reliable</h5>
+                    <p class="text-muted">Enterprise-grade security with 99.9% uptime guarantee.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="text-center">
+                    <i class="bi bi-phone text-info" style="font-size: 3rem;"></i>
+                    <h5 class="mt-3">Mobile Friendly</h5>
+                    <p class="text-muted">Access from any device, anywhere, anytime.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="text-center">
+                    <i class="bi bi-chat-dots text-info" style="font-size: 3rem;"></i>
+                    <h5 class="mt-3">Real-time Communication</h5>
+                    <p class="text-muted">Instant notifications and messaging between all stakeholders.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="text-center">
+                    <i class="bi bi-bar-chart text-info" style="font-size: 3rem;"></i>
+                    <h5 class="mt-3">Advanced Analytics</h5>
+                    <p class="text-muted">Comprehensive reports and insights for better decision making.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

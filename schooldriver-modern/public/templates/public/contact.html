@@ -1,0 +1,254 @@
+{% extends "public_base.html" %}
+
+{% block title %}Contact Us - SchoolDriver Modern{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item active">Contact</li>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Page Header -->
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+            <h1 class="display-4 fw-bold text-info mb-3">Contact Us</h1>
+            <p class="lead">Get in touch with our team</p>
+        </div>
+    </div>
+    
+    <!-- Contact Information -->
+    <div class="row g-4 mb-5">
+        <div class="col-lg-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-geo-alt-fill text-info" style="font-size: 3rem;"></i>
+                    <h5 class="card-title mt-3">Visit Us</h5>
+                    <p class="card-text">
+                        123 Education Street<br>
+                        Learning City, LC 12345<br>
+                        United States
+                    </p>
+                    <a href="#" class="btn btn-outline-info">Get Directions</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-telephone-fill text-info" style="font-size: 3rem;"></i>
+                    <h5 class="card-title mt-3">Call Us</h5>
+                    <p class="card-text">
+                        Main Office: (555) 123-4567<br>
+                        Admissions: (555) 123-4568<br>
+                        Emergency: (555) 123-4569
+                    </p>
+                    <a href="tel:+15551234567" class="btn btn-outline-info">Call Now</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-envelope-fill text-info" style="font-size: 3rem;"></i>
+                    <h5 class="card-title mt-3">Email Us</h5>
+                    <p class="card-text">
+                        General: info@schooldriver.edu<br>
+                        Admissions: admissions@schooldriver.edu<br>
+                        Support: support@schooldriver.edu
+                    </p>
+                    <a href="mailto:info@schooldriver.edu" class="btn btn-outline-info">Send Email</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Contact Form & Office Hours -->
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title mb-0 text-info">
+                        <i class="bi bi-chat-text me-2"></i>Send us a Message
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="firstName" class="form-label">First Name *</label>
+                                <input type="text" class="form-control bg-dark border-secondary text-light" 
+                                       id="firstName" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="lastName" class="form-label">Last Name *</label>
+                                <input type="text" class="form-control bg-dark border-secondary text-light" 
+                                       id="lastName" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="email" class="form-label">Email Address *</label>
+                                <input type="email" class="form-control bg-dark border-secondary text-light" 
+                                       id="email" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="phone" class="form-label">Phone Number</label>
+                                <input type="tel" class="form-control bg-dark border-secondary text-light" 
+                                       id="phone">
+                            </div>
+                            <div class="col-12">
+                                <label for="subject" class="form-label">Subject *</label>
+                                <select class="form-select bg-dark border-secondary text-light" 
+                                        id="subject" required>
+                                    <option value="">Choose a topic...</option>
+                                    <option value="admissions">Admissions Inquiry</option>
+                                    <option value="academics">Academic Programs</option>
+                                    <option value="enrollment">Current Student/Parent</option>
+                                    <option value="employment">Employment</option>
+                                    <option value="general">General Information</option>
+                                    <option value="technical">Technical Support</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label for="message" class="form-label">Message *</label>
+                                <textarea class="form-control bg-dark border-secondary text-light" 
+                                          id="message" rows="6" required 
+                                          placeholder="Please provide details about your inquiry..."></textarea>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="newsletter">
+                                    <label class="form-check-label" for="newsletter">
+                                        I would like to receive updates and newsletters from SchoolDriver Modern
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-teal btn-lg">
+                                    <i class="bi bi-send me-2"></i>Send Message
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <!-- Office Hours -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0 text-info">
+                        <i class="bi bi-clock me-2"></i>Office Hours
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item bg-transparent border-secondary">
+                            <div class="d-flex justify-content-between">
+                                <strong>Monday - Friday</strong>
+                                <span>7:30 AM - 4:00 PM</span>
+                            </div>
+                        </div>
+                        <div class="list-group-item bg-transparent border-secondary">
+                            <div class="d-flex justify-content-between">
+                                <strong>Saturday</strong>
+                                <span>9:00 AM - 1:00 PM</span>
+                            </div>
+                        </div>
+                        <div class="list-group-item bg-transparent border-secondary">
+                            <div class="d-flex justify-content-between">
+                                <strong>Sunday</strong>
+                                <span>Closed</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Extended hours during enrollment periods
+                        </small>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Department Contacts -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0 text-info">
+                        <i class="bi bi-people me-2"></i>Department Contacts
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item bg-transparent border-secondary">
+                            <strong class="text-info">Admissions Office</strong><br>
+                            <small>Mrs. Sarah Johnson</small><br>
+                            <small>admissions@schooldriver.edu</small><br>
+                            <small>(555) 123-4568</small>
+                        </div>
+                        <div class="list-group-item bg-transparent border-secondary">
+                            <strong class="text-info">Academic Affairs</strong><br>
+                            <small>Dr. Michael Chen</small><br>
+                            <small>academics@schooldriver.edu</small><br>
+                            <small>(555) 123-4570</small>
+                        </div>
+                        <div class="list-group-item bg-transparent border-secondary">
+                            <strong class="text-info">Student Services</strong><br>
+                            <small>Ms. Lisa Rodriguez</small><br>
+                            <small>services@schooldriver.edu</small><br>
+                            <small>(555) 123-4571</small>
+                        </div>
+                        <div class="list-group-item bg-transparent border-secondary">
+                            <strong class="text-info">IT Support</strong><br>
+                            <small>Mr. David Kim</small><br>
+                            <small>support@schooldriver.edu</small><br>
+                            <small>(555) 123-4572</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Map Section -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title mb-0 text-info">
+                        <i class="bi bi-map me-2"></i>Find Us
+                    </h4>
+                </div>
+                <div class="card-body p-0">
+                    <div class="bg-secondary d-flex align-items-center justify-content-center" 
+                         style="height: 300px;">
+                        <div class="text-center">
+                            <i class="bi bi-geo-alt-fill text-info" style="font-size: 4rem;"></i>
+                            <h5 class="mt-2">Interactive Map</h5>
+                            <p class="text-muted">Map integration would be placed here</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+    .form-control:focus,
+    .form-select:focus {
+        background-color: var(--dark-card);
+        border-color: var(--teal-primary);
+        color: var(--text-light);
+        box-shadow: 0 0 0 0.2rem rgba(20, 184, 166, 0.25);
+    }
+    
+    .form-control::placeholder {
+        color: var(--text-muted);
+    }
+</style>
+{% endblock %}
