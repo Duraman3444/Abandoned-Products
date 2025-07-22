@@ -42,6 +42,7 @@ services:
       - REDIS_URL=redis://redis:6379/0
       - ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0
       - DJANGO_SETTINGS_MODULE=schooldriver_modern.settings
+      - FIREBASE_CREDENTIALS_JSON=${FIREBASE_CREDENTIALS_JSON:-}
     depends_on:
       postgres:
         condition: service_healthy
@@ -50,6 +51,7 @@ services:
     volumes:
       - static_files:/app/staticfiles
       - media_files:/app/media
+      - ${FIREBASE_CRED_FILE:-./firebase-cred.json}:/app/firebase-cred.json:ro
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/admin/login/"]
