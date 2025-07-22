@@ -35,6 +35,7 @@ urlpatterns = [
     path('accounts/password_change/', CustomPasswordChangeView.as_view(), name='accounts_password_change'),
     path('accounts/', include('django.contrib.auth.urls')),
     path('health/', views.health_check, name='health_check'),
+    path('admissions/', include('admissions.urls')),
     
     # API endpoints (temporarily disabled until all dependencies installed)
     # path('api/', include('schooldriver_modern.api_urls')),
