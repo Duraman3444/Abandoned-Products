@@ -38,6 +38,11 @@ This repository contains two versions of SchoolDriver, a comprehensive Student I
 - **Sample Data Management** - Realistic demo data generation
 - **Enhanced Admin Interface** - Streamlined administration
 - **Modern Dependencies** - Updated package management
+- **Global Search** - Cross-module fuzzy search powered by PostgreSQL full-text search and `search` app
+- **Advanced Dashboard Charts** - Interactive admin analytics built with Chart.js (`static/js/admin_charts.js`)
+- **Automated Test Suite** - Pytest & Django test coverage with GitHub Actions CI
+- **AI-Generated Documentation** - Detailed AI work-logs & prompts in `/docs` (`AI_UTILIZATION.md`, etc.)
+- **Static Asset Pipeline** - Pre-compiled `staticfiles/` ready for production deployment
 
 ## 🚀 Quick Start (Modern Version)
 
@@ -452,6 +457,16 @@ Extensive documentation available in:
 - **Installation guides** - Setup instructions for both versions
 - **User manuals** - Feature documentation and guides
 - **Developer docs** - Architecture and development guidance
+
+## 📖 Additional Documentation
+
+This repository includes extensive documentation generated during modernization:
+
+- `docs/AI_UTILIZATION.md` – AI strategy, prompts, and utilization log
+- `docs/API_USAGE.md` – REST API endpoints and example requests
+- `docs/admin_dashboard_chart_fix.md` – Dashboard chart implementation notes
+- `docs/03_before_after.md` – Before/After modernization comparison
+- `docs/student_portal_data_consistency_fix.md` – Data consistency improvements
 
 ## 🤝 Purpose & Use Cases
 
