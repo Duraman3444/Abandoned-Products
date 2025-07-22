@@ -4,68 +4,73 @@ GPA calculation utilities for consistent grade display across all pages
 
 def pct_to_four_scale(pct: float) -> float:
     """
-    Convert percentage grade to 4.0 scale GPA
-    90-100% = 4.0, 80-89% = 3.0, etc.
+    Convert percentage grade to 4.0 scale GPA using proper letter grade boundaries
+    A (90-100%) = 4.0, B (80-89%) = 3.0, C (70-79%) = 2.0, D (60-69%) = 1.0, F = 0.0
     """
     if pct >= 97:
-        return 4.0
+        return 4.3   # A+
     elif pct >= 93:
-        return 3.7
+        return 4.0   # A
     elif pct >= 90:
-        return 3.3
+        return 3.7   # A-
     elif pct >= 87:
-        return 3.0
+        return 3.3   # B+
     elif pct >= 83:
-        return 2.7
+        return 3.0   # B
     elif pct >= 80:
-        return 2.3
+        return 2.7   # B-
     elif pct >= 77:
-        return 2.0
+        return 2.3   # C+
     elif pct >= 73:
-        return 1.7
+        return 2.0   # C
     elif pct >= 70:
-        return 1.3
+        return 1.7   # C-
     elif pct >= 67:
-        return 1.0
+        return 1.3   # D+
+    elif pct >= 63:
+        return 1.0   # D
     elif pct >= 60:
-        return 0.7
+        return 0.7   # D-
     else:
-        return 0.0
+        return 0.0   # F
 
 
 def four_to_pct(gpa4: float) -> float:
     """
     Convert 4.0 scale GPA back to percentage (approximate)
     """
-    if gpa4 >= 4.0:
-        return 97.0
+    if gpa4 >= 4.3:
+        return 97.0   # A+
+    elif gpa4 >= 4.0:
+        return 93.0   # A
     elif gpa4 >= 3.7:
-        return 93.0
+        return 90.0   # A-
     elif gpa4 >= 3.3:
-        return 90.0
+        return 87.0   # B+
     elif gpa4 >= 3.0:
-        return 87.0
+        return 83.0   # B
     elif gpa4 >= 2.7:
-        return 83.0
+        return 80.0   # B-
     elif gpa4 >= 2.3:
-        return 80.0
+        return 77.0   # C+
     elif gpa4 >= 2.0:
-        return 77.0
+        return 73.0   # C
     elif gpa4 >= 1.7:
-        return 73.0
+        return 70.0   # C-
     elif gpa4 >= 1.3:
-        return 70.0
+        return 67.0   # D+
     elif gpa4 >= 1.0:
-        return 67.0
+        return 63.0   # D
     elif gpa4 >= 0.7:
-        return 60.0
+        return 60.0   # D-
     else:
-        return 0.0
+        return 0.0    # F
 
 
 def calculate_gpa_from_courses(courses_with_grades: list) -> dict:
     """
     Calculate both 4-point and percentage GPA from a list of courses
+    Uses proper academic method: convert each course to GPA, then average the GPA values
     
     Args:
         courses_with_grades: List of dicts with 'percentage' and 'credit_hours' keys
@@ -81,10 +86,19 @@ def calculate_gpa_from_courses(courses_with_grades: list) -> dict:
             'weighted_gpa_pct': 0.0
         }
     
-    # Simple average (unweighted)
-    total_percentage = sum(course['percentage'] for course in courses_with_grades)
+    # Convert each course percentage to GPA first, then average (proper academic method)
+    course_gpa_values = []
+    total_percentage = 0
+    
+    for course in courses_with_grades:
+        percentage = course['percentage']
+        gpa4 = pct_to_four_scale(percentage)
+        course_gpa_values.append(gpa4)
+        total_percentage += percentage
+    
+    # Simple average (unweighted) - average of GPA values
+    avg_gpa4 = sum(course_gpa_values) / len(course_gpa_values)
     avg_percentage = total_percentage / len(courses_with_grades)
-    avg_gpa4 = pct_to_four_scale(avg_percentage)
     
     # Credit-hour weighted average
     total_weighted_pct = 0
