@@ -157,7 +157,7 @@
 </div>
 
 <!-- Teacher Feedback -->
-{% if grade and grade.feedback %}
+{% if grade and grade.comments %}
 <div class="row mb-4">
     <div class="col-12">
         <div class="card">
@@ -168,7 +168,7 @@
             </div>
             <div class="card-body">
                 <div class="border-start border-info border-3 ps-3">
-                    <p class="mb-0">{{ grade.feedback|linebreaks }}</p>
+                    <p class="mb-0">{{ grade.comments|linebreaks }}</p>
                 </div>
             </div>
         </div>

@@ -207,13 +207,20 @@ def grades_view(request):
             messages.error(request, "Student profile not found.")
             return redirect('student_portal:dashboard')
         
-        # Get current school year
-        current_school_year = SchoolYear.objects.filter(is_active=True).first()
+        # Get selected school year from query parameter
+        year_id = request.GET.get("year")
+        if year_id and year_id.isdigit():
+            selected_year = get_object_or_404(SchoolYear, pk=year_id)
+        else:
+            selected_year = SchoolYear.objects.filter(is_active=True).first()
         
-        # Get real enrollment and grade data
+        # Get all school years for dropdown (most recent first)
+        all_years = SchoolYear.objects.order_by("-start_date")
+        
+        # Get real enrollment and grade data for selected year
         enrollments = Enrollment.objects.filter(
             student=student,
-            section__school_year=current_school_year,
+            section__school_year=selected_year,
             is_active=True
         ).select_related('section__course', 'section__teacher')
         
@@ -271,9 +278,34 @@ def grades_view(request):
                 'assignments': assignments
             })
         
-        # Calculate overall GPA
-        total_points = sum(course['percentage'] for course in courses_with_grades)
-        overall_gpa = total_points / len(courses_with_grades) if courses_with_grades else 0
+        # Calculate semester GPA for selected year
+        semester_total_points = sum(course['percentage'] for course in courses_with_grades)
+        semester_gpa = semester_total_points / len(courses_with_grades) if courses_with_grades else 0
+        
+        # Calculate cumulative GPA across all years
+        all_enrollments = Enrollment.objects.filter(
+            student=student,
+            is_active=True
+        ).select_related('section__course', 'section__teacher', 'section__school_year')
+        
+        cumulative_points = 0
+        cumulative_courses = 0
+        
+        for enrollment in all_enrollments:
+            # Get all grades for this enrollment
+            grades = Grade.objects.filter(
+                enrollment=enrollment,
+                assignment__is_published=True
+            )
+            
+            if grades.exists():
+                total_points = sum(float(g.points_earned or 0) for g in grades)
+                max_points = sum(float(g.assignment.max_points) for g in grades)
+                percentage = (total_points / max_points * 100) if max_points > 0 else 0
+                cumulative_points += percentage
+                cumulative_courses += 1
+        
+        cumulative_gpa = cumulative_points / cumulative_courses if cumulative_courses else 0
         
         # Grade scale for reference
         grade_scale = [
@@ -287,9 +319,12 @@ def grades_view(request):
         context = {
             'student': student,
             'courses_with_grades': courses_with_grades,
-            'overall_gpa': round(overall_gpa, 2),
+            'semester_gpa': round(semester_gpa, 2),
+            'cumulative_gpa': round(cumulative_gpa, 2),
             'grade_scale': grade_scale,
-            'semester': current_school_year.name if current_school_year else 'Current Semester',
+            'selected_year': selected_year,
+            'all_years': all_years,
+            'semester': selected_year.name if selected_year else 'Current Semester',
         }
         
     except Exception as e:

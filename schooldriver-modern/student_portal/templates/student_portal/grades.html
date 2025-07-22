@@ -20,11 +20,11 @@
                     <div class="col-md-6">
                         <div class="row text-center">
                             <div class="col-6">
-                                <h4 class="text-success mb-0">3.7</h4>
-                                <small class="text-muted">Current GPA</small>
+                                <h4 class="text-success mb-0">{{ semester_gpa }}</h4>
+                                <small class="text-muted">Semester GPA</small>
                             </div>
                             <div class="col-6">
-                                <h4 class="text-info mb-0">3.5</h4>
+                                <h4 class="text-info mb-0">{{ cumulative_gpa }}</h4>
                                 <small class="text-muted">Cumulative GPA</small>
                             </div>
                         </div>
@@ -42,29 +42,25 @@
             <div class="card-body">
                 <div class="row align-items-center">
                     <div class="col-md-4">
-                        <label for="semester" class="form-label">Semester</label>
-                        <select class="form-select bg-dark border-secondary text-light" id="semester">
-                            <option value="current">Current Semester</option>
-                            <option value="fall2024">Fall 2024</option>
-                            <option value="spring2024">Spring 2024</option>
-                            <option value="fall2023">Fall 2023</option>
-                        </select>
+                        <label for="semester" class="form-label">School Year</label>
+                        <form method="get" class="d-inline w-100">
+                            <select name="year" class="form-select bg-dark border-secondary text-light" 
+                                    onchange="this.form.submit()">
+                                {% for year in all_years %}
+                                    <option value="{{ year.id }}"
+                                            {% if year == selected_year %}selected{% endif %}>
+                                        {{ year.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </form>
                     </div>
-                    <div class="col-md-4">
-                        <label for="course" class="form-label">Course</label>
-                        <select class="form-select bg-dark border-secondary text-light" id="course">
-                            <option value="all">All Courses</option>
-                            <option value="math">Mathematics</option>
-                            <option value="english">English Literature</option>
-                            <option value="chemistry">Chemistry</option>
-                            <option value="history">World History</option>
-                            <option value="pe">Physical Education</option>
-                            <option value="art">Art</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4 d-flex align-items-end">
-                        <button class="btn btn-teal me-2">Apply Filters</button>
-                        <button class="btn btn-outline-secondary">Reset</button>
+                    <div class="col-md-8">
+                        <p class="text-muted mb-0 pt-4">
+                            <i class="bi bi-info-circle me-2"></i>
+                            Showing grades for <strong>{{ selected_year.name }}</strong>. 
+                            Select a different school year from the dropdown above to view historical grades.
+                        </p>
                     </div>
                 </div>
             </div>
