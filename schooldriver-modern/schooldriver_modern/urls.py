@@ -18,11 +18,17 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.shortcuts import redirect
 from . import views
 from .auth_views import CustomLoginView
 from .profile_views import profile_view, ProfileEditView, CustomPasswordChangeView
 
+def home_redirect(request):
+    """Redirect home page to dashboard"""
+    return redirect('dashboard')
+
 urlpatterns = [
+    path('', home_redirect, name='home'),
     path('admin/', admin.site.urls),
     path('dashboard/', views.dashboard_view, name='dashboard'),
     path('dashboard/admin/', views.admin_dashboard_view, name='admin_dashboard'),
