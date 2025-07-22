@@ -19,93 +19,96 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "dev-key-only")
+SECRET_KEY = os.getenv(
+    "DJANGO_SECRET_KEY", "3STkD@WMe#pazB9)Gn5|x:]&8-{j%].BPwycQ]sTxTlHL];@8m"
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'localhost', 
-    '127.0.0.1', 
-    '0.0.0.0',
-    'testserver',  # For testing
-    'schooldriver-modern-dev.web.app',
-    'schooldriver-modern-93636800709.us-central1.run.app',
-    '.run.app',
-    '.web.app'
+    "localhost",
+    "127.0.0.1",
+    "0.0.0.0",
+    "testserver",  # For testing
+    "schooldriver-modern-dev.web.app",
+    "schooldriver-modern-93636800709.us-central1.run.app",
+    ".run.app",
+    ".web.app",
 ]
 
 
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
     # Third-party apps
-    'rest_framework',
-    'rest_framework.authtoken',
-    'django_filters',
-    'drf_spectacular',
-    
+    "rest_framework",
+    "rest_framework.authtoken",
+    "django_filters",
+    "drf_spectacular",
     # Modern SchoolDriver apps
-    'schooldriver_modern',
-    'students',
-    'admissions',
-    'academics',
-    'notifications',
-    'authentication',
-    'public',
-    'student_portal',
-    'parent_portal',
-    'search',
-    'api',
+    "schooldriver_modern",
+    "students",
+    "admissions",
+    "academics",
+    "notifications",
+    "authentication",
+    "public",
+    "student_portal",
+    "parent_portal",
+    "search",
+    "api",
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'schooldriver_modern.middleware.LoginAttemptLimitingMiddleware',
-    'schooldriver_modern.portal_middleware.PortalAccessMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "schooldriver_modern.security_middleware.SecurityHeadersMiddleware",
+    "schooldriver_modern.security_middleware.RateLimitingMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "schooldriver_modern.middleware.LoginAttemptLimitingMiddleware",
+    "schooldriver_modern.portal_middleware.PortalAccessMiddleware",
+    "schooldriver_modern.security_middleware.SecurityAuditMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = 'schooldriver_modern.urls'
+ROOT_URLCONF = "schooldriver_modern.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [BASE_DIR / "templates"],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'schooldriver_modern.wsgi.application'
+WSGI_APPLICATION = "schooldriver_modern.wsgi.application"
 
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
     }
 }
 
@@ -115,16 +118,16 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
@@ -132,44 +135,44 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'America/New_York'
+LANGUAGE_CODE = "en-us"
+TIME_ZONE = "America/New_York"
 USE_I18N = True
 USE_TZ = True
 
 
 # Authentication settings
-LOGIN_URL = '/accounts/login/'
+LOGIN_URL = "/accounts/login/"
 # LOGIN_REDIRECT_URL removed - using role-based redirects in CustomLoginView
-LOGOUT_REDIRECT_URL = '/accounts/login/'
+LOGOUT_REDIRECT_URL = "/accounts/login/"
 
 # Session security settings
 SESSION_COOKIE_AGE = 1800  # 30 minutes default
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS
 SESSION_COOKIE_HTTPONLY = True
-SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SAMESITE = "Lax"
 SESSION_SAVE_EVERY_REQUEST = True
 
 # Email backend for development (prints to console)
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-        'OPTIONS': {
-            'min_length': 8,
-        }
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+        "OPTIONS": {
+            "min_length": 8,
+        },
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
@@ -185,65 +188,62 @@ if os.getenv("GCS_BUCKET_NAME"):
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = "/static/"
 STATICFILES_DIRS = [
-    BASE_DIR / 'static',
+    BASE_DIR / "static",
 ]
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # Media files (user uploads)
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
 # Django REST Framework configuration
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.TokenAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
     ],
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
     ],
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 20,
-    'DEFAULT_FILTER_BACKENDS': [
-        'django_filters.rest_framework.DjangoFilterBackend',
-        'rest_framework.filters.SearchFilter',
-        'rest_framework.filters.OrderingFilter',
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 20,
+    "DEFAULT_FILTER_BACKENDS": [
+        "django_filters.rest_framework.DjangoFilterBackend",
+        "rest_framework.filters.SearchFilter",
+        "rest_framework.filters.OrderingFilter",
     ],
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
-    'DEFAULT_THROTTLE_CLASSES': [
-        'rest_framework.throttling.AnonRateThrottle',
-        'rest_framework.throttling.UserRateThrottle'
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_THROTTLE_CLASSES": [
+        "rest_framework.throttling.AnonRateThrottle",
+        "rest_framework.throttling.UserRateThrottle",
     ],
-    'DEFAULT_THROTTLE_RATES': {
-        'anon': '100/hour',
-        'user': '1000/hour'
-    },
-    'DEFAULT_RENDERER_CLASSES': [
-        'rest_framework.renderers.JSONRenderer',
-        'rest_framework.renderers.BrowsableAPIRenderer',
+    "DEFAULT_THROTTLE_RATES": {"anon": "100/hour", "user": "1000/hour"},
+    "DEFAULT_RENDERER_CLASSES": [
+        "rest_framework.renderers.JSONRenderer",
+        "rest_framework.renderers.BrowsableAPIRenderer",
     ],
 }
 
 # drf-spectacular settings
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'SchoolDriver Modern API',
-    'DESCRIPTION': 'Modern school management system API with student information, admissions, and academic tracking.',
-    'VERSION': '1.0.0',
-    'SERVE_INCLUDE_SCHEMA': False,
-    'COMPONENT_SPLIT_REQUEST': True,
-    'TAGS': [
-        {'name': 'students', 'description': 'Student management operations'},
-        {'name': 'admissions', 'description': 'Admissions and applicant tracking'},
-        {'name': 'auth', 'description': 'Authentication and user management'},
+    "TITLE": "SchoolDriver Modern API",
+    "DESCRIPTION": "Modern school management system API with student information, admissions, and academic tracking.",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "COMPONENT_SPLIT_REQUEST": True,
+    "TAGS": [
+        {"name": "students", "description": "Student management operations"},
+        {"name": "admissions", "description": "Admissions and applicant tracking"},
+        {"name": "auth", "description": "Authentication and user management"},
     ],
 }
 
@@ -254,65 +254,129 @@ ADMIN_INDEX_TITLE = "Welcome to SchoolDriver Modern"
 
 # Modern SchoolDriver specific settings
 SCHOOLDRIVER_SETTINGS = {
-    'SCHOOL_NAME': 'Modern Private Academy',
-    'SCHOOL_YEAR_AUTO_CREATE': True,
-    'APPLICANT_ID_PREFIX': 'A',
-    'STUDENT_ID_PREFIX': '',
-    'ENABLE_ONLINE_APPLICATIONS': True,
-    'DEFAULT_GRADE_LEVELS': [
-        ('K', 'Kindergarten', 1),
-        ('1', '1st Grade', 2),
-        ('2', '2nd Grade', 3),
-        ('3', '3rd Grade', 4),
-        ('4', '4th Grade', 5),
-        ('5', '5th Grade', 6),
-        ('6', '6th Grade', 7),
-        ('7', '7th Grade', 8),
-        ('8', '8th Grade', 9),
-        ('9', '9th Grade', 10),
-        ('10', '10th Grade', 11),
-        ('11', '11th Grade', 12),
-        ('12', '12th Grade', 13),
+    "SCHOOL_NAME": "Modern Private Academy",
+    "SCHOOL_YEAR_AUTO_CREATE": True,
+    "APPLICANT_ID_PREFIX": "A",
+    "STUDENT_ID_PREFIX": "",
+    "ENABLE_ONLINE_APPLICATIONS": True,
+    "DEFAULT_GRADE_LEVELS": [
+        ("K", "Kindergarten", 1),
+        ("1", "1st Grade", 2),
+        ("2", "2nd Grade", 3),
+        ("3", "3rd Grade", 4),
+        ("4", "4th Grade", 5),
+        ("5", "5th Grade", 6),
+        ("6", "6th Grade", 7),
+        ("7", "7th Grade", 8),
+        ("8", "8th Grade", 9),
+        ("9", "9th Grade", 10),
+        ("10", "10th Grade", 11),
+        ("11", "11th Grade", 12),
+        ("12", "12th Grade", 13),
     ],
-    'DEFAULT_ADMISSION_LEVELS': [
-        ('Inquiry', 'Initial inquiry received', 1),
-        ('Application Submitted', 'Formal application completed', 2),
-        ('Interview Scheduled', 'Interview arranged with family', 3),
-        ('Interview Completed', 'Interview conducted', 4),
-        ('Decision Made', 'Admission decision finalized', 5),
+    "DEFAULT_ADMISSION_LEVELS": [
+        ("Inquiry", "Initial inquiry received", 1),
+        ("Application Submitted", "Formal application completed", 2),
+        ("Interview Scheduled", "Interview arranged with family", 3),
+        ("Interview Completed", "Interview conducted", 4),
+        ("Decision Made", "Admission decision finalized", 5),
     ],
 }
 
 # Email configuration (for development)
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 # Security settings (updated for production)
 CSRF_TRUSTED_ORIGINS = [
-    'http://localhost:8000', 
-    'http://127.0.0.1:8000',
-    'https://schooldriver-modern-dev.web.app',
-    'https://schooldriver-modern-93636800709.us-central1.run.app'
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+    "https://schooldriver-modern-dev.web.app",
+    "https://schooldriver-modern-93636800709.us-central1.run.app",
 ]
 
 # Logging configuration
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': '{levelname} {asctime} {module} {message}',
-            'style': '{',
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {module} {message}",
+            "style": "{",
         },
     },
-    'handlers': {
-        'console': {
-            'level': 'INFO',
-            'class': 'logging.StreamHandler',
-            'formatter': 'verbose',
+    "handlers": {
+        "console": {
+            "level": "INFO",
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
         },
     },
-    'root': {
-        'handlers': ['console'],
-        'level': 'INFO',
+    "root": {
+        "handlers": ["console"],
+        "level": "INFO",
     },
+}
+
+# =============================================================================
+# SECURITY SETTINGS
+# =============================================================================
+
+# Session Security Configuration
+SESSION_COOKIE_SECURE = not DEBUG  # HTTPS only in production
+SESSION_COOKIE_HTTPONLY = True  # No JavaScript access to session cookies
+SESSION_COOKIE_AGE = 3600  # 1 hour session timeout
+SESSION_COOKIE_SAMESITE = "Lax"  # CSRF protection
+SESSION_SAVE_EVERY_REQUEST = True  # Update session on every request
+
+# CSRF Protection
+CSRF_COOKIE_SECURE = not DEBUG  # HTTPS only in production
+CSRF_COOKIE_HTTPONLY = True  # No JavaScript access to CSRF tokens
+CSRF_COOKIE_SAMESITE = "Lax"  # Additional CSRF protection
+CSRF_USE_SESSIONS = True  # Store CSRF token in session
+
+# Security Headers (enforced when not in DEBUG mode)
+if not DEBUG:
+    # Force HTTPS
+    SECURE_SSL_REDIRECT = True
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+    # HSTS (HTTP Strict Transport Security)
+    SECURE_HSTS_SECONDS = 31536000  # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+
+    # Security headers
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
+    X_FRAME_OPTIONS = "DENY"
+
+# Password Security
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+        "OPTIONS": {
+            "min_length": 8,
+        },
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+    },
+]
+
+# Additional Security Settings
+SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin"
+ALLOWED_HOSTS_STRICT = True
+
+# Security Logging
+SECURITY_LOGGING = {
+    "FAILED_LOGIN_ATTEMPTS": True,
+    "SUSPICIOUS_ACTIVITY": True,
+    "ADMIN_ACCESS": True,
 }

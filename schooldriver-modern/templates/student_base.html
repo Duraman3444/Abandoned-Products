@@ -22,20 +22,24 @@
                     <h6 class="mb-0"><i class="bi bi-person-graduation me-2"></i>Student Menu</h6>
                 </div>
                 <div class="card-body p-0">
-                    <nav class="nav flex-column">
+                    <nav class="nav flex-column" role="navigation" aria-label="Student portal navigation">
                         <!-- Debug: URL = {% url 'student_portal:dashboard' %} -->
                         <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active bg-teal text-white{% endif %}" 
                            href="{% url 'student_portal:dashboard' %}"
                            data-debug-url="{% url 'student_portal:dashboard' %}"
-                           data-debug-name="dashboard">
-                            <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                           data-debug-name="dashboard"
+                           aria-current="{% if request.resolver_match.url_name == 'dashboard' %}page{% endif %}"
+                           aria-label="Go to Dashboard - Overview of grades, assignments and schedule">
+                            <i class="bi bi-speedometer2 me-2" aria-hidden="true"></i>Dashboard
                         </a>
                         <!-- Debug: URL = {% url 'student_portal:grades' %} -->
                         <a class="nav-link {% if request.resolver_match.url_name == 'grades' %}active bg-teal text-white{% endif %}" 
                            href="{% url 'student_portal:grades' %}"
                            data-debug-url="{% url 'student_portal:grades' %}"
-                           data-debug-name="grades">
-                            <i class="bi bi-bar-chart me-2"></i>Grades
+                           data-debug-name="grades"
+                           aria-current="{% if request.resolver_match.url_name == 'grades' %}page{% endif %}"
+                           aria-label="Go to Grades - View course grades and GPA">
+                            <i class="bi bi-bar-chart me-2" aria-hidden="true"></i>Grades
                         </a>
                         <!-- Debug: URL = {% url 'student_portal:assignments' %} -->
                         <a class="nav-link {% if request.resolver_match.url_name == 'assignments' or request.resolver_match.url_name == 'assignment_detail' %}active bg-teal text-white{% endif %}" 

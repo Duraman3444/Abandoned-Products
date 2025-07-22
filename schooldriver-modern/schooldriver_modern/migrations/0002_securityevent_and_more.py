@@ -7,43 +7,85 @@ import uuid
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('schooldriver_modern', '0001_initial'),
+        ("schooldriver_modern", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='SecurityEvent',
+            name="SecurityEvent",
             fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('username', models.CharField(help_text='Username attempted (for failed logins)', max_length=150)),
-                ('event_type', models.CharField(choices=[('LOGIN_SUCCESS', 'Successful Login'), ('LOGIN_FAILED', 'Failed Login Attempt'), ('PASSWORD_CHANGE', 'Password Changed'), ('ACCOUNT_LOCKED', 'Account Locked'), ('ACCOUNT_UNLOCKED', 'Account Unlocked'), ('LOGOUT', 'Logout')], max_length=20)),
-                ('ip_address', models.GenericIPAddressField(blank=True, null=True)),
-                ('user_agent', models.TextField(blank=True)),
-                ('timestamp', models.DateTimeField(auto_now_add=True)),
-                ('details', models.JSONField(blank=True, default=dict)),
-                ('user', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
+                (
+                    "username",
+                    models.CharField(
+                        help_text="Username attempted (for failed logins)",
+                        max_length=150,
+                    ),
+                ),
+                (
+                    "event_type",
+                    models.CharField(
+                        choices=[
+                            ("LOGIN_SUCCESS", "Successful Login"),
+                            ("LOGIN_FAILED", "Failed Login Attempt"),
+                            ("PASSWORD_CHANGE", "Password Changed"),
+                            ("ACCOUNT_LOCKED", "Account Locked"),
+                            ("ACCOUNT_UNLOCKED", "Account Unlocked"),
+                            ("LOGOUT", "Logout"),
+                        ],
+                        max_length=20,
+                    ),
+                ),
+                ("ip_address", models.GenericIPAddressField(blank=True, null=True)),
+                ("user_agent", models.TextField(blank=True)),
+                ("timestamp", models.DateTimeField(auto_now_add=True)),
+                ("details", models.JSONField(blank=True, default=dict)),
+                (
+                    "user",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'ordering': ['-timestamp'],
+                "ordering": ["-timestamp"],
             },
         ),
         migrations.AddIndex(
-            model_name='securityevent',
-            index=models.Index(fields=['user', 'event_type'], name='schooldrive_user_id_09d28e_idx'),
+            model_name="securityevent",
+            index=models.Index(
+                fields=["user", "event_type"], name="schooldrive_user_id_09d28e_idx"
+            ),
         ),
         migrations.AddIndex(
-            model_name='securityevent',
-            index=models.Index(fields=['username', 'event_type'], name='schooldrive_usernam_638fe6_idx'),
+            model_name="securityevent",
+            index=models.Index(
+                fields=["username", "event_type"], name="schooldrive_usernam_638fe6_idx"
+            ),
         ),
         migrations.AddIndex(
-            model_name='securityevent',
-            index=models.Index(fields=['timestamp'], name='schooldrive_timesta_93a0f0_idx'),
+            model_name="securityevent",
+            index=models.Index(
+                fields=["timestamp"], name="schooldrive_timesta_93a0f0_idx"
+            ),
         ),
         migrations.AddIndex(
-            model_name='securityevent',
-            index=models.Index(fields=['ip_address'], name='schooldrive_ip_addr_48514b_idx'),
+            model_name="securityevent",
+            index=models.Index(
+                fields=["ip_address"], name="schooldrive_ip_addr_48514b_idx"
+            ),
         ),
     ]

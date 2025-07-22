@@ -43,16 +43,23 @@
                 <div class="row align-items-center">
                     <div class="col-md-4">
                         <label for="semester" class="form-label">School Year</label>
-                        <form method="get" class="d-inline w-100">
-                            <select name="year" class="form-select bg-dark border-secondary text-light" 
-                                    onchange="this.form.submit()">
-                                {% for year in all_years %}
-                                    <option value="{{ year.id }}"
-                                            {% if year == selected_year %}selected{% endif %}>
-                                        {{ year.name }}
-                                    </option>
-                                {% endfor %}
-                            </select>
+                        <form method="get" class="d-inline w-100" id="year-filter-form">
+                            <div class="position-relative">
+                                <select name="year" class="form-select bg-dark border-secondary text-light" 
+                                        id="year-select" onchange="handleYearChange(this)">
+                                    {% for year in all_years %}
+                                        <option value="{{ year.id }}"
+                                                {% if year == selected_year %}selected{% endif %}>
+                                            {{ year.name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <div class="loading-overlay d-none" id="year-loading">
+                                    <div class="spinner-border spinner-border-sm text-info" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+                            </div>
                         </form>
                     </div>
                     <div class="col-md-8">
@@ -201,6 +208,46 @@
 </div>
 {% endblock %}
 
+{% block extra_js %}
+{{ block.super }}
+<script>
+function handleYearChange(selectElement) {
+    const loadingOverlay = document.getElementById('year-loading');
+    const form = document.getElementById('year-filter-form');
+    
+    // Show loading state
+    selectElement.disabled = true;
+    loadingOverlay.classList.remove('d-none');
+    
+    // Submit form after a brief delay to show loading state
+    setTimeout(() => {
+        form.submit();
+    }, 200);
+}
+
+// Add loading states to assignment view buttons
+document.addEventListener('DOMContentLoaded', function() {
+    const assignmentButtons = document.querySelectorAll('a[href*="assignment_detail"]');
+    
+    assignmentButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            const originalText = this.innerHTML;
+            this.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span>Loading...';
+            this.classList.add('disabled');
+            
+            // If navigation fails, restore button
+            setTimeout(() => {
+                if (this.classList.contains('disabled')) {
+                    this.innerHTML = originalText;
+                    this.classList.remove('disabled');
+                }
+            }, 3000);
+        });
+    });
+});
+</script>
+{% endblock %}
+
 {% block extra_css %}
 {{ block.super }}
 <style>
@@ -214,6 +261,20 @@
         border-color: var(--teal-primary);
         color: var(--text-light);
         box-shadow: 0 0 0 0.2rem rgba(20, 184, 166, 0.25);
+    }
+    
+    /* Loading overlay styles */
+    .loading-overlay {
+        position: absolute;
+        top: 50%;
+        right: 15px;
+        transform: translateY(-50%);
+        z-index: 10;
+    }
+    
+    .disabled {
+        pointer-events: none;
+        opacity: 0.6;
     }
 </style>
 {% endblock %}

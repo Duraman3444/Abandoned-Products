@@ -14,6 +14,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
@@ -24,44 +25,44 @@ from .profile_views import profile_view, ProfileEditView, CustomPasswordChangeVi
 
 urlpatterns = [
     # Public URLs (no authentication required)
-    path('', include('public.urls')),
-    
+    path("", include("public.urls")),
     # Authentication URLs
-    path('accounts/login/', CustomLoginView.as_view(), name='login'),
-    path('accounts/signup/', SignUpView.as_view(), name='signup'),
-    path('accounts/password_change/', CustomPasswordChangeView.as_view(), name='accounts_password_change'),
-    path('accounts/', include('django.contrib.auth.urls')),
-    
+    path("accounts/login/", CustomLoginView.as_view(), name="login"),
+    path("accounts/signup/", SignUpView.as_view(), name="signup"),
+    path(
+        "accounts/password_change/",
+        CustomPasswordChangeView.as_view(),
+        name="accounts_password_change",
+    ),
+    path("accounts/", include("django.contrib.auth.urls")),
     # Role-based portal URLs (authentication required)
-    path('student/', include('student_portal.urls')),
-    path('parent/', include('parent_portal.urls')),
-    path('search/', include('search.urls')),
-    
+    path("student/", include("student_portal.urls")),
+    path("parent/", include("parent_portal.urls")),
+    path("search/", include("search.urls")),
     # Admin and general authenticated areas
-    path('admin/', admin.site.urls),
-    path('dashboard/', views.dashboard_view, name='dashboard'),
-    path('dashboard/admin/', views.admin_dashboard_view, name='admin_dashboard'),
-    
+    path("admin/", admin.site.urls),
+    path("dashboard/", views.dashboard_view, name="dashboard"),
+    path("dashboard/admin/", views.admin_dashboard_view, name="admin_dashboard"),
     # Profile management
-    path('profile/', profile_view, name='profile'),
-    path('profile/edit/', ProfileEditView.as_view(), name='edit_profile'),
-    path('profile/password/', CustomPasswordChangeView.as_view(), name='password_change'),
-    
+    path("profile/", profile_view, name="profile"),
+    path("profile/edit/", ProfileEditView.as_view(), name="edit_profile"),
+    path(
+        "profile/password/", CustomPasswordChangeView.as_view(), name="password_change"
+    ),
     # Legacy views (to be phased out)
-    path('parent-legacy/', views.parent_view, name='parent_legacy'),
-    path('student-legacy/', views.student_view, name='student_legacy'),
-    
+    path("parent-legacy/", views.parent_view, name="parent_legacy"),
+    path("student-legacy/", views.student_view, name="student_legacy"),
     # Other app URLs
-    path('admissions-old/', include('admissions.urls')),
-    
+    path("admissions-old/", include("admissions.urls")),
     # Health check and utilities
-    path('health/', views.health_check, name='health_check'),
-    
+    path("health/", views.health_check, name="health_check"),
     # API endpoints
-    path('api/v1/', include('api.urls')),
+    path("api/v1/", include("api.urls")),
 ]
 
 # Serve media and static files during development
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS[0])
+    urlpatterns += static(
+        settings.STATIC_URL, document_root=settings.STATICFILES_DIRS[0]
+    )

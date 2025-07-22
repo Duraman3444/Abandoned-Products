@@ -7,31 +7,107 @@ import uuid
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('admissions', '0001_initial'),
+        ("admissions", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='ApplicantDocument',
+            name="ApplicantDocument",
             fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('document_type', models.CharField(choices=[('birth_certificate', 'Birth Certificate'), ('immunization_records', 'Immunization Records'), ('previous_school_records', 'Previous School Records'), ('special_needs_documentation', 'Special Needs Documentation'), ('photo_id', 'Photo ID'), ('proof_of_residency', 'Proof of Residency'), ('other', 'Other Document')], max_length=50)),
-                ('title', models.CharField(help_text='Document title or description', max_length=200)),
-                ('file', models.FileField(help_text='Upload document image or PDF', upload_to=admissions.models.applicant_document_upload_path)),
-                ('uploaded_by', models.CharField(blank=True, help_text='Staff member who uploaded', max_length=200)),
-                ('notes', models.TextField(blank=True, help_text='Additional notes about document')),
-                ('is_verified', models.BooleanField(default=False, help_text='Document has been reviewed and approved')),
-                ('verified_by', models.CharField(blank=True, help_text='Staff member who verified', max_length=200)),
-                ('verified_date', models.DateTimeField(blank=True, null=True)),
-                ('uploaded_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('admission_check', models.ForeignKey(blank=True, help_text='Related admission requirement', null=True, on_delete=django.db.models.deletion.CASCADE, to='admissions.admissioncheck')),
-                ('applicant', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='documents', to='admissions.applicant')),
+                (
+                    "id",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
+                (
+                    "document_type",
+                    models.CharField(
+                        choices=[
+                            ("birth_certificate", "Birth Certificate"),
+                            ("immunization_records", "Immunization Records"),
+                            ("previous_school_records", "Previous School Records"),
+                            (
+                                "special_needs_documentation",
+                                "Special Needs Documentation",
+                            ),
+                            ("photo_id", "Photo ID"),
+                            ("proof_of_residency", "Proof of Residency"),
+                            ("other", "Other Document"),
+                        ],
+                        max_length=50,
+                    ),
+                ),
+                (
+                    "title",
+                    models.CharField(
+                        help_text="Document title or description", max_length=200
+                    ),
+                ),
+                (
+                    "file",
+                    models.FileField(
+                        help_text="Upload document image or PDF",
+                        upload_to=admissions.models.applicant_document_upload_path,
+                    ),
+                ),
+                (
+                    "uploaded_by",
+                    models.CharField(
+                        blank=True,
+                        help_text="Staff member who uploaded",
+                        max_length=200,
+                    ),
+                ),
+                (
+                    "notes",
+                    models.TextField(
+                        blank=True, help_text="Additional notes about document"
+                    ),
+                ),
+                (
+                    "is_verified",
+                    models.BooleanField(
+                        default=False,
+                        help_text="Document has been reviewed and approved",
+                    ),
+                ),
+                (
+                    "verified_by",
+                    models.CharField(
+                        blank=True,
+                        help_text="Staff member who verified",
+                        max_length=200,
+                    ),
+                ),
+                ("verified_date", models.DateTimeField(blank=True, null=True)),
+                ("uploaded_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "admission_check",
+                    models.ForeignKey(
+                        blank=True,
+                        help_text="Related admission requirement",
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="admissions.admissioncheck",
+                    ),
+                ),
+                (
+                    "applicant",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="documents",
+                        to="admissions.applicant",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['-uploaded_at'],
+                "ordering": ["-uploaded_at"],
             },
         ),
     ]

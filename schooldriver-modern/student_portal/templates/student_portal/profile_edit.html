@@ -8,6 +8,19 @@
 {% endblock %}
 
 {% block student_content %}
+<!-- Alert Messages -->
+<div id="alert-container">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                <i class="bi bi-{% if message.tags == 'error' %}exclamation-triangle{% elif message.tags == 'success' %}check-circle{% else %}info-circle{% endif %} me-2"></i>
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>
+
 <!-- Page Header -->
 <div class="row mb-4">
     <div class="col-12">
@@ -39,8 +52,23 @@
                 </h5>
             </div>
             <div class="card-body">
-                <form method="post">
+                <form method="post" id="profile-form">
                     {% csrf_token %}
+                    
+                    <!-- Form Error Messages -->
+                    {% if form.errors %}
+                        <div class="alert alert-danger" role="alert">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            <strong>Please correct the following errors:</strong>
+                            <ul class="mb-0 mt-2">
+                                {% for field, errors in form.errors.items %}
+                                    {% for error in errors %}
+                                        <li>{{ field|title }}: {{ error }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
                     
                     <!-- Personal Information -->
                     <div class="mb-5">
@@ -49,41 +77,58 @@
                         </h6>
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label for="first_name" class="form-label">First Name</label>
-                                <input type="text" name="first_name" id="first_name" 
-                                       class="form-control bg-dark border-secondary text-light" 
-                                       value="{{ user.first_name }}" required>
+                                <label for="{{ form.first_name.id_for_label }}" class="form-label">First Name *</label>
+                                {{ form.first_name }}
+                                {% if form.first_name.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.first_name.errors.0 }}
+                                    </div>
+                                {% endif %}
                             </div>
                             <div class="col-md-6">
-                                <label for="last_name" class="form-label">Last Name</label>
-                                <input type="text" name="last_name" id="last_name" 
-                                       class="form-control bg-dark border-secondary text-light" 
-                                       value="{{ user.last_name }}" required>
+                                <label for="{{ form.last_name.id_for_label }}" class="form-label">Last Name *</label>
+                                {{ form.last_name }}
+                                {% if form.last_name.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.last_name.errors.0 }}
+                                    </div>
+                                {% endif %}
                             </div>
                             <div class="col-md-6">
-                                <label for="email" class="form-label">Email Address</label>
-                                <input type="email" name="email" id="email" 
-                                       class="form-control bg-dark border-secondary text-light" 
-                                       value="{{ user.email }}" required>
+                                <label for="{{ form.email.id_for_label }}" class="form-label">Email Address *</label>
+                                {{ form.email }}
+                                {% if form.email.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.email.errors.0 }}
+                                    </div>
+                                {% endif %}
                             </div>
                             <div class="col-md-6">
-                                <label for="date_of_birth" class="form-label">Date of Birth</label>
-                                <input type="date" name="date_of_birth" id="date_of_birth" 
-                                       class="form-control bg-dark border-secondary text-light" 
-                                       value="{{ user.profile.date_of_birth|date:'Y-m-d' }}">
+                                <label for="{{ form.date_of_birth.id_for_label }}" class="form-label">Date of Birth</label>
+                                {{ form.date_of_birth }}
+                                {% if form.date_of_birth.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.date_of_birth.errors.0 }}
+                                    </div>
+                                {% endif %}
                             </div>
                             <div class="col-md-6">
-                                <label for="phone_number" class="form-label">Phone Number</label>
-                                <input type="tel" name="phone_number" id="phone_number" 
-                                       class="form-control bg-dark border-secondary text-light" 
-                                       value="{{ user.profile.phone_number }}" 
-                                       placeholder="(555) 123-4567">
+                                <label for="{{ form.phone_number.id_for_label }}" class="form-label">Phone Number</label>
+                                {{ form.phone_number }}
+                                {% if form.phone_number.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.phone_number.errors.0 }}
+                                    </div>
+                                {% endif %}
                             </div>
                             <div class="col-md-6">
-                                <label for="address" class="form-label">Address</label>
-                                <textarea name="address" id="address" rows="3"
-                                          class="form-control bg-dark border-secondary text-light" 
-                                          placeholder="123 Main St, City, State ZIP">{{ user.profile.address }}</textarea>
+                                <label for="{{ form.address.id_for_label }}" class="form-label">Address</label>
+                                {{ form.address }}
+                                {% if form.address.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.address.errors.0 }}
+                                    </div>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
@@ -99,25 +144,31 @@
                                 <h6 class="text-warning">Primary Emergency Contact</h6>
                             </div>
                             <div class="col-md-4">
-                                <label for="emergency_contact_1_name" class="form-label">Contact Name</label>
-                                <input type="text" name="emergency_contact_1_name" id="emergency_contact_1_name" 
-                                       class="form-control bg-dark border-secondary text-light" 
-                                       value="{{ user.profile.emergency_contact_1_name }}" 
-                                       placeholder="Mary Anderson">
+                                <label for="{{ form.emergency_contact_1_name.id_for_label }}" class="form-label">Contact Name</label>
+                                {{ form.emergency_contact_1_name }}
+                                {% if form.emergency_contact_1_name.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.emergency_contact_1_name.errors.0 }}
+                                    </div>
+                                {% endif %}
                             </div>
                             <div class="col-md-4">
-                                <label for="emergency_contact_1_relationship" class="form-label">Relationship</label>
-                                <input type="text" name="emergency_contact_1_relationship" id="emergency_contact_1_relationship" 
-                                       class="form-control bg-dark border-secondary text-light" 
-                                       value="{{ user.profile.emergency_contact_1_relationship }}" 
-                                       placeholder="Mother, Father, Guardian, etc.">
+                                <label for="{{ form.emergency_contact_1_relationship.id_for_label }}" class="form-label">Relationship</label>
+                                {{ form.emergency_contact_1_relationship }}
+                                {% if form.emergency_contact_1_relationship.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.emergency_contact_1_relationship.errors.0 }}
+                                    </div>
+                                {% endif %}
                             </div>
                             <div class="col-md-4">
-                                <label for="emergency_contact_1_phone" class="form-label">Phone Number</label>
-                                <input type="tel" name="emergency_contact_1_phone" id="emergency_contact_1_phone" 
-                                       class="form-control bg-dark border-secondary text-light" 
-                                       value="{{ user.profile.emergency_contact_1_phone }}" 
-                                       placeholder="(555) 987-6543">
+                                <label for="{{ form.emergency_contact_1_phone.id_for_label }}" class="form-label">Phone Number</label>
+                                {{ form.emergency_contact_1_phone }}
+                                {% if form.emergency_contact_1_phone.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.emergency_contact_1_phone.errors.0 }}
+                                    </div>
+                                {% endif %}
                             </div>
                             
                             <!-- Secondary Contact -->
@@ -125,33 +176,42 @@
                                 <h6 class="text-warning">Secondary Emergency Contact</h6>
                             </div>
                             <div class="col-md-4">
-                                <label for="emergency_contact_2_name" class="form-label">Contact Name</label>
-                                <input type="text" name="emergency_contact_2_name" id="emergency_contact_2_name" 
-                                       class="form-control bg-dark border-secondary text-light" 
-                                       value="{{ user.profile.emergency_contact_2_name }}" 
-                                       placeholder="David Johnson">
+                                <label for="{{ form.emergency_contact_2_name.id_for_label }}" class="form-label">Contact Name</label>
+                                {{ form.emergency_contact_2_name }}
+                                {% if form.emergency_contact_2_name.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.emergency_contact_2_name.errors.0 }}
+                                    </div>
+                                {% endif %}
                             </div>
                             <div class="col-md-4">
-                                <label for="emergency_contact_2_relationship" class="form-label">Relationship</label>
-                                <input type="text" name="emergency_contact_2_relationship" id="emergency_contact_2_relationship" 
-                                       class="form-control bg-dark border-secondary text-light" 
-                                       value="{{ user.profile.emergency_contact_2_relationship }}" 
-                                       placeholder="Mother, Father, Guardian, etc.">
+                                <label for="{{ form.emergency_contact_2_relationship.id_for_label }}" class="form-label">Relationship</label>
+                                {{ form.emergency_contact_2_relationship }}
+                                {% if form.emergency_contact_2_relationship.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.emergency_contact_2_relationship.errors.0 }}
+                                    </div>
+                                {% endif %}
                             </div>
                             <div class="col-md-4">
-                                <label for="emergency_contact_2_phone" class="form-label">Phone Number</label>
-                                <input type="tel" name="emergency_contact_2_phone" id="emergency_contact_2_phone" 
-                                       class="form-control bg-dark border-secondary text-light" 
-                                       value="{{ user.profile.emergency_contact_2_phone }}" 
-                                       placeholder="(555) 987-6544">
+                                <label for="{{ form.emergency_contact_2_phone.id_for_label }}" class="form-label">Phone Number</label>
+                                {{ form.emergency_contact_2_phone }}
+                                {% if form.emergency_contact_2_phone.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.emergency_contact_2_phone.errors.0 }}
+                                    </div>
+                                {% endif %}
                             </div>
                             
                             <!-- Emergency Address -->
                             <div class="col-12 mt-4">
-                                <label for="emergency_address" class="form-label">Emergency Contact Address</label>
-                                <textarea name="emergency_address" id="emergency_address" rows="3"
-                                          class="form-control bg-dark border-secondary text-light" 
-                                          placeholder="123 Emergency Street, City, State ZIP">{{ user.profile.emergency_address }}</textarea>
+                                <label for="{{ form.emergency_address.id_for_label }}" class="form-label">Emergency Contact Address</label>
+                                {{ form.emergency_address }}
+                                {% if form.emergency_address.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.emergency_address.errors.0 }}
+                                    </div>
+                                {% endif %}
                                 <small class="text-muted">Address where emergency contacts can be reached</small>
                             </div>
                         </div>
@@ -165,32 +225,44 @@
                         <div class="row g-3">
                             <div class="col-12">
                                 <div class="form-check form-switch mb-3">
-                                    <input class="form-check-input" type="checkbox" name="email_notifications" 
-                                           id="email_notifications" {% if user.profile.email_notifications %}checked{% endif %}>
-                                    <label class="form-check-label text-light" for="email_notifications">
+                                    {{ form.email_notifications }}
+                                    <label class="form-check-label text-light" for="{{ form.email_notifications.id_for_label }}">
                                         Email Notifications
                                     </label>
                                     <div class="form-text text-muted">Receive email notifications for grades, assignments, and announcements</div>
+                                    {% if form.email_notifications.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.email_notifications.errors.0 }}
+                                        </div>
+                                    {% endif %}
                                 </div>
                             </div>
                             <div class="col-12">
                                 <div class="form-check form-switch mb-3">
-                                    <input class="form-check-input" type="checkbox" name="sms_notifications" 
-                                           id="sms_notifications" {% if user.profile.sms_notifications %}checked{% endif %}>
-                                    <label class="form-check-label text-light" for="sms_notifications">
+                                    {{ form.sms_notifications }}
+                                    <label class="form-check-label text-light" for="{{ form.sms_notifications.id_for_label }}">
                                         SMS Notifications
                                     </label>
                                     <div class="form-text text-muted">Receive text message notifications for urgent updates</div>
+                                    {% if form.sms_notifications.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.sms_notifications.errors.0 }}
+                                        </div>
+                                    {% endif %}
                                 </div>
                             </div>
                             <div class="col-12">
                                 <div class="form-check form-switch mb-3">
-                                    <input class="form-check-input" type="checkbox" name="parent_portal_access" 
-                                           id="parent_portal_access" {% if user.profile.parent_portal_access %}checked{% endif %}>
-                                    <label class="form-check-label text-light" for="parent_portal_access">
+                                    {{ form.parent_portal_access }}
+                                    <label class="form-check-label text-light" for="{{ form.parent_portal_access.id_for_label }}">
                                         Parent Portal Access
                                     </label>
                                     <div class="form-text text-muted">Allow parents to view your academic information</div>
+                                    {% if form.parent_portal_access.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.parent_portal_access.errors.0 }}
+                                        </div>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
@@ -198,11 +270,17 @@
                     
                     <!-- Action Buttons -->
                     <div class="d-flex gap-3 justify-content-end">
-                        <a href="{% url 'student_portal:profile' %}" class="btn btn-outline-secondary">
+                        <a href="{% url 'student_portal:profile' %}" class="btn btn-outline-secondary" id="cancel-btn">
                             <i class="bi bi-x-lg me-1"></i>Cancel
                         </a>
-                        <button type="submit" class="btn btn-teal">
-                            <i class="bi bi-check-lg me-1"></i>Save Changes
+                        <button type="submit" class="btn btn-teal" id="submit-btn">
+                            <span class="btn-text">
+                                <i class="bi bi-check-lg me-1"></i>Save Changes
+                            </span>
+                            <span class="btn-loading d-none">
+                                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                Saving...
+                            </span>
                         </button>
                     </div>
                 </form>
@@ -210,6 +288,159 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('profile-form');
+    const submitBtn = document.getElementById('submit-btn');
+    const cancelBtn = document.getElementById('cancel-btn');
+    const btnText = submitBtn.querySelector('.btn-text');
+    const btnLoading = submitBtn.querySelector('.btn-loading');
+    
+    // Form validation
+    const requiredFields = form.querySelectorAll('input[required]');
+    const emailField = form.querySelector('input[type="email"]');
+    
+    // Real-time validation
+    requiredFields.forEach(field => {
+        field.addEventListener('blur', validateField);
+        field.addEventListener('input', clearFieldError);
+    });
+    
+    if (emailField) {
+        emailField.addEventListener('blur', validateEmail);
+    }
+    
+    // Form submission handling
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Validate all fields before submission
+        let isValid = true;
+        requiredFields.forEach(field => {
+            if (!validateField({target: field})) {
+                isValid = false;
+            }
+        });
+        
+        if (emailField && !validateEmail({target: emailField})) {
+            isValid = false;
+        }
+        
+        if (!isValid) {
+            showAlert('Please correct the errors below before submitting.', 'danger');
+            return;
+        }
+        
+        // Show loading state
+        showLoadingState();
+        
+        // Submit form
+        this.submit();
+    });
+    
+    function validateField(event) {
+        const field = event.target;
+        const value = field.value.trim();
+        
+        clearFieldError(event);
+        
+        if (field.hasAttribute('required') && !value) {
+            showFieldError(field, 'This field is required.');
+            return false;
+        }
+        
+        return true;
+    }
+    
+    function validateEmail(event) {
+        const emailField = event.target;
+        const email = emailField.value.trim();
+        
+        clearFieldError(event);
+        
+        if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            showFieldError(emailField, 'Please enter a valid email address.');
+            return false;
+        }
+        
+        return true;
+    }
+    
+    function showFieldError(field, message) {
+        field.classList.add('is-invalid');
+        
+        // Remove existing error message
+        const existingError = field.parentNode.querySelector('.invalid-feedback');
+        if (existingError) {
+            existingError.remove();
+        }
+        
+        // Add new error message
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'invalid-feedback';
+        errorDiv.textContent = message;
+        field.parentNode.appendChild(errorDiv);
+    }
+    
+    function clearFieldError(event) {
+        const field = event.target;
+        field.classList.remove('is-invalid');
+        
+        const errorDiv = field.parentNode.querySelector('.invalid-feedback');
+        if (errorDiv) {
+            errorDiv.remove();
+        }
+    }
+    
+    function showLoadingState() {
+        submitBtn.disabled = true;
+        cancelBtn.classList.add('disabled');
+        btnText.classList.add('d-none');
+        btnLoading.classList.remove('d-none');
+        
+        // Disable all form inputs
+        const inputs = form.querySelectorAll('input, textarea, select');
+        inputs.forEach(input => {
+            input.disabled = true;
+        });
+    }
+    
+    function showAlert(message, type = 'info') {
+        const alertContainer = document.getElementById('alert-container');
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+        alertDiv.innerHTML = `
+            <i class="bi bi-${type === 'danger' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        `;
+        
+        alertContainer.appendChild(alertDiv);
+        alertDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.remove();
+            }
+        }, 5000);
+    }
+    
+    // Auto-dismiss alerts after 5 seconds
+    const existingAlerts = document.querySelectorAll('.alert');
+    existingAlerts.forEach(alert => {
+        setTimeout(() => {
+            if (alert.parentNode) {
+                alert.remove();
+            }
+        }, 5000);
+    });
+});
+</script>
 {% endblock %}
 
 {% block extra_css %}
@@ -238,6 +469,54 @@
     
     .text-warning {
         color: #ffc107 !important;
+    }
+    
+    /* Form validation styles */
+    .form-control.is-invalid {
+        border-color: #dc3545;
+        background-color: var(--dark-card);
+        color: var(--text-light);
+    }
+    
+    .invalid-feedback {
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+    
+    /* Loading state styles */
+    .btn:disabled {
+        opacity: 0.7;
+    }
+    
+    .disabled {
+        pointer-events: none;
+        opacity: 0.6;
+    }
+    
+    /* Alert styles */
+    .alert {
+        border: none;
+        border-radius: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .alert-danger {
+        background-color: rgba(220, 53, 69, 0.1);
+        color: #f8d7da;
+        border-left: 4px solid #dc3545;
+    }
+    
+    .alert-success {
+        background-color: rgba(25, 135, 84, 0.1);
+        color: #d1e7dd;
+        border-left: 4px solid #198754;
+    }
+    
+    .alert-info {
+        background-color: rgba(13, 202, 240, 0.1);
+        color: #b6effb;
+        border-left: 4px solid #0dcaf0;
     }
 </style>
 {% endblock %}
