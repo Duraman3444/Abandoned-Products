@@ -59,20 +59,38 @@ jobs:
         run: |
           gcloud services enable run.googleapis.com cloudbuild.googleapis.com
 
+      - name: Verify service-account roles
+        run: |
+          ROLES=$(gcloud projects get-iam-policy $PROJECT_ID \
+                    --flatten="bindings[].members" \
+                    --format='value(bindings.role)' \
+                    --filter="bindings.members:$(gcloud config get-value account)")
+
+          for REQ in roles/run.admin roles/cloudbuild.builds.editor roles/firebasehosting.admin; do
+            echo "$ROLES" | grep -q "$REQ" || { echo "::error::$REQ missing"; exit 1; }
+          done
+
       - name: Build & Push container
         run: |
-          gcloud builds submit --tag gcr.io/$PROJECT_ID/$SERVICE .
+          gcloud builds submit \
+            --tag gcr.io/$PROJECT_ID/$SERVICE \
+            --file docker/Dockerfile .
 
       - name: Deploy to Cloud Run
+        env:
+          DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+          FIREBASE_CREDENTIALS_JSON: ${{ secrets.FIREBASE_CREDENTIALS_JSON }}
+          GCS_BUCKET_NAME: ${{ secrets.GCS_BUCKET_NAME }}
         run: |
+          printf "DJANGO_SECRET_KEY=%s\nFIREBASE_CREDENTIALS_JSON=%s\nGCS_BUCKET_NAME=%s\n" \
+              "$DJANGO_SECRET_KEY" "$FIREBASE_CREDENTIALS_JSON" "$GCS_BUCKET_NAME" > env_vars.txt
+
           gcloud run deploy $SERVICE \
             --image gcr.io/$PROJECT_ID/$SERVICE \
             --region $REGION \
             --platform managed \
             --allow-unauthenticated \
-            --set-env-vars DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }} \
-            --set-env-vars GCS_BUCKET_NAME=${{ secrets.GCS_BUCKET_NAME }} \
-            --set-env-vars FIREBASE_CREDENTIALS_JSON="${{ secrets.FIREBASE_CREDENTIALS_JSON }}"
+            --env-vars-file env_vars.txt
 
       - name: Deploy Firebase Hosting
         uses: FirebaseExtended/action-hosting-deploy@v0

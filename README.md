@@ -542,6 +542,38 @@ progress visually, shows document upload status with previews,
 and provides intuitive bulk actions for staff users."
 ```
 
+## 🚀 Firebase Hosting + Cloud Run Deployment
+
+This project is configured for automatic deployment to Firebase Hosting with Cloud Run backend.
+
+### Required GitHub Secrets
+
+To enable automated deployment, configure these secrets in your GitHub repository:
+
+| Secret Name | Description | Example |
+|-------------|-------------|---------|
+| `GCP_PROJECT_ID` | Google Cloud Project ID | `schooldriver-modern-dev` |
+| `GCP_SA_KEY` | Service Account JSON key | `{"type":"service_account",...}` |
+| `DJANGO_SECRET_KEY` | Django secret key (50+ characters) | `TXccTX9oZ9kEW...` |
+| `FIREBASE_CREDENTIALS_JSON` | Firebase service account JSON | Same as `GCP_SA_KEY` |
+| `GCS_BUCKET_NAME` | Google Cloud Storage bucket name | `schooldriver-modern-dev-media` |
+
+### Service Account Requirements
+
+The service account must have these IAM roles:
+- `roles/run.admin` - Deploy to Cloud Run
+- `roles/cloudbuild.builds.editor` - Build container images
+- `roles/firebasehosting.admin` - Deploy to Firebase Hosting
+- `roles/storage.admin` - Manage GCS bucket for media files
+
+### Deployment Process
+
+1. Push to `main` branch triggers automatic deployment
+2. Container is built using `docker/Dockerfile`
+3. Deployed to Cloud Run with environment variables
+4. Static files served via Firebase Hosting
+5. Media files stored in Google Cloud Storage
+
 ## 📄 License
 
 - **Legacy SchoolDriver:** Licensed under the original SchoolDriver project terms (see [burke-software/schooldriver](https://github.com/burke-software/schooldriver))
