@@ -486,6 +486,59 @@ canvas {
     text-decoration: none;
 }
 
+/* ==== Assignments Table Visibility Fix ==== */
+
+/* Define teal accent for hover states */
+:root {
+    --accent-teal: #14b8a6;
+    --text-dark: #1a1a1a;
+    --text-light: #e6edf3;
+    --dark-border: #30363d;
+}
+
+/* Ensure base rows inherit dark bg */
+#assignments-table.table-dark > tbody > tr:nth-of-type(odd) {
+    background-color: var(--bg-secondary, #161b22) !important;
+}
+#assignments-table.table-dark > tbody > tr:nth-of-type(even) {
+    background-color: var(--bg-tertiary, #21262d) !important;
+}
+
+/* Hover / selected state: use teal accent with dark text */
+#assignments-table.table-dark > tbody > tr:hover,
+#assignments-table.table-dark > tbody > tr.table-active,
+#assignments-table.table-dark > tbody > tr.selected {
+    background: var(--accent-teal, #14b8a6) !important;
+    color: var(--text-dark, #1a1a1a) !important;
+}
+
+/* Make sure the cell text inherits */
+#assignments-table.table-dark td,
+#assignments-table.table-dark th {
+    color: inherit !important;
+}
+
+/* Optional: header row tint */
+#assignments-table thead th {
+    background: var(--dark-border, #30363d) !important;
+    color: var(--text-light, #e6edf3) !important;
+}
+
+/* General table fixes for all student portal tables */
+.table-dark {
+    --bs-table-bg: var(--bg-secondary, #161b22);
+    --bs-table-striped-bg: var(--bg-tertiary, #21262d);
+    --bs-table-hover-bg: var(--accent-teal, #14b8a6);
+    --bs-table-hover-color: var(--text-dark, #1a1a1a);
+}
+
+/* Override any table-info backgrounds that cause cyan issues */
+.table-dark .table-info,
+.table-dark thead.table-info th {
+    background-color: var(--dark-border, #30363d) !important;
+    color: var(--text-light, #e6edf3) !important;
+}
+
 /* High contrast mode support */
 @media (prefers-contrast: high) {
     :root {
