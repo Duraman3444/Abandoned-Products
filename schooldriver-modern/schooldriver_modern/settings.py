@@ -68,6 +68,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'schooldriver_modern.middleware.LoginAttemptLimitingMiddleware',
+    'schooldriver_modern.portal_middleware.PortalAccessMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -134,7 +135,7 @@ USE_TZ = True
 
 # Authentication settings
 LOGIN_URL = '/accounts/login/'
-LOGIN_REDIRECT_URL = '/dashboard/'
+# LOGIN_REDIRECT_URL removed - using role-based redirects in CustomLoginView
 LOGOUT_REDIRECT_URL = '/accounts/login/'
 
 # Session security settings

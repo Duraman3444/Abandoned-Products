@@ -49,6 +49,11 @@ class CustomLoginView(LoginView):
         redirect_url = get_redirect_url_for_user(form.get_user())
         
         return HttpResponseRedirect(redirect_url)
+    
+    def get_success_url(self):
+        """Get the URL to redirect to after successful login."""
+        # This method is also called by Django's login system
+        return get_redirect_url_for_user(self.request.user)
 
 
 class CustomUserCreationForm(UserCreationForm):

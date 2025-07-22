@@ -67,7 +67,7 @@ def get_user_role(user):
     if not user.is_authenticated:
         return None
     
-    user_groups = user.groups.values_list('name', flat=True)
+    user_groups = list(user.groups.values_list('name', flat=True))
     
     # Check roles in priority order
     for role in UserRoles.ALL_ROLES:
