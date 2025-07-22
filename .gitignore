@@ -44,6 +44,9 @@ media/
 # Environment variables
 .env
 
+# Firebase credentials
+*firebase*adminsdk*.json
+
 # OS
 .DS_Store
 .DS_Store?
