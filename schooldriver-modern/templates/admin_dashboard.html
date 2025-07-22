@@ -136,11 +136,19 @@
     }
     
     .chart-container {
-        min-height: 300px;
+        min-height: 320px;
+        height: 320px;
         background-color: #3a3a3a;
         border-radius: 4px;
         padding: 15px;
         margin-top: 10px;
+        position: relative;
+    }
+    
+    .chart-container canvas {
+        width: 100% !important;
+        height: 280px !important;
+        max-height: 280px !important;
     }
     
     .dashboard-title {
@@ -185,6 +193,14 @@
     
     .light-mode .chart-container {
         background-color: #f8f8f8;
+        min-height: 320px;
+        height: 320px;
+    }
+    
+    .light-mode .chart-container canvas {
+        width: 100% !important;
+        height: 280px !important;
+        max-height: 280px !important;
     }
     
     /* Theme toggle button */
@@ -595,9 +611,28 @@
         });
     }
     
-    // Initialize charts when page loads
+    // Initialize charts when page loads with proper timing
     document.addEventListener('DOMContentLoaded', function() {
-        initializeCharts();
+        // Use requestAnimationFrame to ensure DOM is fully rendered
+        requestAnimationFrame(() => {
+            setTimeout(() => {
+                // Force canvas dimensions before chart initialization
+                const statusCanvas = document.getElementById('statusChart');
+                const trendsCanvas = document.getElementById('trendsChart');
+                
+                if (statusCanvas) {
+                    statusCanvas.style.height = '280px';
+                    statusCanvas.style.width = '100%';
+                }
+                
+                if (trendsCanvas) {
+                    trendsCanvas.style.height = '280px';
+                    trendsCanvas.style.width = '100%';
+                }
+                
+                initializeCharts();
+            }, 100); // Small delay to ensure grid layout is calculated
+        });
     });
 </script>
 {% endblock %}
