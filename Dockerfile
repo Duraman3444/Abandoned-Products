@@ -23,6 +23,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY schooldriver-modern/ .
 
+# Make entrypoint script executable
+RUN chmod +x entrypoint.sh
+
 # Create static files directory and collect static files
 RUN mkdir -p /app/staticfiles
 RUN python manage.py collectstatic --noinput
@@ -39,8 +42,8 @@ USER appuser
 EXPOSE 8080
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import requests; requests.get('http://localhost:8080/health/', timeout=10)" || exit 1
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD python -c "import requests; requests.get('http://localhost:8080/', timeout=10)" || exit 1
 
-# Run database setup and start application
-CMD ["sh", "-c", "python manage.py migrate --run-syncdb && python manage.py loaddata database_backup.json && python manage.py runserver 0.0.0.0:8080"]
+# Run entrypoint script
+CMD ["./entrypoint.sh"]
