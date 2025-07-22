@@ -160,6 +160,7 @@ CSRF_COOKIE_SECURE = True
 | `AWS_SECRET_ACCESS_KEY` | ❌ | S3 secret key | `abc123...` |
 | `AWS_STORAGE_BUCKET_NAME` | ❌ | S3 bucket for media files | `schooldriver-media` |
 | `SENTRY_DSN` | ❌ | Error tracking (recommended) | `https://abc@sentry.io/123` |
+| `FIREBASE_CREDENTIALS_JSON` | ❌ | Firebase service account JSON for FCM notifications | `{"type":"service_account",...}` |
 
 ### Environment File Example
 
@@ -176,6 +177,7 @@ EMAIL_HOST=smtp.mailgun.org
 EMAIL_HOST_USER=postmaster@mg.your-domain.com
 EMAIL_HOST_PASSWORD=your-mailgun-key
 SENTRY_DSN=https://your-sentry-dsn@sentry.io/project-id
+FIREBASE_CREDENTIALS_JSON={"type":"service_account","project_id":"your-project-id",...}
 ```
 
 ## Performance Optimization

@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'schooldriver_modern',
     'students',
     'admissions',
+    'notifications',
 ]
 
 MIDDLEWARE = [

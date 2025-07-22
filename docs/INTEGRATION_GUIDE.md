@@ -736,6 +736,203 @@ function validateStudentData(data) {
 }
 ```
 
+## Firebase Cloud Messaging (FCM) Integration
+
+SchoolDriver Modern includes Firebase Cloud Messaging support for sending push notifications to mobile devices and web browsers.
+
+### Setup Firebase Credentials
+
+1. **Obtain Firebase Service Account JSON**: Download service account credentials from the Firebase Console:
+   - Go to Project Settings → Service Accounts
+   - Click "Generate New Private Key"
+   - Save the JSON file securely
+
+2. **Configure Environment Variable**: Set the `FIREBASE_CREDENTIALS_JSON` environment variable with the complete JSON content:
+
+```bash
+# In production (one line, escaped quotes)
+export FIREBASE_CREDENTIALS_JSON='{"type":"service_account","project_id":"your-project",...}'
+
+# In .env file (development)
+FIREBASE_CREDENTIALS_JSON={"type":"service_account","project_id":"your-project",...}
+```
+
+3. **Verify Configuration**: Test Firebase initialization:
+```bash
+python manage.py shell
+>>> from notifications.firebase import get_firebase_app
+>>> app = get_firebase_app()
+>>> print(f"Firebase app initialized: {app.project_id}")
+```
+
+### Obtaining Device Tokens
+
+Device tokens are required to send notifications to specific devices. Here's how to obtain them:
+
+#### Web Applications (JavaScript)
+```javascript
+// Import Firebase SDK
+import { initializeApp } from 'firebase/app';
+import { getMessaging, getToken } from 'firebase/messaging';
+
+const firebaseConfig = {
+    // Your web app's Firebase configuration
+    apiKey: "your-api-key",
+    authDomain: "your-project.firebaseapp.com",
+    projectId: "your-project-id",
+    // ... other config
+};
+
+const app = initializeApp(firebaseConfig);
+const messaging = getMessaging(app);
+
+// Request permission and get token
+async function getDeviceToken() {
+    try {
+        const permission = await Notification.requestPermission();
+        if (permission === 'granted') {
+            const token = await getToken(messaging, {
+                vapidKey: 'your-vapid-key'
+            });
+            console.log('Device token:', token);
+            return token;
+        }
+    } catch (error) {
+        console.error('Error getting device token:', error);
+    }
+}
+```
+
+#### Mobile Applications (React Native)
+```javascript
+import messaging from '@react-native-firebase/messaging';
+
+async function getDeviceToken() {
+    try {
+        const token = await messaging().getToken();
+        console.log('Device token:', token);
+        return token;
+    } catch (error) {
+        console.error('Error getting device token:', error);
+    }
+}
+```
+
+### Sending Notifications
+
+#### Using Management Command
+```bash
+# Send test notification
+python manage.py send_test_fcm <device_token> "Hello from SchoolDriver!"
+
+# With custom title
+python manage.py send_test_fcm <device_token> "Welcome back to school!" --title "SchoolDriver Alert"
+```
+
+#### Using Python API
+```python
+from notifications.firebase import send_fcm_notification
+
+# Send notification
+message_id = send_fcm_notification(
+    device_token="your-device-token",
+    title="Important Notice",
+    body="Your student's attendance has been updated."
+)
+print(f"Notification sent: {message_id}")
+```
+
+#### Using Django Views
+```python
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from notifications.firebase import send_fcm_notification
+
+@api_view(['POST'])
+def send_notification(request):
+    try:
+        device_token = request.data.get('device_token')
+        title = request.data.get('title', 'SchoolDriver')
+        message = request.data.get('message')
+        
+        message_id = send_fcm_notification(device_token, title, message)
+        
+        return Response({
+            'success': True,
+            'message_id': message_id
+        })
+    except Exception as e:
+        return Response({
+            'success': False,
+            'error': str(e)
+        }, status=400)
+```
+
+### API Endpoint for Testing
+
+Create a test endpoint for sending notifications via HTTP:
+
+```bash
+# Example curl request
+curl -X POST http://localhost:8000/api/notifications/test/ \
+  -H "Content-Type: application/json" \
+  -H "X-CSRFToken: your-csrf-token" \
+  -d '{
+    "device_token": "your-device-token-here",
+    "title": "Test Notification",
+    "message": "This is a test message from SchoolDriver!"
+  }'
+```
+
+### Integration with SchoolDriver Events
+
+You can integrate FCM notifications with various SchoolDriver events:
+
+```python
+# Example: Send notification when student is enrolled
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from students.models import Student
+from notifications.firebase import send_fcm_notification
+
+@receiver(post_save, sender=Student)
+def notify_student_enrollment(sender, instance, created, **kwargs):
+    if created and instance.guardian_device_token:
+        send_fcm_notification(
+            device_token=instance.guardian_device_token,
+            title="Enrollment Confirmed",
+            body=f"{instance.first_name} has been successfully enrolled!"
+        )
+```
+
+### Error Handling
+
+The Firebase service includes proper error handling:
+
+```python
+from notifications.firebase import FirebaseService
+
+try:
+    FirebaseService.initialize()
+except ValueError as e:
+    print(f"Configuration error: {e}")
+    # Handle missing or invalid credentials
+
+try:
+    message_id = send_fcm_notification(token, title, body)
+except Exception as e:
+    print(f"Failed to send notification: {e}")
+    # Handle send failures (invalid token, network issues, etc.)
+```
+
+### Security Considerations
+
+- **Never expose Firebase credentials** in client-side code
+- **Store device tokens securely** and associate them with authenticated users
+- **Validate permissions** before sending notifications
+- **Rate limit** notification sending to prevent abuse
+- **Use HTTPS** for all Firebase-related communications
+
 ---
 
 This integration guide provides patterns for building robust integrations with SchoolDriver Modern. For specific API endpoints and parameters, refer to the [API Usage Guide](API_USAGE.md) and explore the interactive documentation at `/api/docs/`.
