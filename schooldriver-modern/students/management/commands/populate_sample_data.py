@@ -769,8 +769,25 @@ class Command(BaseCommand):
                 assignment_name = random.choice(assignment_templates)
                 category = random.choice(categories)
                 
-                assigned_date = current_school_year.start_date + timedelta(days=random.randint(0, 90))
-                due_date = assigned_date + timedelta(days=random.randint(1, 14))
+                # Create assignments with varied due dates for better testing
+                today = timezone.now().date()
+                assignment_type = random.choice(['past_graded', 'past_submitted', 'past_missing', 'upcoming', 'today'])
+                
+                if assignment_type == 'past_graded':
+                    assigned_date = today - timedelta(days=random.randint(7, 30))
+                    due_date = assigned_date + timedelta(days=random.randint(3, 7))
+                elif assignment_type == 'past_submitted':
+                    assigned_date = today - timedelta(days=random.randint(5, 20))
+                    due_date = assigned_date + timedelta(days=random.randint(3, 7))
+                elif assignment_type == 'past_missing':
+                    assigned_date = today - timedelta(days=random.randint(5, 15))
+                    due_date = assigned_date + timedelta(days=random.randint(3, 7))
+                elif assignment_type == 'upcoming':
+                    assigned_date = today - timedelta(days=random.randint(0, 5))
+                    due_date = today + timedelta(days=random.randint(1, 14))
+                else:  # today
+                    assigned_date = today - timedelta(days=random.randint(3, 7))
+                    due_date = today
                 
                 assignment = Assignment.objects.create(
                     section=section,
@@ -782,13 +799,12 @@ class Command(BaseCommand):
                     is_published=True
                 )
                 
-                # Create grades for each enrolled student
+                # Create grades based on assignment type to ensure proper status distribution
                 for enrollment in section.enrollments.all():
-                    # 90% chance student has a grade
-                    if random.random() < 0.9:
+                    if assignment_type == 'past_graded':
+                        # Graded assignments - has points
                         points_earned = random.uniform(0.6, 1.0) * float(assignment.max_points)
-                        is_late = random.random() < 0.1  # 10% chance of late submission
-                        
+                        is_late = random.random() < 0.1
                         Grade.objects.create(
                             enrollment=enrollment,
                             assignment=assignment,
@@ -797,6 +813,30 @@ class Command(BaseCommand):
                             graded_by=section.teacher,
                             graded_date=due_date + timedelta(days=random.randint(1, 5))
                         )
+                    elif assignment_type == 'past_submitted':
+                        # Submitted but not graded - no points yet
+                        if random.random() < 0.8:  # 80% submitted
+                            Grade.objects.create(
+                                enrollment=enrollment,
+                                assignment=assignment,
+                                points_earned=None,  # Submitted but not graded
+                                is_late=random.random() < 0.1,
+                                graded_by=None,
+                                graded_date=None
+                            )
+                    elif assignment_type == 'past_missing':
+                        # Missing assignments - no grade at all
+                        if random.random() < 0.3:  # Only 30% have submitted (rest are missing)
+                            points_earned = random.uniform(0.4, 0.8) * float(assignment.max_points)
+                            Grade.objects.create(
+                                enrollment=enrollment,
+                                assignment=assignment,
+                                points_earned=round(points_earned, 2),
+                                is_late=True,
+                                graded_by=section.teacher,
+                                graded_date=due_date + timedelta(days=random.randint(1, 10))
+                            )
+                    # upcoming and today assignments have no grades (pending)
         
         # Create attendance records for the past 30 days
         end_date = timezone.now().date()

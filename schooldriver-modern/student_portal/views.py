@@ -886,7 +886,7 @@ def assignments_view(request):
             return redirect('student_portal:dashboard')
         
         current_year = SchoolYear.objects.filter(is_active=True).first()
-        status_filter = request.GET.get("status", "all")  # all | upcoming | missing
+        status_filter = request.GET.get("status", "all")  # all | upcoming | missing | done
         today = timezone.now().date()
 
         # Base query
@@ -900,10 +900,18 @@ def assignments_view(request):
         
         # Apply status filter
         if status_filter == "upcoming":
-            assignments = assignments.filter(due_date__gte=today)
+            # Upcoming = due today or future AND not submitted yet
+            assignments = assignments.filter(due_date__gte=today).exclude(
+                grades__enrollment__student=student
+            )
         elif status_filter == "missing":
             # Missing = past due date AND no grade submitted
             assignments = assignments.filter(due_date__lt=today).exclude(
+                grades__enrollment__student=student
+            )
+        elif status_filter == "done":
+            # Done = has a grade (submitted or graded)
+            assignments = assignments.filter(
                 grades__enrollment__student=student
             )
         
@@ -916,7 +924,10 @@ def assignments_view(request):
                                          enrollment__student=student).first()
             
             if grade:
-                status = 'Submitted' if grade.points_earned is not None else 'Graded'
+                if grade.points_earned is not None:
+                    status = 'Graded'  # Grade received (has points)
+                else:
+                    status = 'Submitted'  # Awaiting grade (no points yet)
             elif assignment.due_date < timezone.now().date():
                 status = 'Overdue'
             else:
