@@ -24,13 +24,17 @@ jobs:
           gcloud builds submit --tag gcr.io/$PROJECT_ID/$SERVICE .
 
       - name: Deploy to Cloud Run
+        env:
+          DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+          FIREBASE_CREDENTIALS_JSON: ${{ secrets.FIREBASE_CREDENTIALS_JSON }}
+          GCS_BUCKET_NAME: ${{ secrets.GCS_BUCKET_NAME }}
         run: |
           gcloud run deploy $SERVICE \
             --image gcr.io/$PROJECT_ID/$SERVICE \
             --region $REGION \
             --platform managed \
             --allow-unauthenticated \
-            --set-env-vars "DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }},FIREBASE_CREDENTIALS_JSON=${{ secrets.FIREBASE_CREDENTIALS_JSON }},GCS_BUCKET_NAME=${{ secrets.GCS_BUCKET_NAME }}"
+            --set-env-vars "DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY},FIREBASE_CREDENTIALS_JSON=${FIREBASE_CREDENTIALS_JSON},GCS_BUCKET_NAME=${GCS_BUCKET_NAME}"
 
       - name: Deploy Firebase Hosting
         uses: FirebaseExtended/action-hosting-deploy@v0
