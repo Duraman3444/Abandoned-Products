@@ -1,0 +1,12 @@
+{
+  "hosting": {
+    "public": "staticfiles",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "rewrites": [
+      {
+        "source": "**",
+        "run": { "serviceId": "schooldriver-modern", "region": "us-central1" }
+      }
+    ]
+  }
+}

@@ -19,7 +19,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-modernized-schooldriver-demo-key-2024'
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "dev-key-only")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -154,6 +154,14 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+
+# ─── Google Cloud Storage (for uploads) ───────────────────────────
+if os.getenv("GCS_BUCKET_NAME"):
+    INSTALLED_APPS += ["storages"]
+    DEFAULT_FILE_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"
+    GS_BUCKET_NAME = os.getenv("GCS_BUCKET_NAME")
+    GS_DEFAULT_ACL = "publicRead"
+    # Credentials picked up from GOOGLE_APPLICATION_CREDENTIALS
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/

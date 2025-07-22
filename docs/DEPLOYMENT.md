@@ -376,6 +376,16 @@ print(connection.queries)
 - [ ] Error monitoring configured (Sentry)
 - [ ] Log rotation configured
 
+### Firebase Hosting + Cloud Run
+
+1. Cloud Run hosts the Django back-end container.
+2. Firebase Hosting serves `staticfiles/` and proxies dynamic
+   routes to Cloud Run via a rewrite rule.
+3. Media uploads go to the bucket defined by `GCS_BUCKET_NAME`.
+4. Credentials are supplied through Cloud Run environment vars and
+   GitHub Secrets (`DJANGO_SECRET_KEY`, `FIREBASE_CREDENTIALS_JSON`,
+   `GCS_BUCKET_NAME`).
+
 ---
 
 For additional support, see the [Deployment Checklist](DEPLOYMENT_CHECKLIST.md) or contact the development team.
