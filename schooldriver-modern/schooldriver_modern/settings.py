@@ -254,8 +254,13 @@ SCHOOLDRIVER_SETTINGS = {
 # Email configuration (for development)
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-# Security settings (relaxed for development)
-CSRF_TRUSTED_ORIGINS = ['http://localhost:8000', 'http://127.0.0.1:8000']
+# Security settings (updated for production)
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:8000', 
+    'http://127.0.0.1:8000',
+    'https://schooldriver-modern-dev.web.app',
+    'https://schooldriver-modern-93636800709.us-central1.run.app'
+]
 
 # Logging configuration
 LOGGING = {

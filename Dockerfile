@@ -36,11 +36,11 @@ RUN adduser --disabled-password --gecos '' appuser && \
 USER appuser
 
 # Expose port
-EXPOSE 8000
+EXPOSE 8080
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import requests; requests.get('http://localhost:8000/admin/login/', timeout=10)" || exit 1
+    CMD python -c "import requests; requests.get('http://localhost:8080/health/', timeout=10)" || exit 1
 
-# Run gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "3", "--timeout", "120", "schooldriver_modern.wsgi:application"]
+# Run database setup and start application
+CMD ["sh", "-c", "python manage.py migrate --run-syncdb && python manage.py loaddata database_backup.json && python manage.py runserver 0.0.0.0:8080"]
