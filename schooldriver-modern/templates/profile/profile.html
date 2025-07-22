@@ -66,8 +66,96 @@
                                 <div class="col-sm-8">{{ user.date_joined|date:"F d, Y" }}</div>
                             </div>
                             <div class="row mb-2">
+                                <div class="col-sm-4"><strong>Date of Birth:</strong></div>
+                                <div class="col-sm-8">{{ profile.date_of_birth|date:"F d, Y"|default:"Not provided" }}</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-sm-4"><strong>Phone Number:</strong></div>
+                                <div class="col-sm-8">{{ profile.phone_number|default:"Not provided" }}</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-sm-4"><strong>Address:</strong></div>
+                                <div class="col-sm-8">{{ profile.address|default:"Not provided" }}</div>
+                            </div>
+                            <div class="row mb-2">
                                 <div class="col-sm-4"><strong>Last Login:</strong></div>
                                 <div class="col-sm-8">{{ user.last_login|date:"F d, Y g:i A"|default:"Never" }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Emergency Contact Information -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h6 class="text-muted">Emergency Contact Information</h6>
+                            <hr>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="row mb-2">
+                                <div class="col-sm-6"><strong>Primary Contact:</strong></div>
+                                <div class="col-sm-6">{{ profile.emergency_contact_1_name|default:"Not provided" }}</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-sm-6"><strong>Relationship:</strong></div>
+                                <div class="col-sm-6">{{ profile.emergency_contact_1_relationship|default:"Not provided" }}</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-sm-6"><strong>Phone:</strong></div>
+                                <div class="col-sm-6">{{ profile.emergency_contact_1_phone|default:"Not provided" }}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="row mb-2">
+                                <div class="col-sm-6"><strong>Secondary Contact:</strong></div>
+                                <div class="col-sm-6">{{ profile.emergency_contact_2_name|default:"Not provided" }}</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-sm-6"><strong>Relationship:</strong></div>
+                                <div class="col-sm-6">{{ profile.emergency_contact_2_relationship|default:"Not provided" }}</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-sm-6"><strong>Phone:</strong></div>
+                                <div class="col-sm-6">{{ profile.emergency_contact_2_phone|default:"Not provided" }}</div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="row mb-2">
+                                <div class="col-sm-3"><strong>Emergency Address:</strong></div>
+                                <div class="col-sm-9">{{ profile.emergency_address|default:"Not provided" }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Account Settings -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h6 class="text-muted">Account Settings</h6>
+                            <hr>
+                        </div>
+                        <div class="col-12">
+                            <div class="row mb-2">
+                                <div class="col-sm-4"><strong>Email Notifications:</strong></div>
+                                <div class="col-sm-8">
+                                    <span class="badge {% if profile.email_notifications %}bg-success{% else %}bg-secondary{% endif %}">
+                                        {% if profile.email_notifications %}Enabled{% else %}Disabled{% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-sm-4"><strong>SMS Notifications:</strong></div>
+                                <div class="col-sm-8">
+                                    <span class="badge {% if profile.sms_notifications %}bg-success{% else %}bg-secondary{% endif %}">
+                                        {% if profile.sms_notifications %}Enabled{% else %}Disabled{% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-sm-4"><strong>Parent Portal Access:</strong></div>
+                                <div class="col-sm-8">
+                                    <span class="badge {% if profile.parent_portal_access %}bg-success{% else %}bg-secondary{% endif %}">
+                                        {% if profile.parent_portal_access %}Allowed{% else %}Restricted{% endif %}
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>

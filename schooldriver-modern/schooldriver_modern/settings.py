@@ -28,6 +28,7 @@ ALLOWED_HOSTS = [
     'localhost', 
     '127.0.0.1', 
     '0.0.0.0',
+    'testserver',  # For testing
     'schooldriver-modern-dev.web.app',
     'schooldriver-modern-93636800709.us-central1.run.app',
     '.run.app',

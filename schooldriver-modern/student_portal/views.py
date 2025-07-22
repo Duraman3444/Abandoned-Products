@@ -695,18 +695,69 @@ def profile_view(request):
             return redirect('student_portal:dashboard')
         
         if request.method == 'POST':
-            # Handle profile updates (limited fields students can edit)
-            preferred_name = request.POST.get('preferred_name', '').strip()
-            special_notes = request.POST.get('special_notes', '').strip()
+            # Handle profile updates - students can edit personal information
+            user = request.user
+            profile = user.profile
             
-            if preferred_name != student.preferred_name:
-                student.preferred_name = preferred_name
-                messages.success(request, 'Preferred name updated successfully.')
+            # Update User fields
+            first_name = request.POST.get('first_name', '').strip()
+            last_name = request.POST.get('last_name', '').strip()
+            email = request.POST.get('email', '').strip()
             
-            # Note: Special needs would typically require admin approval
-            # Here we're just showing the interface
+            if first_name:
+                user.first_name = first_name
+            if last_name:
+                user.last_name = last_name  
+            if email:
+                user.email = email
             
-            student.save()
+            user.save()
+            
+            # Update Profile fields
+            date_of_birth = request.POST.get('date_of_birth')
+            phone_number = request.POST.get('phone_number', '').strip()
+            address = request.POST.get('address', '').strip()
+            
+            # Emergency contact information
+            emergency_contact_1_name = request.POST.get('emergency_contact_1_name', '').strip()
+            emergency_contact_1_relationship = request.POST.get('emergency_contact_1_relationship', '').strip()
+            emergency_contact_1_phone = request.POST.get('emergency_contact_1_phone', '').strip()
+            emergency_contact_2_name = request.POST.get('emergency_contact_2_name', '').strip()
+            emergency_contact_2_relationship = request.POST.get('emergency_contact_2_relationship', '').strip()
+            emergency_contact_2_phone = request.POST.get('emergency_contact_2_phone', '').strip()
+            emergency_address = request.POST.get('emergency_address', '').strip()
+            
+            # Account settings
+            email_notifications = request.POST.get('email_notifications') == 'on'
+            sms_notifications = request.POST.get('sms_notifications') == 'on'
+            parent_portal_access = request.POST.get('parent_portal_access') == 'on'
+            
+            # Save date of birth if provided
+            if date_of_birth:
+                from datetime import datetime
+                try:
+                    profile.date_of_birth = datetime.strptime(date_of_birth, '%Y-%m-%d').date()
+                except ValueError:
+                    pass  # Invalid date format, skip
+            
+            # Update profile fields
+            profile.phone_number = phone_number
+            profile.address = address
+            profile.emergency_contact_1_name = emergency_contact_1_name
+            profile.emergency_contact_1_relationship = emergency_contact_1_relationship
+            profile.emergency_contact_1_phone = emergency_contact_1_phone
+            profile.emergency_contact_2_name = emergency_contact_2_name
+            profile.emergency_contact_2_relationship = emergency_contact_2_relationship
+            profile.emergency_contact_2_phone = emergency_contact_2_phone
+            profile.emergency_address = emergency_address
+            profile.email_notifications = email_notifications
+            profile.sms_notifications = sms_notifications
+            profile.parent_portal_access = parent_portal_access
+            
+            profile.save()
+            
+            messages.success(request, 'Profile updated successfully!')
+            return redirect('student_portal:profile')
         
         # Get consistent academic data
         academic_data = get_student_academic_data(student)
@@ -735,6 +786,93 @@ def profile_view(request):
         }
     
     return render(request, 'student_portal/profile.html', context)
+
+
+@login_required
+def profile_edit_view(request):
+    """Student profile edit page with full access to personal information"""
+    try:
+        student = get_current_student(request.user)
+        if not student:
+            messages.error(request, "Student profile not found.")
+            return redirect('student_portal:dashboard')
+        
+        if request.method == 'POST':
+            # Handle profile updates - students can edit personal information
+            user = request.user
+            profile = user.profile
+            
+            # Update User fields
+            first_name = request.POST.get('first_name', '').strip()
+            last_name = request.POST.get('last_name', '').strip()
+            email = request.POST.get('email', '').strip()
+            
+            if first_name:
+                user.first_name = first_name
+            if last_name:
+                user.last_name = last_name  
+            if email:
+                user.email = email
+            
+            user.save()
+            
+            # Update Profile fields
+            date_of_birth = request.POST.get('date_of_birth')
+            phone_number = request.POST.get('phone_number', '').strip()
+            address = request.POST.get('address', '').strip()
+            
+            # Emergency contact information
+            emergency_contact_1_name = request.POST.get('emergency_contact_1_name', '').strip()
+            emergency_contact_1_relationship = request.POST.get('emergency_contact_1_relationship', '').strip()
+            emergency_contact_1_phone = request.POST.get('emergency_contact_1_phone', '').strip()
+            emergency_contact_2_name = request.POST.get('emergency_contact_2_name', '').strip()
+            emergency_contact_2_relationship = request.POST.get('emergency_contact_2_relationship', '').strip()
+            emergency_contact_2_phone = request.POST.get('emergency_contact_2_phone', '').strip()
+            emergency_address = request.POST.get('emergency_address', '').strip()
+            
+            # Account settings
+            email_notifications = request.POST.get('email_notifications') == 'on'
+            sms_notifications = request.POST.get('sms_notifications') == 'on'
+            parent_portal_access = request.POST.get('parent_portal_access') == 'on'
+            
+            # Save date of birth if provided
+            if date_of_birth:
+                from datetime import datetime
+                try:
+                    profile.date_of_birth = datetime.strptime(date_of_birth, '%Y-%m-%d').date()
+                except ValueError:
+                    pass  # Invalid date format, skip
+            
+            # Update profile fields
+            profile.phone_number = phone_number
+            profile.address = address
+            profile.emergency_contact_1_name = emergency_contact_1_name
+            profile.emergency_contact_1_relationship = emergency_contact_1_relationship
+            profile.emergency_contact_1_phone = emergency_contact_1_phone
+            profile.emergency_contact_2_name = emergency_contact_2_name
+            profile.emergency_contact_2_relationship = emergency_contact_2_relationship
+            profile.emergency_contact_2_phone = emergency_contact_2_phone
+            profile.emergency_address = emergency_address
+            profile.email_notifications = email_notifications
+            profile.sms_notifications = sms_notifications
+            profile.parent_portal_access = parent_portal_access
+            
+            profile.save()
+            
+            messages.success(request, 'Profile updated successfully!')
+            return redirect('student_portal:profile')
+        
+        # GET request - show the edit form
+        context = {
+            'student': student,
+        }
+        
+    except Exception as e:
+        logger.error(f"Error loading student profile edit: {e}")
+        messages.error(request, 'Unable to load edit profile at this time.')
+        return redirect('student_portal:profile')
+    
+    return render(request, 'student_portal/profile_edit.html', context)
 
 
 @login_required

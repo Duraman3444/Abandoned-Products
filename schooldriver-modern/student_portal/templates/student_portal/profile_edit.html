@@ -1,0 +1,243 @@
+{% extends "student_base.html" %}
+
+{% block title %}Edit Profile - SchoolDriver Modern{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item"><a href="{% url 'student_portal:profile' %}">Profile</a></li>
+<li class="breadcrumb-item active">Edit Profile</li>
+{% endblock %}
+
+{% block student_content %}
+<!-- Page Header -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h2 class="text-info mb-2">Edit Profile</h2>
+                        <p class="text-muted mb-0">Update your personal information and settings</p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <a href="{% url 'student_portal:profile' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>Back to Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Form -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0 text-info">
+                    <i class="bi bi-pencil me-2"></i>Profile Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <!-- Personal Information -->
+                    <div class="mb-5">
+                        <h6 class="text-info mb-3">
+                            <i class="bi bi-person me-2"></i>Personal Information
+                        </h6>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="first_name" class="form-label">First Name</label>
+                                <input type="text" name="first_name" id="first_name" 
+                                       class="form-control bg-dark border-secondary text-light" 
+                                       value="{{ user.first_name }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="last_name" class="form-label">Last Name</label>
+                                <input type="text" name="last_name" id="last_name" 
+                                       class="form-control bg-dark border-secondary text-light" 
+                                       value="{{ user.last_name }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="email" class="form-label">Email Address</label>
+                                <input type="email" name="email" id="email" 
+                                       class="form-control bg-dark border-secondary text-light" 
+                                       value="{{ user.email }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="date_of_birth" class="form-label">Date of Birth</label>
+                                <input type="date" name="date_of_birth" id="date_of_birth" 
+                                       class="form-control bg-dark border-secondary text-light" 
+                                       value="{{ user.profile.date_of_birth|date:'Y-m-d' }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="phone_number" class="form-label">Phone Number</label>
+                                <input type="tel" name="phone_number" id="phone_number" 
+                                       class="form-control bg-dark border-secondary text-light" 
+                                       value="{{ user.profile.phone_number }}" 
+                                       placeholder="(555) 123-4567">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="address" class="form-label">Address</label>
+                                <textarea name="address" id="address" rows="3"
+                                          class="form-control bg-dark border-secondary text-light" 
+                                          placeholder="123 Main St, City, State ZIP">{{ user.profile.address }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Emergency Contact Information -->
+                    <div class="mb-5">
+                        <h6 class="text-info mb-3">
+                            <i class="bi bi-telephone me-2"></i>Emergency Contact Information
+                        </h6>
+                        <div class="row g-3">
+                            <!-- Primary Contact -->
+                            <div class="col-12">
+                                <h6 class="text-warning">Primary Emergency Contact</h6>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="emergency_contact_1_name" class="form-label">Contact Name</label>
+                                <input type="text" name="emergency_contact_1_name" id="emergency_contact_1_name" 
+                                       class="form-control bg-dark border-secondary text-light" 
+                                       value="{{ user.profile.emergency_contact_1_name }}" 
+                                       placeholder="Mary Anderson">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="emergency_contact_1_relationship" class="form-label">Relationship</label>
+                                <input type="text" name="emergency_contact_1_relationship" id="emergency_contact_1_relationship" 
+                                       class="form-control bg-dark border-secondary text-light" 
+                                       value="{{ user.profile.emergency_contact_1_relationship }}" 
+                                       placeholder="Mother, Father, Guardian, etc.">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="emergency_contact_1_phone" class="form-label">Phone Number</label>
+                                <input type="tel" name="emergency_contact_1_phone" id="emergency_contact_1_phone" 
+                                       class="form-control bg-dark border-secondary text-light" 
+                                       value="{{ user.profile.emergency_contact_1_phone }}" 
+                                       placeholder="(555) 987-6543">
+                            </div>
+                            
+                            <!-- Secondary Contact -->
+                            <div class="col-12 mt-4">
+                                <h6 class="text-warning">Secondary Emergency Contact</h6>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="emergency_contact_2_name" class="form-label">Contact Name</label>
+                                <input type="text" name="emergency_contact_2_name" id="emergency_contact_2_name" 
+                                       class="form-control bg-dark border-secondary text-light" 
+                                       value="{{ user.profile.emergency_contact_2_name }}" 
+                                       placeholder="David Johnson">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="emergency_contact_2_relationship" class="form-label">Relationship</label>
+                                <input type="text" name="emergency_contact_2_relationship" id="emergency_contact_2_relationship" 
+                                       class="form-control bg-dark border-secondary text-light" 
+                                       value="{{ user.profile.emergency_contact_2_relationship }}" 
+                                       placeholder="Mother, Father, Guardian, etc.">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="emergency_contact_2_phone" class="form-label">Phone Number</label>
+                                <input type="tel" name="emergency_contact_2_phone" id="emergency_contact_2_phone" 
+                                       class="form-control bg-dark border-secondary text-light" 
+                                       value="{{ user.profile.emergency_contact_2_phone }}" 
+                                       placeholder="(555) 987-6544">
+                            </div>
+                            
+                            <!-- Emergency Address -->
+                            <div class="col-12 mt-4">
+                                <label for="emergency_address" class="form-label">Emergency Contact Address</label>
+                                <textarea name="emergency_address" id="emergency_address" rows="3"
+                                          class="form-control bg-dark border-secondary text-light" 
+                                          placeholder="123 Emergency Street, City, State ZIP">{{ user.profile.emergency_address }}</textarea>
+                                <small class="text-muted">Address where emergency contacts can be reached</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Account Settings -->
+                    <div class="mb-5">
+                        <h6 class="text-info mb-3">
+                            <i class="bi bi-gear me-2"></i>Account Settings
+                        </h6>
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" name="email_notifications" 
+                                           id="email_notifications" {% if user.profile.email_notifications %}checked{% endif %}>
+                                    <label class="form-check-label text-light" for="email_notifications">
+                                        Email Notifications
+                                    </label>
+                                    <div class="form-text text-muted">Receive email notifications for grades, assignments, and announcements</div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" name="sms_notifications" 
+                                           id="sms_notifications" {% if user.profile.sms_notifications %}checked{% endif %}>
+                                    <label class="form-check-label text-light" for="sms_notifications">
+                                        SMS Notifications
+                                    </label>
+                                    <div class="form-text text-muted">Receive text message notifications for urgent updates</div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" name="parent_portal_access" 
+                                           id="parent_portal_access" {% if user.profile.parent_portal_access %}checked{% endif %}>
+                                    <label class="form-check-label text-light" for="parent_portal_access">
+                                        Parent Portal Access
+                                    </label>
+                                    <div class="form-text text-muted">Allow parents to view your academic information</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="d-flex gap-3 justify-content-end">
+                        <a href="{% url 'student_portal:profile' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-lg me-1"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-teal">
+                            <i class="bi bi-check-lg me-1"></i>Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+    .bg-teal {
+        background-color: var(--teal-primary) !important;
+    }
+    
+    .form-control:focus,
+    .form-select:focus {
+        background-color: var(--dark-card);
+        border-color: var(--teal-primary);
+        color: var(--text-light);
+        box-shadow: 0 0 0 0.2rem rgba(20, 184, 166, 0.25);
+    }
+    
+    .form-check-input:checked {
+        background-color: var(--teal-primary);
+        border-color: var(--teal-primary);
+    }
+    
+    .form-check-input:focus {
+        box-shadow: 0 0 0 0.2rem rgba(20, 184, 166, 0.25);
+    }
+    
+    .text-warning {
+        color: #ffc107 !important;
+    }
+</style>
+{% endblock %}

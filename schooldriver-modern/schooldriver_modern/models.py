@@ -16,6 +16,28 @@ class UserProfile(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     avatar = models.ImageField(upload_to=user_avatar_path, blank=True, null=True)
+    
+    # Personal Information
+    date_of_birth = models.DateField(blank=True, null=True)
+    phone_number = models.CharField(max_length=20, blank=True)
+    address = models.TextField(blank=True)
+    
+    # Emergency Contacts
+    emergency_contact_1_name = models.CharField(max_length=100, blank=True, verbose_name="Primary Contact Name")
+    emergency_contact_1_relationship = models.CharField(max_length=50, blank=True, verbose_name="Primary Contact Relationship")
+    emergency_contact_1_phone = models.CharField(max_length=20, blank=True, verbose_name="Primary Contact Phone")
+    
+    emergency_contact_2_name = models.CharField(max_length=100, blank=True, verbose_name="Secondary Contact Name")
+    emergency_contact_2_relationship = models.CharField(max_length=50, blank=True, verbose_name="Secondary Contact Relationship")
+    emergency_contact_2_phone = models.CharField(max_length=20, blank=True, verbose_name="Secondary Contact Phone")
+    
+    emergency_address = models.TextField(blank=True, verbose_name="Emergency Contact Address")
+    
+    # Account Settings
+    email_notifications = models.BooleanField(default=True, verbose_name="Email Notifications")
+    sms_notifications = models.BooleanField(default=False, verbose_name="SMS Notifications")
+    parent_portal_access = models.BooleanField(default=True, verbose_name="Parent Portal Access")
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

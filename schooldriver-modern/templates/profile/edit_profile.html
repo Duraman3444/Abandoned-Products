@@ -75,12 +75,151 @@
                                 </div>
                                 
                                 <div class="mb-3">
-                                    <label class="form-label">Username</label>
-                                    <input type="text" class="form-control" value="{{ user.username }}" readonly>
-                                    <small class="form-text text-muted">Username cannot be changed</small>
-                                </div>
-                            </div>
-                        </div>
+                                <label for="{{ form.date_of_birth.id_for_label }}" class="form-label">Date of Birth</label>
+                                {{ form.date_of_birth }}
+                                {% if form.date_of_birth.errors %}
+                                        <div class="text-danger">{{ form.date_of_birth.errors }}</div>
+                                        {% endif %}
+                                        </div>
+                                 
+                                 <div class="mb-3">
+                                     <label for="{{ form.phone_number.id_for_label }}" class="form-label">Phone Number</label>
+                                     {{ form.phone_number }}
+                                     {% if form.phone_number.errors %}
+                                         <div class="text-danger">{{ form.phone_number.errors }}</div>
+                                     {% endif %}
+                                 </div>
+                                 
+                                 <div class="mb-3">
+                                     <label for="{{ form.address.id_for_label }}" class="form-label">Address</label>
+                                     {{ form.address }}
+                                     {% if form.address.errors %}
+                                         <div class="text-danger">{{ form.address.errors }}</div>
+                                     {% endif %}
+                                 </div>
+                                 
+                                 <div class="mb-3">
+                                     <label class="form-label">Username</label>
+                                     <input type="text" class="form-control" value="{{ user.username }}" readonly>
+                                     <small class="form-text text-muted">Username cannot be changed</small>
+                                 </div>
+                             </div>
+                         </div>
+                         
+                         <!-- Emergency Contact Information -->
+                         <div class="row mt-4">
+                             <div class="col-12">
+                                 <h6 class="text-muted">Emergency Contact Information</h6>
+                                 <hr>
+                             </div>
+                             <div class="col-md-6">
+                                 <div class="mb-3">
+                                     <label for="{{ form.emergency_contact_1_name.id_for_label }}" class="form-label">Primary Contact Name</label>
+                                     {{ form.emergency_contact_1_name }}
+                                     {% if form.emergency_contact_1_name.errors %}
+                                         <div class="text-danger">{{ form.emergency_contact_1_name.errors }}</div>
+                                     {% endif %}
+                                 </div>
+                                 
+                                 <div class="mb-3">
+                                     <label for="{{ form.emergency_contact_1_relationship.id_for_label }}" class="form-label">Primary Contact Relationship</label>
+                                     {{ form.emergency_contact_1_relationship }}
+                                     {% if form.emergency_contact_1_relationship.errors %}
+                                         <div class="text-danger">{{ form.emergency_contact_1_relationship.errors }}</div>
+                                     {% endif %}
+                                 </div>
+                                 
+                                 <div class="mb-3">
+                                     <label for="{{ form.emergency_contact_1_phone.id_for_label }}" class="form-label">Primary Contact Phone</label>
+                                     {{ form.emergency_contact_1_phone }}
+                                     {% if form.emergency_contact_1_phone.errors %}
+                                         <div class="text-danger">{{ form.emergency_contact_1_phone.errors }}</div>
+                                     {% endif %}
+                                 </div>
+                             </div>
+                             <div class="col-md-6">
+                                 <div class="mb-3">
+                                     <label for="{{ form.emergency_contact_2_name.id_for_label }}" class="form-label">Secondary Contact Name</label>
+                                     {{ form.emergency_contact_2_name }}
+                                     {% if form.emergency_contact_2_name.errors %}
+                                         <div class="text-danger">{{ form.emergency_contact_2_name.errors }}</div>
+                                     {% endif %}
+                                 </div>
+                                 
+                                 <div class="mb-3">
+                                     <label for="{{ form.emergency_contact_2_relationship.id_for_label }}" class="form-label">Secondary Contact Relationship</label>
+                                     {{ form.emergency_contact_2_relationship }}
+                                     {% if form.emergency_contact_2_relationship.errors %}
+                                         <div class="text-danger">{{ form.emergency_contact_2_relationship.errors }}</div>
+                                     {% endif %}
+                                 </div>
+                                 
+                                 <div class="mb-3">
+                                     <label for="{{ form.emergency_contact_2_phone.id_for_label }}" class="form-label">Secondary Contact Phone</label>
+                                     {{ form.emergency_contact_2_phone }}
+                                     {% if form.emergency_contact_2_phone.errors %}
+                                         <div class="text-danger">{{ form.emergency_contact_2_phone.errors }}</div>
+                                     {% endif %}
+                                 </div>
+                             </div>
+                             <div class="col-12">
+                                 <div class="mb-3">
+                                     <label for="{{ form.emergency_address.id_for_label }}" class="form-label">Emergency Contact Address</label>
+                                     {{ form.emergency_address }}
+                                     {% if form.emergency_address.errors %}
+                                         <div class="text-danger">{{ form.emergency_address.errors }}</div>
+                                     {% endif %}
+                                 </div>
+                             </div>
+                         </div>
+                         
+                         <!-- Account Settings -->
+                         <div class="row mt-4">
+                             <div class="col-12">
+                                 <h6 class="text-muted">Account Settings</h6>
+                                 <hr>
+                             </div>
+                             <div class="col-12">
+                                 <div class="mb-3">
+                                     <div class="form-check form-switch">
+                                         {{ form.email_notifications }}
+                                         <label class="form-check-label" for="{{ form.email_notifications.id_for_label }}">
+                                             Email Notifications
+                                         </label>
+                                     </div>
+                                     <small class="form-text text-muted">Receive email notifications for grades, assignments, and announcements</small>
+                                     {% if form.email_notifications.errors %}
+                                         <div class="text-danger">{{ form.email_notifications.errors }}</div>
+                                     {% endif %}
+                                 </div>
+                                 
+                                 <div class="mb-3">
+                                     <div class="form-check form-switch">
+                                         {{ form.sms_notifications }}
+                                         <label class="form-check-label" for="{{ form.sms_notifications.id_for_label }}">
+                                             SMS Notifications
+                                         </label>
+                                     </div>
+                                     <small class="form-text text-muted">Receive text message notifications for urgent updates</small>
+                                     {% if form.sms_notifications.errors %}
+                                         <div class="text-danger">{{ form.sms_notifications.errors }}</div>
+                                     {% endif %}
+                                 </div>
+                                 
+                                 <div class="mb-3">
+                                     <div class="form-check form-switch">
+                                         {{ form.parent_portal_access }}
+                                         <label class="form-check-label" for="{{ form.parent_portal_access.id_for_label }}">
+                                             Parent Portal Access
+                                         </label>
+                                     </div>
+                                     <small class="form-text text-muted">Allow parents to view your academic information</small>
+                                     {% if form.parent_portal_access.errors %}
+                                         <div class="text-danger">{{ form.parent_portal_access.errors }}</div>
+                                     {% endif %}
+                                 </div>
+                             </div>
+                         </div>
                         
                         <div class="d-flex gap-2">
                             <button type="submit" class="btn btn-primary">

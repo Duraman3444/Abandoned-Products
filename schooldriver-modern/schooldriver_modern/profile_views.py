@@ -19,9 +19,27 @@ class UserProfileForm(forms.ModelForm):
 
     class Meta:
         model = UserProfile
-        fields = ['avatar']
+        fields = [
+            'avatar', 'date_of_birth', 'phone_number', 'address',
+            'emergency_contact_1_name', 'emergency_contact_1_relationship', 'emergency_contact_1_phone',
+            'emergency_contact_2_name', 'emergency_contact_2_relationship', 'emergency_contact_2_phone',
+            'emergency_address', 'email_notifications', 'sms_notifications', 'parent_portal_access'
+        ]
         widgets = {
-            'avatar': forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*'})
+            'avatar': forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
+            'date_of_birth': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'phone_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '(555) 123-4567'}),
+            'address': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': '123 Main St, City, State ZIP'}),
+            'emergency_contact_1_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Mary Anderson'}),
+            'emergency_contact_1_relationship': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Mother'}),
+            'emergency_contact_1_phone': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '(555) 987-6543'}),
+            'emergency_contact_2_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'David Johnson'}),
+            'emergency_contact_2_relationship': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Father'}),
+            'emergency_contact_2_phone': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '(555) 987-6544'}),
+            'emergency_address': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': '123 Emergency Street, City, State ZIP'}),
+            'email_notifications': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'sms_notifications': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'parent_portal_access': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 
     def __init__(self, *args, **kwargs):

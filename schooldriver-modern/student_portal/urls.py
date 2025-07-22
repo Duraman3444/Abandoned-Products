@@ -13,4 +13,5 @@ urlpatterns = [
     path('profile/', views.profile_view, name='profile'),
     path('assignments/', views.assignments_view, name='assignments'),
     path('assignments/<int:assignment_id>/', views.assignment_detail_view, name='assignment_detail'),
+    path('profile/edit/', views.profile_edit_view, name='profile_edit'),
 ]
