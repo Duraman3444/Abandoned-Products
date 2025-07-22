@@ -23,24 +23,46 @@
                 </div>
                 <div class="card-body p-0">
                     <nav class="nav flex-column">
+                        <!-- Debug: URL = {% url 'student_portal:dashboard' %} -->
                         <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active bg-teal text-white{% endif %}" 
-                           href="{% url 'student_portal:dashboard' %}">
+                           href="{% url 'student_portal:dashboard' %}"
+                           data-debug-url="{% url 'student_portal:dashboard' %}"
+                           data-debug-name="dashboard">
                             <i class="bi bi-speedometer2 me-2"></i>Dashboard
                         </a>
+                        <!-- Debug: URL = {% url 'student_portal:grades' %} -->
                         <a class="nav-link {% if request.resolver_match.url_name == 'grades' %}active bg-teal text-white{% endif %}" 
-                           href="{% url 'student_portal:grades' %}">
+                           href="{% url 'student_portal:grades' %}"
+                           data-debug-url="{% url 'student_portal:grades' %}"
+                           data-debug-name="grades">
                             <i class="bi bi-bar-chart me-2"></i>Grades
                         </a>
+                        <!-- Debug: URL = {% url 'student_portal:assignments' %} -->
+                        <a class="nav-link {% if request.resolver_match.url_name == 'assignments' or request.resolver_match.url_name == 'assignment_detail' %}active bg-teal text-white{% endif %}" 
+                           href="{% url 'student_portal:assignments' %}"
+                           data-debug-url="{% url 'student_portal:assignments' %}"
+                           data-debug-name="assignments">
+                            <i class="bi bi-clipboard2-check me-2"></i>Assignments
+                        </a>
+                        <!-- Debug: URL = {% url 'student_portal:schedule' %} -->
                         <a class="nav-link {% if request.resolver_match.url_name == 'schedule' %}active bg-teal text-white{% endif %}" 
-                           href="{% url 'student_portal:schedule' %}">
+                           href="{% url 'student_portal:schedule' %}"
+                           data-debug-url="{% url 'student_portal:schedule' %}"
+                           data-debug-name="schedule">
                             <i class="bi bi-calendar-event me-2"></i>Schedule
                         </a>
+                        <!-- Debug: URL = {% url 'student_portal:attendance' %} -->
                         <a class="nav-link {% if request.resolver_match.url_name == 'attendance' %}active bg-teal text-white{% endif %}" 
-                           href="{% url 'student_portal:attendance' %}">
+                           href="{% url 'student_portal:attendance' %}"
+                           data-debug-url="{% url 'student_portal:attendance' %}"
+                           data-debug-name="attendance">
                             <i class="bi bi-clipboard-check me-2"></i>Attendance
                         </a>
+                        <!-- Debug: URL = {% url 'student_portal:profile' %} -->
                         <a class="nav-link {% if request.resolver_match.url_name == 'profile' %}active bg-teal text-white{% endif %}" 
-                           href="{% url 'student_portal:profile' %}">
+                           href="{% url 'student_portal:profile' %}"
+                           data-debug-url="{% url 'student_portal:profile' %}"
+                           data-debug-name="profile">
                             <i class="bi bi-person me-2"></i>My Profile
                         </a>
                     </nav>
@@ -63,11 +85,16 @@
         color: var(--text-light) !important;
         padding: 0.75rem 1rem;
         border-bottom: 1px solid var(--dark-border);
+        cursor: pointer !important;
+        pointer-events: auto !important;
+        text-decoration: none !important;
+        display: block !important;
     }
     
     .nav-link:hover {
         background-color: var(--dark-border);
         color: var(--teal-primary) !important;
+        text-decoration: none !important;
     }
     
     .nav-link.active {
@@ -79,4 +106,59 @@
         background-color: var(--teal-primary) !important;
     }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🔍 Student Navigation Debug: DOM loaded');
+    
+    // Add click logging to all navigation links
+    const navLinks = document.querySelectorAll('.nav-link');
+    console.log('🔍 Found navigation links:', navLinks.length);
+    
+    navLinks.forEach((link, index) => {
+        console.log(`🔍 Link ${index}:`, {
+            href: link.href,
+            text: link.textContent.trim(),
+            classes: link.className,
+            style: link.style.cssText
+        });
+        
+        link.addEventListener('click', function(e) {
+            console.log('🚀 Navigation click detected:', {
+                href: this.href,
+                text: this.textContent.trim(),
+                target: e.target,
+                currentTarget: e.currentTarget,
+                defaultPrevented: e.defaultPrevented
+            });
+            
+            // Check if anything is preventing the navigation
+            if (e.defaultPrevented) {
+                console.error('❌ Navigation prevented by preventDefault()');
+            }
+            
+            // Force navigation if needed
+            if (this.href && !e.defaultPrevented) {
+                console.log('✅ Attempting navigation to:', this.href);
+                // Uncomment the next line if normal navigation fails
+                // window.location.href = this.href;
+            }
+        });
+        
+        // Test if link is clickable
+        const computedStyle = window.getComputedStyle(link);
+        console.log(`🔍 Link ${index} computed style:`, {
+            pointerEvents: computedStyle.pointerEvents,
+            display: computedStyle.display,
+            visibility: computedStyle.visibility,
+            zIndex: computedStyle.zIndex,
+            position: computedStyle.position
+        });
+    });
+    
+    // Test direct URL generation
+    console.log('🔍 Current page URL:', window.location.href);
+    console.log('🔍 Current page path:', window.location.pathname);
+});
+</script>
 {% endblock %}

@@ -14,20 +14,150 @@
     
     <style>
         :root {
-            --teal-primary: #14b8a6;
-            --teal-secondary: #0d9488;
+            /* Unified Dark Theme Color System */
+            --bg-primary: #0D1117;
+            --bg-secondary: #161B22;
+            --bg-tertiary: #21262D;
+            --bg-card: #2d2d2d;
+            --bg-input: #404040;
+            
+            /* Text Colors */
+            --text-primary: #E6EDF3;
+            --text-secondary: #7D8590;
+            --text-muted: #656D76;
+            --text-light: #E6EDF3;
+            --text-dark: #1a1a1a;
+            
+            /* Accent Colors */
+            --accent-primary: #1E88E5;
+            --accent-teal: #14b8a6;
+            --accent-teal-hover: #0d9488;
+            --accent-success: #10B981;
+            --accent-warning: #F59E0B;
+            --accent-danger: #EF4444;
+            
+            /* Border Colors */
+            --border-primary: #30363D;
+            --border-secondary: #21262D;
+            --border-muted: #404040;
+            
+            /* Legacy compatibility */
+            --teal-primary: var(--accent-teal);
+            --teal-secondary: var(--accent-teal-hover);
             --teal-dark: #0f766e;
-            --dark-bg: #1a1a1a;
-            --dark-card: #2d2d2d;
-            --dark-border: #404040;
-            --text-light: #e5e5e5;
-            --text-muted: #a3a3a3;
+            --dark-bg: var(--bg-primary);
+            --dark-card: var(--bg-card);
+            --dark-border: var(--border-muted);
         }
         
         body {
             background-color: var(--dark-bg);
-            color: var(--text-light);
+            color: var(--text-primary);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        /* Force Text Visibility - Critical Fix */
+        body {
+            color: var(--text-primary, #E6EDF3) !important;
+        }
+
+        /* Override any invisible text rules */
+        .hidden-text,
+        code[style*="visibility: hidden"],
+        *[style*="visibility: hidden"] {
+            visibility: visible !important;
+            display: inline !important;
+            color: var(--text-primary) !important;
+        }
+
+        /* Ensure all text elements are visible */
+        h1, h2, h3, h4, h5, h6, p, span, div, td, th, li, label {
+            color: var(--text-primary, #E6EDF3) !important;
+            opacity: 1 !important;
+        }
+
+        /* Ensure links are functional and visible */
+        a {
+            color: var(--text-primary, #E6EDF3) !important;
+            text-decoration: none !important;
+            cursor: pointer !important;
+            pointer-events: auto !important;
+        }
+
+        a:hover {
+            color: var(--accent-teal, #14b8a6) !important;
+            text-decoration: underline !important;
+        }
+
+        /* Fix specific Bootstrap overrides */
+        .text-muted {
+            color: var(--text-secondary, #7D8590) !important;
+        }
+
+        .text-white {
+            color: #ffffff !important;
+        }
+
+        .text-dark {
+            color: var(--text-dark, #1a1a1a) !important;
+        }
+
+        /* Portal Text Visibility Fix */
+        .portal-content,
+        .portal-content *,
+        .nav-link,
+        .card-body,
+        .list-group-item,
+        .student-portal,
+        .parent-portal {
+            color: var(--text-primary, #E6EDF3) !important;
+        }
+
+        /* Message Text Visibility */
+        .message-item,
+        .message-item *,
+        .alert,
+        .alert * {
+            color: var(--text-primary, #E6EDF3) !important;
+        }
+
+        /* Override Tailwind CSS text colors */
+        .text-gray-900,
+        .text-gray-700,
+        .text-gray-600,
+        .text-gray-500 {
+            color: var(--text-primary, #E6EDF3) !important;
+        }
+
+        /* Fix Bootstrap Alert Contrast Issues */
+        .alert {
+            border-radius: 0.5rem !important;
+            border-width: 2px !important;
+            font-weight: 500 !important;
+        }
+
+        .alert-warning {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b) !important;
+            color: #000000 !important;
+            border-color: #d97706 !important;
+        }
+
+        .alert-info {
+            background: linear-gradient(135deg, #3b82f6, #1e40af) !important;
+            color: #ffffff !important;
+            border-color: #2563eb !important;
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, #10b981, #047857) !important;
+            color: #ffffff !important;
+            border-color: #059669 !important;
+        }
+
+        .alert-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+            color: #ffffff !important;
+            border-color: #b91c1c !important;
         }
         
         .navbar-dark {
@@ -108,9 +238,30 @@
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container-fluid">
-            <a class="navbar-brand fw-bold" href="{% if user.is_authenticated %}{% url 'dashboard' %}{% else %}{% url 'public:home' %}{% endif %}">
-                <i class="bi bi-mortarboard-fill me-2"></i>SchoolDriver Modern
-            </a>
+            {% if user.is_authenticated %}
+                {% get_user_role user as user_role %}
+                {% if user_role == 'Student' %}
+                    <a class="navbar-brand fw-bold" href="{% url 'public:home' %}">
+                        <i class="bi bi-mortarboard-fill me-2"></i>SchoolDriver Modern
+                    </a>
+                {% elif user_role == 'Parent' %}
+                    <a class="navbar-brand fw-bold" href="{% url 'parent_portal:dashboard' %}">
+                        <i class="bi bi-mortarboard-fill me-2"></i>SchoolDriver Modern
+                    </a>
+                {% elif user_role == 'Admin' or user_role == 'Staff' %}
+                    <a class="navbar-brand fw-bold" href="{% url 'dashboard' %}">
+                        <i class="bi bi-mortarboard-fill me-2"></i>SchoolDriver Modern
+                    </a>
+                {% else %}
+                    <a class="navbar-brand fw-bold" href="{% url 'public:home' %}">
+                        <i class="bi bi-mortarboard-fill me-2"></i>SchoolDriver Modern
+                    </a>
+                {% endif %}
+            {% else %}
+                <a class="navbar-brand fw-bold" href="{% url 'public:home' %}">
+                    <i class="bi bi-mortarboard-fill me-2"></i>SchoolDriver Modern
+                </a>
+            {% endif %}
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>

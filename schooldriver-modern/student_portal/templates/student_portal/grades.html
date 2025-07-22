@@ -235,7 +235,7 @@
                 <h5 class="mb-0 text-info">
                     <i class="bi bi-clock-history me-2"></i>Recent Assignments
                 </h5>
-                <button class="btn btn-sm btn-outline-info">View All</button>
+                <a href="{% url 'student_portal:assignments' %}" class="btn btn-sm btn-outline-info">View All</a>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -251,46 +251,34 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>Chapter 5 Quiz</td>
-                                <td>Mathematics</td>
-                                <td><span class="badge bg-primary">Quiz</span></td>
-                                <td>Jan 18, 2025</td>
-                                <td><span class="badge bg-success">92%</span></td>
-                                <td><button class="btn btn-sm btn-outline-info">View</button></td>
-                            </tr>
-                            <tr>
-                                <td>WWI Research Paper</td>
-                                <td>World History</td>
-                                <td><span class="badge bg-warning text-dark">Essay</span></td>
-                                <td>Jan 15, 2025</td>
-                                <td><span class="badge bg-success">A-</span></td>
-                                <td><button class="btn btn-sm btn-outline-info">View</button></td>
-                            </tr>
-                            <tr>
-                                <td>Lab Report #4</td>
-                                <td>Chemistry</td>
-                                <td><span class="badge bg-info">Lab</span></td>
-                                <td>Jan 12, 2025</td>
-                                <td><span class="badge bg-warning text-dark">B+</span></td>
-                                <td><button class="btn btn-sm btn-outline-info">View</button></td>
-                            </tr>
-                            <tr>
-                                <td>Homework Set #12</td>
-                                <td>Mathematics</td>
-                                <td><span class="badge bg-secondary">Homework</span></td>
-                                <td>Jan 10, 2025</td>
-                                <td><span class="badge bg-warning text-dark">B-</span></td>
-                                <td><button class="btn btn-sm btn-outline-info">View</button></td>
-                            </tr>
-                            <tr>
-                                <td>Poetry Analysis</td>
-                                <td>English Literature</td>
-                                <td><span class="badge bg-warning text-dark">Essay</span></td>
-                                <td>Jan 8, 2025</td>
-                                <td><span class="badge bg-success">B+</span></td>
-                                <td><button class="btn btn-sm btn-outline-info">View</button></td>
-                            </tr>
+                            {% for course in courses_with_grades %}
+                                {% for assignment in course.assignments|slice:":5" %}
+                                <tr>
+                                    <td>{{ assignment.name }}</td>
+                                    <td>{{ course.name }}</td>
+                                    <td><span class="badge bg-primary">{{ assignment.category }}</span></td>
+                                    <td>{{ assignment.date|date:"M d, Y" }}</td>
+                                    <td>
+                                        {% if assignment.grade >= 90 %}
+                                            <span class="badge bg-success">{{ assignment.grade }}%</span>
+                                        {% elif assignment.grade >= 80 %}
+                                            <span class="badge bg-info">{{ assignment.grade }}%</span>
+                                        {% elif assignment.grade >= 70 %}
+                                            <span class="badge bg-warning text-dark">{{ assignment.grade }}%</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">{{ assignment.grade }}%</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'student_portal:assignment_detail' assignment.id %}" class="btn btn-sm btn-outline-info">View</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted">No assignments available</td>
+                                </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
                 </div>

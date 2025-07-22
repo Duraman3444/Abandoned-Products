@@ -1,0 +1,235 @@
+{% extends "student_base.html" %}
+
+{% block title %}{{ assignment.name }} - SchoolDriver Modern{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item"><a href="{% url 'student_portal:assignments' %}" class="text-decoration-none text-info">Assignments</a></li>
+<li class="breadcrumb-item active">{{ assignment.name }}</li>
+{% endblock %}
+
+{% block student_content %}
+{% if error %}
+    <div class="alert alert-danger" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i>{{ error }}
+    </div>
+{% else %}
+<!-- Back Button -->
+<div class="row mb-3">
+    <div class="col-12">
+        <a href="{% url 'student_portal:assignments' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Back to Assignments
+        </a>
+    </div>
+</div>
+
+<!-- Assignment Header -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h2 class="text-info mb-2">{{ assignment.name }}</h2>
+                        <p class="text-muted mb-2">
+                            <i class="bi bi-book me-2"></i>{{ assignment.section.course.name }}
+                        </p>
+                        <p class="text-muted mb-0">
+                            <i class="bi bi-person me-2"></i>{{ assignment.section.teacher.first_name }} {{ assignment.section.teacher.last_name }}
+                        </p>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-end">
+                            <div class="mb-2">
+                                <span class="badge bg-info text-dark">{{ assignment.category.name }}</span>
+                            </div>
+                            <div class="mb-2">
+                                <strong class="text-warning">Due: {{ assignment.due_date|date:"M d, Y" }}</strong>
+                            </div>
+                            <div>
+                                <span class="text-muted">Max Points: {{ assignment.max_points }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Assignment Description -->
+{% if assignment.description %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-dark">
+                <h5 class="card-title text-info mb-0">
+                    <i class="bi bi-file-text me-2"></i>Assignment Description
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-0">{{ assignment.description|linebreaks }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Grade Information -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-dark">
+                <h5 class="card-title text-info mb-0">
+                    <i class="bi bi-trophy me-2"></i>Grade Information
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if grade %}
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <div class="text-center">
+                            <div class="display-6 text-success fw-bold">{{ grade.percentage|floatformat:1 }}%</div>
+                            <div class="text-muted">Percentage</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="text-center">
+                            <div class="display-6 text-info fw-bold">{{ grade.points_earned|default:0 }}</div>
+                            <div class="text-muted">Points Earned</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="text-center">
+                            <div class="display-6 text-warning fw-bold">{{ assignment.max_points }}</div>
+                            <div class="text-muted">Max Points</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="text-center">
+                            {% if grade.percentage >= 90 %}
+                                <div class="display-6 text-success fw-bold">A</div>
+                            {% elif grade.percentage >= 80 %}
+                                <div class="display-6 text-info fw-bold">B</div>
+                            {% elif grade.percentage >= 70 %}
+                                <div class="display-6 text-warning fw-bold">C</div>
+                            {% elif grade.percentage >= 60 %}
+                                <div class="display-6 text-danger fw-bold">D</div>
+                            {% else %}
+                                <div class="display-6 text-danger fw-bold">F</div>
+                            {% endif %}
+                            <div class="text-muted">Letter Grade</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Grade Status Indicators -->
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="d-flex flex-wrap gap-2">
+                            {% if grade.is_late %}
+                                <span class="badge bg-warning text-dark">
+                                    <i class="bi bi-clock me-1"></i>Late Submission
+                                </span>
+                            {% endif %}
+                            {% if grade.is_excused %}
+                                <span class="badge bg-info text-dark">
+                                    <i class="bi bi-check-circle me-1"></i>Excused
+                                </span>
+                            {% endif %}
+                            {% if grade.date_turned_in %}
+                                <span class="badge bg-success">
+                                    <i class="bi bi-calendar-check me-1"></i>Submitted: {{ grade.date_turned_in|date:"M d, Y" }}
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="bi bi-hourglass-split display-4 text-muted mb-3"></i>
+                    <h5 class="text-muted">No grade available</h5>
+                    <p class="text-muted">This assignment has not been graded yet.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Teacher Feedback -->
+{% if grade and grade.feedback %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-dark">
+                <h5 class="card-title text-info mb-0">
+                    <i class="bi bi-chat-text me-2"></i>Teacher Feedback
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="border-start border-info border-3 ps-3">
+                    <p class="mb-0">{{ grade.feedback|linebreaks }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% elif grade %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-dark">
+                <h5 class="card-title text-info mb-0">
+                    <i class="bi bi-chat-text me-2"></i>Teacher Feedback
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center py-3">
+                    <i class="bi bi-chat-dots text-muted mb-2" style="font-size: 2rem;"></i>
+                    <p class="text-muted mb-0">No feedback provided yet.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Assignment Resources/Attachments -->
+{% if assignment.resources %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-dark">
+                <h5 class="card-title text-info mb-0">
+                    <i class="bi bi-paperclip me-2"></i>Resources & Attachments
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <!-- This would be populated with actual resource links -->
+                    <div class="list-group-item bg-dark border-secondary">
+                        <i class="bi bi-file-earmark-pdf text-danger me-2"></i>
+                        <span>Assignment Instructions.pdf</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Navigation Buttons -->
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between">
+            <a href="{% url 'student_portal:assignments' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-2"></i>Back to All Assignments
+            </a>
+            <a href="{% url 'student_portal:grades' %}" class="btn btn-outline-info">
+                <i class="bi bi-graph-up me-2"></i>View All Grades
+            </a>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,167 @@
+{% extends "student_base.html" %}
+
+{% block title %}My Assignments - SchoolDriver Modern{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item active">Assignments</li>
+{% endblock %}
+
+{% block student_content %}
+{% if error %}
+    <div class="alert alert-danger" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i>{{ error }}
+    </div>
+{% else %}
+<!-- Page Header -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h2 class="text-info mb-2">My Assignments</h2>
+                        <p class="text-muted mb-0">View your assignment details and due dates</p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <div class="text-center">
+                            <h4 class="text-info mb-0">{{ assignments|length }}</h4>
+                            <small class="text-muted">Total Assignments</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Assignments Table -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-dark">
+                <h5 class="card-title text-info mb-0">
+                    <i class="bi bi-clipboard2-check me-2"></i>All Assignments
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                {% if assignments %}
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover mb-0">
+                        <thead class="table-info">
+                            <tr>
+                                <th>Assignment</th>
+                                <th>Course</th>
+                                <th>Due Date</th>
+                                <th>Status</th>
+                                <th>Grade</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in assignments %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'student_portal:assignment_detail' item.assignment.id %}" 
+                                       class="text-decoration-none text-info fw-bold">
+                                        {{ item.assignment.name }}
+                                    </a>
+                                    {% if item.assignment.description %}
+                                    <br><small class="text-muted">{{ item.assignment.description|truncatechars:80 }}</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="fw-semibold">{{ item.assignment.section.course.name }}</span>
+                                    <br><small class="text-muted">{{ item.assignment.section.teacher.first_name }} {{ item.assignment.section.teacher.last_name }}</small>
+                                </td>
+                                <td>
+                                    <span class="fw-semibold">{{ item.assignment.due_date|date:"M d, Y" }}</span>
+                                    <br><small class="text-muted">{{ item.assignment.due_date|date:"l" }}</small>
+                                </td>
+                                <td>
+                                    {% if item.status == 'Pending' %}
+                                        <span class="badge bg-warning text-dark">
+                                            <i class="bi bi-clock me-1"></i>Pending
+                                        </span>
+                                    {% elif item.status == 'Submitted' %}
+                                        <span class="badge bg-info text-dark">
+                                            <i class="bi bi-check-circle me-1"></i>Submitted
+                                        </span>
+                                    {% elif item.status == 'Graded' %}
+                                        <span class="badge bg-success">
+                                            <i class="bi bi-check-circle-fill me-1"></i>Graded
+                                        </span>
+                                    {% elif item.status == 'Overdue' %}
+                                        <span class="badge bg-danger">
+                                            <i class="bi bi-exclamation-triangle me-1"></i>Overdue
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if item.grade %}
+                                        <span class="fw-bold text-success">{{ item.grade.percentage|floatformat:1 }}%</span>
+                                        <br><small class="text-muted">{{ item.grade.points_earned|default:0 }}/{{ item.assignment.max_points }}</small>
+                                    {% else %}
+                                        <span class="text-muted">Not graded</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'student_portal:assignment_detail' item.assignment.id %}" 
+                                       class="btn btn-sm btn-outline-info">
+                                        <i class="bi bi-eye me-1"></i>View
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-clipboard2-x display-4 text-muted mb-3"></i>
+                    <h5 class="text-muted">No assignments found</h5>
+                    <p class="text-muted">There are no assignments available at this time.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Legend -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="card-title text-info mb-3">Status Legend</h6>
+                <div class="row">
+                    <div class="col-md-3 mb-2">
+                        <span class="badge bg-warning text-dark me-2">
+                            <i class="bi bi-clock me-1"></i>Pending
+                        </span>
+                        <small class="text-muted">Not yet submitted</small>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <span class="badge bg-info text-dark me-2">
+                            <i class="bi bi-check-circle me-1"></i>Submitted
+                        </span>
+                        <small class="text-muted">Awaiting grade</small>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <span class="badge bg-success me-2">
+                            <i class="bi bi-check-circle-fill me-1"></i>Graded
+                        </span>
+                        <small class="text-muted">Grade received</small>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <span class="badge bg-danger me-2">
+                            <i class="bi bi-exclamation-triangle me-1"></i>Overdue
+                        </span>
+                        <small class="text-muted">Past due date</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
