@@ -104,10 +104,13 @@ class Command(BaseCommand):
             year_gpa_variance = random.uniform(0.8, 1.2)  # Make some years better/worse
             
             for course_name, course_code, credit_hours in course_templates:
-                # Create or get course
+                # Create or get course with year-specific code to ensure separate courses per year
+                yearly_course_code = f"{course_code}-{school_year.name}"
+                yearly_course_name = f"{course_name} ({school_year.name})"
+                
                 course, created = Course.objects.get_or_create(
-                    name=course_name,
-                    course_code=course_code,
+                    name=yearly_course_name,
+                    course_code=yearly_course_code,
                     defaults={
                         'description': f'{course_name} - {school_year.name}',
                         'credit_hours': credit_hours,

@@ -42,7 +42,7 @@
                         <i class="bi bi-person-graduation text-warning" style="font-size: 3rem;"></i>
                         <h5 class="card-title mt-3">Student Portal</h5>
                         <p class="card-text">Access grades, schedules, and assignments.</p>
-                        <a href="{% url 'login' %}" class="btn btn-teal">Student Login</a>
+                        <a href="{% url 'login' %}?next={% url 'student_portal:dashboard' %}" class="btn btn-teal">Student Login</a>
                     </div>
                 </div>
             </div>
@@ -52,7 +52,7 @@
                         <i class="bi bi-people-fill text-success" style="font-size: 3rem;"></i>
                         <h5 class="card-title mt-3">Parent Portal</h5>
                         <p class="card-text">Monitor your child's progress and communicate with teachers.</p>
-                        <a href="{% url 'login' %}" class="btn btn-teal">Parent Login</a>
+                        <a href="{% url 'login' %}?next={% url 'parent_portal:dashboard' %}" class="btn btn-teal">Parent Login</a>
                     </div>
                 </div>
             </div>
@@ -62,7 +62,7 @@
                         <i class="bi bi-person-badge text-primary" style="font-size: 3rem;"></i>
                         <h5 class="card-title mt-3">Staff Portal</h5>
                         <p class="card-text">Manage classes, grades, and student records.</p>
-                        <a href="{% url 'login' %}" class="btn btn-teal">Staff Login</a>
+                        <a href="{% url 'login' %}?next={% url 'dashboard' %}" class="btn btn-teal">Staff Login</a>
                     </div>
                 </div>
             </div>
