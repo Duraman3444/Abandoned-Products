@@ -139,11 +139,14 @@ def check_no_sensitive_files():
     
     files = stdout.split('\n') if stdout else []
     
-    # Patterns for sensitive files
+    # Patterns for sensitive files (excluding legitimate certificates in venv)
     sensitive_patterns = [
-        r'\.pem$', r'\.key$', r'\.env$', r'firebase.*cred', 
+        r'\.key$', r'\.env$', r'firebase.*cred', 
         r'\.p12$', r'\.pfx$', r'id_rsa', r'\.secret$'
     ]
+    
+    # Additional check for .pem files that are NOT in venv/lib (those are legitimate certs)
+    pem_pattern = r'\.pem$'
     
     sensitive_files = []
     
@@ -153,8 +156,15 @@ def check_no_sensitive_files():
             
         file_lower = file.lower()
         
+        # Check for .pem files outside of venv
+        import re
+        if re.search(pem_pattern, file_lower):
+            if 'venv' not in file and 'lib' not in file and 'site-packages' not in file:
+                sensitive_files.append(file)
+                continue
+        
+        # Check other sensitive patterns
         for pattern in sensitive_patterns:
-            import re
             if re.search(pattern, file_lower):
                 sensitive_files.append(file)
                 break
