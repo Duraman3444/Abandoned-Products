@@ -136,19 +136,22 @@
     }
     
     .chart-container {
-        min-height: 320px;
-        height: 320px;
+        min-height: 320px !important;
+        height: 320px !important;
         background-color: #3a3a3a;
         border-radius: 4px;
         padding: 15px;
         margin-top: 10px;
         position: relative;
+        display: flex;
+        flex-direction: column;
     }
     
     .chart-container canvas {
         width: 100% !important;
         height: 280px !important;
         max-height: 280px !important;
+        flex: 1;
     }
     
     .dashboard-title {
@@ -193,14 +196,17 @@
     
     .light-mode .chart-container {
         background-color: #f8f8f8;
-        min-height: 320px;
-        height: 320px;
+        min-height: 320px !important;
+        height: 320px !important;
+        display: flex;
+        flex-direction: column;
     }
     
     .light-mode .chart-container canvas {
         width: 100% !important;
         height: 280px !important;
         max-height: 280px !important;
+        flex: 1;
     }
     
     /* Theme toggle button */
@@ -393,13 +399,10 @@
     </div>
 </div>
 
-<script src="{% static 'js/chart.min.js' %}"></script>
+<script src="{% static 'js/chart.min.js' %}" defer></script>
 <script>
-    // Dashboard data from Django view
-    const dashboardData = {{ dashboard_data_json|safe }};
-    
-    // Chart instances
-    let pipelineChart, documentsChart, statusChart, trendsChart;
+    // Dashboard data from Django view - expose globally for external JS
+    window.dashboardData = {{ dashboard_data_json|safe }};
     
     // Theme management
     const themeToggle = document.getElementById('themeToggle');
@@ -432,207 +435,11 @@
     }
     
     function updateChartTheme(theme) {
-        const textColor = theme === 'light' ? '#333333' : '#e0e0e0';
-        const gridColor = theme === 'light' ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)';
-        
-        Chart.defaults.color = textColor;
-        Chart.defaults.borderColor = gridColor;
-        
-        // Reinitialize charts with new theme
-        if (pipelineChart) initializeCharts();
+        // Use external chart function if available
+        if (window.updateAdminChartsTheme) {
+            window.updateAdminChartsTheme(theme);
+        }
     }
-    
-    // Chart initialization
-    function initializeCharts() {
-        const theme = adminDashboard.classList.contains('light-mode') ? 'light' : 'dark';
-        const textColor = theme === 'light' ? '#333333' : '#e0e0e0';
-        const gridColor = theme === 'light' ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)';
-        
-        Chart.defaults.color = textColor;
-        Chart.defaults.borderColor = gridColor;
-        
-        // Destroy existing charts
-        if (pipelineChart) pipelineChart.destroy();
-        if (documentsChart) documentsChart.destroy();
-        if (statusChart) statusChart.destroy();
-        if (trendsChart) trendsChart.destroy();
-        
-        // 1. Pipeline Chart
-        const pipelineCtx = document.getElementById('pipelineChart').getContext('2d');
-        pipelineChart = new Chart(pipelineCtx, {
-            type: 'bar',
-            data: {
-                labels: dashboardData.pipeline.labels,
-                datasets: [{
-                    label: 'Applicants',
-                    data: dashboardData.pipeline.values,
-                    backgroundColor: dashboardData.pipeline.colors,
-                    borderColor: dashboardData.pipeline.colors.map(color => color + 'CC'),
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }
-                },
-                scales: {
-                    x: { 
-                        beginAtZero: true,
-                        ticks: { color: textColor },
-                        grid: { color: gridColor }
-                    },
-                    y: {
-                        ticks: { color: textColor },
-                        grid: { color: gridColor }
-                    }
-                }
-            }
-        });
-        
-        // 2. Documents Chart
-        const documentsCtx = document.getElementById('documentsChart').getContext('2d');
-        documentsChart = new Chart(documentsCtx, {
-            type: 'bar',
-            data: {
-                labels: dashboardData.documents.labels,
-                datasets: [{
-                    label: 'Completion Rate (%)',
-                    data: dashboardData.documents.completion_rates,
-                    backgroundColor: dashboardData.documents.colors,
-                    borderColor: dashboardData.documents.colors.map(color => color + 'CC'),
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }
-                },
-                scales: {
-                    x: {
-                        ticks: { color: textColor },
-                        grid: { color: gridColor }
-                    },
-                    y: { 
-                        beginAtZero: true,
-                        max: 100,
-                        ticks: { 
-                            color: textColor,
-                            callback: value => value + '%' 
-                        },
-                        grid: { color: gridColor }
-                    }
-                }
-            }
-        });
-        
-        // 3. Status Chart
-        const statusCtx = document.getElementById('statusChart').getContext('2d');
-        statusChart = new Chart(statusCtx, {
-            type: 'pie',
-            data: {
-                labels: dashboardData.status.labels,
-                datasets: [{
-                    data: dashboardData.status.values,
-                    backgroundColor: dashboardData.status.colors,
-                    borderColor: theme === 'light' ? '#ffffff' : '#2d2d2d',
-                    borderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: { 
-                            color: textColor,
-                            padding: 10,
-                            font: { size: 10 }
-                        }
-                    }
-                }
-            }
-        });
-        
-        // 4. Trends Chart
-        const trendsCtx = document.getElementById('trendsChart').getContext('2d');
-        trendsChart = new Chart(trendsCtx, {
-            type: 'line',
-            data: {
-                labels: dashboardData.trends.labels,
-                datasets: [
-                    {
-                        label: 'Applications',
-                        data: dashboardData.trends.applications,
-                        borderColor: '#79aec8',
-                        backgroundColor: 'rgba(121, 174, 200, 0.2)',
-                        fill: true,
-                        tension: 0.4
-                    },
-                    {
-                        label: 'Acceptances',
-                        data: dashboardData.trends.acceptances,
-                        borderColor: '#10B981',
-                        backgroundColor: 'rgba(16, 185, 129, 0.2)',
-                        fill: true,
-                        tension: 0.4
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { 
-                        position: 'top',
-                        labels: { 
-                            color: textColor,
-                            font: { size: 10 }
-                        }
-                    }
-                },
-                scales: {
-                    x: {
-                        ticks: { color: textColor },
-                        grid: { color: gridColor }
-                    },
-                    y: { 
-                        beginAtZero: true,
-                        ticks: { color: textColor },
-                        grid: { color: gridColor }
-                    }
-                }
-            }
-        });
-    }
-    
-    // Initialize charts when page loads with proper timing
-    document.addEventListener('DOMContentLoaded', function() {
-        // Use requestAnimationFrame to ensure DOM is fully rendered
-        requestAnimationFrame(() => {
-            setTimeout(() => {
-                // Force canvas dimensions before chart initialization
-                const statusCanvas = document.getElementById('statusChart');
-                const trendsCanvas = document.getElementById('trendsChart');
-                
-                if (statusCanvas) {
-                    statusCanvas.style.height = '280px';
-                    statusCanvas.style.width = '100%';
-                }
-                
-                if (trendsCanvas) {
-                    trendsCanvas.style.height = '280px';
-                    trendsCanvas.style.width = '100%';
-                }
-                
-                initializeCharts();
-            }, 100); // Small delay to ensure grid layout is calculated
-        });
-    });
 </script>
+<script src="{% static 'js/admin_charts.js' %}" defer></script>
 {% endblock %}

@@ -281,57 +281,29 @@
             </div>
             <div class="card-body">
                 <div class="list-group list-group-flush">
-                    <div class="list-group-item bg-transparent border-secondary">
-                        <div class="d-flex align-items-center">
-                            <div class="me-3">
-                                <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center" 
-                                     style="width: 40px; height: 40px;">
-                                    <span class="text-white fw-bold">MJ</span>
+                    {% for teacher in teachers %}
+                        <div class="list-group-item bg-transparent border-secondary">
+                            <div class="d-flex align-items-center">
+                                <div class="me-3">
+                                    <div class="bg-{% cycle 'primary' 'success' 'warning' 'info' 'danger' %} rounded-circle d-flex align-items-center justify-content-center" 
+                                         style="width: 40px; height: 40px;">
+                                        <span class="text-white fw-bold">{{ teacher.initials }}</span>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="flex-grow-1">
-                                <h6 class="mb-0">Mr. Johnson</h6>
-                                <small class="text-muted">Mathematics Department</small>
-                            </div>
-                            <button class="btn btn-sm btn-outline-info contact-badge"
-                                    data-teacher="Michael Johnson"
-                                    data-email="mjohnson@school.edu">Contact</button>
-                        </div>
-                    </div>
-                    <div class="list-group-item bg-transparent border-secondary">
-                        <div class="d-flex align-items-center">
-                            <div class="me-3">
-                                <div class="bg-success rounded-circle d-flex align-items-center justify-content-center" 
-                                     style="width: 40px; height: 40px;">
-                                    <span class="text-white fw-bold">SD</span>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-0">{{ teacher.name }}</h6>
+                                    <small class="text-muted">{{ teacher.department }}</small>
                                 </div>
+                                <button class="btn btn-sm btn-outline-info contact-badge"
+                                        data-teacher="{{ teacher.name }}"
+                                        data-email="{{ teacher.email }}">Contact</button>
                             </div>
-                            <div class="flex-grow-1">
-                                <h6 class="mb-0">Ms. Davis</h6>
-                                <small class="text-muted">English Department</small>
-                            </div>
-                            <button class="btn btn-sm btn-outline-info contact-badge"
-                                    data-teacher="Sarah Davis"
-                                    data-email="sdavis@school.edu">Contact</button>
                         </div>
-                    </div>
-                    <div class="list-group-item bg-transparent border-secondary">
-                        <div class="d-flex align-items-center">
-                            <div class="me-3">
-                                <div class="bg-warning rounded-circle d-flex align-items-center justify-content-center" 
-                                     style="width: 40px; height: 40px;">
-                                    <span class="text-dark fw-bold">DW</span>
-                                </div>
-                            </div>
-                            <div class="flex-grow-1">
-                                <h6 class="mb-0">Dr. Wilson</h6>
-                                <small class="text-muted">Science Department</small>
-                            </div>
-                            <button class="btn btn-sm btn-outline-info contact-badge"
-                                    data-teacher="Dr. David Wilson"
-                                    data-email="dwilson@school.edu">Contact</button>
+                    {% empty %}
+                        <div class="list-group-item bg-transparent border-secondary">
+                            <p class="text-muted text-center mb-0">No teachers found for current schedule</p>
                         </div>
-                    </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>

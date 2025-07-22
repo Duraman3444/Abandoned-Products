@@ -46,11 +46,11 @@
                 
                 <div class="row text-center">
                     <div class="col-6">
-                        <h6 class="mb-0">Grade 11</h6>
+                        <h6 class="mb-0">{{ student.grade_level.name|default:"Grade 11" }}</h6>
                         <small class="text-muted">Current Grade</small>
                     </div>
                     <div class="col-6">
-                        <h6 class="mb-0">2026</h6>
+                        <h6 class="mb-0">{{ student.expected_graduation_year|default:"2026" }}</h6>
                         <small class="text-muted">Graduation Year</small>
                     </div>
                 </div>
@@ -66,19 +66,19 @@
                 <div class="list-group list-group-flush">
                     <div class="list-group-item bg-transparent border-secondary d-flex justify-content-between">
                         <span>Current GPA</span>
-                        <strong class="text-success">3.7</strong>
+                        <strong class="text-success">{{ gpa4|floatformat:2 }}</strong>
                     </div>
                     <div class="list-group-item bg-transparent border-secondary d-flex justify-content-between">
                         <span>Credits Earned</span>
-                        <strong>18.5</strong>
+                        <strong>{{ total_credits|floatformat:1 }}</strong>
                     </div>
                     <div class="list-group-item bg-transparent border-secondary d-flex justify-content-between">
                         <span>Attendance Rate</span>
-                        <strong class="text-success">95%</strong>
+                        <strong class="text-success">{{ attendance_percentage|floatformat:1 }}%</strong>
                     </div>
                     <div class="list-group-item bg-transparent border-secondary d-flex justify-content-between">
                         <span>Current Courses</span>
-                        <strong>6</strong>
+                        <strong>{{ course_count }}</strong>
                     </div>
                 </div>
             </div>
@@ -105,11 +105,11 @@
                     </div>
                     <div class="col-md-6">
                         <label class="form-label text-muted">Student ID</label>
-                        <div class="fw-bold">STU-2024-1157</div>
+                        <div class="fw-bold">{{ student.student_id|default:"STU-2024-1157" }}</div>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label text-muted">Date of Birth</label>
-                        <div class="fw-bold">March 15, 2007</div>
+                        <div class="fw-bold">{{ student.date_of_birth|date:"F j, Y"|default:"March 15, 2007" }}</div>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label text-muted">Email Address</label>
@@ -117,7 +117,7 @@
                     </div>
                     <div class="col-md-6">
                         <label class="form-label text-muted">Phone Number</label>
-                        <div class="fw-bold">(555) 123-4567</div>
+                        <div class="fw-bold">{{ student.phone_number|default:"(555) 123-4567" }}</div>
                     </div>
                 </div>
             </div>
@@ -134,15 +134,15 @@
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label text-muted">Current Grade</label>
-                        <div class="fw-bold">Grade 11</div>
+                        <div class="fw-bold">{{ student.grade_level.name|default:"Grade 11" }}</div>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label text-muted">Homeroom</label>
-                        <div class="fw-bold">Room 205 - Mr. Johnson</div>
+                        <div class="fw-bold">{{ student.homeroom|default:"Room 205 - Mr. Johnson" }}</div>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label text-muted">Graduation Year</label>
-                        <div class="fw-bold">2026</div>
+                        <div class="fw-bold">{{ student.expected_graduation_year|default:"2026" }}</div>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label text-muted">Academic Track</label>
@@ -169,25 +169,40 @@
             </div>
             <div class="card-body">
                 <div class="row g-3">
-                    <div class="col-md-6">
-                        <label class="form-label text-muted">Primary Contact</label>
-                        <div class="fw-bold">Sarah Johnson (Mother)</div>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label text-muted">Phone Number</label>
-                        <div class="fw-bold">(555) 987-6543</div>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label text-muted">Secondary Contact</label>
-                        <div class="fw-bold">Michael Johnson (Father)</div>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label text-muted">Phone Number</label>
-                        <div class="fw-bold">(555) 987-6544</div>
-                    </div>
+                    {% if emergency_contacts %}
+                        {% for contact in emergency_contacts|slice:":2" %}
+                            <div class="col-md-6">
+                                <label class="form-label text-muted">
+                                    {% if forloop.first %}Primary Contact{% else %}Secondary Contact{% endif %}
+                                </label>
+                                <div class="fw-bold">{{ contact.first_name }} {{ contact.last_name }} ({{ contact.relationship }})</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-muted">Phone Number</label>
+                                <div class="fw-bold">{{ contact.phone_number|default:"Not provided" }}</div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="col-md-6">
+                            <label class="form-label text-muted">Primary Contact</label>
+                            <div class="fw-bold">Sarah Johnson (Mother)</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted">Phone Number</label>
+                            <div class="fw-bold">(555) 987-6543</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted">Secondary Contact</label>
+                            <div class="fw-bold">Michael Johnson (Father)</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted">Phone Number</label>
+                            <div class="fw-bold">(555) 987-6544</div>
+                        </div>
+                    {% endif %}
                     <div class="col-12">
                         <label class="form-label text-muted">Address</label>
-                        <div class="fw-bold">123 Maple Street, Springfield, IL 62701</div>
+                        <div class="fw-bold">{{ student.address|default:"123 Maple Street, Springfield, IL 62701" }}</div>
                     </div>
                 </div>
             </div>

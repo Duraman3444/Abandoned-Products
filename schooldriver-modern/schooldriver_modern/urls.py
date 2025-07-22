@@ -35,6 +35,7 @@ urlpatterns = [
     # Role-based portal URLs (authentication required)
     path('student/', include('student_portal.urls')),
     path('parent/', include('parent_portal.urls')),
+    path('search/', include('search.urls')),
     
     # Admin and general authenticated areas
     path('admin/', admin.site.urls),
@@ -56,8 +57,8 @@ urlpatterns = [
     # Health check and utilities
     path('health/', views.health_check, name='health_check'),
     
-    # API endpoints (temporarily disabled until all dependencies installed)
-    # path('api/', include('schooldriver_modern.api_urls')),
+    # API endpoints
+    path('api/v1/', include('api.urls')),
 ]
 
 # Serve media and static files during development

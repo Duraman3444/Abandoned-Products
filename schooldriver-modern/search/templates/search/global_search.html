@@ -1,0 +1,598 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Global Search - SchoolDriver Modern{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+    .search-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .search-header {
+        background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+        border-radius: 15px;
+        padding: 30px;
+        margin-bottom: 30px;
+        color: white;
+    }
+    
+    .search-box {
+        position: relative;
+    }
+    
+    .search-input {
+        border-radius: 25px;
+        padding: 15px 20px;
+        font-size: 16px;
+        border: none;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    .search-input:focus {
+        box-shadow: 0 4px 20px rgba(20, 184, 166, 0.3);
+        border-color: #14b8a6;
+    }
+    
+    .suggestions-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        z-index: 1000;
+        max-height: 300px;
+        overflow-y: auto;
+        display: none;
+    }
+    
+    .suggestion-item {
+        padding: 12px 20px;
+        cursor: pointer;
+        border-bottom: 1px solid #f3f4f6;
+    }
+    
+    .suggestion-item:hover {
+        background-color: #f8fafc;
+    }
+    
+    .suggestion-item:last-child {
+        border-bottom: none;
+    }
+    
+    .filters-panel {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    
+    .results-section {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    
+    .result-item {
+        padding: 15px;
+        border-bottom: 1px solid #f3f4f6;
+        transition: all 0.2s;
+    }
+    
+    .result-item:hover {
+        background-color: #f8fafc;
+        transform: translateX(5px);
+    }
+    
+    .result-item:last-child {
+        border-bottom: none;
+    }
+    
+    .result-title {
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 5px;
+    }
+    
+    .result-meta {
+        color: #6b7280;
+        font-size: 14px;
+    }
+    
+    .search-stats {
+        background: #f3f4f6;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    
+    .saved-searches {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    
+    .saved-search-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        border-bottom: 1px solid #f3f4f6;
+    }
+    
+    .saved-search-item:last-child {
+        border-bottom: none;
+    }
+    
+    .btn-teal {
+        background-color: #14b8a6;
+        border-color: #14b8a6;
+        color: white;
+    }
+    
+    .btn-teal:hover {
+        background-color: #0d9488;
+        border-color: #0d9488;
+        color: white;
+    }
+    
+    .badge-category {
+        font-size: 11px;
+        padding: 4px 8px;
+        border-radius: 12px;
+    }
+    
+    .tab-content {
+        min-height: 300px;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 40px;
+        color: #6b7280;
+    }
+    
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 20px;
+        opacity: 0.5;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="search-container">
+    <!-- Search Header -->
+    <div class="search-header">
+        <h1 class="h2 mb-3">🔍 Global Search</h1>
+        <p class="mb-4">Search across students, courses, teachers, and academic records</p>
+        
+        <form method="GET" action="{% url 'search:global_search' %}" class="search-form">
+            <div class="row g-3">
+                <div class="col-md-8">
+                    <div class="search-box">
+                        <input type="text" 
+                               class="form-control search-input" 
+                               name="q" 
+                               value="{{ query }}" 
+                               placeholder="Search for students, courses, teachers..."
+                               autocomplete="off"
+                               id="searchInput">
+                        <div class="suggestions-dropdown" id="suggestionsDropdown"></div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <select name="type" class="form-select" style="height: 54px;">
+                        <option value="all" {% if search_type == 'all' %}selected{% endif %}>All</option>
+                        <option value="students" {% if search_type == 'students' %}selected{% endif %}>Students</option>
+                        <option value="courses" {% if search_type == 'courses' %}selected{% endif %}>Courses</option>
+                        <option value="teachers" {% if search_type == 'teachers' %}selected{% endif %}>Teachers</option>
+                        <option value="assignments" {% if search_type == 'assignments' %}selected{% endif %}>Assignments</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-teal w-100" style="height: 54px;">
+                        <i class="bi bi-search me-1"></i>Search
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Advanced Filters -->
+            <div class="row g-3 mt-3">
+                <div class="col-md-3">
+                    <select name="grade_level" class="form-select form-select-sm">
+                        <option value="">All Grade Levels</option>
+                        {% for grade in grade_levels %}
+                            <option value="{{ grade }}" {% if filters.grade_level == grade %}selected{% endif %}>{{ grade }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select name="school_year" class="form-select form-select-sm">
+                        <option value="">All School Years</option>
+                        {% for year_name, year_id in school_years %}
+                            <option value="{{ year_id }}" {% if filters.school_year == year_id|stringformat:"s" %}selected{% endif %}>{{ year_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select name="subject" class="form-select form-select-sm">
+                        <option value="">All Subjects</option>
+                        {% for subject in subjects %}
+                            <option value="{{ subject }}" {% if filters.subject == subject %}selected{% endif %}>{{ subject }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select name="status" class="form-select form-select-sm">
+                        <option value="">All Statuses</option>
+                        <option value="active" {% if filters.status == 'active' %}selected{% endif %}>Active</option>
+                        <option value="inactive" {% if filters.status == 'inactive' %}selected{% endif %}>Inactive</option>
+                    </select>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-9">
+            {% if query %}
+                <!-- Search Stats -->
+                <div class="search-stats">
+                    <strong>{{ results.total_count }}</strong> results found for "<em>{{ query }}</em>"
+                    {% if search_type != 'all' %} in {{ search_type }}{% endif %}
+                </div>
+                
+                <!-- Search Results -->
+                <div class="results-section">
+                    <ul class="nav nav-tabs mb-3" id="resultsTabs" role="tablist">
+                        {% if results.students %}
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="students-tab" data-bs-toggle="tab" data-bs-target="#students" type="button">
+                                Students <span class="badge bg-primary ms-1">{{ results.students|length }}</span>
+                            </button>
+                        </li>
+                        {% endif %}
+                        {% if results.courses %}
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link {% if not results.students %}active{% endif %}" id="courses-tab" data-bs-toggle="tab" data-bs-target="#courses" type="button">
+                                Courses <span class="badge bg-success ms-1">{{ results.courses|length }}</span>
+                            </button>
+                        </li>
+                        {% endif %}
+                        {% if results.teachers %}
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link {% if not results.students and not results.courses %}active{% endif %}" id="teachers-tab" data-bs-toggle="tab" data-bs-target="#teachers" type="button">
+                                Teachers <span class="badge bg-warning ms-1">{{ results.teachers|length }}</span>
+                            </button>
+                        </li>
+                        {% endif %}
+                        {% if results.assignments %}
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link {% if not results.students and not results.courses and not results.teachers %}active{% endif %}" id="assignments-tab" data-bs-toggle="tab" data-bs-target="#assignments" type="button">
+                                Assignments <span class="badge bg-info ms-1">{{ results.assignments|length }}</span>
+                            </button>
+                        </li>
+                        {% endif %}
+                    </ul>
+                    
+                    <div class="tab-content" id="resultsTabContent">
+                        <!-- Students Results -->
+                        {% if results.students %}
+                        <div class="tab-pane fade show active" id="students" role="tabpanel">
+                            {% for student in results.students %}
+                            <div class="result-item">
+                                <div class="result-title">
+                                    <i class="bi bi-person-circle me-2"></i>{{ student.name }}
+                                    {% if not student.is_active %}
+                                        <span class="badge bg-secondary ms-2">Inactive</span>
+                                    {% endif %}
+                                </div>
+                                <div class="result-meta">
+                                    <strong>ID:</strong> {{ student.student_id }} | 
+                                    <strong>Grade:</strong> {{ student.grade_level }} | 
+                                    <strong>Email:</strong> {{ student.email|default:"Not provided" }}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Courses Results -->
+                        {% if results.courses %}
+                        <div class="tab-pane fade {% if not results.students %}show active{% endif %}" id="courses" role="tabpanel">
+                            {% for course in results.courses %}
+                            <div class="result-item">
+                                <div class="result-title">
+                                    <i class="bi bi-book me-2"></i>{{ course.name }}
+                                    <span class="badge badge-category bg-success">{{ course.subject }}</span>
+                                </div>
+                                <div class="result-meta">
+                                    <strong>Credits:</strong> {{ course.credit_hours }} | 
+                                    <strong>Description:</strong> {{ course.description|default:"No description available" }}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Teachers Results -->
+                        {% if results.teachers %}
+                        <div class="tab-pane fade {% if not results.students and not results.courses %}show active{% endif %}" id="teachers" role="tabpanel">
+                            {% for teacher in results.teachers %}
+                            <div class="result-item">
+                                <div class="result-title">
+                                    <i class="bi bi-person-badge me-2"></i>{{ teacher.name }}
+                                </div>
+                                <div class="result-meta">
+                                    <strong>Email:</strong> {{ teacher.email }} | 
+                                    <strong>Username:</strong> {{ teacher.username }} | 
+                                    <strong>Courses:</strong> {{ teacher.courses_count }}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Assignments Results -->
+                        {% if results.assignments %}
+                        <div class="tab-pane fade {% if not results.students and not results.courses and not results.teachers %}show active{% endif %}" id="assignments" role="tabpanel">
+                            {% for assignment in results.assignments %}
+                            <div class="result-item">
+                                <div class="result-title">
+                                    <i class="bi bi-clipboard-check me-2"></i>{{ assignment.name }}
+                                    {% if not assignment.is_published %}
+                                        <span class="badge bg-warning ms-2">Draft</span>
+                                    {% endif %}
+                                </div>
+                                <div class="result-meta">
+                                    <strong>Course:</strong> {{ assignment.course }} | 
+                                    <strong>Due:</strong> {{ assignment.due_date }} | 
+                                    <strong>Points:</strong> {{ assignment.max_points }}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    {% if results.total_count == 0 %}
+                    <div class="empty-state">
+                        <i class="bi bi-search"></i>
+                        <h4>No results found</h4>
+                        <p>Try adjusting your search terms or filters</p>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Save Search Button -->
+                <div class="text-center mt-3">
+                    <button class="btn btn-outline-teal" onclick="showSaveSearchModal()">
+                        <i class="bi bi-bookmark-plus me-1"></i>Save This Search
+                    </button>
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <i class="bi bi-search"></i>
+                    <h4>Enter a search term</h4>
+                    <p>Search for students, courses, teachers, or assignments</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="col-md-3">
+            <!-- Recent Searches -->
+            {% if recent_searches %}
+            <div class="saved-searches mb-4">
+                <h5><i class="bi bi-clock-history me-2"></i>Recent Searches</h5>
+                {% for search in recent_searches %}
+                <div class="saved-search-item">
+                    <div>
+                        <a href="{% url 'search:global_search' %}?q={{ search.query }}&type={{ search.search_type }}" 
+                           class="text-decoration-none">{{ search.query }}</a>
+                        <div class="small text-muted">{{ search.created_at|timesince }} ago</div>
+                    </div>
+                    <span class="badge bg-secondary">{{ search.results_count }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <!-- Saved Searches -->
+            {% if saved_searches %}
+            <div class="saved-searches">
+                <h5><i class="bi bi-bookmark-star me-2"></i>Saved Searches</h5>
+                {% for search in saved_searches %}
+                <div class="saved-search-item">
+                    <div>
+                        <a href="{% url 'search:load_saved_search' search.id %}" 
+                           class="text-decoration-none fw-bold">{{ search.name }}</a>
+                        <div class="small text-muted">{{ search.query }}</div>
+                    </div>
+                    <button class="btn btn-sm btn-outline-danger" 
+                            onclick="deleteSavedSearch({{ search.id }}, '{{ search.name }}')">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Save Search Modal -->
+<div class="modal fade" id="saveSearchModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Save Search</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="saveSearchForm">
+                    <div class="mb-3">
+                        <label for="searchName" class="form-label">Search Name</label>
+                        <input type="text" class="form-control" id="searchName" 
+                               placeholder="Enter a name for this search" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Search Query</label>
+                        <input type="text" class="form-control" value="{{ query }}" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Search Type</label>
+                        <input type="text" class="form-control" value="{{ search_type }}" readonly>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-teal" onclick="saveSearch()">Save Search</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// Search suggestions
+let searchTimeout;
+const searchInput = document.getElementById('searchInput');
+const suggestionsDropdown = document.getElementById('suggestionsDropdown');
+
+searchInput.addEventListener('input', function() {
+    clearTimeout(searchTimeout);
+    const query = this.value.trim();
+    
+    if (query.length < 2) {
+        suggestionsDropdown.style.display = 'none';
+        return;
+    }
+    
+    searchTimeout = setTimeout(() => {
+        fetchSuggestions(query);
+    }, 300);
+});
+
+searchInput.addEventListener('blur', function() {
+    setTimeout(() => {
+        suggestionsDropdown.style.display = 'none';
+    }, 200);
+});
+
+function fetchSuggestions(query) {
+    fetch(`{% url 'search:suggestions_api' %}?q=${encodeURIComponent(query)}`)
+        .then(response => response.json())
+        .then(data => {
+            displaySuggestions(data.suggestions);
+        })
+        .catch(error => {
+            console.error('Error fetching suggestions:', error);
+        });
+}
+
+function displaySuggestions(suggestions) {
+    if (suggestions.length === 0) {
+        suggestionsDropdown.style.display = 'none';
+        return;
+    }
+    
+    suggestionsDropdown.innerHTML = suggestions.map(suggestion => 
+        `<div class="suggestion-item" onclick="selectSuggestion('${suggestion.text}')">
+            ${suggestion.text}
+            ${suggestion.count > 0 ? `<small class="text-muted ms-2">(${suggestion.count})</small>` : ''}
+        </div>`
+    ).join('');
+    
+    suggestionsDropdown.style.display = 'block';
+}
+
+function selectSuggestion(text) {
+    searchInput.value = text;
+    suggestionsDropdown.style.display = 'none';
+    searchInput.closest('form').submit();
+}
+
+// Save search functionality
+function showSaveSearchModal() {
+    const modal = new bootstrap.Modal(document.getElementById('saveSearchModal'));
+    modal.show();
+}
+
+function saveSearch() {
+    const name = document.getElementById('searchName').value.trim();
+    if (!name) {
+        alert('Please enter a name for the search');
+        return;
+    }
+    
+    const data = {
+        name: name,
+        query: '{{ query }}',
+        search_type: '{{ search_type }}',
+        filters: {{ filters|safe }}
+    };
+    
+    fetch('{% url "search:save_search" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            location.reload();
+        } else {
+            alert(data.error || 'Failed to save search');
+        }
+    })
+    .catch(error => {
+        console.error('Error saving search:', error);
+        alert('Failed to save search');
+    });
+}
+
+function deleteSavedSearch(searchId, searchName) {
+    if (!confirm(`Are you sure you want to delete the saved search "${searchName}"?`)) {
+        return;
+    }
+    
+    fetch(`/search/api/saved/${searchId}/delete/`, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.error || 'Failed to delete search');
+        }
+    })
+    .catch(error => {
+        console.error('Error deleting search:', error);
+        alert('Failed to delete search');
+    });
+}
+</script>
+{% endblock %}

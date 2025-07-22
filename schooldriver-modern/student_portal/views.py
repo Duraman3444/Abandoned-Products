@@ -51,31 +51,17 @@ def get_current_student(user):
         return None
 
 
-@login_required
-@role_required(['Student'])
-def dashboard_view(request):
-    """Student dashboard with overview of grades, attendance, and upcoming assignments"""
-    logger.info(f"🏠 DASHBOARD ACCESS: User {request.user.username} accessing dashboard")
-    logger.info(f"🔍 Request path: {request.path}")
-    logger.info(f"🔍 Request method: {request.method}")
-    logger.info(f"🔍 User authenticated: {request.user.is_authenticated}")
+def get_student_academic_data(student):
+    """Get consistent academic data for a student across all views."""
     try:
-        student = get_current_student(request.user)
-        if not student:
-            messages.error(request, "Student profile not found. Please contact administration.")
-            return render(request, 'student_portal/dashboard.html', {'error': 'Student profile not found'})
-        
-        # Get current school year
         current_school_year = SchoolYear.objects.filter(is_active=True).first()
-        
-        # Get real enrollment data
         enrollments = Enrollment.objects.filter(
             student=student,
             section__school_year=current_school_year,
             is_active=True
         ).select_related('section__course', 'section__teacher')
         
-        # Build course data with calculated grades
+        # Calculate current courses and grades
         current_courses = []
         for enrollment in enrollments:
             # Calculate current grade from assignments
@@ -102,6 +88,78 @@ def dashboard_view(request):
                 'percentage': round(grade_percentage, 1),
                 'credit_hours': float(enrollment.section.course.credit_hours)
             })
+        
+        # Calculate GPA using utility for consistency
+        gpa_data = gpa_utils.calculate_gpa_from_courses(current_courses)
+        
+        # Calculate attendance summary
+        attendance_records = Attendance.objects.filter(
+            enrollment__student=student,
+            enrollment__section__school_year=current_school_year
+        )
+        
+        total_days = attendance_records.count()
+        days_present = attendance_records.filter(status='P').count()
+        days_absent = attendance_records.filter(status='A').count()
+        days_tardy = attendance_records.filter(status='T').count()
+        days_excused = attendance_records.filter(status='E').count()
+        
+        attendance_percentage = (days_present / total_days * 100) if total_days > 0 else 100
+        
+        attendance_summary = {
+            'days_present': days_present,
+            'days_absent': days_absent,
+            'days_tardy': days_tardy,
+            'days_excused': days_excused,
+            'attendance_percentage': round(attendance_percentage, 1)
+        }
+        
+        # Calculate total credits
+        total_credits = sum(course['credit_hours'] for course in current_courses)
+        
+        return {
+            'current_courses': current_courses,
+            'gpa_data': gpa_data,
+            'attendance_summary': attendance_summary,
+            'total_credits': total_credits,
+            'course_count': len(current_courses),
+            'current_school_year': current_school_year,
+            'enrollments': enrollments
+        }
+    except Exception as e:
+        logger.error(f"Error getting academic data for student {student}: {e}")
+        return {
+            'current_courses': [],
+            'gpa_data': {'gpa4': 0.0, 'gpa_pct': 0.0, 'weighted_gpa4': 0.0},
+            'attendance_summary': {'attendance_percentage': 0},
+            'total_credits': 0.0,
+            'course_count': 0,
+            'current_school_year': None,
+            'enrollments': []
+        }
+
+
+@login_required
+@role_required(['Student'])
+def dashboard_view(request):
+    """Student dashboard with overview of grades, attendance, and upcoming assignments"""
+    logger.info(f"🏠 DASHBOARD ACCESS: User {request.user.username} accessing dashboard")
+    logger.info(f"🔍 Request path: {request.path}")
+    logger.info(f"🔍 Request method: {request.method}")
+    logger.info(f"🔍 User authenticated: {request.user.is_authenticated}")
+    try:
+        student = get_current_student(request.user)
+        if not student:
+            messages.error(request, "Student profile not found. Please contact administration.")
+            return render(request, 'student_portal/dashboard.html', {'error': 'Student profile not found'})
+        
+        # Get consistent academic data
+        academic_data = get_student_academic_data(student)
+        current_courses = academic_data['current_courses']
+        gpa_data = academic_data['gpa_data']
+        attendance_summary = academic_data['attendance_summary']
+        current_school_year = academic_data['current_school_year']
+        enrollments = academic_data['enrollments']
         
         # Get recent assignments (upcoming and recently due)
         recent_assignment_objs = Assignment.objects.filter(
@@ -133,30 +191,7 @@ def dashboard_view(request):
                 'status': status
             })
         
-        # Calculate real attendance summary
-        attendance_records = Attendance.objects.filter(
-            enrollment__student=student,
-            enrollment__section__school_year=current_school_year
-        )
-        
-        total_days = attendance_records.count()
-        days_present = attendance_records.filter(status='P').count()
-        days_absent = attendance_records.filter(status='A').count()
-        days_tardy = attendance_records.filter(status='T').count()
-        days_excused = attendance_records.filter(status='E').count()
-        
-        attendance_percentage = (days_present / total_days * 100) if total_days > 0 else 100
-        
-        attendance_summary = {
-            'days_present': days_present,
-            'days_absent': days_absent,
-            'days_tardy': days_tardy,
-            'days_excused': days_excused,
-            'attendance_percentage': round(attendance_percentage, 1)
-        }
-        
-        # Calculate GPA using utility for consistency
-        gpa_data = gpa_utils.calculate_gpa_from_courses(current_courses)
+
         
         # Count pending assignments
         pending_assignments = [a for a in recent_assignments if a['status'] == 'Pending']
@@ -440,12 +475,28 @@ def schedule_view(request):
         today = timezone.now().strftime('%A')
         today_schedule = daily_schedule.get(today, [])
         
+        # Get unique teachers for contact section
+        teachers_seen = set()
+        teachers = []
+        for enrollment in enrollments:
+            teacher = enrollment.section.teacher
+            teacher_key = f"{teacher.first_name} {teacher.last_name}"
+            if teacher_key not in teachers_seen:
+                teachers_seen.add(teacher_key)
+                teachers.append({
+                    'name': teacher_key,
+                    'email': teacher.email,
+                    'department': 'Faculty',  # Could be enhanced with actual department
+                    'initials': f"{teacher.first_name[0]}{teacher.last_name[0]}" if teacher.first_name and teacher.last_name else 'UN'
+                })
+        
         context = {
             'student': student,
             'daily_schedule': daily_schedule,
             'today': today,
             'today_schedule': today_schedule,
             'current_time': timezone.now().time(),
+            'teachers': teachers,
         }
         
     except Exception as e:
@@ -656,6 +707,9 @@ def profile_view(request):
             # Here we're just showing the interface
             
             student.save()
+        
+        # Get consistent academic data
+        academic_data = get_student_academic_data(student)
             
         # Get emergency contacts
         emergency_contacts = student.emergency_contacts.all().order_by('is_primary', 'relationship')
@@ -665,6 +719,13 @@ def profile_view(request):
             'emergency_contacts': emergency_contacts,
             'age': student.get_age(),
             'years_enrolled': (timezone.now().date() - student.enrollment_date).days // 365,
+            'gpa4': academic_data['gpa_data']['gpa4'],
+            'gpa_pct': academic_data['gpa_data']['gpa_pct'],
+            'weighted_gpa4': academic_data['gpa_data']['weighted_gpa4'],
+            'current_courses': academic_data['current_courses'],
+            'course_count': academic_data['course_count'],
+            'total_credits': academic_data['total_credits'],
+            'attendance_percentage': academic_data['attendance_summary']['attendance_percentage'],
         }
         
     except Exception as e:
