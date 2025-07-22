@@ -245,12 +245,26 @@
     // Chart instances for updates
     let pipelineChart, documentsChart, statusChart, trendsChart;
     
-    // Wait for Chart.js to be fully loaded before setting defaults
+    // Enhanced Chart.js Dark Theme Setup
     function setupChartDefaults() {
-        // Dark theme Chart.js defaults - Chart.js 4.x compatible
+        // Force all chart text to be visible
         Chart.defaults.color = '#E6EDF3';
+        Chart.defaults.font = { color: '#E6EDF3' };
         Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
         Chart.defaults.backgroundColor = 'rgba(30, 136, 229, 0.2)';
+        
+        // Override any potential invisible text
+        if (Chart.defaults.plugins?.legend?.labels) {
+            Chart.defaults.plugins.legend.labels.color = '#E6EDF3';
+        }
+        
+        // Force axis text visibility
+        Chart.defaults.scales = Chart.defaults.scales || {};
+        ['category', 'linear', 'x', 'y'].forEach(scale => {
+            if (!Chart.defaults.scales[scale]) Chart.defaults.scales[scale] = {};
+            if (!Chart.defaults.scales[scale].ticks) Chart.defaults.scales[scale].ticks = {};
+            Chart.defaults.scales[scale].ticks.color = '#E6EDF3';
+        });
         
         // Safe plugin defaults setup
         if (Chart.defaults.plugins && Chart.defaults.plugins.legend) {

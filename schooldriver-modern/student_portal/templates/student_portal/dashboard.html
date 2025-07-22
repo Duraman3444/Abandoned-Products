@@ -44,7 +44,7 @@
         <div class="card text-center">
             <div class="card-body">
                 <i class="bi bi-calendar-check text-primary" style="font-size: 2.5rem;"></i>
-                <h4 class="mt-2 mb-0">95%</h4>
+                <h4 class="mt-2 mb-0">{{ attendance_summary.attendance_percentage }}%</h4>
                 <p class="text-muted">Attendance Rate</p>
             </div>
         </div>
@@ -81,42 +81,24 @@
             </div>
             <div class="card-body">
                 <div class="list-group list-group-flush">
+                    {% for class in today_schedule %}
                     <div class="list-group-item bg-transparent border-secondary">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h6 class="mb-1">Mathematics - Algebra II</h6>
-                                <small class="text-muted">Room 205 • Mr. Johnson</small>
+                                <h6 class="mb-1">{{ class.course_name }}</h6>
+                                <small class="text-muted">{{ class.room }} • {{ class.teacher }}</small>
                             </div>
-                            <span class="badge bg-primary">8:00 AM</span>
+                            <span class="badge bg-primary">{{ class.start_time }}</span>
                         </div>
                     </div>
-                    <div class="list-group-item bg-transparent border-secondary">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="mb-1">English Literature</h6>
-                                <small class="text-muted">Room 112 • Ms. Davis</small>
-                            </div>
-                            <span class="badge bg-primary">9:15 AM</span>
+                    {% empty %}
+                    <div class="list-group-item bg-transparent border-secondary text-center">
+                        <div class="py-3">
+                            <i class="bi bi-calendar-x text-muted mb-2" style="font-size: 2rem;"></i>
+                            <p class="text-muted mb-0">No classes scheduled for today</p>
                         </div>
                     </div>
-                    <div class="list-group-item bg-transparent border-secondary">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="mb-1">Chemistry</h6>
-                                <small class="text-muted">Lab 301 • Dr. Wilson</small>
-                            </div>
-                            <span class="badge bg-primary">10:45 AM</span>
-                        </div>
-                    </div>
-                    <div class="list-group-item bg-transparent border-secondary">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="mb-1">World History</h6>
-                                <small class="text-muted">Room 208 • Mr. Garcia</small>
-                            </div>
-                            <span class="badge bg-primary">1:00 PM</span>
-                        </div>
-                    </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>
@@ -132,33 +114,34 @@
             </div>
             <div class="card-body">
                 <div class="list-group list-group-flush">
-                    <div class="list-group-item bg-transparent border-secondary">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <h6 class="mb-1">Math Quiz - Chapter 5</h6>
-                                <small class="text-muted">Algebra II</small>
+                    {% for assignment in recent_assignments %}
+                        {% if assignment.status == 'Pending' %}
+                        <div class="list-group-item bg-transparent border-secondary">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1">{{ assignment.title }}</h6>
+                                    <small class="text-muted">{{ assignment.course }}</small>
+                                </div>
+                                {% if assignment.status == 'Pending' %}
+                                    {% if assignment.due_date|date:"Y-m-d" == today|date:"Y-m-d" %}
+                                        <span class="badge bg-danger">Due Today</span>
+                                    {% elif assignment.due_date|date:"Y-m-d" == tomorrow|date:"Y-m-d" %}
+                                        <span class="badge bg-warning text-dark">Due Tomorrow</span>
+                                    {% else %}
+                                        <span class="badge bg-info">Due {{ assignment.due_date|date:"M d" }}</span>
+                                    {% endif %}
+                                {% endif %}
                             </div>
-                            <span class="badge bg-danger">Due Tomorrow</span>
+                        </div>
+                        {% endif %}
+                    {% empty %}
+                    <div class="list-group-item bg-transparent border-secondary text-center">
+                        <div class="py-3">
+                            <i class="bi bi-check-circle text-success mb-2" style="font-size: 2rem;"></i>
+                            <p class="text-muted mb-0">No pending assignments</p>
                         </div>
                     </div>
-                    <div class="list-group-item bg-transparent border-secondary">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <h6 class="mb-1">Essay: Shakespeare Analysis</h6>
-                                <small class="text-muted">English Literature</small>
-                            </div>
-                            <span class="badge bg-warning text-dark">Due Friday</span>
-                        </div>
-                    </div>
-                    <div class="list-group-item bg-transparent border-secondary">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <h6 class="mb-1">Lab Report: Acids & Bases</h6>
-                                <small class="text-muted">Chemistry</small>
-                            </div>
-                            <span class="badge bg-info">Due Next Week</span>
-                        </div>
-                    </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>
@@ -177,33 +160,32 @@
             </div>
             <div class="card-body">
                 <div class="list-group list-group-flush">
+                    {% for grade in recent_grades %}
                     <div class="list-group-item bg-transparent border-secondary">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h6 class="mb-1">History Test - WWI</h6>
-                                <small class="text-muted">World History</small>
+                                <h6 class="mb-1">{{ grade.assignment_name }}</h6>
+                                <small class="text-muted">{{ grade.course_name }}</small>
                             </div>
-                            <span class="badge bg-success">A-</span>
+                            {% if grade.percentage >= 90 %}
+                                <span class="badge bg-success">{{ grade.letter_grade }}</span>
+                            {% elif grade.percentage >= 80 %}
+                                <span class="badge bg-info">{{ grade.letter_grade }}</span>
+                            {% elif grade.percentage >= 70 %}
+                                <span class="badge bg-warning text-dark">{{ grade.letter_grade }}</span>
+                            {% else %}
+                                <span class="badge bg-danger">{{ grade.letter_grade }}</span>
+                            {% endif %}
                         </div>
                     </div>
-                    <div class="list-group-item bg-transparent border-secondary">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="mb-1">Chemistry Lab #4</h6>
-                                <small class="text-muted">Chemistry</small>
-                            </div>
-                            <span class="badge bg-success">B+</span>
+                    {% empty %}
+                    <div class="list-group-item bg-transparent border-secondary text-center">
+                        <div class="py-3">
+                            <i class="bi bi-clock text-muted mb-2" style="font-size: 2rem;"></i>
+                            <p class="text-muted mb-0">No recent grades available</p>
                         </div>
                     </div>
-                    <div class="list-group-item bg-transparent border-secondary">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="mb-1">Math Homework #12</h6>
-                                <small class="text-muted">Algebra II</small>
-                            </div>
-                            <span class="badge bg-warning text-dark">B-</span>
-                        </div>
-                    </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>
@@ -218,21 +200,20 @@
             </div>
             <div class="card-body">
                 <div class="list-group list-group-flush">
+                    {% for announcement in announcements %}
                     <div class="list-group-item bg-transparent border-secondary">
-                        <h6 class="mb-1">Spring Break Schedule</h6>
-                        <p class="mb-1">School will be closed March 25-29. Classes resume March 30.</p>
-                        <small class="text-muted">Posted 2 days ago</small>
+                        <h6 class="mb-1">{{ announcement.title }}</h6>
+                        <p class="mb-1">{{ announcement.content|truncatewords:20 }}</p>
+                        <small class="text-muted">Posted {{ announcement.publish_date|timesince }} ago</small>
                     </div>
-                    <div class="list-group-item bg-transparent border-secondary">
-                        <h6 class="mb-1">Science Fair Registration</h6>
-                        <p class="mb-1">Registration for the annual science fair is now open. Deadline is February 15.</p>
-                        <small class="text-muted">Posted 1 week ago</small>
+                    {% empty %}
+                    <div class="list-group-item bg-transparent border-secondary text-center">
+                        <div class="py-3">
+                            <i class="bi bi-megaphone text-muted mb-2" style="font-size: 2rem;"></i>
+                            <p class="text-muted mb-0">No recent announcements</p>
+                        </div>
                     </div>
-                    <div class="list-group-item bg-transparent border-secondary">
-                        <h6 class="mb-1">New Library Hours</h6>
-                        <p class="mb-1">The library will now be open until 6 PM on weekdays.</p>
-                        <small class="text-muted">Posted 2 weeks ago</small>
-                    </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>

@@ -1,5 +1,23 @@
 /* SchoolDriver Modern - Admin Theme Dashboard Styles */
 
+/* Emergency Text Visibility Fix */
+.dashboard-content,
+.dashboard-content *,
+.chart-container,
+.chart-container *,
+.stat-card,
+.stat-card *,
+.card-body,
+.card-body * {
+    color: var(--text-primary, #E6EDF3) !important;
+}
+
+/* Chart.js Text Color Fix */
+canvas,
+canvas * {
+    color: var(--text-primary, #E6EDF3) !important;
+}
+
 :root {
     /* Admin theme color palette */
     --bg-primary: #0D1117;

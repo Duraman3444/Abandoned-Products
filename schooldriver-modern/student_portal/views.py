@@ -158,6 +158,47 @@ def dashboard_view(request):
         # Count pending assignments
         pending_assignments = [a for a in recent_assignments if a['status'] == 'Pending']
         
+        # Get today's schedule
+        today_weekday = timezone.now().weekday()  # 0=Monday, 6=Sunday
+        today_schedule = []
+        
+        for enrollment in enrollments:
+            schedules = Schedule.objects.filter(
+                section=enrollment.section,
+                day_of_week=today_weekday,
+                is_active=True
+            ).order_by('start_time')
+            
+            for schedule in schedules:
+                today_schedule.append({
+                    'course_name': enrollment.section.course.name,
+                    'teacher': f"{enrollment.section.teacher.first_name} {enrollment.section.teacher.last_name}",
+                    'room': schedule.room or enrollment.section.room or 'TBA',
+                    'start_time': schedule.start_time.strftime('%I:%M %p'),
+                    'end_time': schedule.end_time.strftime('%I:%M %p'),
+                })
+        
+        # Sort by start time
+        today_schedule.sort(key=lambda x: x['start_time'])
+        
+        # Get recent grades (last 5 graded assignments)
+        recent_grades = []
+        all_grades = Grade.objects.filter(
+            enrollment__student=student,
+            enrollment__section__school_year=current_school_year,
+            assignment__is_published=True,
+            points_earned__isnull=False
+        ).select_related('assignment__section__course', 'assignment').order_by('-created_at')[:5]
+        
+        for grade in all_grades:
+            letter_grade = gpa_utils.get_letter_grade(float(grade.percentage) if grade.percentage else 0)
+            recent_grades.append({
+                'assignment_name': grade.assignment.name,
+                'course_name': grade.assignment.section.course.name,
+                'letter_grade': letter_grade,
+                'percentage': grade.percentage or 0
+            })
+        
         # Get recent announcements for students
         announcements = Announcement.objects.filter(
             audience__in=['ALL', 'STUDENTS'],
@@ -172,6 +213,8 @@ def dashboard_view(request):
             'current_school_year': current_school_year,
             'current_courses': current_courses,
             'recent_assignments': recent_assignments,
+            'today_schedule': today_schedule,
+            'recent_grades': recent_grades,
             'attendance_summary': attendance_summary,
             'announcements': announcements,
             'gpa4': gpa_data['gpa4'],

@@ -128,6 +128,38 @@ class Command(BaseCommand):
                         'room': f'Room {random.randint(101, 299)}'
                     }
                 )
+                
+                # Create schedule for this section (only for current year to avoid too much data)
+                if school_year.is_active and created:
+                    from academics.models import Schedule
+                    from datetime import time
+                    
+                    # Create a few random class times per week
+                    weekdays = [0, 1, 2, 3, 4]  # Monday to Friday
+                    times = [
+                        (time(8, 0), time(9, 30)),   # 8:00-9:30
+                        (time(9, 45), time(11, 15)), # 9:45-11:15
+                        (time(11, 30), time(13, 0)), # 11:30-1:00
+                        (time(13, 15), time(14, 45)), # 1:15-2:45
+                        (time(15, 0), time(16, 30)), # 3:00-4:30
+                    ]
+                    
+                    # Assign 2-3 random time slots for this course
+                    num_slots = random.randint(2, 3)
+                    selected_days = random.sample(weekdays, num_slots)
+                    
+                    for i, day in enumerate(selected_days):
+                        start_time, end_time = random.choice(times)
+                        Schedule.objects.get_or_create(
+                            section=section,
+                            day_of_week=day,
+                            defaults={
+                                'start_time': start_time,
+                                'end_time': end_time,
+                                'room': section.room,
+                                'is_active': True
+                            }
+                        )
 
                 # Create enrollment
                 enrollment, created = Enrollment.objects.get_or_create(

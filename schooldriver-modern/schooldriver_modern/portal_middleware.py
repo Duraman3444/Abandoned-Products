@@ -62,13 +62,20 @@ class PortalAccessMiddleware:
         
         # Check student portal access
         if request.path.startswith('/student/'):
+            logger.info(f"🏫 STUDENT PORTAL ACCESS: {request.user.username} -> {request.path}")
+            logger.info(f"🔍 User role: {user_role}")
+            logger.info(f"🔍 Required role: {UserRoles.STUDENT}")
+            
             if user_role != UserRoles.STUDENT:
+                logger.warning(f"❌ DENIED: User {request.user.username} with role {user_role} tried to access {request.path}")
                 messages.error(
                     request, 
                     'You do not have permission to access the student portal. '
                     'Please contact an administrator if this is incorrect.'
                 )
                 return redirect('/')
+            else:
+                logger.info(f"✅ ALLOWED: User {request.user.username} accessing {request.path}")
         
         # Check parent portal access
         elif request.path.startswith('/parent/'):

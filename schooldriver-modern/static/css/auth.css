@@ -1,5 +1,25 @@
 /* SchoolDriver Modern - Authentication Admin Theme */
 
+/* Auth Page Text Visibility */
+.auth-content,
+.auth-content *,
+.admin-auth-container,
+.admin-auth-container *,
+.auth-form,
+.auth-form * {
+    color: var(--admin-text-primary, #e0e0e0) !important;
+}
+
+/* Form Text Visibility */
+input, textarea, select, label, .form-control {
+    color: var(--admin-text-primary, #e0e0e0) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: var(--admin-text-secondary, #b0b0b0) !important;
+}
+
 /* Match exact admin interface styling for authentication pages */
 :root {
     /* Admin theme color palette - matching dashboard.css */
