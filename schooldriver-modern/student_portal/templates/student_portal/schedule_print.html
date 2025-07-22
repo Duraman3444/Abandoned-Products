@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class Schedule - {{ student.first_name }} {{ student.last_name }}</title>
+    <style>
+        @media print {
+            @page {
+                margin: 0.5in;
+            }
+            body {
+                font-family: Arial, sans-serif;
+                font-size: 12px;
+                line-height: 1.4;
+                color: #000;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: white;
+            color: #000;
+        }
+        
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #000;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        
+        .header p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        
+        th, td {
+            border: 1px solid #000;
+            padding: 8px;
+            text-align: left;
+            vertical-align: top;
+        }
+        
+        th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+        }
+        
+        .footer {
+            margin-top: 30px;
+            padding-top: 10px;
+            border-top: 1px solid #000;
+            font-size: 10px;
+            text-align: center;
+        }
+        
+        .no-print {
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            background-color: #007bff;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        
+        .btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="no-print">
+        <button class="btn" onclick="window.print()">🖨️ Print</button>
+        <button class="btn" onclick="window.close()">❌ Close</button>
+    </div>
+    
+    <div class="header">
+        <h1>Class Schedule</h1>
+        <p><strong>Student:</strong> {{ student.first_name }} {{ student.last_name }}</p>
+        <p><strong>Generated:</strong> {{ current_date|date:"F j, Y" }}</p>
+    </div>
+    
+    <table>
+        <thead>
+            {% if rows %}
+                <tr>
+                    {% for header in rows.0 %}
+                        <th>{{ header }}</th>
+                    {% endfor %}
+                </tr>
+            {% endif %}
+        </thead>
+        <tbody>
+            {% for row in rows %}
+                {% if not forloop.first %}
+                    <tr>
+                        {% for cell in row %}
+                            <td>{{ cell }}</td>
+                        {% endfor %}
+                    </tr>
+                {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <div class="footer">
+        <p>Generated on {{ current_date|date:"F j, Y" }} at {{ current_date|time:"g:i A" }} | SchoolDriver Modern</p>
+    </div>
+    
+    <script>
+        // Auto-print when page loads (can be disabled if not desired)
+        window.onload = function() {
+            // Uncomment the line below to auto-print
+            // window.print();
+        };
+    </script>
+</body>
+</html>

@@ -18,12 +18,24 @@
                         <p class="text-muted mb-0">Spring Semester 2025 • Week of January 20-24, 2025</p>
                     </div>
                     <div class="col-md-4 text-end">
-                        <button class="btn btn-outline-info me-2">
-                            <i class="bi bi-download me-1"></i>Export
-                        </button>
-                        <button class="btn btn-teal">
+                        <div class="dropdown d-inline-block me-2">
+                            <button class="btn btn-outline-info dropdown-toggle" type="button" 
+                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-download me-1"></i>Export
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{% url 'student_portal:schedule_export' %}?format=csv">
+                                    <i class="bi bi-file-earmark-spreadsheet me-1"></i>CSV
+                                </a></li>
+                                <li><a class="dropdown-item" href="{% url 'student_portal:schedule_export' %}?format=pdf">
+                                    <i class="bi bi-file-earmark-pdf me-1"></i>PDF
+                                </a></li>
+                            </ul>
+                        </div>
+                        <a href="{% url 'student_portal:schedule_print' %}" target="_blank" 
+                           class="btn btn-teal">
                             <i class="bi bi-printer me-1"></i>Print
-                        </button>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -281,7 +293,9 @@
                                 <h6 class="mb-0">Mr. Johnson</h6>
                                 <small class="text-muted">Mathematics Department</small>
                             </div>
-                            <button class="btn btn-sm btn-outline-info">Contact</button>
+                            <button class="btn btn-sm btn-outline-info contact-badge"
+                                    data-teacher="Michael Johnson"
+                                    data-email="mjohnson@school.edu">Contact</button>
                         </div>
                     </div>
                     <div class="list-group-item bg-transparent border-secondary">
@@ -296,7 +310,9 @@
                                 <h6 class="mb-0">Ms. Davis</h6>
                                 <small class="text-muted">English Department</small>
                             </div>
-                            <button class="btn btn-sm btn-outline-info">Contact</button>
+                            <button class="btn btn-sm btn-outline-info contact-badge"
+                                    data-teacher="Sarah Davis"
+                                    data-email="sdavis@school.edu">Contact</button>
                         </div>
                     </div>
                     <div class="list-group-item bg-transparent border-secondary">
@@ -311,10 +327,34 @@
                                 <h6 class="mb-0">Dr. Wilson</h6>
                                 <small class="text-muted">Science Department</small>
                             </div>
-                            <button class="btn btn-sm btn-outline-info">Contact</button>
+                            <button class="btn btn-sm btn-outline-info contact-badge"
+                                    data-teacher="Dr. David Wilson"
+                                    data-email="dwilson@school.edu">Contact</button>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Teacher Contact Modal -->
+<div class="modal fade" id="teacherContactModal" tabindex="-1" aria-labelledby="teacherContactModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content bg-dark border-secondary">
+            <div class="modal-header">
+                <h5 class="modal-title text-info" id="teacherContactModalLabel">Teacher Contact</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="tcName" class="mb-1 fw-bold text-white"></p>
+                <p id="tcEmail" class="mb-0">
+                    <i class="bi bi-envelope me-1"></i>
+                    <a href="#" class="link-info" id="tcEmailLink"></a>
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
@@ -337,5 +377,31 @@
     .bg-opacity-25 {
         opacity: 0.15;
     }
+    
+    .contact-badge {
+        cursor: pointer;
+    }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const teacherContactModal = new bootstrap.Modal(document.getElementById('teacherContactModal'));
+    
+    // Handle contact button clicks
+    document.querySelectorAll('.contact-badge').forEach(function(badge) {
+        badge.addEventListener('click', function() {
+            const teacherName = this.dataset.teacher;
+            const teacherEmail = this.dataset.email;
+            
+            // Update modal content
+            document.getElementById('tcName').textContent = teacherName;
+            document.getElementById('tcEmailLink').textContent = teacherEmail;
+            document.getElementById('tcEmailLink').href = 'mailto:' + teacherEmail;
+            
+            // Show modal
+            teacherContactModal.show();
+        });
+    });
+});
+</script>
 {% endblock %}

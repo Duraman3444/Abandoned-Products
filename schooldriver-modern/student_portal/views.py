@@ -6,12 +6,15 @@ from django.contrib import messages
 from django.db.models import Q, Avg, Count
 from django.core.paginator import Paginator
 from django.utils import timezone
+from django.http import HttpResponse, FileResponse
 from datetime import timedelta, date
 from authentication.decorators import role_required
 from students.models import Student, EmergencyContact, SchoolYear
 from academics.models import Enrollment, Assignment, Grade, Schedule, Attendance, Announcement
 from .utils import gpa as gpa_utils
 import logging
+import csv
+import io
 
 logger = logging.getLogger(__name__)
 
@@ -452,6 +455,115 @@ def schedule_view(request):
         }
     
     return render(request, 'student_portal/schedule.html', context)
+
+
+def build_schedule_csv_rows(student):
+    """Helper function to build schedule data for CSV export."""
+    try:
+        # Get current school year
+        current_school_year = SchoolYear.objects.filter(is_active=True).first()
+        
+        # Get real schedule data
+        enrollments = Enrollment.objects.filter(
+            student=student,
+            section__school_year=current_school_year,
+            is_active=True
+        ).select_related('section__course', 'section__teacher')
+        
+        rows = [['Period', 'Course', 'Teacher', 'Room', 'Time', 'Days']]
+        
+        for enrollment in enrollments:
+            schedules = Schedule.objects.filter(
+                section=enrollment.section,
+                is_active=True
+            ).order_by('start_time')
+            
+            for schedule in schedules:
+                day_name = schedule.get_day_of_week_display()
+                time_range = f"{schedule.start_time.strftime('%H:%M')}-{schedule.end_time.strftime('%H:%M')}"
+                
+                # Determine period based on start time
+                hour = schedule.start_time.hour
+                if hour < 9:
+                    period = '1st'
+                elif hour < 10:
+                    period = '2nd'
+                elif hour < 11:
+                    period = '3rd'
+                elif hour < 12:
+                    period = '4th'
+                elif hour < 13:
+                    period = 'Lunch'
+                elif hour < 14:
+                    period = '5th'
+                elif hour < 15:
+                    period = '6th'
+                else:
+                    period = '7th'
+                
+                rows.append([
+                    period,
+                    enrollment.section.course.name,
+                    f"{enrollment.section.teacher.first_name} {enrollment.section.teacher.last_name}",
+                    schedule.room or enrollment.section.room or 'TBA',
+                    time_range,
+                    day_name
+                ])
+        
+        return rows
+    except Exception as e:
+        logger.error(f"Error building schedule CSV rows: {e}")
+        return [['Error', 'Unable to load schedule data', '', '', '', '']]
+
+
+@login_required
+@role_required(['Student'])
+def schedule_export_view(request):
+    """Return schedule as CSV or PDF based on ?format= param."""
+    format_ = request.GET.get('format', 'csv')
+    student = get_current_student(request.user)
+    
+    if not student:
+        messages.error(request, "Student profile not found.")
+        return redirect('student_portal:schedule')
+    
+    # Build schedule data
+    rows = build_schedule_csv_rows(student)
+    
+    if format_ == 'pdf':
+        # For now, return CSV - PDF implementation can be added later with WeasyPrint
+        messages.info(request, "PDF export coming soon. Downloading CSV instead.")
+        format_ = 'csv'
+    
+    if format_ == 'csv':
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = f'attachment; filename="schedule_{student.first_name}_{student.last_name}.csv"'
+        writer = csv.writer(response)
+        writer.writerows(rows)
+        return response
+    
+    return redirect('student_portal:schedule')
+
+
+@login_required
+@role_required(['Student'])
+def schedule_print_view(request):
+    """Render a print-optimised HTML view of the schedule."""
+    student = get_current_student(request.user)
+    
+    if not student:
+        messages.error(request, "Student profile not found.")
+        return redirect('student_portal:schedule')
+    
+    rows = build_schedule_csv_rows(student)
+    
+    context = {
+        'student': student,
+        'rows': rows,
+        'current_date': timezone.now().date(),
+    }
+    
+    return render(request, 'student_portal/schedule_print.html', context)
 
 
 @login_required
