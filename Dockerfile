@@ -23,10 +23,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY schooldriver-modern/ .
 
-# Copy startup script
-COPY docker/startup.sh /app/startup.sh
-RUN chmod +x /app/startup.sh
-
 # Create static files directory and collect static files
 RUN mkdir -p /app/staticfiles
 RUN python manage.py collectstatic --noinput
@@ -47,4 +43,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD python -c "import requests; requests.get('http://localhost:8000/admin/login/', timeout=10)" || exit 1
 
 # Run gunicorn
-CMD ["/app/startup.sh"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "3", "--timeout", "120", "schooldriver_modern.wsgi:application"]

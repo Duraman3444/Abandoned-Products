@@ -24,8 +24,8 @@ from .auth_views import CustomLoginView
 from .profile_views import profile_view, ProfileEditView, CustomPasswordChangeView
 
 def home_redirect(request):
-    """Redirect home page to dashboard"""
-    return redirect('dashboard')
+    """Redirect home page to login"""
+    return redirect('/accounts/login/')
 
 urlpatterns = [
     path('', home_redirect, name='home'),
