@@ -373,15 +373,25 @@
         
         <!-- Attendance Reminders -->
         <div class="card">
-            <div class="card-header">
-                <h6 class="mb-0 text-info">
-                    <i class="bi bi-exclamation-triangle me-2"></i>Attendance Reminders
+            <div class="card-header bg-warning text-dark">
+                <h6 class="mb-0 fw-bold">
+                    <i class="bi bi-exclamation-triangle-fill me-2 text-danger"></i>Attendance Reminders
                 </h6>
             </div>
             <div class="card-body">
-                <div class="alert alert-warning">
-                    <h6>Attendance Policy</h6>
-                    <p class="mb-0">Students must maintain at least 90% attendance to receive full credit for courses.</p>
+                <div class="attendance-policy-alert">
+                    <div class="policy-header mb-3">
+                        <h6 class="text-light mb-2">
+                            <i class="bi bi-info-circle me-2 text-primary"></i>
+                            Attendance Policy
+                        </h6>
+                    </div>
+                    <div class="policy-content bg-primary p-3 rounded border border-light">
+                        <p class="text-white mb-0 fw-semibold">
+                            Students must maintain at least <strong class="text-warning">90% attendance</strong> 
+                            to receive full credit for courses.
+                        </p>
+                    </div>
                 </div>
                 <div class="list-group list-group-flush">
                     <div class="list-group-item bg-transparent border-secondary">
@@ -415,6 +425,119 @@
         border-color: var(--teal-primary);
         color: var(--text-light);
         box-shadow: 0 0 0 0.2rem rgba(20, 184, 166, 0.25);
+    }
+
+    /* Attendance Reminders - High Contrast Fix */
+    .attendance-policy-alert {
+        margin-bottom: 1.5rem;
+    }
+
+    .attendance-policy-alert .policy-header h6 {
+        color: var(--text-light, #e5e5e5) !important;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+
+    .attendance-policy-alert .policy-content {
+        background: linear-gradient(135deg, #1e40af, #3b82f6) !important;
+        border: 2px solid #60a5fa !important;
+        border-radius: 0.5rem;
+        padding: 1.25rem !important;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    .attendance-policy-alert .policy-content p {
+        color: #ffffff !important;
+        font-size: 1.05rem;
+        line-height: 1.6;
+        margin-bottom: 0;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    .attendance-policy-alert .policy-content strong {
+        color: #fbbf24 !important;
+        font-weight: 700;
+        background: rgba(251, 191, 36, 0.2);
+        padding: 0.125rem 0.25rem;
+        border-radius: 0.25rem;
+    }
+
+    /* Card Header Enhancement */
+    .card .card-header.bg-warning {
+        background: linear-gradient(135deg, #fbbf24, #f59e0b) !important;
+        color: #000000 !important;
+        border-bottom: 2px solid var(--dark-border, #404040);
+        padding: 1rem 1.25rem;
+    }
+
+    .card .card-header.bg-warning h6 {
+        color: #000000 !important;
+        font-size: 1.1rem;
+        margin-bottom: 0;
+    }
+
+    .card .card-header.bg-warning i.text-danger {
+        color: #dc2626 !important;
+        font-size: 1.1rem;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    /* List Group Item Enhancements */
+    .list-group-item.bg-transparent {
+        background-color: var(--dark-card, #2d2d2d) !important;
+        border-color: var(--dark-border, #404040) !important;
+        color: var(--text-light, #e5e5e5) !important;
+        padding: 1rem;
+    }
+
+    .list-group-item.bg-transparent .text-muted {
+        color: var(--text-secondary, #7D8590) !important;
+        font-size: 0.875rem;
+    }
+
+    .list-group-item.bg-transparent .fw-bold {
+        color: var(--text-light, #e5e5e5) !important;
+        font-weight: 600;
+    }
+
+    .list-group-item.bg-transparent .text-success {
+        color: #10b981 !important;
+        font-weight: 600;
+    }
+
+    /* Accessibility improvements */
+    .attendance-policy-alert .policy-content:focus-within {
+        outline: 3px solid #fbbf24;
+        outline-offset: 2px;
+    }
+
+    /* Animation for better user experience */
+    .attendance-policy-alert .policy-content {
+        transition: all 0.3s ease;
+    }
+
+    .attendance-policy-alert .policy-content:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 576px) {
+        .attendance-policy-alert .policy-content {
+            padding: 1rem !important;
+        }
+        
+        .attendance-policy-alert .policy-content p {
+            font-size: 1rem;
+        }
+        
+        .card .card-header.bg-warning {
+            padding: 0.75rem 1rem;
+        }
+        
+        .card .card-header.bg-warning h6 {
+            font-size: 1rem;
+        }
     }
 </style>
 {% endblock %}

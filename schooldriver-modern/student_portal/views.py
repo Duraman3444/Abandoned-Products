@@ -10,6 +10,7 @@ from datetime import timedelta, date
 from authentication.decorators import role_required
 from students.models import Student, EmergencyContact, SchoolYear
 from academics.models import Enrollment, Assignment, Grade, Schedule, Attendance, Announcement
+from .utils import gpa as gpa_utils
 import logging
 
 logger = logging.getLogger(__name__)
@@ -87,27 +88,16 @@ def dashboard_view(request):
             else:
                 grade_percentage = 0
             
-            # Convert percentage to letter grade
-            if grade_percentage >= 97: letter_grade = 'A+'
-            elif grade_percentage >= 93: letter_grade = 'A'
-            elif grade_percentage >= 90: letter_grade = 'A-'
-            elif grade_percentage >= 87: letter_grade = 'B+'
-            elif grade_percentage >= 83: letter_grade = 'B'
-            elif grade_percentage >= 80: letter_grade = 'B-'
-            elif grade_percentage >= 77: letter_grade = 'C+'
-            elif grade_percentage >= 73: letter_grade = 'C'
-            elif grade_percentage >= 70: letter_grade = 'C-'
-            elif grade_percentage >= 67: letter_grade = 'D+'
-            elif grade_percentage >= 63: letter_grade = 'D'
-            elif grade_percentage >= 60: letter_grade = 'D-'
-            else: letter_grade = 'F'
+            # Convert percentage to letter grade using utility
+            letter_grade = gpa_utils.get_letter_grade(grade_percentage)
             
             current_courses.append({
                 'name': enrollment.section.course.name,
                 'teacher': f"{enrollment.section.teacher.first_name} {enrollment.section.teacher.last_name}",
                 'room': enrollment.section.room,
                 'current_grade': letter_grade,
-                'grade_percentage': round(grade_percentage, 1)
+                'percentage': round(grade_percentage, 1),
+                'credit_hours': float(enrollment.section.course.credit_hours)
             })
         
         # Get recent assignments (upcoming and recently due)
@@ -162,9 +152,11 @@ def dashboard_view(request):
             'attendance_percentage': round(attendance_percentage, 1)
         }
         
-        # Calculate GPA from course percentages
-        total_points = sum(course['grade_percentage'] for course in current_courses)
-        gpa = total_points / len(current_courses) if current_courses else 0
+        # Calculate GPA using utility for consistency
+        gpa_data = gpa_utils.calculate_gpa_from_courses(current_courses)
+        
+        # Count pending assignments
+        pending_assignments = [a for a in recent_assignments if a['status'] == 'Pending']
         
         # Get recent announcements for students
         announcements = Announcement.objects.filter(
@@ -182,8 +174,12 @@ def dashboard_view(request):
             'recent_assignments': recent_assignments,
             'attendance_summary': attendance_summary,
             'announcements': announcements,
-            'gpa': round(gpa, 2),
-            'upcoming_assignments_count': len([a for a in recent_assignments if a['status'] == 'Pending']),
+            'gpa4': gpa_data['gpa4'],
+            'gpa_pct': gpa_data['gpa_pct'],
+            'weighted_gpa4': gpa_data['weighted_gpa4'],
+            'course_count': len(current_courses),
+            'pending_count': len(pending_assignments),
+            'upcoming_assignments_count': len(pending_assignments),  # Keep for backward compatibility
         }
         
     except Exception as e:
@@ -240,20 +236,8 @@ def grades_view(request):
             else:
                 percentage = 0
             
-            # Convert percentage to letter grade
-            if percentage >= 97: letter_grade = 'A+'
-            elif percentage >= 93: letter_grade = 'A'
-            elif percentage >= 90: letter_grade = 'A-'
-            elif percentage >= 87: letter_grade = 'B+'
-            elif percentage >= 83: letter_grade = 'B'
-            elif percentage >= 80: letter_grade = 'B-'
-            elif percentage >= 77: letter_grade = 'C+'
-            elif percentage >= 73: letter_grade = 'C'
-            elif percentage >= 70: letter_grade = 'C-'
-            elif percentage >= 67: letter_grade = 'D+'
-            elif percentage >= 63: letter_grade = 'D'
-            elif percentage >= 60: letter_grade = 'D-'
-            else: letter_grade = 'F'
+            # Convert percentage to letter grade using utility
+            letter_grade = gpa_utils.get_letter_grade(percentage)
             
             # Build assignment list
             assignments = []
@@ -278,9 +262,8 @@ def grades_view(request):
                 'assignments': assignments
             })
         
-        # Calculate semester GPA for selected year
-        semester_total_points = sum(course['percentage'] for course in courses_with_grades)
-        semester_gpa = semester_total_points / len(courses_with_grades) if courses_with_grades else 0
+        # Calculate semester GPA for selected year using utility
+        semester_gpa_data = gpa_utils.calculate_gpa_from_courses(courses_with_grades)
         
         # Calculate cumulative GPA across all years
         all_enrollments = Enrollment.objects.filter(
@@ -288,9 +271,7 @@ def grades_view(request):
             is_active=True
         ).select_related('section__course', 'section__teacher', 'section__school_year')
         
-        cumulative_points = 0
-        cumulative_courses = 0
-        
+        all_courses_data = []
         for enrollment in all_enrollments:
             # Get all grades for this enrollment
             grades = Grade.objects.filter(
@@ -302,10 +283,13 @@ def grades_view(request):
                 total_points = sum(float(g.points_earned or 0) for g in grades)
                 max_points = sum(float(g.assignment.max_points) for g in grades)
                 percentage = (total_points / max_points * 100) if max_points > 0 else 0
-                cumulative_points += percentage
-                cumulative_courses += 1
+                
+                all_courses_data.append({
+                    'percentage': percentage,
+                    'credit_hours': float(enrollment.section.course.credit_hours)
+                })
         
-        cumulative_gpa = cumulative_points / cumulative_courses if cumulative_courses else 0
+        cumulative_gpa_data = gpa_utils.calculate_gpa_from_courses(all_courses_data)
         
         # Grade scale for reference
         grade_scale = [
@@ -319,8 +303,11 @@ def grades_view(request):
         context = {
             'student': student,
             'courses_with_grades': courses_with_grades,
-            'semester_gpa': round(semester_gpa, 2),
-            'cumulative_gpa': round(cumulative_gpa, 2),
+            'semester_gpa4': semester_gpa_data['gpa4'],
+            'semester_gpa_pct': semester_gpa_data['gpa_pct'],
+            'cumulative_gpa4': cumulative_gpa_data['gpa4'],
+            'cumulative_gpa_pct': cumulative_gpa_data['gpa_pct'],
+            'course_count': len(courses_with_grades),
             'grade_scale': grade_scale,
             'selected_year': selected_year,
             'all_years': all_years,
@@ -537,7 +524,7 @@ def profile_view(request):
 @login_required
 @role_required(['Student'])
 def assignments_view(request):
-    """List upcoming & recently-due assignments for the logged-in student."""
+    """List assignments for the logged-in student with filtering capabilities."""
     try:
         student = get_current_student(request.user)
         if not student:
@@ -545,15 +532,28 @@ def assignments_view(request):
             return redirect('student_portal:dashboard')
         
         current_year = SchoolYear.objects.filter(is_active=True).first()
+        status_filter = request.GET.get("status", "all")  # all | upcoming | missing
+        today = timezone.now().date()
 
+        # Base query
         assignments = (
             Assignment.objects
             .filter(section__enrollments__student=student,
                     section__school_year=current_year,
                     is_published=True)
             .select_related('section__course')
-            .order_by('due_date')
         )
+        
+        # Apply status filter
+        if status_filter == "upcoming":
+            assignments = assignments.filter(due_date__gte=today)
+        elif status_filter == "missing":
+            # Missing = past due date AND no grade submitted
+            assignments = assignments.filter(due_date__lt=today).exclude(
+                grades__enrollment__student=student
+            )
+        
+        assignments = assignments.order_by('due_date')
         
         # Add status to each assignment
         assignments_with_status = []
@@ -577,7 +577,9 @@ def assignments_view(request):
         context = {
             'student': student,
             'assignments': assignments_with_status,
-            'current_year': current_year
+            'current_year': current_year,
+            'status_filter': status_filter,
+            'assignment_count': len(assignments_with_status)
         }
         
     except Exception as e:
