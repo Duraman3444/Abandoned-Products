@@ -10,3 +10,4 @@ django-cors-headers==4.3.1
 python-decouple==3.8
 whitenoise==6.6.0
 firebase-admin==6.2.0
+selenium==4.15.2
