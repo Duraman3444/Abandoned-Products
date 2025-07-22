@@ -1,0 +1,101 @@
+name: Deploy to Cloud Run & Firebase Hosting
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install yamllint
+        run: pip install yamllint
+      - name: Lint workflow YAML
+        run: yamllint .github/workflows/deploy.yml
+      - name: Check gcloud version
+        run: |
+          curl https://sdk.cloud.google.com | bash > /dev/null
+          source $HOME/google-cloud-sdk/path.bash.inc
+          gcloud --version
+  deploy:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    env:
+      PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+      REGION: us-central1
+      SERVICE: schooldriver-modern
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify required secrets
+        run: |
+          if [ -z "${{ secrets.GCP_PROJECT_ID }}" ]; then
+            echo "Error: GCP_PROJECT_ID secret is missing"
+            exit 1
+          fi
+          if [ -z "${{ secrets.GCP_SA_KEY }}" ]; then
+            echo "Error: GCP_SA_KEY secret is missing"
+            exit 1
+          fi
+          if [ -z "${{ secrets.DJANGO_SECRET_KEY }}" ]; then
+            echo "Error: DJANGO_SECRET_KEY secret is missing"
+            exit 1
+          fi
+          if [ -z "${{ secrets.GCS_BUCKET_NAME }}" ]; then
+            echo "Error: GCS_BUCKET_NAME secret is missing"
+            exit 1
+          fi
+
+      - uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          export_default_credentials: true
+
+      - name: Enable required APIs
+        run: |
+          gcloud services enable run.googleapis.com cloudbuild.googleapis.com
+
+      - name: Verify service-account roles
+        run: |
+          ROLES=$(gcloud projects get-iam-policy $PROJECT_ID \
+                    --flatten="bindings[].members" \
+                    --format='value(bindings.role)' \
+                    --filter="bindings.members:$(gcloud config get-value account)")
+
+          for REQ in roles/run.admin roles/cloudbuild.builds.editor roles/firebasehosting.admin; do
+            echo "$ROLES" | grep -q "$REQ" || { echo "::error::$REQ missing"; exit 1; }
+          done
+
+      - name: Build & Push container
+        run: |
+          gcloud builds submit \
+            --tag gcr.io/$PROJECT_ID/$SERVICE \
+            --file docker/Dockerfile .
+
+      - name: Deploy to Cloud Run
+        env:
+          DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+          FIREBASE_CREDENTIALS_JSON: ${{ secrets.FIREBASE_CREDENTIALS_JSON }}
+          GCS_BUCKET_NAME: ${{ secrets.GCS_BUCKET_NAME }}
+        run: |
+          printf "DJANGO_SECRET_KEY=%s\nFIREBASE_CREDENTIALS_JSON=%s\nGCS_BUCKET_NAME=%s\n" \
+              "$DJANGO_SECRET_KEY" "$FIREBASE_CREDENTIALS_JSON" "$GCS_BUCKET_NAME" > env_vars.txt
+
+          gcloud run deploy $SERVICE \
+            --image gcr.io/$PROJECT_ID/$SERVICE \
+            --region $REGION \
+            --platform managed \
+            --allow-unauthenticated \
+            --env-vars-file env_vars.txt
+
+      - name: Deploy Firebase Hosting
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.GCP_SA_KEY }}
+          channelId: live
+          projectId: ${{ env.PROJECT_ID }}
