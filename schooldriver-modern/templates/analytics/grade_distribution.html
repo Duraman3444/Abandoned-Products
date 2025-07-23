@@ -1,0 +1,600 @@
+{% extends "teacher_portal/base.html" %}
+{% load static %}
+
+{% block title %}Grade Distribution Analytics{% endblock %}
+
+{% block extra_css %}
+<style>
+.distribution-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+    transition: transform 0.2s ease;
+}
+
+.distribution-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+.grade-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1.5rem;
+}
+
+.grade-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1rem;
+    padding: 1.5rem;
+    background: #f8f9fa;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 1rem;
+    background: white;
+    border-radius: 8px;
+    transition: transform 0.2s ease;
+}
+
+.stat-item:hover {
+    transform: translateY(-2px);
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.grade-a-stat { color: #28a745; }
+.grade-b-stat { color: #17a2b8; }
+.grade-c-stat { color: #ffc107; }
+.grade-d-stat { color: #fd7e14; }
+.grade-f-stat { color: #dc3545; }
+
+.chart-container {
+    height: 400px;
+    padding: 1.5rem;
+}
+
+.comparison-chart {
+    height: 300px;
+    padding: 1rem;
+}
+
+.filters-section {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.performance-trend {
+    background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+    border-radius: 12px;
+    padding: 2rem;
+    color: white;
+    margin-bottom: 2rem;
+}
+
+.trend-metric {
+    text-align: center;
+}
+
+.trend-value {
+    font-size: 3rem;
+    font-weight: bold;
+    display: block;
+}
+
+.trend-label {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+.grade-breakdown {
+    background: white;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.breakdown-header {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.breakdown-bar {
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #e9ecef;
+    margin-bottom: 0.5rem;
+}
+
+.breakdown-fill {
+    height: 100%;
+    transition: width 0.5s ease;
+}
+
+.student-list {
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 0.5rem;
+}
+
+.student-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem;
+    border-radius: 4px;
+    margin-bottom: 0.25rem;
+    background: #ffffff;
+    border: 1px solid #e9ecef;
+}
+
+.student-item:hover {
+    background: #f8f9fa;
+}
+
+.grade-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: white;
+}
+
+.badge-a { background: #28a745; }
+.badge-b { background: #17a2b8; }
+.badge-c { background: #ffc107; color: #212529; }
+.badge-d { background: #fd7e14; }
+.badge-f { background: #dc3545; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1"><i class="fas fa-chart-bar me-2"></i>Grade Distribution Analytics</h2>
+            <p class="text-muted mb-0">Analyze grade patterns and distribution across your classes</p>
+        </div>
+        <div>
+            <button class="btn btn-outline-primary me-2" onclick="exportDistributionData()">
+                <i class="fas fa-download me-2"></i>Export Data
+            </button>
+            <button class="btn btn-primary" onclick="refreshAnalytics()">
+                <i class="fas fa-sync-alt me-2"></i>Refresh
+            </button>
+        </div>
+    </div>
+
+    <!-- Performance Trend Summary -->
+    <div class="performance-trend">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="trend-metric">
+                    <span class="trend-value">{{ overall_stats.total_students }}</span>
+                    <span class="trend-label">Total Students</span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="trend-metric">
+                    <span class="trend-value">{{ overall_stats.average_grade|floatformat:1 }}%</span>
+                    <span class="trend-label">Class Average</span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="trend-metric">
+                    <span class="trend-value">{{ overall_stats.passing_rate|floatformat:1 }}%</span>
+                    <span class="trend-label">Passing Rate</span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="trend-metric">
+                    <span class="trend-value">{{ overall_stats.excellence_rate|floatformat:1 }}%</span>
+                    <span class="trend-label">Excellence Rate (A's)</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters-section">
+        <div class="row">
+            <div class="col-md-3">
+                <label for="courseFilter" class="form-label">Course</label>
+                <select class="form-select" id="courseFilter" onchange="filterData()">
+                    <option value="">All Courses</option>
+                    {% for course in courses %}
+                        <option value="{{ course.id }}">{{ course.course_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="gradeFilter" class="form-label">Grade Range</label>
+                <select class="form-select" id="gradeFilter" onchange="filterData()">
+                    <option value="">All Grades</option>
+                    <option value="A">A (90-100%)</option>
+                    <option value="B">B (80-89%)</option>
+                    <option value="C">C (70-79%)</option>
+                    <option value="D">D (60-69%)</option>
+                    <option value="F">F (0-59%)</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="periodFilter" class="form-label">Time Period</label>
+                <select class="form-select" id="periodFilter" onchange="filterData()">
+                    <option value="current">Current Quarter</option>
+                    <option value="semester">Current Semester</option>
+                    <option value="year">Academic Year</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">&nbsp;</label>
+                <button class="btn btn-outline-secondary w-100" onclick="clearFilters()">
+                    <i class="fas fa-times me-1"></i>Clear All
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Distribution Chart -->
+    <div class="distribution-card">
+        <div class="grade-header">
+            <h4 class="mb-1">Overall Grade Distribution</h4>
+            <p class="mb-0 opacity-75">Visual breakdown of grade patterns</p>
+        </div>
+        <div class="chart-container">
+            <canvas id="distributionChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Grade Statistics Grid -->
+    <div class="grade-stats-grid">
+        <div class="stat-item">
+            <div class="stat-number grade-a-stat">{{ grade_stats.A.count }}</div>
+            <div class="stat-label">A Grades ({{ grade_stats.A.percentage|floatformat:1 }}%)</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number grade-b-stat">{{ grade_stats.B.count }}</div>
+            <div class="stat-label">B Grades ({{ grade_stats.B.percentage|floatformat:1 }}%)</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number grade-c-stat">{{ grade_stats.C.count }}</div>
+            <div class="stat-label">C Grades ({{ grade_stats.C.percentage|floatformat:1 }}%)</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number grade-d-stat">{{ grade_stats.D.count }}</div>
+            <div class="stat-label">D Grades ({{ grade_stats.D.percentage|floatformat:1 }}%)</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number grade-f-stat">{{ grade_stats.F.count }}</div>
+            <div class="stat-label">F Grades ({{ grade_stats.F.percentage|floatformat:1 }}%)</div>
+        </div>
+    </div>
+
+    <!-- Course Comparison -->
+    <div class="distribution-card">
+        <div class="grade-header">
+            <h4 class="mb-1">Course-by-Course Comparison</h4>
+            <p class="mb-0 opacity-75">Compare grade distributions across different courses</p>
+        </div>
+        <div class="comparison-chart">
+            <canvas id="comparisonChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Detailed Breakdown -->
+    <div class="row">
+        {% for grade_letter, grade_data in grade_breakdown.items %}
+            <div class="col-md-6 col-lg-4 mb-3">
+                <div class="grade-breakdown">
+                    <div class="breakdown-header">
+                        <span>{{ grade_letter }} Grade Students</span>
+                        <span class="badge badge-{{ grade_letter|lower }}">{{ grade_data.students|length }}</span>
+                    </div>
+                    <div class="breakdown-bar">
+                        <div class="breakdown-fill" 
+                             style="width: {{ grade_data.percentage }}%; background: 
+                             {% if grade_letter == 'A' %}#28a745
+                             {% elif grade_letter == 'B' %}#17a2b8
+                             {% elif grade_letter == 'C' %}#ffc107
+                             {% elif grade_letter == 'D' %}#fd7e14
+                             {% else %}#dc3545{% endif %};"></div>
+                    </div>
+                    <div class="student-list">
+                        {% for student in grade_data.students %}
+                            <div class="student-item">
+                                <div>
+                                    <strong>{{ student.name }}</strong>
+                                    <small class="text-muted d-block">{{ student.course }}</small>
+                                </div>
+                                <span class="grade-badge badge-{{ grade_letter|lower }}">
+                                    {{ student.grade|floatformat:1 }}%
+                                </span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Historical Trend -->
+    <div class="distribution-card">
+        <div class="grade-header">
+            <h4 class="mb-1">Grade Distribution Trends</h4>
+            <p class="mb-0 opacity-75">Track how grade patterns change over time</p>
+        </div>
+        <div class="chart-container">
+            <canvas id="trendChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="d-none position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: rgba(255,255,255,0.8); z-index: 1050;">
+    <div class="text-center">
+        <div class="spinner-border text-primary mb-3" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p>Updating grade distribution data...</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Chart instances
+let distributionChart, comparisonChart, trendChart;
+
+// Initialize charts when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    initializeCharts();
+});
+
+function initializeCharts() {
+    // Main distribution chart (doughnut)
+    const distributionCtx = document.getElementById('distributionChart').getContext('2d');
+    distributionChart = new Chart(distributionCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['A (90-100%)', 'B (80-89%)', 'C (70-79%)', 'D (60-69%)', 'F (0-59%)'],
+            datasets: [{
+                data: [
+                    {{ grade_stats.A.count }},
+                    {{ grade_stats.B.count }},
+                    {{ grade_stats.C.count }},
+                    {{ grade_stats.D.count }},
+                    {{ grade_stats.F.count }}
+                ],
+                backgroundColor: ['#28a745', '#17a2b8', '#ffc107', '#fd7e14', '#dc3545'],
+                borderWidth: 3,
+                borderColor: '#fff',
+                hoverBorderWidth: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: {
+                        padding: 20,
+                        usePointStyle: true
+                    }
+                },
+                title: {
+                    display: true,
+                    text: 'Current Grade Distribution',
+                    font: { size: 16, weight: 'bold' }
+                }
+            },
+            animation: {
+                animateRotate: true,
+                duration: 1000
+            }
+        }
+    });
+
+    // Course comparison chart (bar)
+    const comparisonCtx = document.getElementById('comparisonChart').getContext('2d');
+    comparisonChart = new Chart(comparisonCtx, {
+        type: 'bar',
+        data: {
+            labels: [{% for course in course_comparison %}'{{ course.name }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+            datasets: [
+                {
+                    label: 'A Grades',
+                    data: [{% for course in course_comparison %}{{ course.grades.A }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+                    backgroundColor: '#28a745'
+                },
+                {
+                    label: 'B Grades',
+                    data: [{% for course in course_comparison %}{{ course.grades.B }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+                    backgroundColor: '#17a2b8'
+                },
+                {
+                    label: 'C Grades',
+                    data: [{% for course in course_comparison %}{{ course.grades.C }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+                    backgroundColor: '#ffc107'
+                },
+                {
+                    label: 'D Grades',
+                    data: [{% for course in course_comparison %}{{ course.grades.D }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+                    backgroundColor: '#fd7e14'
+                },
+                {
+                    label: 'F Grades',
+                    data: [{% for course in course_comparison %}{{ course.grades.F }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+                    backgroundColor: '#dc3545'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { stacked: true },
+                y: { stacked: true, beginAtZero: true }
+            },
+            plugins: {
+                legend: {
+                    position: 'top'
+                }
+            }
+        }
+    });
+
+    // Trend chart (line)
+    const trendCtx = document.getElementById('trendChart').getContext('2d');
+    trendChart = new Chart(trendCtx, {
+        type: 'line',
+        data: {
+            labels: [{% for period in trend_data %}'{{ period.label }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+            datasets: [
+                {
+                    label: 'A Grades %',
+                    data: [{% for period in trend_data %}{{ period.A_percentage }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+                    borderColor: '#28a745',
+                    backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                    fill: false,
+                    tension: 0.4
+                },
+                {
+                    label: 'B Grades %',
+                    data: [{% for period in trend_data %}{{ period.B_percentage }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+                    borderColor: '#17a2b8',
+                    backgroundColor: 'rgba(23, 162, 184, 0.1)',
+                    fill: false,
+                    tension: 0.4
+                },
+                {
+                    label: 'Failing Rate %',
+                    data: [{% for period in trend_data %}{{ period.F_percentage }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+                    borderColor: '#dc3545',
+                    backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                    fill: false,
+                    tension: 0.4
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: {
+                        callback: function(value) {
+                            return value + '%';
+                        }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'top'
+                }
+            }
+        }
+    });
+}
+
+function filterData() {
+    showLoading();
+    
+    const courseId = document.getElementById('courseFilter').value;
+    const gradeRange = document.getElementById('gradeFilter').value;
+    const period = document.getElementById('periodFilter').value;
+
+    // Build URL with filters
+    const params = new URLSearchParams();
+    if (courseId) params.append('course', courseId);
+    if (gradeRange) params.append('grade', gradeRange);
+    if (period) params.append('period', period);
+    
+    // Reload with filters
+    const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+    
+    setTimeout(() => {
+        window.location.href = newUrl;
+    }, 500);
+}
+
+function clearFilters() {
+    document.getElementById('courseFilter').value = '';
+    document.getElementById('gradeFilter').value = '';
+    document.getElementById('periodFilter').value = 'current';
+    filterData();
+}
+
+function showLoading() {
+    document.getElementById('loadingOverlay').classList.remove('d-none');
+}
+
+function hideLoading() {
+    document.getElementById('loadingOverlay').classList.add('d-none');
+}
+
+function refreshAnalytics() {
+    showLoading();
+    setTimeout(() => {
+        location.reload();
+    }, 1000);
+}
+
+function exportDistributionData() {
+    // Create CSV data
+    const csvData = [
+        ['Grade', 'Count', 'Percentage'],
+        ['A (90-100%)', '{{ grade_stats.A.count }}', '{{ grade_stats.A.percentage|floatformat:1 }}%'],
+        ['B (80-89%)', '{{ grade_stats.B.count }}', '{{ grade_stats.B.percentage|floatformat:1 }}%'],
+        ['C (70-79%)', '{{ grade_stats.C.count }}', '{{ grade_stats.C.percentage|floatformat:1 }}%'],
+        ['D (60-69%)', '{{ grade_stats.D.count }}', '{{ grade_stats.D.percentage|floatformat:1 }}%'],
+        ['F (0-59%)', '{{ grade_stats.F.count }}', '{{ grade_stats.F.percentage|floatformat:1 }}%']
+    ];
+
+    const csvContent = csvData.map(row => row.join(',')).join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'grade_distribution_' + new Date().toISOString().split('T')[0] + '.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+}
+
+// Hide loading overlay when page is fully loaded
+window.addEventListener('load', function() {
+    hideLoading();
+});
+</script>
+{% endblock %}

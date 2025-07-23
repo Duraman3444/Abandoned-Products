@@ -1,0 +1,331 @@
+{% extends "teacher_portal/base.html" %}
+{% load static %}
+
+{% block title %}Class Performance Overview{% endblock %}
+
+{% block extra_css %}
+<style>
+.performance-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+    transition: transform 0.2s ease;
+}
+
+.performance-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+.course-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1.5rem;
+}
+
+.metric-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    padding: 1.5rem;
+}
+
+.metric-item {
+    text-align: center;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.metric-value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+}
+
+.metric-label {
+    font-size: 0.9rem;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.grade-excellent { color: #28a745; }
+.grade-good { color: #17a2b8; }
+.grade-needs-improvement { color: #ffc107; }
+.grade-poor { color: #dc3545; }
+
+.chart-container {
+    height: 300px;
+    padding: 1rem;
+}
+
+.performance-indicator {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.performance-excellent {
+    background: #d4edda;
+    color: #155724;
+}
+
+.performance-good {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.performance-needs-work {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.performance-concerning {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.summary-stats {
+    background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+    border-radius: 12px;
+    padding: 2rem;
+    color: white;
+    margin-bottom: 2rem;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 3rem;
+    font-weight: bold;
+    display: block;
+}
+
+.stat-label {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1"><i class="fas fa-chart-line me-2"></i>Class Performance Overview</h2>
+            <p class="text-muted mb-0">Comprehensive analytics for your classes</p>
+        </div>
+        <div>
+            <button class="btn btn-outline-primary me-2" onclick="exportData()">
+                <i class="fas fa-download me-2"></i>Export Data
+            </button>
+            <button class="btn btn-primary" onclick="refreshAnalytics()">
+                <i class="fas fa-sync-alt me-2"></i>Refresh
+            </button>
+        </div>
+    </div>
+
+    <!-- Summary Statistics -->
+    <div class="summary-stats">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="stat-item">
+                    <span class="stat-number">{{ total_courses }}</span>
+                    <span class="stat-label">Total Classes</span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-item">
+                    <span class="stat-number">{{ course_analytics|length }}</span>
+                    <span class="stat-label">Active Analytics</span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-item">
+                    {% with course_analytics|first as first_course %}
+                        <span class="stat-number">
+                            {% if first_course.analytics.class_average_grade %}
+                                {{ first_course.analytics.class_average_grade|floatformat:1 }}%
+                            {% else %}
+                                --
+                            {% endif %}
+                        </span>
+                    {% endwith %}
+                    <span class="stat-label">Average Grade</span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-item">
+                    {% with course_analytics|first as first_course %}
+                        <span class="stat-number">
+                            {% if first_course.analytics.average_attendance_rate %}
+                                {{ first_course.analytics.average_attendance_rate|floatformat:1 }}%
+                            {% else %}
+                                --
+                            {% endif %}
+                        </span>
+                    {% endwith %}
+                    <span class="stat-label">Attendance Rate</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Course Performance Cards -->
+    {% for course_data in course_analytics %}
+        <div class="performance-card">
+            <div class="course-header">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h4 class="mb-1">{{ course_data.course.course_name }}</h4>
+                        <p class="mb-0 opacity-75">{{ course_data.enrollment_count }} students enrolled</p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        {% if course_data.analytics.class_average_grade %}
+                            {% if course_data.analytics.class_average_grade >= 90 %}
+                                <span class="performance-indicator performance-excellent">Excellent</span>
+                            {% elif course_data.analytics.class_average_grade >= 80 %}
+                                <span class="performance-indicator performance-good">Good</span>
+                            {% elif course_data.analytics.class_average_grade >= 70 %}
+                                <span class="performance-indicator performance-needs-work">Needs Work</span>
+                            {% else %}
+                                <span class="performance-indicator performance-concerning">Concerning</span>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="metric-grid">
+                <div class="metric-item">
+                    <div class="metric-value grade-{% if course_data.analytics.class_average_grade >= 85 %}excellent{% elif course_data.analytics.class_average_grade >= 75 %}good{% elif course_data.analytics.class_average_grade >= 65 %}needs-improvement{% else %}poor{% endif %}">
+                        {% if course_data.analytics.class_average_grade %}
+                            {{ course_data.analytics.class_average_grade|floatformat:1 }}%
+                        {% else %}
+                            --
+                        {% endif %}
+                    </div>
+                    <div class="metric-label">Class Average</div>
+                </div>
+
+                <div class="metric-item">
+                    <div class="metric-value">
+                        {% if course_data.analytics.average_attendance_rate %}
+                            {{ course_data.analytics.average_attendance_rate|floatformat:1 }}%
+                        {% else %}
+                            --
+                        {% endif %}
+                    </div>
+                    <div class="metric-label">Attendance Rate</div>
+                </div>
+
+                <div class="metric-item">
+                    <div class="metric-value">{{ course_data.analytics.students_excelling }}</div>
+                    <div class="metric-label">Excelling (90%+)</div>
+                </div>
+
+                <div class="metric-item">
+                    <div class="metric-value">{{ course_data.analytics.students_struggling }}</div>
+                    <div class="metric-label">Struggling (&lt;70%)</div>
+                </div>
+
+                <div class="metric-item">
+                    <div class="metric-value">{{ course_data.analytics.total_assignments }}</div>
+                    <div class="metric-label">Total Assignments</div>
+                </div>
+
+                <div class="metric-item">
+                    <div class="metric-value">
+                        {% if course_data.analytics.average_completion_rate %}
+                            {{ course_data.analytics.average_completion_rate|floatformat:1 }}%
+                        {% else %}
+                            --
+                        {% endif %}
+                    </div>
+                    <div class="metric-label">Completion Rate</div>
+                </div>
+            </div>
+
+            <!-- Grade Distribution Chart -->
+            {% if course_data.analytics.grade_distribution %}
+                <div class="chart-container">
+                    <canvas id="chart-{{ course_data.course.id }}" width="400" height="200"></canvas>
+                </div>
+            {% endif %}
+        </div>
+    {% empty %}
+        <div class="text-center py-5">
+            <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">No class analytics available</h5>
+            <p class="text-muted">Analytics will appear as you add grades and attendance data</p>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Initialize charts for each course
+{% for course_data in course_analytics %}
+    {% if course_data.analytics.grade_distribution %}
+        const ctx{{ course_data.course.id }} = document.getElementById('chart-{{ course_data.course.id }}').getContext('2d');
+        new Chart(ctx{{ course_data.course.id }}, {
+            type: 'doughnut',
+            data: {
+                labels: ['A (90-100%)', 'B (80-89%)', 'C (70-79%)', 'D (60-69%)', 'F (0-59%)'],
+                datasets: [{
+                    data: [
+                        {{ course_data.analytics.grade_distribution.A|default:0 }},
+                        {{ course_data.analytics.grade_distribution.B|default:0 }},
+                        {{ course_data.analytics.grade_distribution.C|default:0 }},
+                        {{ course_data.analytics.grade_distribution.D|default:0 }},
+                        {{ course_data.analytics.grade_distribution.F|default:0 }}
+                    ],
+                    backgroundColor: [
+                        '#28a745',
+                        '#17a2b8',
+                        '#ffc107',
+                        '#fd7e14',
+                        '#dc3545'
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right'
+                    },
+                    title: {
+                        display: true,
+                        text: 'Grade Distribution'
+                    }
+                }
+            }
+        });
+    {% endif %}
+{% endfor %}
+
+function refreshAnalytics() {
+    location.reload();
+}
+
+function exportData() {
+    // Implementation for data export
+    alert('Export functionality would be implemented here');
+}
+</script>
+{% endblock %}

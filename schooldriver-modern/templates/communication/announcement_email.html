@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ announcement.title }} - {{ school_name }}</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .content {
+            padding: 30px 20px;
+        }
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 0 0 10px 0;
+        }
+        .priority {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+        .priority.urgent { background: #dc3545; color: white; }
+        .priority.high { background: #fd7e14; color: white; }
+        .priority.normal { background: #28a745; color: white; }
+        .priority.low { background: #6c757d; color: white; }
+        .message-content {
+            font-size: 16px;
+            line-height: 1.8;
+            margin-bottom: 30px;
+        }
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #dee2e6;
+            font-size: 14px;
+            color: #6c757d;
+        }
+        .school-link {
+            color: #667eea;
+            text-decoration: none;
+        }
+        .date-info {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">{{ school_name }}</h1>
+            <p>School Announcement</p>
+        </div>
+        
+        <div class="content">
+            <h2>{{ announcement.title }}</h2>
+            
+            {% if announcement.priority != 'NORMAL' %}
+                <span class="priority {{ announcement.priority|lower }}">
+                    {{ announcement.get_priority_display }}
+                </span>
+            {% endif %}
+            
+            <div class="date-info">
+                <strong>Published:</strong> {{ announcement.publish_date|date:"F j, Y" }}
+                {% if announcement.expire_date %}
+                    <br><strong>Expires:</strong> {{ announcement.expire_date|date:"F j, Y" }}
+                {% endif %}
+            </div>
+            
+            <div class="message-content">
+                {{ announcement.content|linebreaks }}
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>
+                This message was sent by {{ school_name }}<br>
+                <a href="{{ school_url }}" class="school-link">Visit our website</a>
+            </p>
+            <p>
+                <small>
+                    You received this message because you are registered in our school communication system.
+                </small>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

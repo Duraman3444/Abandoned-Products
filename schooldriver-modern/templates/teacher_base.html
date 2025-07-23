@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Teacher Portal - SchoolDriver{% endblock %}
+
+{% block extra_css %}
+<style>
+    .teacher-sidebar {
+        background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+        min-height: calc(100vh - 76px);
+        border-radius: 0.75rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    
+    .teacher-nav-item {
+        color: rgba(255, 255, 255, 0.8);
+        padding: 12px 20px;
+        margin: 4px 8px;
+        border-radius: 0.5rem;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        font-weight: 500;
+    }
+    
+    .teacher-nav-item:hover, .teacher-nav-item.active {
+        background: rgba(255, 255, 255, 0.15);
+        color: white;
+        text-decoration: none;
+        transform: translateX(4px);
+    }
+    
+    .teacher-nav-item i {
+        width: 20px;
+        margin-right: 12px;
+        font-size: 16px;
+    }
+    
+    .teacher-content {
+        background: white;
+        border-radius: 0.75rem;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        padding: 24px;
+        margin-left: 16px;
+    }
+    
+    .teacher-header {
+        border-bottom: 2px solid #e5e7eb;
+        padding-bottom: 16px;
+        margin-bottom: 24px;
+    }
+    
+    .teacher-header h1 {
+        color: #1f2937;
+        font-weight: 700;
+        font-size: 1.875rem;
+        margin: 0;
+    }
+    
+    .teacher-header .subtitle {
+        color: #6b7280;
+        font-size: 0.875rem;
+        margin-top: 4px;
+    }
+    
+    .section-selector {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.5rem;
+        padding: 12px 16px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .section-selector select {
+        border: none;
+        background: transparent;
+        font-weight: 500;
+        color: #374151;
+        font-size: 0.9rem;
+    }
+    
+    .quick-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+    
+    .stat-card {
+        background: linear-gradient(135deg, #0f766e 0%, #14b8a6 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 0.75rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .stat-card h3 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0;
+    }
+    
+    .stat-card p {
+        margin: 4px 0 0 0;
+        opacity: 0.9;
+        font-size: 0.875rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <!-- Sidebar Navigation -->
+        <div class="col-md-3">
+            <nav class="teacher-sidebar p-3">
+                <div class="text-center text-white mb-4">
+                    <i class="fas fa-chalkboard-teacher fa-2x mb-2"></i>
+                    <h5 class="mb-0">{{ user.get_full_name|default:user.username }}</h5>
+                    <small class="text-white-50">Teacher Portal</small>
+                </div>
+                
+                <div class="nav flex-column">
+                    <a href="{% url 'teacher_dashboard' %}" class="teacher-nav-item {% if request.resolver_match.url_name == 'teacher_dashboard' %}active{% endif %}">
+                        <i class="fas fa-tachometer-alt"></i>
+                        Dashboard
+                    </a>
+                    
+                    <a href="{% url 'teacher_gradebook' %}" class="teacher-nav-item {% if 'gradebook' in request.resolver_match.url_name %}active{% endif %}">
+                        <i class="fas fa-book-open"></i>
+                        Gradebook
+                    </a>
+                    
+                    <a href="{% url 'teacher_attendance' %}" class="teacher-nav-item {% if 'attendance' in request.resolver_match.url_name %}active{% endif %}">
+                        <i class="fas fa-user-check"></i>
+                        Attendance
+                    </a>
+                    
+                    <a href="{% url 'teacher_assignments' %}" class="teacher-nav-item {% if 'assignments' in request.resolver_match.url_name %}active{% endif %}">
+                        <i class="fas fa-tasks"></i>
+                        Assignments
+                    </a>
+                    
+                    <a href="{% url 'teacher_students' %}" class="teacher-nav-item {% if 'students' in request.resolver_match.url_name %}active{% endif %}">
+                        <i class="fas fa-users"></i>
+                        My Students
+                    </a>
+                    
+                    <a href="{% url 'teacher_reports' %}" class="teacher-nav-item {% if 'reports' in request.resolver_match.url_name %}active{% endif %}">
+                        <i class="fas fa-chart-bar"></i>
+                        Reports
+                    </a>
+                    
+                    <a href="{% url 'teacher_messages' %}" class="teacher-nav-item {% if 'messages' in request.resolver_match.url_name %}active{% endif %}">
+                        <i class="fas fa-envelope"></i>
+                        Messages
+                    </a>
+                    
+                    <div class="mt-4 pt-3 border-top border-white-25">
+                        <a href="{% url 'teacher_settings' %}" class="teacher-nav-item {% if 'settings' in request.resolver_match.url_name %}active{% endif %}">
+                            <i class="fas fa-cog"></i>
+                            Settings
+                        </a>
+                    </div>
+                </div>
+            </nav>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <div class="teacher-content">
+                {% if show_section_selector %}
+                <div class="section-selector">
+                    <div>
+                        <i class="fas fa-layer-group text-muted"></i>
+                        <label for="section-select" class="ms-2 mb-0">Current Section:</label>
+                    </div>
+                    <select id="section-select" class="form-select form-select-sm" style="width: auto;">
+                        {% for section in user.taught_sections.all %}
+                            <option value="{{ section.id }}" {% if section.id == current_section.id %}selected{% endif %}>
+                                {{ section.course.name }} - Section {{ section.section_name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endif %}
+                
+                <div class="teacher-header">
+                    <h1>{% block page_title %}Dashboard{% endblock %}</h1>
+                    <p class="subtitle">{% block page_subtitle %}Welcome to your teacher portal{% endblock %}</p>
+                </div>
+                
+                {% block teacher_content %}
+                <!-- Page-specific content goes here -->
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const sectionSelect = document.getElementById('section-select');
+    if (sectionSelect) {
+        sectionSelect.addEventListener('change', function() {
+            const sectionId = this.value;
+            const url = new URL(window.location);
+            url.searchParams.set('section', sectionId);
+            window.location.href = url.toString();
+        });
+    }
+});
+</script>
+{% endblock %}

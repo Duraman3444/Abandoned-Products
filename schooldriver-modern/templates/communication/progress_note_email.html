@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Progress Note for {{ student.get_full_name }} - {{ school_name }}</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .content {
+            padding: 30px 20px;
+        }
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 0 0 10px 0;
+        }
+        .student-info {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2196f3;
+        }
+        .note-type {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+        .note-type.academic { background: #007bff; color: white; }
+        .note-type.behavioral { background: #fd7e14; color: white; }
+        .note-type.attendance { background: #dc3545; color: white; }
+        .note-type.achievement { background: #28a745; color: white; }
+        .note-type.concern { background: #ffc107; color: #212529; }
+        .note-type.parent_conference { background: #6f42c1; color: white; }
+        .message-content {
+            font-size: 16px;
+            line-height: 1.8;
+            margin-bottom: 30px;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 6px;
+        }
+        .teacher-info {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border-left: 4px solid #ffc107;
+        }
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #dee2e6;
+            font-size: 14px;
+            color: #6c757d;
+        }
+        .follow-up {
+            background: #fff5f5;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border-left: 4px solid #dc3545;
+        }
+        .action-button {
+            display: inline-block;
+            padding: 12px 24px;
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">{{ school_name }}</h1>
+            <p>Student Progress Note</p>
+        </div>
+        
+        <div class="content">
+            <div class="student-info">
+                <h3 style="margin: 0 0 10px 0;">Student: {{ student.get_full_name }}</h3>
+                {% if progress_note.course %}
+                    <p style="margin: 0;"><strong>Course:</strong> {{ progress_note.course.course_name }}</p>
+                {% endif %}
+            </div>
+            
+            <h2>{{ progress_note.title }}</h2>
+            
+            <span class="note-type {{ progress_note.note_type|lower }}">
+                {{ progress_note.get_note_type_display }}
+            </span>
+            
+            <div class="teacher-info">
+                <strong>From:</strong> {{ teacher.get_full_name|default:teacher.username }}<br>
+                <strong>Date:</strong> {{ progress_note.created_at|date:"F j, Y g:i A" }}
+            </div>
+            
+            <div class="message-content">
+                {{ progress_note.content|linebreaks }}
+            </div>
+            
+            {% if progress_note.requires_follow_up %}
+                <div class="follow-up">
+                    <h4 style="margin: 0 0 10px 0; color: #dc3545;">Follow-up Required</h4>
+                    {% if progress_note.follow_up_date %}
+                        <p style="margin: 0;"><strong>Follow-up Date:</strong> {{ progress_note.follow_up_date|date:"F j, Y" }}</p>
+                    {% endif %}
+                    {% if progress_note.follow_up_notes %}
+                        <p style="margin: 10px 0 0 0;">{{ progress_note.follow_up_notes }}</p>
+                    {% endif %}
+                </div>
+            {% endif %}
+            
+            <div style="text-align: center;">
+                <a href="{{ school_url }}/parent-portal/messages/" class="action-button">
+                    View in Parent Portal
+                </a>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>
+                This progress note was sent by {{ teacher.get_full_name|default:teacher.username }} at {{ school_name }}<br>
+                <a href="{{ school_url }}" style="color: #007bff; text-decoration: none;">Visit our website</a>
+            </p>
+            <p>
+                <small>
+                    Please reply through the parent portal or contact the school directly if you have questions.
+                </small>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

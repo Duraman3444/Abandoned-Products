@@ -42,6 +42,7 @@ urlpatterns = [
     # Role-based portal URLs (authentication required)
     path("student/", include("student_portal.urls")),
     path("parent/", include("parent_portal.urls")),
+    path("teacher/", include("teacher_portal.urls")),
     path("search/", include("search.urls")),
     # Admin and general authenticated areas
     path("admin/", admin.site.urls),

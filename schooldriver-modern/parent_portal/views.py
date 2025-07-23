@@ -562,62 +562,66 @@ def grades_view(request, student_id):
 def messages_view(request):
     """Teacher communications and school messages"""
     try:
+        from academics.models import Message, Announcement
+        
         children = get_parent_children(request.user)
 
-        # Mock messages from teachers and school
-        messages_data = [
-            {
-                "id": 1,
-                "from": "Mr. Johnson (Mathematics Teacher)",
-                "subject": "Great progress in algebra!",
-                "message": "Emma is showing excellent progress in her algebra work. She has been very engaged in class discussions and her homework quality has improved significantly.",
-                "date": timezone.now() - timedelta(days=2),
-                "student": children.first() if children.exists() else None,
-                "read": False,
-                "urgent": False,
-            },
-            {
-                "id": 2,
-                "from": "School Office",
-                "subject": "Reminder: Parent-Teacher Conferences",
-                "message": "This is a reminder that parent-teacher conferences are scheduled for November 15-16. Please sign up for your preferred time slots.",
-                "date": timezone.now() - timedelta(days=1),
-                "student": None,  # School-wide message
-                "read": True,
-                "urgent": True,
-            },
-            {
-                "id": 3,
-                "from": "Ms. Davis (English Teacher)",
-                "subject": "Missing Assignment",
-                "message": "Emma has not yet submitted her reading log entry that was due on Monday. Please have her catch up on this assignment.",
-                "date": timezone.now() - timedelta(hours=6),
-                "student": children.first() if children.exists() else None,
-                "read": False,
-                "urgent": True,
-            },
-            {
-                "id": 4,
-                "from": "Nurse Williams",
-                "subject": "Health Forms Update",
-                "message": "Please update Emma's emergency contact information and ensure all health forms are current for the new school year.",
-                "date": timezone.now() - timedelta(days=5),
-                "student": children.first() if children.exists() else None,
-                "read": True,
-                "urgent": False,
-            },
-        ]
+        # Get direct messages to this parent
+        direct_messages = Message.objects.filter(recipient=request.user).select_related('sender')
+        
+        # Get relevant announcements 
+        today = timezone.now().date()
+        announcements = Announcement.objects.filter(
+            models.Q(audience__in=['ALL', 'PARENTS']) &
+            models.Q(publish_date__lte=today) &
+            (models.Q(end_date__gte=today) | models.Q(end_date__isnull=True)) &
+            models.Q(is_published=True)
+        ).order_by('-publish_date')
+        
+        # Combine messages and announcements into unified format
+        messages_data = []
+        
+        # Add direct messages
+        for msg in direct_messages:
+            messages_data.append({
+                "id": f"msg_{msg.id}",
+                "type": "message",
+                "from": f"{msg.sender.get_full_name() or msg.sender.username}",
+                "subject": msg.subject,
+                "message": msg.content,
+                "date": msg.sent_at,
+                "student": None,  # Could be enhanced to link to specific student
+                "read": msg.is_read,
+                "urgent": msg.is_urgent,
+                "object": msg,
+            })
+        
+        # Add announcements
+        for announcement in announcements:
+            messages_data.append({
+                "id": f"ann_{announcement.id}",
+                "type": "announcement", 
+                "from": "School Administration",
+                "subject": announcement.title,
+                "message": announcement.content,
+                "date": announcement.publish_date,
+                "student": None,
+                "read": True,  # Announcements are considered read when viewed
+                "urgent": announcement.is_urgent,
+                "object": announcement,
+            })
+        
+        # Sort by date (newest first)
+        messages_data.sort(key=lambda x: x["date"], reverse=True)
 
         # Paginate messages
         paginator = Paginator(messages_data, 10)
         page_number = request.GET.get("page")
         page_obj = paginator.get_page(page_number)
 
-        # Count unread messages
-        unread_count = len([msg for msg in messages_data if not msg["read"]])
-        urgent_count = len(
-            [msg for msg in messages_data if msg["urgent"] and not msg["read"]]
-        )
+        # Count unread messages (only direct messages can be unread)
+        unread_count = direct_messages.filter(is_read=False).count()
+        urgent_count = direct_messages.filter(is_urgent=True, is_read=False).count()
 
         context = {
             "children": children,

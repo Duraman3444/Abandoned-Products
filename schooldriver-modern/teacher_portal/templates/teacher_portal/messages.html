@@ -1,0 +1,391 @@
+{% extends "teacher_portal/base.html" %}
+{% load static %}
+
+{% block title %}Messages - Teacher Portal{% endblock %}
+
+{% block extra_css %}
+<style>
+.message-card {
+    transition: all 0.2s ease;
+    border-left: 4px solid transparent;
+}
+
+.message-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.message-card.urgent {
+    border-left-color: #dc3545;
+    background-color: #fff5f5;
+}
+
+.message-card.unread {
+    border-left-color: #007bff;
+    background-color: #f8f9ff;
+    font-weight: 600;
+}
+
+.unread-badge {
+    background: linear-gradient(45deg, #007bff, #0056b3);
+    color: white;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+}
+
+.urgent-badge {
+    background: linear-gradient(45deg, #dc3545, #c82333);
+    color: white;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+}
+
+.message-filters {
+    background: white;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.stats-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+}
+
+.compose-btn {
+    background: linear-gradient(45deg, #28a745, #20c997);
+    border: none;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.compose-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+    color: white;
+}
+
+.tab-content {
+    background: white;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.nav-tabs .nav-item .nav-link {
+    border: none;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.nav-tabs .nav-item .nav-link.active {
+    background: linear-gradient(45deg, #007bff, #0056b3);
+    color: white;
+    border-radius: 8px 8px 0 0;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-1"><i class="fas fa-envelope me-2"></i>Messages</h2>
+                    <p class="text-muted mb-0">Communicate with parents and administration</p>
+                </div>
+                <button class="btn compose-btn" data-bs-toggle="modal" data-bs-target="#composeModal">
+                    <i class="fas fa-pen me-2"></i>Compose Message
+                </button>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <h4 class="mb-0">{{ unread_count }}</h4>
+                        <small>Unread Messages</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <h4 class="mb-0">{{ urgent_count }}</h4>
+                        <small>Urgent Messages</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <h4 class="mb-0">{{ received_messages.count }}</h4>
+                        <small>Total Received</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <h4 class="mb-0">{{ sent_messages.count }}</h4>
+                        <small>Messages Sent</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Message Tabs -->
+            <ul class="nav nav-tabs" id="messageTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="inbox-tab" data-bs-toggle="tab" data-bs-target="#inbox" type="button" role="tab">
+                        <i class="fas fa-inbox me-2"></i>Inbox
+                        {% if unread_count > 0 %}
+                            <span class="badge bg-danger ms-1">{{ unread_count }}</span>
+                        {% endif %}
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="sent-tab" data-bs-toggle="tab" data-bs-target="#sent" type="button" role="tab">
+                        <i class="fas fa-paper-plane me-2"></i>Sent
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="announcements-tab" data-bs-toggle="tab" data-bs-target="#announcements" type="button" role="tab">
+                        <i class="fas fa-bullhorn me-2"></i>Announcements
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="messageTabContent">
+                <!-- Inbox Tab -->
+                <div class="tab-pane fade show active" id="inbox" role="tabpanel">
+                    {% if page_obj %}
+                        {% for message in page_obj %}
+                            <div class="message-card card mb-3 {% if not message.is_read %}unread{% endif %} {% if message.is_urgent %}urgent{% endif %}">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="flex-grow-1">
+                                            <div class="d-flex align-items-center mb-2">
+                                                <strong class="me-2">{{ message.sender.get_full_name|default:message.sender.username }}</strong>
+                                                {% if not message.is_read %}
+                                                    <span class="unread-badge">NEW</span>
+                                                {% endif %}
+                                                {% if message.is_urgent %}
+                                                    <span class="urgent-badge ms-2">URGENT</span>
+                                                {% endif %}
+                                            </div>
+                                            <h6 class="card-title mb-2">{{ message.subject }}</h6>
+                                            <p class="card-text text-muted">{{ message.content|truncatewords:20 }}</p>
+                                        </div>
+                                        <div class="text-end">
+                                            <small class="text-muted">{{ message.sent_at|date:"M d, Y H:i" }}</small>
+                                            <div class="mt-2">
+                                                <button class="btn btn-sm btn-outline-primary me-1" onclick="viewMessage({{ message.id }})">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-secondary me-1" onclick="replyToMessage({{ message.id }})">
+                                                    <i class="fas fa-reply"></i>
+                                                </button>
+                                                {% if not message.is_read %}
+                                                    <button class="btn btn-sm btn-outline-success" onclick="markAsRead({{ message.id }})">
+                                                        <i class="fas fa-check"></i>
+                                                    </button>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% empty %}
+                            <div class="text-center py-5">
+                                <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                                <h5 class="text-muted">No messages in your inbox</h5>
+                                <p class="text-muted">New messages will appear here</p>
+                            </div>
+                        {% endfor %}
+
+                        <!-- Pagination -->
+                        {% if page_obj.has_other_pages %}
+                            <nav aria-label="Messages pagination">
+                                <ul class="pagination justify-content-center">
+                                    {% if page_obj.has_previous %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                                        </li>
+                                    {% endif %}
+                                    
+                                    {% for num in page_obj.paginator.page_range %}
+                                        {% if page_obj.number == num %}
+                                            <li class="page-item active">
+                                                <span class="page-link">{{ num }}</span>
+                                            </li>
+                                        {% else %}
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                            </li>
+                                        {% endif %}
+                                    {% endfor %}
+                                    
+                                    {% if page_obj.has_next %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No messages in your inbox</h5>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Sent Tab -->
+                <div class="tab-pane fade" id="sent" role="tabpanel">
+                    {% for message in sent_messages %}
+                        <div class="message-card card mb-3">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <strong class="me-2">To: {{ message.recipient.get_full_name|default:message.recipient.username }}</strong>
+                                            {% if message.is_urgent %}
+                                                <span class="urgent-badge">URGENT</span>
+                                            {% endif %}
+                                        </div>
+                                        <h6 class="card-title mb-2">{{ message.subject }}</h6>
+                                        <p class="card-text text-muted">{{ message.content|truncatewords:20 }}</p>
+                                    </div>
+                                    <div class="text-end">
+                                        <small class="text-muted">{{ message.sent_at|date:"M d, Y H:i" }}</small>
+                                        {% if message.is_read %}
+                                            <div class="mt-1">
+                                                <span class="badge bg-success">Read</span>
+                                            </div>
+                                        {% else %}
+                                            <div class="mt-1">
+                                                <span class="badge bg-secondary">Unread</span>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-paper-plane fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No sent messages</h5>
+                            <p class="text-muted">Messages you send will appear here</p>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Announcements Tab -->
+                <div class="tab-pane fade" id="announcements" role="tabpanel">
+                    {% for announcement in announcements %}
+                        <div class="message-card card mb-3 {% if announcement.is_urgent %}urgent{% endif %}">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <strong class="me-2">School Administration</strong>
+                                            {% if announcement.is_urgent %}
+                                                <span class="urgent-badge">URGENT</span>
+                                            {% endif %}
+                                        </div>
+                                        <h6 class="card-title mb-2">{{ announcement.title }}</h6>
+                                        <p class="card-text">{{ announcement.content|linebreaks }}</p>
+                                    </div>
+                                    <div class="text-end">
+                                        <small class="text-muted">{{ announcement.publish_date|date:"M d, Y" }}</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-bullhorn fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No announcements</h5>
+                            <p class="text-muted">School announcements will appear here</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Compose Message Modal -->
+<div class="modal fade" id="composeModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Compose Message</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="composeForm">
+                    <div class="mb-3">
+                        <label for="recipient" class="form-label">To:</label>
+                        <select class="form-select" id="recipient" required>
+                            <option value="">Select recipient...</option>
+                            <!-- This would be populated with parents and staff -->
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="subject" class="form-label">Subject:</label>
+                        <input type="text" class="form-control" id="subject" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="message" class="form-label">Message:</label>
+                        <textarea class="form-control" id="message" rows="8" required></textarea>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="urgent">
+                        <label class="form-check-label" for="urgent">
+                            Mark as urgent
+                        </label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="sendMessage()">
+                    <i class="fas fa-paper-plane me-2"></i>Send Message
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function viewMessage(messageId) {
+    // Implementation for viewing full message
+    console.log('View message:', messageId);
+}
+
+function replyToMessage(messageId) {
+    // Implementation for replying to message
+    console.log('Reply to message:', messageId);
+}
+
+function markAsRead(messageId) {
+    // Implementation for marking message as read
+    console.log('Mark as read:', messageId);
+}
+
+function sendMessage() {
+    // Implementation for sending message
+    console.log('Send message');
+    $('#composeModal').modal('hide');
+}
+</script>
+{% endblock %}

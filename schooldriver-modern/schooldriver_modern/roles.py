@@ -32,7 +32,7 @@ class UserRoles:
     # Default redirect URLs for each role
     REDIRECT_URLS = {
         ADMIN: "/admin/",
-        STAFF: "/dashboard/",
+        STAFF: "/teacher/",
         PARENT: "/parent/",
         STUDENT: "/student/",
     }

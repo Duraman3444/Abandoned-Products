@@ -1,0 +1,145 @@
+{% extends "teacher_base.html" %}
+
+{% block page_title %}Dashboard{% endblock %}
+{% block page_subtitle %}Overview of your teaching activities{% endblock %}
+
+{% block teacher_content %}
+<!-- Quick Stats -->
+<div class="quick-stats">
+    <div class="stat-card">
+        <h3>{{ stats.total_students|default:0 }}</h3>
+        <p>Students Enrolled</p>
+    </div>
+    <div class="stat-card">
+        <h3>{{ stats.total_assignments|default:0 }}</h3>
+        <p>Active Assignments</p>
+    </div>
+    <div class="stat-card">
+        <h3>{{ stats.pending_grades|default:0 }}</h3>
+        <p>Pending Grades</p>
+    </div>
+    <div class="stat-card">
+        <h3>{{ stats.average_grade|floatformat:1|default:"N/A" }}{% if stats.average_grade %}%{% endif %}</h3>
+        <p>Class Average</p>
+    </div>
+</div>
+
+{% if current_section %}
+<div class="row">
+    <!-- Recent Assignments -->
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-tasks text-primary me-2"></i>
+                    Recent Assignments
+                </h5>
+                <a href="{% url 'teacher_assignments' %}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="card-body">
+                {% if recent_assignments %}
+                    <div class="list-group list-group-flush">
+                        {% for assignment in recent_assignments %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <div>
+                                <h6 class="mb-1">{{ assignment.title }}</h6>
+                                <small class="text-muted">Due: {{ assignment.due_date|date:"M d, Y" }}</small>
+                            </div>
+                            <span class="badge bg-primary rounded-pill">
+                                {{ assignment.points }} pts
+                            </span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted mb-0">No assignments yet for this section.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Students -->
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-users text-success me-2"></i>
+                    Class Roster
+                </h5>
+                <a href="{% url 'teacher_students' %}" class="btn btn-sm btn-outline-success">View All</a>
+            </div>
+            <div class="card-body">
+                {% if recent_students %}
+                    <div class="list-group list-group-flush">
+                        {% for enrollment in recent_students %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <div>
+                                <h6 class="mb-1">{{ enrollment.student.get_full_name }}</h6>
+                                <small class="text-muted">{{ enrollment.student.student_id }}</small>
+                            </div>
+                            {% if enrollment.final_grade %}
+                            <span class="badge bg-info rounded-pill">
+                                {{ enrollment.final_grade|floatformat:1 }}%
+                            </span>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted mb-0">No students enrolled yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-bolt text-warning me-2"></i>
+                    Quick Actions
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <a href="{% url 'teacher_attendance' %}" class="btn btn-outline-primary w-100">
+                            <i class="fas fa-user-check d-block mb-2"></i>
+                            Take Attendance
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="{% url 'teacher_gradebook' %}" class="btn btn-outline-success w-100">
+                            <i class="fas fa-book-open d-block mb-2"></i>
+                            Enter Grades
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="{% url 'teacher_assignments' %}" class="btn btn-outline-info w-100">
+                            <i class="fas fa-plus d-block mb-2"></i>
+                            New Assignment
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="{% url 'teacher_messages' %}" class="btn btn-outline-secondary w-100">
+                            <i class="fas fa-envelope d-block mb-2"></i>
+                            Send Message
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% else %}
+<div class="text-center py-5">
+    <i class="fas fa-chalkboard-teacher fa-3x text-muted mb-3"></i>
+    <h4 class="text-muted">No Sections Assigned</h4>
+    <p class="text-muted">Contact your administrator to be assigned to course sections.</p>
+</div>
+{% endif %}
+{% endblock %}

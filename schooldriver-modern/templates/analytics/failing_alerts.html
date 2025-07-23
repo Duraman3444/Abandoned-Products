@@ -1,0 +1,906 @@
+{% extends "teacher_portal/base.html" %}
+{% load static %}
+
+{% block title %}Failing Student Alerts{% endblock %}
+
+{% block extra_css %}
+<style>
+.alert-dashboard {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+}
+
+.alert-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1.5rem;
+}
+
+.alert-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    padding: 1.5rem;
+    background: #f8f9fa;
+}
+
+.stat-card {
+    text-align: center;
+    padding: 1.5rem;
+    background: white;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    border-left: 4px solid #667eea;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.stat-card.critical {
+    border-left-color: #dc3545;
+}
+
+.stat-card.warning {
+    border-left-color: #ffc107;
+}
+
+.stat-card.resolved {
+    border-left-color: #28a745;
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.critical-count { color: #dc3545; }
+.warning-count { color: #ffc107; }
+.resolved-count { color: #28a745; }
+
+.alert-list {
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.alert-item {
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    background: white;
+    transition: all 0.2s ease;
+    overflow: hidden;
+}
+
+.alert-item:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transform: translateY(-1px);
+}
+
+.alert-item.critical {
+    border-left: 4px solid #dc3545;
+    background: #fff5f5;
+}
+
+.alert-item.warning {
+    border-left: 4px solid #ffc107;
+    background: #fffdf0;
+}
+
+.alert-item.resolved {
+    border-left: 4px solid #28a745;
+    background: #f0fff4;
+    opacity: 0.8;
+}
+
+.alert-content {
+    padding: 1.5rem;
+}
+
+.alert-student-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 1rem;
+}
+
+.student-details h5 {
+    margin-bottom: 0.25rem;
+    font-weight: 600;
+}
+
+.student-meta {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.alert-priority {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: white;
+    text-align: center;
+    min-width: 100px;
+}
+
+.priority-critical { background: #dc3545; }
+.priority-high { background: #fd7e14; }
+.priority-medium { background: #ffc107; color: #212529; }
+.priority-low { background: #6c757d; }
+
+.failing-subjects {
+    margin-bottom: 1rem;
+}
+
+.subject-tag {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    margin: 0.125rem;
+    background: #e9ecef;
+    border-radius: 15px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #495057;
+}
+
+.subject-tag.critical {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.alert-metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background: rgba(0,0,0,0.02);
+    border-radius: 6px;
+}
+
+.metric-item {
+    text-align: center;
+}
+
+.metric-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 0.25rem;
+}
+
+.metric-label {
+    font-size: 0.75rem;
+    color: #6c757d;
+    text-transform: uppercase;
+}
+
+.alert-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.action-btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-contact {
+    background: #17a2b8;
+    color: white;
+}
+
+.btn-contact:hover {
+    background: #138496;
+}
+
+.btn-intervention {
+    background: #ffc107;
+    color: #212529;
+}
+
+.btn-intervention:hover {
+    background: #e0a800;
+}
+
+.btn-resolve {
+    background: #28a745;
+    color: white;
+}
+
+.btn-resolve:hover {
+    background: #218838;
+}
+
+.filters-panel {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.summary-banner {
+    background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+    border-radius: 12px;
+    padding: 2rem;
+    color: white;
+    margin-bottom: 2rem;
+}
+
+.banner-stat {
+    text-align: center;
+}
+
+.banner-number {
+    font-size: 3rem;
+    font-weight: bold;
+    display: block;
+}
+
+.banner-label {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+.intervention-form {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 1rem;
+    display: none;
+}
+
+.note-item {
+    background: white;
+    border-radius: 6px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    border-left: 3px solid #667eea;
+}
+
+.note-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.note-author {
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.note-date {
+    font-size: 0.75rem;
+    color: #6c757d;
+}
+
+.note-content {
+    font-size: 0.875rem;
+    line-height: 1.4;
+}
+
+.progress-tracker {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 6px;
+}
+
+.progress-bar-custom {
+    height: 8px;
+    border-radius: 4px;
+    background: #e9ecef;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #dc3545 0%, #ffc107 50%, #28a745 100%);
+    transition: width 0.5s ease;
+}
+
+.alert-timeline {
+    border-left: 2px solid #e9ecef;
+    padding-left: 1rem;
+    margin-top: 1rem;
+}
+
+.timeline-item {
+    position: relative;
+    padding-bottom: 1rem;
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -1.375rem;
+    top: 0.25rem;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #667eea;
+}
+
+.timeline-date {
+    font-size: 0.75rem;
+    color: #6c757d;
+    margin-bottom: 0.25rem;
+}
+
+.timeline-content {
+    font-size: 0.875rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1"><i class="fas fa-exclamation-triangle me-2"></i>Failing Student Alerts</h2>
+            <p class="text-muted mb-0">Monitor and respond to students at risk of failing</p>
+        </div>
+        <div>
+            <button class="btn btn-outline-primary me-2" onclick="exportAlertsReport()">
+                <i class="fas fa-download me-2"></i>Export Report
+            </button>
+            <button class="btn btn-success me-2" onclick="bulkContact()">
+                <i class="fas fa-users me-2"></i>Bulk Contact
+            </button>
+            <button class="btn btn-primary" onclick="refreshAlerts()">
+                <i class="fas fa-sync-alt me-2"></i>Refresh
+            </button>
+        </div>
+    </div>
+
+    <!-- Summary Banner -->
+    <div class="summary-banner">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="banner-stat">
+                    <span class="banner-number">{{ alert_summary.total_alerts }}</span>
+                    <span class="banner-label">Total Active Alerts</span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="banner-stat">
+                    <span class="banner-number">{{ alert_summary.new_alerts }}</span>
+                    <span class="banner-label">New This Week</span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="banner-stat">
+                    <span class="banner-number">{{ alert_summary.escalated }}</span>
+                    <span class="banner-label">Escalated Cases</span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="banner-stat">
+                    <span class="banner-number">{{ alert_summary.resolved_this_week }}</span>
+                    <span class="banner-label">Resolved This Week</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Grid -->
+    <div class="alert-stats">
+        <div class="stat-card critical">
+            <div class="stat-number critical-count">{{ stats.critical_alerts }}</div>
+            <div class="stat-label">Critical Alerts (F Grade)</div>
+        </div>
+        <div class="stat-card warning">
+            <div class="stat-number warning-count">{{ stats.warning_alerts }}</div>
+            <div class="stat-label">Warning Alerts (D Grade)</div>
+        </div>
+        <div class="stat-card resolved">
+            <div class="stat-number resolved-count">{{ stats.resolved_alerts }}</div>
+            <div class="stat-label">Resolved This Month</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ stats.at_risk_students }}</div>
+            <div class="stat-label">At-Risk Students</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ stats.interventions_active }}</div>
+            <div class="stat-label">Active Interventions</div>
+        </div>
+    </div>
+
+    <!-- Filters Panel -->
+    <div class="filters-panel">
+        <div class="row">
+            <div class="col-md-2">
+                <label for="priorityFilter" class="form-label">Priority</label>
+                <select class="form-select" id="priorityFilter" onchange="applyFilters()">
+                    <option value="">All Priorities</option>
+                    <option value="critical">Critical</option>
+                    <option value="high">High</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label for="statusFilter" class="form-label">Status</label>
+                <select class="form-select" id="statusFilter" onchange="applyFilters()">
+                    <option value="">All Statuses</option>
+                    <option value="new">New</option>
+                    <option value="contacted">Contacted</option>
+                    <option value="intervention">Intervention</option>
+                    <option value="resolved">Resolved</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label for="courseFilter" class="form-label">Course</label>
+                <select class="form-select" id="courseFilter" onchange="applyFilters()">
+                    <option value="">All Courses</option>
+                    {% for course in courses %}
+                        <option value="{{ course.id }}">{{ course.course_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label for="gradeFilter" class="form-label">Grade Range</label>
+                <select class="form-select" id="gradeFilter" onchange="applyFilters()">
+                    <option value="">All Grades</option>
+                    <option value="F">F (0-59%)</option>
+                    <option value="D">D (60-69%)</option>
+                    <option value="improving">Improving</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label for="searchFilter" class="form-label">Search Student</label>
+                <input type="text" class="form-control" id="searchFilter" placeholder="Enter name..." onkeyup="searchStudents()">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">&nbsp;</label>
+                <button class="btn btn-outline-secondary w-100" onclick="clearFilters()">
+                    <i class="fas fa-times me-1"></i>Clear
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert List -->
+    <div class="alert-dashboard">
+        <div class="alert-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h4 class="mb-1">Active Student Alerts</h4>
+                    <p class="mb-0 opacity-75">Students requiring immediate attention</p>
+                </div>
+                <div>
+                    <button class="btn btn-light btn-sm" onclick="toggleResolvedAlerts()">
+                        <i class="fas fa-eye me-1"></i>Show Resolved
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="alert-list">
+            {% for alert in student_alerts %}
+                <div class="alert-item {{ alert.priority }}" data-student-name="{{ alert.student.name|lower }}">
+                    <div class="alert-content">
+                        <!-- Student Info Header -->
+                        <div class="alert-student-info">
+                            <div class="student-details">
+                                <h5>{{ alert.student.name }}</h5>
+                                <div class="student-meta">
+                                    ID: {{ alert.student.student_id }} • 
+                                    Grade: {{ alert.student.grade_level }} • 
+                                    Contact: {{ alert.student.contact_info }}
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <div class="alert-priority priority-{{ alert.priority }}">
+                                    {{ alert.priority|title }} Priority
+                                </div>
+                                <small class="text-muted d-block mt-1">
+                                    Created: {{ alert.created_date|date:"M j, Y" }}
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- Failing Subjects -->
+                        <div class="failing-subjects">
+                            <strong>Failing Subjects:</strong>
+                            {% for subject in alert.failing_subjects %}
+                                <span class="subject-tag {% if subject.grade < 60 %}critical{% endif %}">
+                                    {{ subject.name }} ({{ subject.grade|floatformat:1 }}%)
+                                </span>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Alert Metrics -->
+                        <div class="alert-metrics">
+                            <div class="metric-item">
+                                <div class="metric-value" style="color: #dc3545;">{{ alert.current_gpa|floatformat:2 }}</div>
+                                <div class="metric-label">Current GPA</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-value">{{ alert.attendance_rate|floatformat:1 }}%</div>
+                                <div class="metric-label">Attendance</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-value" style="color: #dc3545;">{{ alert.missing_assignments }}</div>
+                                <div class="metric-label">Missing Work</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-value">{{ alert.days_since_contact }}</div>
+                                <div class="metric-label">Days Since Contact</div>
+                            </div>
+                        </div>
+
+                        <!-- Progress Tracker -->
+                        <div class="progress-tracker">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-bold">Intervention Progress</span>
+                                <span class="text-muted">{{ alert.progress_percentage }}%</span>
+                            </div>
+                            <div class="progress-bar-custom">
+                                <div class="progress-fill" style="width: {{ alert.progress_percentage }}%;"></div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Notes -->
+                        {% if alert.recent_notes %}
+                            <div class="mt-3">
+                                <strong>Recent Notes:</strong>
+                                {% for note in alert.recent_notes %}
+                                    <div class="note-item">
+                                        <div class="note-header">
+                                            <span class="note-author">{{ note.author }}</span>
+                                            <span class="note-date">{{ note.date|date:"M j, g:i A" }}</span>
+                                        </div>
+                                        <div class="note-content">{{ note.content }}</div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <!-- Action Timeline -->
+                        <div class="alert-timeline">
+                            {% for action in alert.timeline %}
+                                <div class="timeline-item">
+                                    <div class="timeline-date">{{ action.date|date:"M j, g:i A" }}</div>
+                                    <div class="timeline-content">{{ action.description }}</div>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="alert-actions">
+                            <button class="action-btn btn-contact" onclick="contactStudent('{{ alert.student.id }}')">
+                                <i class="fas fa-phone me-1"></i>Contact
+                            </button>
+                            <button class="action-btn btn-intervention" onclick="createIntervention('{{ alert.id }}')">
+                                <i class="fas fa-hand-holding-heart me-1"></i>Intervention
+                            </button>
+                            <button class="action-btn btn-resolve" onclick="resolveAlert('{{ alert.id }}')">
+                                <i class="fas fa-check me-1"></i>Mark Resolved
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm" onclick="viewStudentDetails('{{ alert.student.id }}')">
+                                <i class="fas fa-user me-1"></i>View Profile
+                            </button>
+                        </div>
+
+                        <!-- Intervention Form (Hidden by default) -->
+                        <div class="intervention-form" id="interventionForm-{{ alert.id }}">
+                            <h6>Create Intervention Plan</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label class="form-label">Intervention Type</label>
+                                    <select class="form-select form-select-sm">
+                                        <option>Tutoring Support</option>
+                                        <option>Parent Conference</option>
+                                        <option>Counseling Referral</option>
+                                        <option>Study Plan</option>
+                                        <option>Peer Mentoring</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Target Date</label>
+                                    <input type="date" class="form-control form-control-sm">
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <label class="form-label">Notes</label>
+                                <textarea class="form-control form-control-sm" rows="2" placeholder="Enter intervention details..."></textarea>
+                            </div>
+                            <div class="mt-2">
+                                <button class="btn btn-primary btn-sm" onclick="saveIntervention('{{ alert.id }}')">Save Intervention</button>
+                                <button class="btn btn-secondary btn-sm" onclick="cancelIntervention('{{ alert.id }}')">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="text-center py-5">
+                    <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                    <h5 class="text-muted">No active alerts</h5>
+                    <p class="text-muted">Great job! All students are performing well.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Contact Modal -->
+<div class="modal fade" id="contactModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Contact Student/Parent</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="contactForm">
+                    <div class="mb-3">
+                        <label class="form-label">Contact Type</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="contactType" value="student" checked>
+                            <label class="form-check-label">Student</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="contactType" value="parent">
+                            <label class="form-check-label">Parent/Guardian</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="contactType" value="both">
+                            <label class="form-check-label">Both Student and Parent</label>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Contact Method</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="contactMethod" value="email" checked>
+                            <label class="form-check-label">Email</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="contactMethod" value="phone">
+                            <label class="form-check-label">Phone Call</label>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="contactSubject" class="form-label">Subject</label>
+                        <input type="text" class="form-control" id="contactSubject" value="Academic Performance Concern">
+                    </div>
+                    <div class="mb-3">
+                        <label for="contactMessage" class="form-label">Message</label>
+                        <textarea class="form-control" id="contactMessage" rows="4" 
+                                  placeholder="Enter your message regarding the student's academic performance..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="sendContact()">Send Contact</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="d-none position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: rgba(255,255,255,0.8); z-index: 1050;">
+    <div class="text-center">
+        <div class="spinner-border text-primary mb-3" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p>Processing alert actions...</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function applyFilters() {
+    const priority = document.getElementById('priorityFilter').value;
+    const status = document.getElementById('statusFilter').value;
+    const course = document.getElementById('courseFilter').value;
+    const grade = document.getElementById('gradeFilter').value;
+
+    const params = new URLSearchParams();
+    if (priority) params.append('priority', priority);
+    if (status) params.append('status', status);
+    if (course) params.append('course', course);
+    if (grade) params.append('grade', grade);
+    
+    const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+    window.location.href = newUrl;
+}
+
+function searchStudents() {
+    const searchTerm = document.getElementById('searchFilter').value.toLowerCase();
+    const alertItems = document.querySelectorAll('.alert-item');
+    
+    alertItems.forEach(item => {
+        const studentName = item.getAttribute('data-student-name');
+        if (studentName.includes(searchTerm)) {
+            item.style.display = 'block';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+}
+
+function clearFilters() {
+    document.getElementById('priorityFilter').value = '';
+    document.getElementById('statusFilter').value = '';
+    document.getElementById('courseFilter').value = '';
+    document.getElementById('gradeFilter').value = '';
+    document.getElementById('searchFilter').value = '';
+    
+    // Show all alert items
+    document.querySelectorAll('.alert-item').forEach(item => {
+        item.style.display = 'block';
+    });
+}
+
+function contactStudent(studentId) {
+    const modal = new bootstrap.Modal(document.getElementById('contactModal'));
+    modal.show();
+}
+
+function sendContact() {
+    const contactType = document.querySelector('input[name="contactType"]:checked').value;
+    const contactMethod = document.querySelector('input[name="contactMethod"]:checked').value;
+    const subject = document.getElementById('contactSubject').value;
+    const message = document.getElementById('contactMessage').value;
+    
+    if (!message.trim()) {
+        alert('Please enter a message.');
+        return;
+    }
+    
+    showLoading();
+    
+    // Simulate sending contact
+    setTimeout(() => {
+        hideLoading();
+        alert(`Contact sent to ${contactType} via ${contactMethod}!`);
+        bootstrap.Modal.getInstance(document.getElementById('contactModal')).hide();
+    }, 1500);
+}
+
+function createIntervention(alertId) {
+    const form = document.getElementById('interventionForm-' + alertId);
+    form.style.display = form.style.display === 'none' ? 'block' : 'none';
+}
+
+function saveIntervention(alertId) {
+    showLoading();
+    
+    // Simulate saving intervention
+    setTimeout(() => {
+        hideLoading();
+        alert('Intervention plan created successfully!');
+        document.getElementById('interventionForm-' + alertId).style.display = 'none';
+    }, 1000);
+}
+
+function cancelIntervention(alertId) {
+    document.getElementById('interventionForm-' + alertId).style.display = 'none';
+}
+
+function resolveAlert(alertId) {
+    if (confirm('Mark this alert as resolved? This action will move the alert to the resolved status.')) {
+        showLoading();
+        
+        // Simulate resolving alert
+        setTimeout(() => {
+            hideLoading();
+            alert('Alert marked as resolved!');
+            location.reload();
+        }, 1000);
+    }
+}
+
+function viewStudentDetails(studentId) {
+    // Redirect to student detail page
+    window.open(`/analytics/student/${studentId}/`, '_blank');
+}
+
+function bulkContact() {
+    const criticalAlerts = document.querySelectorAll('.alert-item.critical').length;
+    const warningAlerts = document.querySelectorAll('.alert-item.warning').length;
+    const totalAlerts = criticalAlerts + warningAlerts;
+    
+    if (totalAlerts === 0) {
+        alert('No alerts to contact.');
+        return;
+    }
+    
+    if (confirm(`Send contact messages to ${totalAlerts} students/parents with active alerts?`)) {
+        showLoading();
+        
+        setTimeout(() => {
+            hideLoading();
+            alert(`Bulk contact sent to ${totalAlerts} recipients!`);
+        }, 2000);
+    }
+}
+
+function toggleResolvedAlerts() {
+    // This would toggle the display of resolved alerts
+    alert('This would show/hide resolved alerts');
+}
+
+function refreshAlerts() {
+    showLoading();
+    setTimeout(() => {
+        location.reload();
+    }, 1000);
+}
+
+function exportAlertsReport() {
+    // Create CSV data for export
+    const csvData = [
+        ['Student Name', 'Priority', 'Current GPA', 'Attendance Rate', 'Missing Assignments', 'Status'],
+        {% for alert in student_alerts %}
+            ['{{ alert.student.name }}', '{{ alert.priority|title }}', '{{ alert.current_gpa|floatformat:2 }}', '{{ alert.attendance_rate|floatformat:1 }}%', '{{ alert.missing_assignments }}', '{{ alert.status|title }}'],
+        {% endfor %}
+    ];
+
+    const csvContent = csvData.map(row => row.join(',')).join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'failing_alerts_report_' + new Date().toISOString().split('T')[0] + '.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+}
+
+function showLoading() {
+    document.getElementById('loadingOverlay').classList.remove('d-none');
+}
+
+function hideLoading() {
+    document.getElementById('loadingOverlay').classList.add('d-none');
+}
+
+// Auto-refresh alerts every 5 minutes
+setInterval(function() {
+    // Check for new alerts without full page reload
+    fetch(window.location.href + '?ajax=1')
+        .then(response => response.json())
+        .then(data => {
+            if (data.new_alerts > 0) {
+                // Show notification badge or update counter
+                console.log(`${data.new_alerts} new alerts detected`);
+            }
+        })
+        .catch(error => console.log('Error checking for new alerts:', error));
+}, 300000); // 5 minutes
+
+// Hide loading overlay when page is fully loaded
+window.addEventListener('load', function() {
+    hideLoading();
+});
+</script>
+{% endblock %}

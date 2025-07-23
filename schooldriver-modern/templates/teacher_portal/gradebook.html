@@ -1,0 +1,277 @@
+{% extends "teacher_base.html" %}
+{% load gradebook_tags %}
+
+{% block page_title %}Gradebook{% endblock %}
+{% block page_subtitle %}Manage grades and assignments for your students{% endblock %}
+
+{% block extra_css %}
+<style>
+    .grade-input {
+        width: 70px !important;
+        text-align: center;
+        border: 1px solid #dee2e6;
+        transition: all 0.2s ease;
+    }
+    
+    .grade-input:focus {
+        border-color: var(--accent-teal);
+        box-shadow: 0 0 0 0.2rem rgba(20, 184, 166, 0.25);
+    }
+    
+    .grade-input.loading {
+        background-color: #f8f9fa;
+        pointer-events: none;
+    }
+    
+    .grade-input.error {
+        border-color: #dc3545;
+        background-color: #ffe6e6;
+    }
+    
+    .grade-input.success {
+        border-color: #28a745;
+        background-color: #e6ffe6;
+    }
+    
+    .gradebook-filters {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.5rem;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .assignment-header {
+        writing-mode: vertical-lr;
+        text-orientation: mixed;
+        min-width: 80px;
+        font-size: 0.85rem;
+    }
+    
+    .student-row:hover {
+        background-color: rgba(20, 184, 166, 0.05);
+    }
+    
+    .final-grade-cell {
+        min-width: 100px;
+        font-weight: bold;
+    }
+</style>
+{% endblock %}
+
+{% block teacher_content %}
+{% if current_section %}
+
+<!-- Filters and Actions -->
+<div class="gradebook-filters">
+    <form method="GET" class="row align-items-end">
+        <input type="hidden" name="section" value="{{ current_section.id }}">
+        <div class="col-md-3">
+            <label class="form-label">Filter by Category:</label>
+            {{ filter_form.category }}
+        </div>
+        <div class="col-md-2">
+            <div class="form-check">
+                {{ filter_form.published_only }}
+                <label class="form-check-label" for="{{ filter_form.published_only.id_for_label }}">
+                    Published Only
+                </label>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-outline-primary btn-sm">
+                <i class="fas fa-filter"></i> Filter
+            </button>
+        </div>
+        <div class="col-md-5 text-end">
+            <a href="{% url 'create_assignment' %}?section={{ current_section.id }}" class="btn btn-primary btn-sm me-2">
+                <i class="fas fa-plus"></i> New Assignment
+            </a>
+            <div class="btn-group">
+                <button type="button" class="btn btn-success btn-sm dropdown-toggle" data-bs-toggle="dropdown">
+                    <i class="fas fa-download"></i> Export
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="{% url 'export_grades' %}?section={{ current_section.id }}&format=csv">
+                        <i class="fas fa-file-csv me-2"></i>CSV Format
+                    </a></li>
+                    <li><a class="dropdown-item" href="{% url 'export_grades' %}?section={{ current_section.id }}&format=pdf">
+                        <i class="fas fa-file-pdf me-2"></i>PDF Format
+                    </a></li>
+                </ul>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Gradebook Table -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+            <i class="fas fa-book-open text-success me-2"></i>
+            {{ current_section.course.name }} - Section {{ current_section.section_name }}
+        </h5>
+        <span class="badge bg-info">{{ enrollments.count }} Students, {{ assignments.count }} Assignments</span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0" id="gradebook-table">
+                <thead class="table-dark">
+                    <tr>
+                        <th class="sticky-column">Student</th>
+                        {% for assignment in assignments %}
+                        <th class="text-center assignment-header" title="{{ assignment.name }} - Due: {{ assignment.due_date|date:'M d' }}">
+                            <div class="assignment-info">
+                                <strong>{{ assignment.name|truncatechars:12 }}</strong><br>
+                                <small class="text-muted">{{ assignment.max_points }}pts</small><br>
+                                <small class="text-muted">{{ assignment.due_date|date:'m/d' }}</small>
+                            </div>
+                        </th>
+                        {% endfor %}
+                        <th class="text-center final-grade-cell">Final Grade</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student_data in gradebook_data %}
+                    <tr class="student-row">
+                        <td class="sticky-column">
+                            <div>
+                                <strong>{{ student_data.student.get_full_name }}</strong>
+                                <br><small class="text-muted">{{ student_data.student.student_id }}</small>
+                            </div>
+                        </td>
+                        {% for assignment in assignments %}
+                        <td class="text-center">
+                            {% with grade=student_data.grades|get_item:assignment.id %}
+                            <input type="number" 
+                                   class="form-control form-control-sm grade-input" 
+                                   data-enrollment-id="{{ student_data.enrollment.id }}"
+                                   data-assignment-id="{{ assignment.id }}"
+                                   value="{% if grade.points_earned %}{{ grade.points_earned }}{% endif %}"
+                                   placeholder="--" 
+                                   max="{{ assignment.max_points }}" 
+                                   min="0"
+                                   step="0.01">
+                            {% endwith %}
+                        </td>
+                        {% endfor %}
+                        <td class="text-center final-grade-cell">
+                            <div id="final-grade-{{ student_data.enrollment.id }}">
+                                <span class="badge bg-info">
+                                    {% if student_data.final_grade %}
+                                        {{ student_data.final_grade|floatformat:1 }}%
+                                    {% else %}
+                                        --
+                                    {% endif %}
+                                </span>
+                                <br>
+                                <small class="text-muted">{{ student_data.final_letter|default:"--" }}</small>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% if not gradebook_data %}
+<div class="text-center py-4">
+    <i class="fas fa-users fa-2x text-muted mb-3"></i>
+    <h5 class="text-muted">No Students Enrolled</h5>
+    <p class="text-muted">There are no students enrolled in this section yet.</p>
+</div>
+{% endif %}
+
+{% else %}
+<div class="text-center py-5">
+    <i class="fas fa-book-open fa-3x text-muted mb-3"></i>
+    <h4 class="text-muted">No Section Selected</h4>
+    <p class="text-muted">Select a section to view the gradebook.</p>
+</div>
+{% endif %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Grade input handling
+    const gradeInputs = document.querySelectorAll('.grade-input');
+    let saveTimeout;
+    
+    gradeInputs.forEach(input => {
+        input.addEventListener('blur', function() {
+            saveGrade(this);
+        });
+        
+        input.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                this.blur();
+            }
+        });
+        
+        // Auto-save after 2 seconds of no typing
+        input.addEventListener('input', function() {
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(() => {
+                saveGrade(this);
+            }, 2000);
+        });
+    });
+    
+    function saveGrade(input) {
+        const enrollmentId = input.dataset.enrollmentId;
+        const assignmentId = input.dataset.assignmentId;
+        const pointsEarned = input.value;
+        
+        // Visual feedback
+        input.classList.add('loading');
+        input.classList.remove('error', 'success');
+        
+        // AJAX request
+        fetch('{% url "ajax_save_grade" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: `enrollment_id=${enrollmentId}&assignment_id=${assignmentId}&points_earned=${pointsEarned}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            input.classList.remove('loading');
+            
+            if (data.success) {
+                input.classList.add('success');
+                
+                // Update final grade display
+                const finalGradeCell = document.getElementById(`final-grade-${enrollmentId}`);
+                if (finalGradeCell && data.final_grade) {
+                    finalGradeCell.innerHTML = `
+                        <span class="badge bg-info">${data.final_grade.toFixed(1)}%</span>
+                        <br>
+                        <small class="text-muted">${data.final_letter || '--'}</small>
+                    `;
+                }
+                
+                // Remove success class after a moment
+                setTimeout(() => {
+                    input.classList.remove('success');
+                }, 2000);
+                
+            } else {
+                input.classList.add('error');
+                console.error('Error saving grade:', data.error);
+                alert('Error saving grade: ' + data.error);
+            }
+        })
+        .catch(error => {
+            input.classList.remove('loading');
+            input.classList.add('error');
+            console.error('Network error:', error);
+            alert('Network error saving grade');
+        });
+    }
+});
+</script>
+
+{% endblock %}

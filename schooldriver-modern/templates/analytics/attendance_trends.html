@@ -1,0 +1,818 @@
+{% extends "teacher_portal/base.html" %}
+{% load static %}
+
+{% block title %}Attendance Trends Analysis{% endblock %}
+
+{% block extra_css %}
+<style>
+.attendance-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+    transition: transform 0.2s ease;
+}
+
+.attendance-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+.attendance-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1.5rem;
+}
+
+.attendance-metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1rem;
+    padding: 1.5rem;
+    background: #f8f9fa;
+}
+
+.metric-card {
+    text-align: center;
+    padding: 1.5rem;
+    background: white;
+    border-radius: 8px;
+    transition: transform 0.2s ease;
+    border-left: 4px solid #667eea;
+}
+
+.metric-card:hover {
+    transform: translateY(-2px);
+}
+
+.metric-card.excellent {
+    border-left-color: #28a745;
+}
+
+.metric-card.good {
+    border-left-color: #17a2b8;
+}
+
+.metric-card.concerning {
+    border-left-color: #dc3545;
+}
+
+.metric-card.warning {
+    border-left-color: #ffc107;
+}
+
+.metric-value {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.metric-label {
+    font-size: 0.875rem;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.rate-excellent { color: #28a745; }
+.rate-good { color: #17a2b8; }
+.rate-concerning { color: #dc3545; }
+.rate-warning { color: #ffc107; }
+
+.chart-container {
+    height: 400px;
+    padding: 1.5rem;
+}
+
+.mini-chart {
+    height: 200px;
+    padding: 1rem;
+}
+
+.filters-panel {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.summary-banner {
+    background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+    border-radius: 12px;
+    padding: 2rem;
+    color: white;
+    margin-bottom: 2rem;
+}
+
+.banner-stat {
+    text-align: center;
+}
+
+.banner-number {
+    font-size: 3rem;
+    font-weight: bold;
+    display: block;
+}
+
+.banner-label {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+.student-concern-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.concern-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+    background: white;
+    transition: background 0.2s ease;
+}
+
+.concern-item:hover {
+    background: #f8f9fa;
+}
+
+.concern-item.critical {
+    border-left: 4px solid #dc3545;
+    background: #fff5f5;
+}
+
+.concern-item.warning {
+    border-left: 4px solid #ffc107;
+    background: #fffdf0;
+}
+
+.student-info {
+    flex: 1;
+}
+
+.student-name {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.student-details {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.attendance-rate-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: white;
+    min-width: 80px;
+    text-align: center;
+}
+
+.rate-critical { background: #dc3545; }
+.rate-warning-bg { background: #ffc107; color: #212529; }
+.rate-good-bg { background: #28a745; }
+
+.daily-attendance {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.5rem;
+    padding: 1rem;
+}
+
+.day-cell {
+    text-align: center;
+    padding: 0.75rem 0.5rem;
+    border-radius: 8px;
+    border: 2px solid #e9ecef;
+    background: white;
+    transition: all 0.2s ease;
+}
+
+.day-cell:hover {
+    transform: translateY(-2px);
+}
+
+.day-header {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #6c757d;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+}
+
+.day-rate {
+    font-size: 1.25rem;
+    font-weight: bold;
+}
+
+.day-excellent {
+    border-color: #28a745;
+    background: #f8fff9;
+}
+
+.day-good {
+    border-color: #17a2b8;
+    background: #f0fdff;
+}
+
+.day-concerning {
+    border-color: #dc3545;
+    background: #fff5f5;
+}
+
+.trend-indicator {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-left: 0.5rem;
+}
+
+.trend-up {
+    background: #d4edda;
+    color: #155724;
+}
+
+.trend-down {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.trend-stable {
+    background: #e2e3e5;
+    color: #383d41;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1"><i class="fas fa-calendar-check me-2"></i>Attendance Trends Analysis</h2>
+            <p class="text-muted mb-0">Monitor attendance patterns and identify concerning trends</p>
+        </div>
+        <div>
+            <button class="btn btn-outline-primary me-2" onclick="exportAttendanceData()">
+                <i class="fas fa-download me-2"></i>Export Report
+            </button>
+            <button class="btn btn-success me-2" onclick="sendReminders()">
+                <i class="fas fa-bell me-2"></i>Send Reminders
+            </button>
+            <button class="btn btn-primary" onclick="refreshData()">
+                <i class="fas fa-sync-alt me-2"></i>Refresh
+            </button>
+        </div>
+    </div>
+
+    <!-- Summary Banner -->
+    <div class="summary-banner">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="banner-stat">
+                    <span class="banner-number">{{ overall_stats.overall_rate|floatformat:1 }}%</span>
+                    <span class="banner-label">Overall Rate</span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="banner-stat">
+                    <span class="banner-number">{{ overall_stats.students_excellent }}</span>
+                    <span class="banner-label">Excellent (95%+)</span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="banner-stat">
+                    <span class="banner-number">{{ overall_stats.students_concerning }}</span>
+                    <span class="banner-label">Concerning (&lt;85%)</span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="banner-stat">
+                    <span class="banner-number">{{ overall_stats.trend_change|floatformat:1 }}%</span>
+                    <span class="banner-label">Trend Change
+                        {% if overall_stats.trend_change > 0 %}
+                            <i class="fas fa-arrow-up ms-1"></i>
+                        {% elif overall_stats.trend_change < 0 %}
+                            <i class="fas fa-arrow-down ms-1"></i>
+                        {% else %}
+                            <i class="fas fa-minus ms-1"></i>
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters Panel -->
+    <div class="filters-panel">
+        <div class="row">
+            <div class="col-md-3">
+                <label for="courseFilter" class="form-label">Course</label>
+                <select class="form-select" id="courseFilter" onchange="applyFilters()">
+                    <option value="">All Courses</option>
+                    {% for course in courses %}
+                        <option value="{{ course.id }}">{{ course.course_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="periodFilter" class="form-label">Time Period</label>
+                <select class="form-select" id="periodFilter" onchange="applyFilters()">
+                    <option value="week">This Week</option>
+                    <option value="month" selected>This Month</option>
+                    <option value="quarter">This Quarter</option>
+                    <option value="semester">This Semester</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="concernFilter" class="form-label">Concern Level</label>
+                <select class="form-select" id="concernFilter" onchange="applyFilters()">
+                    <option value="">All Students</option>
+                    <option value="critical">Critical (&lt;75%)</option>
+                    <option value="warning">Warning (75-84%)</option>
+                    <option value="good">Good (85%+)</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">&nbsp;</label>
+                <button class="btn btn-outline-secondary w-100" onclick="clearFilters()">
+                    <i class="fas fa-times me-1"></i>Clear Filters
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Daily Attendance Overview -->
+    <div class="attendance-card">
+        <div class="attendance-header">
+            <h4 class="mb-1">Weekly Attendance Overview</h4>
+            <p class="mb-0 opacity-75">Daily attendance rates for the current week</p>
+        </div>
+        <div class="daily-attendance">
+            {% for day in weekly_data %}
+                <div class="day-cell 
+                    {% if day.rate >= 95 %}day-excellent
+                    {% elif day.rate >= 85 %}day-good
+                    {% else %}day-concerning{% endif %}">
+                    <div class="day-header">{{ day.name }}</div>
+                    <div class="day-rate 
+                        {% if day.rate >= 95 %}rate-excellent
+                        {% elif day.rate >= 85 %}rate-good
+                        {% else %}rate-concerning{% endif %}">
+                        {{ day.rate|floatformat:1 }}%
+                    </div>
+                    <div class="text-muted" style="font-size: 0.75rem;">
+                        {{ day.present }}/{{ day.total }}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Trend Analysis Chart -->
+    <div class="attendance-card">
+        <div class="attendance-header">
+            <h4 class="mb-1">Attendance Trends Over Time</h4>
+            <p class="mb-0 opacity-75">Track attendance patterns and identify trends</p>
+        </div>
+        <div class="chart-container">
+            <canvas id="trendChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Metrics Grid -->
+    <div class="attendance-metrics">
+        <div class="metric-card excellent">
+            <div class="metric-value rate-excellent">{{ metrics.excellent_count }}</div>
+            <div class="metric-label">Excellent Attendance (95%+)</div>
+        </div>
+        <div class="metric-card good">
+            <div class="metric-value rate-good">{{ metrics.good_count }}</div>
+            <div class="metric-label">Good Attendance (85-94%)</div>
+        </div>
+        <div class="metric-card warning">
+            <div class="metric-value rate-warning">{{ metrics.warning_count }}</div>
+            <div class="metric-label">Warning (75-84%)</div>
+        </div>
+        <div class="metric-card concerning">
+            <div class="metric-value rate-concerning">{{ metrics.critical_count }}</div>
+            <div class="metric-label">Critical (&lt;75%)</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-value">{{ metrics.chronic_absent }}</div>
+            <div class="metric-label">Chronically Absent</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-value">{{ metrics.perfect_attendance }}</div>
+            <div class="metric-label">Perfect Attendance</div>
+        </div>
+    </div>
+
+    <!-- Students Requiring Attention -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="attendance-card">
+                <div class="attendance-header">
+                    <h4 class="mb-1">Critical Attendance Concerns</h4>
+                    <p class="mb-0 opacity-75">Students with concerning attendance patterns</p>
+                </div>
+                <div class="student-concern-list">
+                    {% for student in critical_students %}
+                        <div class="concern-item critical">
+                            <div class="student-info">
+                                <div class="student-name">{{ student.name }}</div>
+                                <div class="student-details">
+                                    {{ student.course }} • {{ student.absences }} absences this month
+                                    <span class="trend-indicator trend-down">
+                                        <i class="fas fa-arrow-down me-1"></i>{{ student.trend_change|floatformat:1 }}%
+                                    </span>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="attendance-rate-badge rate-critical">
+                                    {{ student.rate|floatformat:1 }}%
+                                </div>
+                                <button class="btn btn-sm btn-outline-primary mt-2" 
+                                        onclick="contactStudent('{{ student.id }}')">
+                                    <i class="fas fa-phone me-1"></i>Contact
+                                </button>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="attendance-card">
+                <div class="attendance-header">
+                    <h4 class="mb-1">Early Warning Students</h4>
+                    <p class="mb-0 opacity-75">Students showing declining attendance trends</p>
+                </div>
+                <div class="student-concern-list">
+                    {% for student in warning_students %}
+                        <div class="concern-item warning">
+                            <div class="student-info">
+                                <div class="student-name">{{ student.name }}</div>
+                                <div class="student-details">
+                                    {{ student.course }} • {{ student.absences }} absences this month
+                                    <span class="trend-indicator trend-down">
+                                        <i class="fas fa-arrow-down me-1"></i>{{ student.trend_change|floatformat:1 }}%
+                                    </span>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="attendance-rate-badge rate-warning-bg">
+                                    {{ student.rate|floatformat:1 }}%
+                                </div>
+                                <button class="btn btn-sm btn-outline-warning mt-2" 
+                                        onclick="sendReminder('{{ student.id }}')">
+                                    <i class="fas fa-bell me-1"></i>Remind
+                                </button>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Course Comparison -->
+    <div class="attendance-card">
+        <div class="attendance-header">
+            <h4 class="mb-1">Course Attendance Comparison</h4>
+            <p class="mb-0 opacity-75">Compare attendance rates across different courses</p>
+        </div>
+        <div class="chart-container">
+            <canvas id="courseComparisonChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Pattern Analysis -->
+    <div class="attendance-card">
+        <div class="attendance-header">
+            <h4 class="mb-1">Attendance Patterns</h4>
+            <p class="mb-0 opacity-75">Identify patterns in attendance behavior</p>
+        </div>
+        <div class="mini-chart">
+            <canvas id="patternChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="d-none position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: rgba(255,255,255,0.8); z-index: 1050;">
+    <div class="text-center">
+        <div class="spinner-border text-primary mb-3" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p>Analyzing attendance trends...</p>
+    </div>
+</div>
+
+<!-- Contact Modal -->
+<div class="modal fade" id="contactModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Contact Student/Parent</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="contactForm">
+                    <div class="mb-3">
+                        <label class="form-label">Contact Method</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="contactMethod" value="email" checked>
+                            <label class="form-check-label">Email</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="contactMethod" value="phone">
+                            <label class="form-check-label">Phone Call</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="contactMethod" value="both">
+                            <label class="form-check-label">Both Email and Phone</label>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="contactMessage" class="form-label">Message</label>
+                        <textarea class="form-control" id="contactMessage" rows="4" 
+                                  placeholder="Enter your message regarding attendance concerns..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="sendContact()">Send Contact</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Chart instances
+let trendChart, courseComparisonChart, patternChart;
+
+document.addEventListener('DOMContentLoaded', function() {
+    initializeCharts();
+});
+
+function initializeCharts() {
+    // Trend Chart
+    const trendCtx = document.getElementById('trendChart').getContext('2d');
+    trendChart = new Chart(trendCtx, {
+        type: 'line',
+        data: {
+            labels: [{% for period in trend_data %}'{{ period.label }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+            datasets: [{
+                label: 'Overall Attendance Rate',
+                data: [{% for period in trend_data %}{{ period.rate }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+                borderColor: '#667eea',
+                backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 5,
+                pointHoverRadius: 8
+            }, {
+                label: 'Target (90%)',
+                data: Array({{ trend_data|length }}).fill(90),
+                borderColor: '#28a745',
+                borderDash: [5, 5],
+                fill: false,
+                pointRadius: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: false,
+                    min: 70,
+                    max: 100,
+                    ticks: {
+                        callback: function(value) {
+                            return value + '%';
+                        }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'top'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.dataset.label + ': ' + context.parsed.y.toFixed(1) + '%';
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Course Comparison Chart
+    const courseCtx = document.getElementById('courseComparisonChart').getContext('2d');
+    courseComparisonChart = new Chart(courseCtx, {
+        type: 'bar',
+        data: {
+            labels: [{% for course in course_attendance %}'{{ course.name }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+            datasets: [{
+                label: 'Attendance Rate',
+                data: [{% for course in course_attendance %}{{ course.rate }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+                backgroundColor: [
+                    {% for course in course_attendance %}
+                        {% if course.rate >= 95 %}'#28a745'
+                        {% elif course.rate >= 85 %}'#17a2b8'
+                        {% elif course.rate >= 75 %}'#ffc107'
+                        {% else %}'#dc3545'{% endif %}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                ],
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: false,
+                    min: 70,
+                    max: 100,
+                    ticks: {
+                        callback: function(value) {
+                            return value + '%';
+                        }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+
+    // Pattern Chart (Day of Week)
+    const patternCtx = document.getElementById('patternChart').getContext('2d');
+    patternChart = new Chart(patternCtx, {
+        type: 'polarArea',
+        data: {
+            labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+            datasets: [{
+                data: [
+                    {{ day_patterns.monday }},
+                    {{ day_patterns.tuesday }},
+                    {{ day_patterns.wednesday }},
+                    {{ day_patterns.thursday }},
+                    {{ day_patterns.friday }}
+                ],
+                backgroundColor: [
+                    'rgba(102, 126, 234, 0.7)',
+                    'rgba(23, 162, 184, 0.7)',
+                    'rgba(40, 167, 69, 0.7)',
+                    'rgba(255, 193, 7, 0.7)',
+                    'rgba(220, 53, 69, 0.7)'
+                ],
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right'
+                }
+            }
+        }
+    });
+}
+
+function applyFilters() {
+    showLoading();
+    
+    const courseId = document.getElementById('courseFilter').value;
+    const period = document.getElementById('periodFilter').value;
+    const concern = document.getElementById('concernFilter').value;
+
+    const params = new URLSearchParams();
+    if (courseId) params.append('course', courseId);
+    if (period) params.append('period', period);
+    if (concern) params.append('concern', concern);
+    
+    const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+    
+    setTimeout(() => {
+        window.location.href = newUrl;
+    }, 500);
+}
+
+function clearFilters() {
+    document.getElementById('courseFilter').value = '';
+    document.getElementById('periodFilter').value = 'month';
+    document.getElementById('concernFilter').value = '';
+    applyFilters();
+}
+
+function showLoading() {
+    document.getElementById('loadingOverlay').classList.remove('d-none');
+}
+
+function hideLoading() {
+    document.getElementById('loadingOverlay').classList.add('d-none');
+}
+
+function refreshData() {
+    showLoading();
+    setTimeout(() => {
+        location.reload();
+    }, 1000);
+}
+
+function contactStudent(studentId) {
+    const modal = new bootstrap.Modal(document.getElementById('contactModal'));
+    modal.show();
+}
+
+function sendContact() {
+    const method = document.querySelector('input[name="contactMethod"]:checked').value;
+    const message = document.getElementById('contactMessage').value;
+    
+    if (!message.trim()) {
+        alert('Please enter a message.');
+        return;
+    }
+    
+    // Simulate sending contact
+    alert(`Contact sent via ${method}!`);
+    bootstrap.Modal.getInstance(document.getElementById('contactModal')).hide();
+}
+
+function sendReminder(studentId) {
+    if (confirm('Send attendance reminder to this student?')) {
+        // Simulate sending reminder
+        alert('Reminder sent successfully!');
+    }
+}
+
+function sendReminders() {
+    if (confirm('Send attendance reminders to all students with concerning attendance?')) {
+        showLoading();
+        setTimeout(() => {
+            hideLoading();
+            alert('Reminders sent to ' + {{ critical_students|length|add:warning_students|length }} + ' students!');
+        }, 2000);
+    }
+}
+
+function exportAttendanceData() {
+    // Create CSV data
+    const csvData = [
+        ['Student', 'Course', 'Attendance Rate', 'Absences', 'Status'],
+        {% for student in critical_students %}
+            ['{{ student.name }}', '{{ student.course }}', '{{ student.rate|floatformat:1 }}%', '{{ student.absences }}', 'Critical'],
+        {% endfor %}
+        {% for student in warning_students %}
+            ['{{ student.name }}', '{{ student.course }}', '{{ student.rate|floatformat:1 }}%', '{{ student.absences }}', 'Warning'],
+        {% endfor %}
+    ];
+
+    const csvContent = csvData.map(row => row.join(',')).join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'attendance_report_' + new Date().toISOString().split('T')[0] + '.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+}
+
+// Hide loading overlay when page is fully loaded
+window.addEventListener('load', function() {
+    hideLoading();
+});
+</script>
+{% endblock %}

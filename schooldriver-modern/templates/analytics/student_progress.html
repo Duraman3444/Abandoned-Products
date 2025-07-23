@@ -1,0 +1,490 @@
+{% extends "teacher_portal/base.html" %}
+{% load static %}
+
+{% block title %}Student Progress Tracking{% endblock %}
+
+{% block extra_css %}
+<style>
+.student-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin-bottom: 1rem;
+    overflow: hidden;
+    transition: all 0.2s ease;
+}
+
+.student-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+.student-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: between;
+    align-items: center;
+}
+
+.progress-metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+    padding: 1.5rem;
+}
+
+.metric {
+    text-align: center;
+    padding: 1rem;
+    border-radius: 8px;
+    background: #f8f9fa;
+}
+
+.metric-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.metric-label {
+    font-size: 0.875rem;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.gpa-excellent { color: #28a745; }
+.gpa-good { color: #17a2b8; }
+.gpa-needs-work { color: #ffc107; }
+.gpa-poor { color: #dc3545; }
+
+.attendance-excellent { color: #28a745; }
+.attendance-good { color: #17a2b8; }
+.attendance-concerning { color: #dc3545; }
+
+.recent-grades {
+    padding: 0 1.5rem 1.5rem;
+}
+
+.grade-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem;
+    border-bottom: 1px solid #eee;
+}
+
+.grade-item:last-child {
+    border-bottom: none;
+}
+
+.grade-score {
+    font-weight: bold;
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    color: white;
+    font-size: 0.875rem;
+}
+
+.grade-a { background: #28a745; }
+.grade-b { background: #17a2b8; }
+.grade-c { background: #ffc107; color: #212529; }
+.grade-d { background: #fd7e14; }
+.grade-f { background: #dc3545; }
+
+.search-filters {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.trend-indicator {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.875rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+}
+
+.trend-up { background: #d4edda; color: #155724; }
+.trend-down { background: #f8d7da; color: #721c24; }
+.trend-stable { background: #e2e3e5; color: #383d41; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1"><i class="fas fa-user-graduate me-2"></i>Student Progress Tracking</h2>
+            <p class="text-muted mb-0">Monitor individual student performance and growth</p>
+        </div>
+        <div>
+            <button class="btn btn-outline-primary me-2" onclick="exportStudentData()">
+                <i class="fas fa-download me-2"></i>Export
+            </button>
+            <button class="btn btn-primary" onclick="refreshData()">
+                <i class="fas fa-sync-alt me-2"></i>Refresh
+            </button>
+        </div>
+    </div>
+
+    <!-- Search and Filters -->
+    <div class="search-filters">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="studentSearch">Search Students</label>
+                    <input type="text" class="form-control" id="studentSearch" placeholder="Enter student name...">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label for="performanceFilter">Performance Level</label>
+                    <select class="form-select" id="performanceFilter">
+                        <option value="">All Students</option>
+                        <option value="excelling">Excelling (90%+)</option>
+                        <option value="proficient">Proficient (80-89%)</option>
+                        <option value="developing">Developing (70-79%)</option>
+                        <option value="struggling">Struggling (&lt;70%)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label for="attendanceFilter">Attendance</label>
+                    <select class="form-select" id="attendanceFilter">
+                        <option value="">All Attendance</option>
+                        <option value="excellent">Excellent (95%+)</option>
+                        <option value="good">Good (90-94%)</option>
+                        <option value="concerning">Concerning (&lt;90%)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group">
+                    <label>&nbsp;</label>
+                    <button class="btn btn-outline-secondary w-100" onclick="clearFilters()">
+                        <i class="fas fa-times me-1"></i>Clear
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Student Cards -->
+    <div id="studentsList">
+        {% for student_data in student_analytics %}
+            <div class="student-card" data-student-name="{{ student_data.student.get_full_name|lower }}">
+                <div class="student-header">
+                    <div>
+                        <h5 class="mb-1">{{ student_data.student.get_full_name }}</h5>
+                        <small>Student ID: {{ student_data.student.student_id }}</small>
+                    </div>
+                    <div class="text-end">
+                        <button class="btn btn-sm btn-light" onclick="viewDetailedProgress('{{ student_data.student.id }}')">
+                            <i class="fas fa-chart-line me-1"></i>Detailed View
+                        </button>
+                    </div>
+                </div>
+
+                <div class="progress-metrics">
+                    <div class="metric">
+                        <div class="metric-value 
+                            {% if student_data.analytics.current_gpa %}
+                                {% if student_data.analytics.current_gpa >= 3.5 %}gpa-excellent
+                                {% elif student_data.analytics.current_gpa >= 3.0 %}gpa-good
+                                {% elif student_data.analytics.current_gpa >= 2.5 %}gpa-needs-work
+                                {% else %}gpa-poor{% endif %}
+                            {% endif %}">
+                            {% if student_data.analytics.current_gpa %}
+                                {{ student_data.analytics.current_gpa|floatformat:2 }}
+                            {% else %}
+                                --
+                            {% endif %}
+                        </div>
+                        <div class="metric-label">Current GPA</div>
+                    </div>
+
+                    <div class="metric">
+                        <div class="metric-value 
+                            {% if student_data.analytics.attendance_rate %}
+                                {% if student_data.analytics.attendance_rate >= 95 %}attendance-excellent
+                                {% elif student_data.analytics.attendance_rate >= 90 %}attendance-good
+                                {% else %}attendance-concerning{% endif %}
+                            {% endif %}">
+                            {% if student_data.analytics.attendance_rate %}
+                                {{ student_data.analytics.attendance_rate|floatformat:1 }}%
+                            {% else %}
+                                --
+                            {% endif %}
+                        </div>
+                        <div class="metric-label">Attendance</div>
+                    </div>
+
+                    <div class="metric">
+                        <div class="metric-value">{{ student_data.analytics.assignments_completed }}</div>
+                        <div class="metric-label">Completed</div>
+                    </div>
+
+                    <div class="metric">
+                        <div class="metric-value text-danger">{{ student_data.analytics.assignments_missing }}</div>
+                        <div class="metric-label">Missing</div>
+                    </div>
+
+                    <div class="metric">
+                        <div class="metric-value text-success">{{ student_data.analytics.positive_notes_count }}</div>
+                        <div class="metric-label">Positive Notes</div>
+                    </div>
+
+                    <div class="metric">
+                        <div class="metric-value text-warning">{{ student_data.analytics.concerning_notes_count }}</div>
+                        <div class="metric-label">Concerns</div>
+                    </div>
+                </div>
+
+                <!-- Recent Grades -->
+                {% if student_data.recent_grades %}
+                    <div class="recent-grades">
+                        <h6 class="mb-3"><i class="fas fa-clock me-2"></i>Recent Grades</h6>
+                        {% for grade in student_data.recent_grades %}
+                            <div class="grade-item">
+                                <div>
+                                    <strong>{{ grade.assignment.assignment_name }}</strong>
+                                    <small class="text-muted d-block">{{ grade.assignment.course.course_name }}</small>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <small class="text-muted me-2">{{ grade.date_taken|date:"M j" }}</small>
+                                    <span class="grade-score 
+                                        {% if grade.grade >= 90 %}grade-a
+                                        {% elif grade.grade >= 80 %}grade-b
+                                        {% elif grade.grade >= 70 %}grade-c
+                                        {% elif grade.grade >= 60 %}grade-d
+                                        {% else %}grade-f{% endif %}">
+                                        {{ grade.grade|floatformat:0 }}%
+                                    </span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        {% empty %}
+            <div class="text-center py-5">
+                <i class="fas fa-user-graduate fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">No student data available</h5>
+                <p class="text-muted">Student progress will appear as grades and attendance are recorded</p>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Load More Button -->
+    {% if total_students > student_analytics|length %}
+        <div class="text-center mt-4">
+            <button class="btn btn-outline-primary" onclick="loadMoreStudents()">
+                <i class="fas fa-plus me-2"></i>Load More Students
+                <small class="d-block">Showing {{ student_analytics|length }} of {{ total_students }}</small>
+            </button>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Student Detail Modal -->
+<div class="modal fade" id="studentDetailModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detailed Student Progress</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="studentDetailContent">
+                <div class="text-center py-5">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Search functionality
+document.getElementById('studentSearch').addEventListener('input', function() {
+    const searchTerm = this.value.toLowerCase();
+    const studentCards = document.querySelectorAll('.student-card');
+    
+    studentCards.forEach(card => {
+        const studentName = card.getAttribute('data-student-name');
+        if (studentName.includes(searchTerm)) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+});
+
+function viewDetailedProgress(studentId) {
+    const modal = new bootstrap.Modal(document.getElementById('studentDetailModal'));
+    const content = document.getElementById('studentDetailContent');
+    
+    // Show loading spinner
+    content.innerHTML = `
+        <div class="text-center py-5">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Loading detailed student analytics...</p>
+        </div>
+    `;
+    
+    modal.show();
+    
+    // Fetch detailed data
+    fetch(`/analytics/api/student/${studentId}/`)
+        .then(response => response.json())
+        .then(data => {
+            content.innerHTML = generateDetailedView(data);
+            initializeDetailCharts(data);
+        })
+        .catch(error => {
+            content.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Error loading student data. Please try again.
+                </div>
+            `;
+        });
+}
+
+function generateDetailedView(data) {
+    return `
+        <div class="row">
+            <div class="col-md-6">
+                <h6>Grade Trend</h6>
+                <canvas id="gradeTrendChart" height="200"></canvas>
+            </div>
+            <div class="col-md-6">
+                <h6>Attendance Trend</h6>
+                <canvas id="attendanceTrendChart" height="200"></canvas>
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <h6>Performance Summary</h6>
+                <div class="row">
+                    <div class="col-md-3 text-center">
+                        <h4>${data.current_gpa || '--'}</h4>
+                        <small class="text-muted">Current GPA</small>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <h4>${data.attendance_rate ? data.attendance_rate.toFixed(1) + '%' : '--'}</h4>
+                        <small class="text-muted">Attendance Rate</small>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <h4>${data.assignments_completed}</h4>
+                        <small class="text-muted">Completed</small>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <h4 class="text-danger">${data.assignments_missing}</h4>
+                        <small class="text-muted">Missing</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function initializeDetailCharts(data) {
+    // Grade trend chart
+    if (data.grade_trend && data.grade_trend.length > 0) {
+        const gradeTrendCtx = document.getElementById('gradeTrendChart').getContext('2d');
+        new Chart(gradeTrendCtx, {
+            type: 'line',
+            data: {
+                labels: data.grade_trend.map(item => `Week ${item.week}`),
+                datasets: [{
+                    label: 'Average Grade',
+                    data: data.grade_trend.map(item => item.average_grade),
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        min: 0,
+                        max: 100
+                    }
+                }
+            }
+        });
+    }
+    
+    // Attendance trend chart
+    if (data.attendance_trend && data.attendance_trend.length > 0) {
+        const attendanceTrendCtx = document.getElementById('attendanceTrendChart').getContext('2d');
+        new Chart(attendanceTrendCtx, {
+            type: 'line',
+            data: {
+                labels: data.attendance_trend.map(item => `Week ${item.week}`),
+                datasets: [{
+                    label: 'Attendance Rate',
+                    data: data.attendance_trend.map(item => item.attendance_rate),
+                    borderColor: '#28a745',
+                    backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        min: 0,
+                        max: 100
+                    }
+                }
+            }
+        });
+    }
+}
+
+function refreshData() {
+    location.reload();
+}
+
+function exportStudentData() {
+    alert('Export functionality would be implemented here');
+}
+
+function clearFilters() {
+    document.getElementById('studentSearch').value = '';
+    document.getElementById('performanceFilter').value = '';
+    document.getElementById('attendanceFilter').value = '';
+    
+    // Show all student cards
+    document.querySelectorAll('.student-card').forEach(card => {
+        card.style.display = 'block';
+    });
+}
+
+function loadMoreStudents() {
+    alert('Load more functionality would be implemented with pagination');
+}
+</script>
+{% endblock %}
