@@ -178,8 +178,15 @@ def get_student_academic_data(student: Student) -> Dict[str, Any]:
         days_tardy = attendance_records.filter(status="T").count()
         days_excused = attendance_records.filter(status="E").count()
 
-        attendance_percentage = (
+        # Present rate: only days marked "Present"
+        present_rate = (
             (days_present / total_days * 100) if total_days > 0 else 100
+        )
+        
+        # Attendance rate: present + tardy (student was there)
+        days_attending = days_present + days_tardy
+        attendance_rate = (
+            (days_attending / total_days * 100) if total_days > 0 else 100
         )
 
         attendance_summary = {
@@ -187,7 +194,8 @@ def get_student_academic_data(student: Student) -> Dict[str, Any]:
             "days_absent": days_absent,
             "days_tardy": days_tardy,
             "days_excused": days_excused,
-            "attendance_percentage": round(attendance_percentage, 1),
+            "present_rate": round(present_rate, 1),
+            "attendance_rate": round(attendance_rate, 1),
         }
 
         # Calculate total credits
@@ -259,9 +267,9 @@ def dashboard_view(request: HttpRequest) -> HttpResponse:
         # Count pending assignments (same logic as assignments page)
         pending_count = 0
 
-        # Get recent assignments for display (last 7 days plus upcoming)
+        # Get recent assignments for display (upcoming and recent)
         recent_assignment_objs = all_assignment_objs.filter(
-            due_date__gte=timezone.now().date() - timedelta(days=7)
+            due_date__gte=timezone.now().date() - timedelta(days=30)  # Last 30 days plus upcoming for debugging
         ).order_by("due_date")[:10]
 
         recent_assignments = []
@@ -306,26 +314,44 @@ def dashboard_view(request: HttpRequest) -> HttpResponse:
 
         # Get today's schedule
         today_weekday = timezone.now().weekday()  # 0=Monday, 6=Sunday
+        # Convert to the string format used in Schedule model
+        weekday_mapping = {
+            0: "MON",
+            1: "TUE", 
+            2: "WED",
+            3: "THU",
+            4: "FRI",
+            5: "SAT",
+            6: "SUN"
+        }
+        today_weekday_str = weekday_mapping.get(today_weekday, "MON")
         today_schedule = []
 
         for enrollment in enrollments:
+            # Get all schedules for this enrollment, then filter by day
             schedules = Schedule.objects.filter(
-                section=enrollment.section, day_of_week=today_weekday, is_active=True
+                section=enrollment.section, is_active=True
             ).order_by("start_time")
 
             for schedule in schedules:
-                today_schedule.append(
-                    {
-                        "course_name": enrollment.section.course.name,
-                        "teacher": f"{enrollment.section.teacher.first_name} {enrollment.section.teacher.last_name}",
-                        "room": schedule.room or enrollment.section.room or "TBA",
-                        "start_time": schedule.start_time.strftime("%I:%M %p"),
-                        "end_time": schedule.end_time.strftime("%I:%M %p"),
-                    }
-                )
+                # Check if this schedule is for today
+                if schedule.day_of_week == today_weekday_str:
+                    today_schedule.append(
+                        {
+                            "course_name": enrollment.section.course.name,
+                            "teacher": f"{enrollment.section.teacher.first_name} {enrollment.section.teacher.last_name}",
+                            "room": schedule.room or enrollment.section.room or "TBA",
+                            "start_time": schedule.start_time.strftime("%I:%M %p"),
+                            "end_time": schedule.end_time.strftime("%I:%M %p"),
+                        }
+                    )
 
         # Sort by start time
         today_schedule.sort(key=lambda x: x["start_time"])
+        
+        # Debug logging
+        logger.info(f"Dashboard: Found {len(today_schedule)} classes for today ({today_weekday_str})")
+        logger.info(f"Dashboard: Found {len(recent_assignments)} recent assignments")
 
         # Get recent grades (last 5 graded assignments)
         recent_grades = []
@@ -758,43 +784,75 @@ def attendance_view(request):
             messages.error(request, "Student profile not found.")
             return redirect("student_portal:dashboard")
 
-        # Mock attendance data (would come from StudentAttendance models)
-        attendance_records = []
-        start_date = date(2024, 8, 15)  # Start of school year
-        current_date = start_date
+        # Get current school year for consistency with dashboard
+        current_school_year = SchoolYear.objects.get(is_current=True)
+        
+        # Use same attendance calculation as dashboard for consistency
+        attendance_records_db = Attendance.objects.filter(
+            enrollment__student=student,
+            enrollment__section__school_year=current_school_year,
+        )
 
-        # Generate mock attendance for the past 60 school days
-        for i in range(60):
-            if current_date.weekday() < 5:  # Monday to Friday
-                status = "Present"
-                if i % 15 == 0:  # Occasional absence
-                    status = "Absent"
-                elif i % 10 == 0:  # Occasional tardy
-                    status = "Tardy"
+        total_days = attendance_records_db.count()
+        present_days = attendance_records_db.filter(status="P").count()
+        absent_days = attendance_records_db.filter(status="A").count()
+        tardy_days = attendance_records_db.filter(status="T").count()
 
-                attendance_records.append(
-                    {
-                        "date": current_date,
-                        "status": status,
-                        "period": "Full Day",
-                        "notes": "Excused"
-                        if status == "Absent" and i % 30 == 0
-                        else "",
-                    }
-                )
-            current_date += timedelta(days=1)
+        # If no real data, generate mock data for display
+        if total_days == 0:
+            attendance_records = []
+            start_date = date(2024, 8, 15)  # Start of school year
+            current_date = start_date
 
-        # Reverse to show most recent first
-        attendance_records.reverse()
+            # Generate mock attendance for the past 60 school days
+            for i in range(60):
+                if current_date.weekday() < 5:  # Monday to Friday
+                    status = "Present"
+                    if i % 15 == 0:  # Occasional absence
+                        status = "Absent"
+                    elif i % 10 == 0:  # Occasional tardy
+                        status = "Tardy"
 
-        # Calculate statistics
-        total_days = len(attendance_records)
-        present_days = len([r for r in attendance_records if r["status"] == "Present"])
-        absent_days = len([r for r in attendance_records if r["status"] == "Absent"])
-        tardy_days = len([r for r in attendance_records if r["status"] == "Tardy"])
+                    attendance_records.append(
+                        {
+                            "date": current_date,
+                            "status": status,
+                            "period": "Full Day",
+                            "notes": "Excused"
+                            if status == "Absent" and i % 30 == 0
+                            else "",
+                        }
+                    )
+                current_date += timedelta(days=1)
 
-        attendance_percentage = (
-            (present_days / total_days * 100) if total_days > 0 else 0
+            # Reverse to show most recent first
+            attendance_records.reverse()
+
+            # Use mock data statistics
+            total_days = len(attendance_records)
+            present_days = len([r for r in attendance_records if r["status"] == "Present"])
+            absent_days = len([r for r in attendance_records if r["status"] == "Absent"])
+            tardy_days = len([r for r in attendance_records if r["status"] == "Tardy"])
+        else:
+            # Convert database records to display format
+            attendance_records = []
+            for record in attendance_records_db.order_by('-date_taken'):
+                status_map = {"P": "Present", "A": "Absent", "T": "Tardy", "E": "Excused"}
+                attendance_records.append({
+                    "date": record.date_taken,
+                    "status": status_map.get(record.status, record.status),
+                    "period": f"Period {record.enrollment.section.period}" if hasattr(record.enrollment.section, 'period') else "Full Day",
+                    "notes": record.notes or "",
+                })
+
+        # Calculate both rates consistently with dashboard
+        present_rate = (
+            (present_days / total_days * 100) if total_days > 0 else 100
+        )
+        
+        days_attending = present_days + tardy_days
+        attendance_rate = (
+            (days_attending / total_days * 100) if total_days > 0 else 100
         )
 
         # Paginate attendance records
@@ -809,7 +867,8 @@ def attendance_view(request):
             "present_days": present_days,
             "absent_days": absent_days,
             "tardy_days": tardy_days,
-            "attendance_percentage": round(attendance_percentage, 1),
+            "present_rate": round(present_rate, 1),
+            "attendance_rate": round(attendance_rate, 1),
         }
 
     except Exception as e:

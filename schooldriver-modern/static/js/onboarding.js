@@ -48,11 +48,13 @@ class OnboardingManager {
      */
     checkFirstTimeUser() {
         const hasVisited = localStorage.getItem('schooldriver_onboarding_completed');
-        if (!hasVisited) {
+        const isStudentPortal = window.location.pathname.includes('/student/');
+        
+        if (!hasVisited && isStudentPortal) {
             // Delay to ensure page is fully loaded
             setTimeout(() => {
                 this.showWelcomeModal();
-            }, 1000);
+            }, 2000);
         }
     }
 
@@ -139,6 +141,13 @@ class OnboardingManager {
             return;
         }
 
+        // Debug: Check if tour elements exist
+        console.log('Starting tour with', this.tourSteps.length, 'steps');
+        this.tourSteps.forEach((step, index) => {
+            const element = document.querySelector(step.target.split(', ')[0]);
+            console.log(`Step ${index + 1}: "${step.target}" ->`, element ? 'Found' : 'Not found');
+        });
+
         this.currentStep = 0;
         this.isActive = true;
         this.createOverlay();
@@ -154,28 +163,28 @@ class OnboardingManager {
         if (path.includes('dashboard')) {
             return [
                 {
-                    target: '.sidebar .nav-link[href*="dashboard"]',
+                    target: '.card-body .nav-link:first-child',
                     title: 'Navigation Menu',
                     content: 'Use this sidebar to navigate between different sections of your student portal.',
                     position: 'right'
                 },
                 {
-                    target: '[data-tour="gpa-cards"]',
+                    target: '.row.g-4.mb-4:first-of-type',
                     title: 'Academic Overview',
                     content: 'Here you can see your current GPA and academic performance at a glance.',
                     position: 'bottom'
                 },
                 {
-                    target: '[data-tour="upcoming-assignments"]',
+                    target: '.col-lg-6:last-child .card',
                     title: 'Upcoming Assignments',
                     content: 'Stay on top of your coursework with this list of upcoming assignments and due dates.',
-                    position: 'top'
+                    position: 'left'
                 },
                 {
-                    target: '[data-tour="today-schedule"]',
+                    target: '.col-lg-6:first-child .card',
                     title: 'Today\'s Schedule',
                     content: 'View your classes for today, including times and classroom locations.',
-                    position: 'left'
+                    position: 'right'
                 }
             ];
         } else if (path.includes('grades')) {
@@ -227,11 +236,23 @@ class OnboardingManager {
         }
 
         const step = this.tourSteps[stepIndex];
-        const target = document.querySelector(step.target);
+        
+        // Try multiple selectors if provided
+        let target = null;
+        const selectors = step.target.split(', ');
+        
+        for (const selector of selectors) {
+            target = document.querySelector(selector.trim());
+            if (target) break;
+        }
         
         if (!target) {
-            // Skip missing elements
-            this.showStep(stepIndex + 1);
+            console.warn(`Tour step ${stepIndex + 1}: Could not find target "${step.target}"`);
+            // Skip missing elements but show a brief message
+            this.showMessage(`Step ${stepIndex + 1} skipped - element not found`, 'warning');
+            setTimeout(() => {
+                this.showStep(stepIndex + 1);
+            }, 1000);
             return;
         }
 
@@ -430,6 +451,9 @@ class OnboardingManager {
                 <button class="btn btn-sm btn-outline-info" onclick="onboarding.startTour(); this.parentElement.parentElement.remove();">
                     <i class="bi bi-play-circle me-2"></i>Start Tour
                 </button>
+                <button class="btn btn-sm btn-outline-secondary" onclick="onboarding.debugElements()">
+                    <i class="bi bi-bug me-2"></i>Debug Elements
+                </button>
                 <button class="btn btn-sm btn-outline-secondary" onclick="onboarding.showKeyboardShortcuts()">
                     <i class="bi bi-keyboard me-2"></i>Keyboard Shortcuts
                 </button>
@@ -452,6 +476,27 @@ class OnboardingManager {
                 menu.remove();
             }
         }, 10000);
+    }
+
+    /**
+     * Debug helper to show available elements
+     */
+    debugElements() {
+        const tourSteps = this.getTourStepsForPage();
+        let debugInfo = `Page: ${window.location.pathname}\n\nTour Elements:\n`;
+        
+        tourSteps.forEach((step, index) => {
+            const selectors = step.target.split(', ');
+            debugInfo += `\nStep ${index + 1}: ${step.title}\n`;
+            
+            selectors.forEach(selector => {
+                const element = document.querySelector(selector.trim());
+                debugInfo += `  "${selector.trim()}": ${element ? '✓ Found' : '✗ Not found'}\n`;
+            });
+        });
+        
+        console.log(debugInfo);
+        this.showMessage('Debug info logged to console. Press F12 to view.', 'info');
     }
 
     /**

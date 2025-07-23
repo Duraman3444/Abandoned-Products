@@ -44,7 +44,7 @@
         <div class="card text-center">
             <div class="card-body">
                 <i class="bi bi-calendar-check text-primary" style="font-size: 2.5rem;"></i>
-                <h4 class="mt-2 mb-0">{{ attendance_summary.attendance_percentage }}%</h4>
+                <h4 class="mt-2 mb-0">{{ attendance_summary.attendance_rate }}%</h4>
                 <p class="text-muted">Attendance Rate</p>
             </div>
         </div>
@@ -80,6 +80,7 @@
                 <a href="{% url 'student_portal:schedule' %}" class="btn btn-sm btn-outline-info">View Full Schedule</a>
             </div>
             <div class="card-body">
+                <!-- Debug: Today Schedule Count = {{ today_schedule|length }} -->
                 <div class="list-group list-group-flush">
                     {% for class in today_schedule %}
                     <div class="list-group-item bg-transparent border-secondary">
@@ -113,9 +114,10 @@
                 <a href="{% url 'student_portal:assignments' %}" class="btn btn-sm btn-outline-info">View All</a>
             </div>
             <div class="card-body">
+                <!-- Debug: Recent Assignments Count = {{ recent_assignments|length }} -->
                 <div class="list-group list-group-flush">
                     {% for assignment in recent_assignments %}
-                        {% if assignment.status == 'Pending' %}
+                        {% if assignment.status == 'Pending' or assignment.status == 'Overdue' %}
                         <div class="list-group-item bg-transparent border-secondary">
                             <div class="d-flex justify-content-between align-items-start">
                                 <div>
@@ -130,6 +132,8 @@
                                     {% else %}
                                         <span class="badge bg-info">Due {{ assignment.due_date|date:"M d" }}</span>
                                     {% endif %}
+                                {% elif assignment.status == 'Overdue' %}
+                                    <span class="badge bg-danger">Overdue</span>
                                 {% endif %}
                             </div>
                         </div>

@@ -28,9 +28,23 @@ function addSkipLink() {
     skipLink.href = '#main-content';
     skipLink.textContent = 'Skip to main content';
     skipLink.className = 'sr-only sr-only-focusable btn btn-primary position-absolute';
-    skipLink.style.top = '10px';
-    skipLink.style.left = '10px';
-    skipLink.style.zIndex = '9999';
+    skipLink.style.cssText = `
+        position: absolute;
+        top: -40px;
+        left: 6px;
+        z-index: 9999;
+        padding: 8px 16px;
+        transition: top 0.3s;
+    `;
+    
+    // Only show when focused
+    skipLink.addEventListener('focus', function() {
+        this.style.top = '10px';
+    });
+    
+    skipLink.addEventListener('blur', function() {
+        this.style.top = '-40px';
+    });
     
     // Insert as first element in body
     document.body.insertBefore(skipLink, document.body.firstChild);
