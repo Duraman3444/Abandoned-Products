@@ -1,0 +1,287 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0">
+                        <i class="bi bi-book me-2"></i>
+                        {{ course.name }}
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Course Information</h5>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>Course Code:</strong></td>
+                                    <td>{{ course.course_code|default:"Not provided" }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Credits:</strong></td>
+                                    <td>{{ course.credit_hours|default:"Not specified" }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Subject:</strong></td>
+                                    <td>{{ course.subject|default:"Not specified" }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Department:</strong></td>
+                                    <td>{{ course.department.name|default:"Not specified" }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Prerequisites</h5>
+                            {% if course.prerequisites.all %}
+                                <ul class="list-unstyled">
+                                    {% for prereq in course.prerequisites.all %}
+                                    <li><i class="bi bi-arrow-right me-1"></i>{{ prereq.name }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <p class="text-muted">None</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h5>Course Description</h5>
+                            <div class="course-description">
+                                {{ course.description|default:"No description available"|linebreaks }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Course Curriculum/Syllabus -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h5>Course Curriculum & Learning Objectives</h5>
+                            <div class="curriculum-content">
+                                {% if course.name == "Algebra I" or course.course_code == "MATH-ALG1" %}
+                                    <div class="alert alert-info">
+                                        <h6><i class="bi bi-book me-2"></i>Course Overview</h6>
+                                        <p>Algebra I is a foundational mathematics course that introduces students to algebraic thinking and problem-solving. Students will develop skills in working with variables, equations, and mathematical relationships.</p>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <h6>Unit 1: Foundations of Algebra</h6>
+                                            <ul>
+                                                <li>Real number system and properties</li>
+                                                <li>Order of operations and algebraic expressions</li>
+                                                <li>Simplifying and evaluating expressions</li>
+                                                <li>Introduction to variables and constants</li>
+                                            </ul>
+                                            
+                                            <h6>Unit 2: Linear Equations</h6>
+                                            <ul>
+                                                <li>Solving one-step and multi-step equations</li>
+                                                <li>Equations with variables on both sides</li>
+                                                <li>Literal equations and formulas</li>
+                                                <li>Applications and word problems</li>
+                                            </ul>
+                                            
+                                            <h6>Unit 3: Inequalities</h6>
+                                            <ul>
+                                                <li>Solving and graphing linear inequalities</li>
+                                                <li>Compound inequalities</li>
+                                                <li>Absolute value equations and inequalities</li>
+                                            </ul>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h6>Unit 4: Linear Functions</h6>
+                                            <ul>
+                                                <li>Introduction to functions and relations</li>
+                                                <li>Linear functions and slope</li>
+                                                <li>Graphing linear equations</li>
+                                                <li>Writing equations from graphs and points</li>
+                                            </ul>
+                                            
+                                            <h6>Unit 5: Systems of Equations</h6>
+                                            <ul>
+                                                <li>Solving systems by graphing</li>
+                                                <li>Substitution and elimination methods</li>
+                                                <li>Applications of systems</li>
+                                            </ul>
+                                            
+                                            <h6>Unit 6: Polynomials and Factoring</h6>
+                                            <ul>
+                                                <li>Adding and subtracting polynomials</li>
+                                                <li>Multiplying polynomials and monomials</li>
+                                                <li>Factoring techniques</li>
+                                                <li>Solving quadratic equations by factoring</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mt-3">
+                                        <h6>Assessment Methods</h6>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <strong>Tests & Quizzes (40%)</strong>
+                                                <p class="small">Unit tests, chapter quizzes, and cumulative assessments</p>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <strong>Homework & Practice (30%)</strong>
+                                                <p class="small">Daily assignments, online practice, and problem sets</p>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <strong>Projects & Participation (30%)</strong>
+                                                <p class="small">Group projects, presentations, and class participation</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                {% elif course.name == "Algebra II" or course.course_code == "MATH-ALG2" %}
+                                    <div class="alert alert-success">
+                                        <h6><i class="bi bi-book me-2"></i>Course Overview</h6>
+                                        <p>Algebra II builds upon the foundation of Algebra I, introducing advanced algebraic concepts, functions, and mathematical modeling. Students will explore complex relationships and prepare for higher-level mathematics.</p>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <h6>Unit 1: Review and Extensions</h6>
+                                            <ul>
+                                                <li>Linear functions and systems review</li>
+                                                <li>Advanced factoring techniques</li>
+                                                <li>Rational expressions and equations</li>
+                                                <li>Complex fractions</li>
+                                            </ul>
+                                            
+                                            <h6>Unit 2: Quadratic Functions</h6>
+                                            <ul>
+                                                <li>Graphing parabolas and transformations</li>
+                                                <li>Completing the square</li>
+                                                <li>Quadratic formula and discriminant</li>
+                                                <li>Applications of quadratic functions</li>
+                                            </ul>
+                                            
+                                            <h6>Unit 3: Polynomial Functions</h6>
+                                            <ul>
+                                                <li>Higher-degree polynomials</li>
+                                                <li>Polynomial division and remainder theorem</li>
+                                                <li>Zeros and factoring polynomials</li>
+                                                <li>Graphing polynomial functions</li>
+                                            </ul>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h6>Unit 4: Rational Functions</h6>
+                                            <ul>
+                                                <li>Rational functions and asymptotes</li>
+                                                <li>Graphing rational functions</li>
+                                                <li>Rational equations and applications</li>
+                                            </ul>
+                                            
+                                            <h6>Unit 5: Exponential and Logarithmic Functions</h6>
+                                            <ul>
+                                                <li>Exponential growth and decay</li>
+                                                <li>Properties of logarithms</li>
+                                                <li>Solving exponential and logarithmic equations</li>
+                                                <li>Applications in science and finance</li>
+                                            </ul>
+                                            
+                                            <h6>Unit 6: Advanced Topics</h6>
+                                            <ul>
+                                                <li>Sequences and series</li>
+                                                <li>Matrices and determinants</li>
+                                                <li>Conic sections</li>
+                                                <li>Introduction to trigonometry</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mt-3">
+                                        <h6>Assessment Methods</h6>
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <strong>Tests (35%)</strong>
+                                                <p class="small">Unit tests and chapter assessments</p>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <strong>Quizzes (25%)</strong>
+                                                <p class="small">Regular concept checks and skill assessments</p>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <strong>Homework (20%)</strong>
+                                                <p class="small">Daily practice and problem sets</p>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <strong>Projects (20%)</strong>
+                                                <p class="small">Mathematical modeling and real-world applications</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                {% else %}
+                                    <div class="alert alert-secondary">
+                                        <h6><i class="bi bi-info-circle me-2"></i>Course Information</h6>
+                                        <p>Detailed curriculum information for this course is being updated. Please contact your instructor for specific learning objectives and requirements.</p>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <h6>General Course Structure</h6>
+                                            <ul>
+                                                <li>Weekly assignments and practice problems</li>
+                                                <li>Regular assessments and quizzes</li>
+                                                <li>Hands-on activities and group work</li>
+                                                <li>Final project or comprehensive exam</li>
+                                            </ul>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h6>Learning Resources</h6>
+                                            <ul>
+                                                <li>Textbook and supplementary materials</li>
+                                                <li>Online learning platform access</li>
+                                                <li>Study guides and practice tests</li>
+                                                <li>Office hours and tutoring support</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Course Sections</h5>
+                </div>
+                <div class="card-body">
+                    {% if sections %}
+                        {% for section in sections %}
+                        <div class="mb-2">
+                            <strong>Section {{ section.section_name }}</strong><br>
+                            <small class="text-muted">
+                                Teacher: {{ section.teacher.get_full_name|default:section.teacher.username }}<br>
+                                Room: {{ section.room|default:"TBA" }}
+                            </small>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted">No sections available</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mt-3">
+        <a href="{% url 'search:global_search' %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Back to Search
+        </a>
+    </div>
+</div>
+{% endblock %}
