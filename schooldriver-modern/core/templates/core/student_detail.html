@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">
+                        <i class="bi bi-person-circle me-2"></i>
+                        {{ student.name }}
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Student Information</h5>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>Student ID:</strong></td>
+                                    <td>{{ student.student_id }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Email:</strong></td>
+                                    <td>{{ student.email|default:"Not provided" }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Grade Level:</strong></td>
+                                    <td>{{ student.grade_level|default:"Not specified" }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Status:</strong></td>
+                                    <td>
+                                        {% if student.is_active %}
+                                            <span class="badge bg-success">Active</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Inactive</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Contact Information</h5>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>Phone:</strong></td>
+                                    <td>{{ student.phone|default:"Not provided" }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Address:</strong></td>
+                                    <td>{{ student.address|default:"Not provided" }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Current Enrollments</h5>
+                </div>
+                <div class="card-body">
+                    {% if enrollments %}
+                        {% for enrollment in enrollments %}
+                        <div class="mb-2">
+                            <strong>{{ enrollment.section.course.name }}</strong><br>
+                            <small class="text-muted">Section {{ enrollment.section.section_name }}</small>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted">No current enrollments</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mt-3">
+        <a href="{% url 'search:global_search' %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Back to Search
+        </a>
+    </div>
+</div>
+{% endblock %}

@@ -99,13 +99,18 @@
     
     .result-title {
         font-weight: 600;
-        color: #1f2937;
+        color: #000000 !important;
         margin-bottom: 5px;
     }
     
     .result-meta {
-        color: #6b7280;
+        color: #1f2937 !important;
         font-size: 14px;
+        font-weight: 500;
+    }
+    
+    .result-meta strong {
+        color: #111827 !important;
     }
     
     .search-stats {
@@ -114,6 +119,33 @@
         padding: 15px;
         margin-bottom: 20px;
         text-align: center;
+        color: #111827 !important;
+    }
+    
+    /* Ensure all text in results is dark and visible */
+    .result-item, .result-item * {
+        color: #1f2937 !important;
+    }
+    
+    .result-title, .result-title * {
+        color: #000000 !important;
+    }
+    
+    /* Clickable result items */
+    a.text-decoration-none .result-item {
+        cursor: pointer;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+    }
+    
+    a.text-decoration-none .result-item:hover {
+        background-color: #f0f9ff !important;
+        border-left: 4px solid #14b8a6;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    a.text-decoration-none:hover .result-title {
+        color: #14b8a6 !important;
     }
     
     .saved-searches {
@@ -292,19 +324,21 @@
                         {% if results.students %}
                         <div class="tab-pane fade show active" id="students" role="tabpanel">
                             {% for student in results.students %}
-                            <div class="result-item">
-                                <div class="result-title">
-                                    <i class="bi bi-person-circle me-2"></i>{{ student.name }}
-                                    {% if not student.is_active %}
-                                        <span class="badge bg-secondary ms-2">Inactive</span>
-                                    {% endif %}
+                            <a href="{% url 'student_detail' student.id %}" class="text-decoration-none">
+                                <div class="result-item">
+                                    <div class="result-title">
+                                        <i class="bi bi-person-circle me-2"></i>{{ student.name }}
+                                        {% if not student.is_active %}
+                                            <span class="badge bg-secondary ms-2">Inactive</span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="result-meta">
+                                        <strong>ID:</strong> {{ student.student_id }} | 
+                                        <strong>Grade:</strong> {{ student.grade_level }} | 
+                                        <strong>Email:</strong> {{ student.email|default:"Not provided" }}
+                                    </div>
                                 </div>
-                                <div class="result-meta">
-                                    <strong>ID:</strong> {{ student.student_id }} | 
-                                    <strong>Grade:</strong> {{ student.grade_level }} | 
-                                    <strong>Email:</strong> {{ student.email|default:"Not provided" }}
-                                </div>
-                            </div>
+                            </a>
                             {% endfor %}
                         </div>
                         {% endif %}
@@ -313,16 +347,18 @@
                         {% if results.courses %}
                         <div class="tab-pane fade {% if not results.students %}show active{% endif %}" id="courses" role="tabpanel">
                             {% for course in results.courses %}
-                            <div class="result-item">
-                                <div class="result-title">
-                                    <i class="bi bi-book me-2"></i>{{ course.name }}
-                                    <span class="badge badge-category bg-success">{{ course.subject }}</span>
+                            <a href="{% url 'course_detail' course.id %}" class="text-decoration-none">
+                                <div class="result-item">
+                                    <div class="result-title">
+                                        <i class="bi bi-book me-2"></i>{{ course.name }}
+                                        <span class="badge badge-category bg-success">{{ course.subject }}</span>
+                                    </div>
+                                    <div class="result-meta">
+                                        <strong>Credits:</strong> {{ course.credit_hours }} | 
+                                        <strong>Description:</strong> {{ course.description|default:"No description available" }}
+                                    </div>
                                 </div>
-                                <div class="result-meta">
-                                    <strong>Credits:</strong> {{ course.credit_hours }} | 
-                                    <strong>Description:</strong> {{ course.description|default:"No description available" }}
-                                </div>
-                            </div>
+                            </a>
                             {% endfor %}
                         </div>
                         {% endif %}
@@ -331,16 +367,18 @@
                         {% if results.teachers %}
                         <div class="tab-pane fade {% if not results.students and not results.courses %}show active{% endif %}" id="teachers" role="tabpanel">
                             {% for teacher in results.teachers %}
-                            <div class="result-item">
-                                <div class="result-title">
-                                    <i class="bi bi-person-badge me-2"></i>{{ teacher.name }}
+                            <a href="{% url 'teacher_detail' teacher.id %}" class="text-decoration-none">
+                                <div class="result-item">
+                                    <div class="result-title">
+                                        <i class="bi bi-person-badge me-2"></i>{{ teacher.name }}
+                                    </div>
+                                    <div class="result-meta">
+                                        <strong>Email:</strong> {{ teacher.email }} | 
+                                        <strong>Username:</strong> {{ teacher.username }} | 
+                                        <strong>Courses:</strong> {{ teacher.courses_count }}
+                                    </div>
                                 </div>
-                                <div class="result-meta">
-                                    <strong>Email:</strong> {{ teacher.email }} | 
-                                    <strong>Username:</strong> {{ teacher.username }} | 
-                                    <strong>Courses:</strong> {{ teacher.courses_count }}
-                                </div>
-                            </div>
+                            </a>
                             {% endfor %}
                         </div>
                         {% endif %}
@@ -349,19 +387,21 @@
                         {% if results.assignments %}
                         <div class="tab-pane fade {% if not results.students and not results.courses and not results.teachers %}show active{% endif %}" id="assignments" role="tabpanel">
                             {% for assignment in results.assignments %}
-                            <div class="result-item">
-                                <div class="result-title">
-                                    <i class="bi bi-clipboard-check me-2"></i>{{ assignment.name }}
-                                    {% if not assignment.is_published %}
-                                        <span class="badge bg-warning ms-2">Draft</span>
-                                    {% endif %}
+                            <a href="{% url 'assignment_detail' assignment.id %}" class="text-decoration-none">
+                                <div class="result-item">
+                                    <div class="result-title">
+                                        <i class="bi bi-clipboard-check me-2"></i>{{ assignment.name }}
+                                        {% if not assignment.is_published %}
+                                            <span class="badge bg-warning ms-2">Draft</span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="result-meta">
+                                        <strong>Course:</strong> {{ assignment.course }} | 
+                                        <strong>Due:</strong> {{ assignment.due_date }} | 
+                                        <strong>Points:</strong> {{ assignment.max_points }}
+                                    </div>
                                 </div>
-                                <div class="result-meta">
-                                    <strong>Course:</strong> {{ assignment.course }} | 
-                                    <strong>Due:</strong> {{ assignment.due_date }} | 
-                                    <strong>Points:</strong> {{ assignment.max_points }}
-                                </div>
-                            </div>
+                            </a>
                             {% endfor %}
                         </div>
                         {% endif %}

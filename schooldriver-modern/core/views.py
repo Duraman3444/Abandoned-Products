@@ -35,9 +35,9 @@ class DemoPageView(TemplateView):
             
             # API endpoints for showcase
             'api_endpoints': [
-                {'name': 'Students API', 'url': '/api/students/', 'method': 'GET'},
-                {'name': 'Applicants API', 'url': '/api/applicants/', 'method': 'GET'},
-                {'name': 'Admissions API', 'url': '/api/admissions/', 'method': 'GET'},
+                {'name': 'Students API', 'url': '/api/v1/students/', 'method': 'GET'},
+                {'name': 'Applicants API', 'url': '/api/v1/applicants/', 'method': 'GET'}, 
+                {'name': 'Admission Levels', 'url': '/api/v1/admission-levels/', 'method': 'GET'},
                 {'name': 'Auth Token', 'url': '/api/auth/token/', 'method': 'POST'},
             ],
             

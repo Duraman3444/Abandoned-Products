@@ -80,7 +80,7 @@ def global_search_view(request):
         "grade_level__name", flat=True
     ).distinct()
     school_years = SchoolYear.objects.values_list("name", "id").order_by("-start_date")
-    subjects = Course.objects.values_list("subject", flat=True).distinct()
+    subjects = Course.objects.select_related('department').values_list("department__name", flat=True).distinct()
 
     # Get recent searches and saved searches
     recent_searches = SearchHistory.objects.filter(user=request.user)[:5]
@@ -143,13 +143,14 @@ def search_courses(query, filters):
     if query:
         courses_query = courses_query.filter(
             Q(name__icontains=query)
-            | Q(subject__icontains=query)
+            | Q(course_code__icontains=query)
+            | Q(department__name__icontains=query)
             | Q(description__icontains=query)
         )
 
     # Apply filters
     if filters.get("subject"):
-        courses_query = courses_query.filter(subject=filters["subject"])
+        courses_query = courses_query.filter(department__name=filters["subject"])
 
     if filters.get("school_year"):
         courses_query = courses_query.filter(
@@ -160,7 +161,7 @@ def search_courses(query, filters):
         {
             "id": course.id,
             "name": course.name,
-            "subject": course.subject,
+            "subject": course.department.name if course.department else '',
             "credit_hours": course.credit_hours,
             "description": course.description[:100] + "..."
             if course.description and len(course.description) > 100
@@ -187,7 +188,7 @@ def search_teachers(query, filters):
     # Filter teachers who actually teach courses
     if filters.get("subject"):
         teachers_query = teachers_query.filter(
-            taught_sections__course__subject=filters["subject"]
+            taught_sections__course__department__name=filters["subject"]
         ).distinct()
 
     if filters.get("school_year"):
@@ -224,7 +225,7 @@ def search_assignments(query, filters):
     # Apply filters
     if filters.get("subject"):
         assignments_query = assignments_query.filter(
-            section__course__subject=filters["subject"]
+            section__course__department__name=filters["subject"]
         )
 
     if filters.get("school_year"):

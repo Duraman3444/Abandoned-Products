@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0">
+                        <i class="bi bi-book me-2"></i>
+                        {{ course.name }}
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Course Information</h5>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>Course Code:</strong></td>
+                                    <td>{{ course.course_code|default:"Not provided" }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Credits:</strong></td>
+                                    <td>{{ course.credit_hours|default:"Not specified" }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Subject:</strong></td>
+                                    <td>{{ course.subject|default:"Not specified" }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Department:</strong></td>
+                                    <td>{{ course.department.name|default:"Not specified" }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Description</h5>
+                            <p>{{ course.description|default:"No description available" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Course Sections</h5>
+                </div>
+                <div class="card-body">
+                    {% if sections %}
+                        {% for section in sections %}
+                        <div class="mb-2">
+                            <strong>Section {{ section.section_name }}</strong><br>
+                            <small class="text-muted">
+                                Teacher: {{ section.teacher.get_full_name|default:section.teacher.username }}<br>
+                                Room: {{ section.room|default:"TBA" }}
+                            </small>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted">No sections available</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mt-3">
+        <a href="{% url 'search:global_search' %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Back to Search
+        </a>
+    </div>
+</div>
+{% endblock %}

@@ -21,6 +21,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from core.views import DemoPageView
 from core.explorer_views import ApiLandingView
+from core.detail_views import student_detail_view, course_detail_view, teacher_detail_view, assignment_detail_view
 from . import views
 from .auth_views import CustomLoginView, SignUpView
 from .profile_views import profile_view, ProfileEditView, CustomPasswordChangeView
@@ -59,6 +60,11 @@ urlpatterns = [
     path("admissions-old/", include("admissions.urls")),
     # Health check and utilities
     path("health/", views.health_check, name="health_check"),
+    # Detail views for entities
+    path("student/<int:student_id>/", student_detail_view, name="student_detail"),
+    path("course/<int:course_id>/", course_detail_view, name="course_detail"),
+    path("teacher/<int:teacher_id>/", teacher_detail_view, name="teacher_detail"),
+    path("assignment/<int:assignment_id>/", assignment_detail_view, name="assignment_detail"),
     # API landing page  
     path("api/", ApiLandingView.as_view(), name="api-landing"),
     # API endpoints - documentation and API v1
