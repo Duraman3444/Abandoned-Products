@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Live Analytics Tests</title>
+    <meta charset="utf-8">
+    
+    <!-- Jasmine CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jasmine/3.10.0/jasmine.css">
+    
+    <!-- Test Framework -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jasmine/3.10.0/jasmine.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jasmine/3.10.0/jasmine-html.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jasmine/3.10.0/boot.js"></script>
+    
+    <!-- Chart.js Mock -->
+    <script>
+        // Mock Chart.js for testing
+        window.Chart = function(ctx, config) {
+            this.data = config.data;
+            this.options = config.options;
+            this.update = function() {};
+            this.destroy = function() {};
+        };
+    </script>
+    
+    <!-- Source Code -->
+    <script src="../live_analytics.js"></script>
+    
+    <!-- Test Specs -->
+    <script src="live_analytics.test.js"></script>
+</head>
+<body>
+    <h1>Live Analytics Module Tests</h1>
+    <p>Open browser console to see detailed test results.</p>
+</body>
+</html>

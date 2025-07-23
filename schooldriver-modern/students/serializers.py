@@ -25,14 +25,13 @@ class EmergencyContactSerializer(serializers.ModelSerializer):
         model = EmergencyContact
         fields = [
             "id",
-            "student",
             "first_name",
             "last_name",
             "relationship",
-            "primary_phone",
-            "secondary_phone",
+            "phone_primary",
+            "phone_secondary",
             "email",
-            "address",
+            "street",
             "city",
             "state",
             "zip_code",
@@ -45,7 +44,7 @@ class StudentSerializer(serializers.ModelSerializer):
 
     emergency_contacts = EmergencyContactSerializer(many=True, read_only=True)
     grade_level_name = serializers.CharField(source="grade_level.name", read_only=True)
-    school_year_name = serializers.CharField(source="school_year.name", read_only=True)
+    # school_year_name = serializers.CharField(source="school_year.name", read_only=True)
 
     class Meta:
         model = Student
@@ -58,19 +57,14 @@ class StudentSerializer(serializers.ModelSerializer):
             "gender",
             "grade_level",
             "grade_level_name",
-            "school_year",
-            "school_year_name",
             "enrollment_date",
             "is_active",
-            "guardian_name",
-            "guardian_phone",
-            "guardian_email",
-            "address",
-            "city",
-            "state",
-            "zip_code",
+            "primary_contact_name",
+            "primary_contact_phone",
+            "primary_contact_email",
             "photo",
-            "medical_notes",
+            "special_needs",
+            "notes",
             "emergency_contacts",
             "created_at",
             "updated_at",
@@ -89,7 +83,6 @@ class StudentCreateSerializer(serializers.ModelSerializer):
             "date_of_birth",
             "gender",
             "grade_level",
-            "school_year",
-            "guardian_name",
-            "guardian_phone",
+            "primary_contact_name",
+            "primary_contact_phone",
         ]

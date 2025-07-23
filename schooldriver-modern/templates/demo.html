@@ -1,0 +1,390 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Feature Demo - SchoolDriver Modern{% endblock %}
+
+{% block extra_css %}
+<style>
+.demo-hero {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 4rem 0;
+}
+
+.feature-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    height: 100%;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+.feature-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: #667eea;
+}
+
+.demo-chart {
+    height: 200px !important;
+    max-height: 200px !important;
+    margin: 1rem 0;
+    overflow: hidden;
+}
+
+.device-frame {
+    border: 3px solid #333;
+    border-radius: 15px;
+    padding: 10px;
+    background: #f8f9fa;
+    max-width: 200px;
+    margin: 0 auto;
+}
+
+.screenshot-carousel img {
+    border-radius: 5px;
+    max-height: 120px;
+    object-fit: cover;
+}
+
+.api-endpoint {
+    background: #f8f9fa;
+    border-left: 4px solid #667eea;
+    padding: 0.5rem 1rem;
+    margin: 0.5rem 0;
+    font-family: 'Courier New', monospace;
+}
+
+.badge-method {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.5rem;
+}
+
+.demo-search-box {
+    border: 2px solid #667eea;
+    border-radius: 25px;
+    padding: 10px 20px;
+    font-size: 1.1rem;
+}
+
+.btn-outline-primary {
+    color: #0d6efd !important;
+    border-color: #0d6efd !important;
+}
+
+.btn-outline-primary:hover {
+    background-color: #0d6efd !important;
+    color: white !important;
+}
+
+.btn-outline-secondary {
+    color: #6c757d !important;
+    border-color: #6c757d !important;  
+}
+
+.btn-outline-secondary:hover {
+    background-color: #6c757d !important;
+    color: white !important;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="demo-hero">
+    <div class="container">
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-8">
+                <h1 class="display-4 fw-bold mb-4">
+                    <i class="bi bi-mortarboard-fill me-3"></i>
+                    SchoolDriver Modern
+                </h1>
+                <p class="lead mb-4">
+                    Experience the future of educational technology with our comprehensive Student Information System
+                </p>
+                <div class="row text-center mt-4">
+                    <div class="col-md-3">
+                        <h3>{{ total_students }}+</h3>
+                        <small>Students</small>
+                    </div>
+                    <div class="col-md-3">
+                        <h3>{{ total_applicants }}+</h3>
+                        <small>Applicants</small>
+                    </div>
+                    <div class="col-md-3">
+                        <h3>{{ total_users }}+</h3>
+                        <small>Users</small>
+                    </div>
+                    <div class="col-md-3">
+                        <h3>6</h3>
+                        <small>Core Features</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center mb-5">
+            <div class="col-lg-8 text-center">
+                <h2 class="fw-bold mb-3">Flagship Features</h2>
+                <p class="text-muted">Discover the powerful capabilities that make SchoolDriver Modern the perfect choice for educational institutions</p>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Feature 1: Schedule Export/Print System -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card feature-card">
+                    <div class="card-body text-center p-4">
+                        <i class="{{ features.schedule_export.icon }} feature-icon"></i>
+                        <h5 class="card-title fw-bold">{{ features.schedule_export.title }}</h5>
+                        <p class="card-text text-muted">{{ features.schedule_export.description }}</p>
+                        
+                        <!-- Export Demo -->
+                        <div class="my-3">
+                            <button class="btn btn-outline-primary me-2" disabled>
+                                <i class="bi bi-file-earmark-pdf"></i> Export PDF
+                            </button>
+                            <button class="btn btn-outline-success" disabled>
+                                <i class="bi bi-file-earmark-text"></i> Export CSV
+                            </button>
+                            <div class="mt-2">
+                                <small class="text-muted">{{ exported_pdfs_count }} schedules exported this month</small>
+                            </div>
+                        </div>
+                        
+                        <a href="/student/" class="btn btn-primary">{{ features.schedule_export.demo_action }}</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feature 2: Modern Authentication System -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card feature-card">
+                    <div class="card-body text-center p-4">
+                        <i class="{{ features.authentication.icon }} feature-icon"></i>
+                        <h5 class="card-title fw-bold">{{ features.authentication.title }}</h5>
+                        <p class="card-text text-muted">{{ features.authentication.description }}</p>
+                        
+                        <!-- Auth Demo -->
+                        <div class="my-3">
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <i class="bi bi-person-badge text-primary"></i>
+                                    <div><small>Student</small></div>
+                                </div>
+                                <div class="col-6">
+                                    <i class="bi bi-people-fill text-success"></i>
+                                    <div><small>Parent</small></div>
+                                </div>
+                            </div>
+                            <div class="row text-center mt-2">
+                                <div class="col-6">
+                                    <i class="bi bi-person-workspace text-warning"></i>
+                                    <div><small>Teacher</small></div>
+                                </div>
+                                <div class="col-6">
+                                    <i class="bi bi-gear-fill text-danger"></i>
+                                    <div><small>Admin</small></div>
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <span class="badge bg-secondary">Current Role: {{ demo_role }}</span>
+                            </div>
+                        </div>
+                        
+                        <a href="/accounts/login/" class="btn btn-primary">{{ features.authentication.demo_action }}</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feature 3: Mobile-Responsive Design -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card feature-card">
+                    <div class="card-body text-center p-4">
+                        <i class="{{ features.responsive_design.icon }} feature-icon"></i>
+                        <h5 class="card-title fw-bold">{{ features.responsive_design.title }}</h5>
+                        <p class="card-text text-muted">{{ features.responsive_design.description }}</p>
+                        
+                        <!-- Responsive Demo -->
+                        <div class="my-3">
+                            <div class="device-frame">
+                                <div id="responsiveCarousel" class="carousel slide screenshot-carousel" data-bs-ride="carousel">
+                                    <div class="carousel-inner">
+                                        <div class="carousel-item active">
+                                            <div class="bg-primary text-white p-2 rounded">
+                                                <small>📱 Mobile View</small>
+                                                <div class="bg-white text-dark p-1 mt-1 rounded">
+                                                    <div class="d-flex justify-content-between">
+                                                        <span>☰</span>
+                                                        <span>Dashboard</span>
+                                                        <span>👤</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="carousel-item">
+                                            <div class="bg-success text-white p-2 rounded">
+                                                <small>💻 Desktop View</small>
+                                                <div class="bg-white text-dark p-1 mt-1 rounded">
+                                                    <div class="d-flex justify-content-between">
+                                                        <span>Sidebar</span>
+                                                        <span>Content</span>
+                                                        <span>Panel</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <small class="text-muted">Responsive across all devices</small>
+                            </div>
+                        </div>
+                        
+                        <a href="/student/" class="btn btn-primary">{{ features.responsive_design.demo_action }}</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feature 4: Real-time Dashboard Analytics -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card feature-card">
+                    <div class="card-body text-center p-4">
+                        <i class="{{ features.analytics.icon }} feature-icon"></i>
+                        <h5 class="card-title fw-bold">{{ features.analytics.title }}</h5>
+                        <p class="card-text text-muted">{{ features.analytics.description }}</p>
+                        
+                        <!-- Analytics Demo -->
+                        <div class="my-3">
+                            <div class="demo-chart">
+                                <canvas id="gpaChart" style="max-height: 200px !important;"></canvas>
+                            </div>
+                            <div class="mt-2">
+                                <small class="text-muted">Live GPA averages by grade level</small>
+                            </div>
+                        </div>
+                        
+                        <a href="/dashboard/" class="btn btn-primary">{{ features.analytics.demo_action }}</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feature 5: Advanced Search & Filtering -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card feature-card">
+                    <div class="card-body text-center p-4">
+                        <i class="{{ features.search_filtering.icon }} feature-icon"></i>
+                        <h5 class="card-title fw-bold">{{ features.search_filtering.title }}</h5>
+                        <p class="card-text text-muted">{{ features.search_filtering.description }}</p>
+                        
+                        <!-- Search Demo -->
+                        <div class="my-3">
+                            <div class="input-group">
+                                <input type="text" 
+                                       class="form-control demo-search-box border-end-0" 
+                                       placeholder="Search students, courses..." 
+                                       id="demoSearchInput">
+                                <button class="btn btn-outline-primary border-start-0" 
+                                        type="button" 
+                                        onclick="performDemoSearch()">
+                                    <i class="bi bi-search"></i>
+                                </button>
+                            </div>
+                            <div class="mt-2">
+                                <small class="text-muted">Try: "Emma", "Math", "Grade 5"</small>
+                            </div>
+                        </div>
+                        
+                        <a href="/search/" class="btn btn-primary">{{ features.search_filtering.demo_action }}</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feature 6: API-First Architecture -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card feature-card">
+                    <div class="card-body text-center p-4">
+                        <i class="{{ features.api_architecture.icon }} feature-icon"></i>
+                        <h5 class="card-title fw-bold">{{ features.api_architecture.title }}</h5>
+                        <p class="card-text text-muted">{{ features.api_architecture.description }}</p>
+                        
+                        <!-- API Demo -->
+                        <div class="my-3">
+                            {% for endpoint in api_endpoints %}
+                            <div class="api-endpoint text-start">
+                                <span class="badge bg-primary badge-method">{{ endpoint.method }}</span>
+                                <code>{{ endpoint.url }}</code>
+                                <a href="{{ endpoint.url }}" target="_blank" class="btn btn-sm btn-outline-primary ms-2">
+                                    Try
+                                </a>
+                            </div>
+                            {% endfor %}
+                            <div class="mt-2">
+                                <a href="/api/schema/swagger-ui/" target="_blank" class="badge bg-info text-decoration-none">
+                                    📖 API Docs
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <a href="{% url 'api-landing' %}" class="btn btn-primary">{{ features.api_architecture.demo_action }}</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="bg-light py-5">
+    <div class="container text-center">
+        <h3 class="fw-bold mb-3 text-dark">Ready to Get Started?</h3>
+        <p class="text-dark mb-4">Experience the full power of SchoolDriver Modern</p>
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="btn-group-vertical btn-group-lg d-md-none" role="group">
+                    <a href="/accounts/login/" class="btn btn-primary mb-2">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Login to Portal
+                    </a>
+                    <a href="/admin/" class="btn btn-outline-primary mb-2">
+                        <i class="bi bi-gear me-2"></i>Admin Dashboard
+                    </a>
+                    <a href="https://github.com/Duraman3444/Schooldriver-ModernVersion" target="_blank" class="btn btn-outline-secondary">
+                        <i class="bi bi-github me-2"></i>View on GitHub
+                    </a>
+                </div>
+                <div class="btn-group d-none d-md-inline-flex" role="group">
+                    <a href="/accounts/login/" class="btn btn-primary btn-lg">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Login to Portal
+                    </a>
+                    <a href="/admin/" class="btn btn-outline-primary btn-lg">
+                        <i class="bi bi-gear me-2"></i>Admin Dashboard
+                    </a>
+                    <a href="https://github.com/Duraman3444/Schooldriver-ModernVersion" target="_blank" class="btn btn-outline-secondary btn-lg">
+                        <i class="bi bi-github me-2"></i>View on GitHub
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{% static 'js/demo.js' %}"></script>
+<script>
+// Initialize demo page with Chart.js data
+const gpaData = {{ gpa_data|safe }};
+initializeDemoPage(gpaData);
+</script>
+{% endblock %}

@@ -8,7 +8,7 @@ from .models import (
     FeederSchool,
     AdmissionLevel,
     AdmissionCheck,
-    ApplicantFile,
+    ApplicantDocument,
 )
 from .serializers import (
     ApplicantSerializer,
@@ -17,7 +17,7 @@ from .serializers import (
     FeederSchoolSerializer,
     AdmissionLevelSerializer,
     AdmissionCheckSerializer,
-    ApplicantFileSerializer,
+    ApplicantDocumentSerializer,
 )
 
 
@@ -67,7 +67,7 @@ class AdmissionLevelViewSet(viewsets.ModelViewSet):
     serializer_class = AdmissionLevelSerializer
     permission_classes = [permissions.IsAuthenticated]
     filter_backends = [filters.OrderingFilter, DjangoFilterBackend]
-    filterset_fields = ["is_active", "is_default_first_level"]
+    filterset_fields = ["is_active"]
     ordering_fields = ["order", "name"]
     ordering = ["order"]
 
@@ -95,7 +95,7 @@ class AdmissionCheckViewSet(viewsets.ModelViewSet):
         DjangoFilterBackend,
     ]
     search_fields = ["name"]
-    filterset_fields = ["required_for_level", "is_active"]
+    filterset_fields = ["level", "is_required", "is_active"]
     ordering_fields = ["name", "created_at"]
     ordering = ["name"]
 
@@ -117,24 +117,24 @@ class ApplicantViewSet(viewsets.ModelViewSet):
     """ViewSet for managing applicant records."""
 
     queryset = Applicant.objects.select_related(
-        "current_level", "school_year", "feeder_school", "target_grade_level"
-    ).prefetch_related("completed_checks", "files")
+        "level", "school_year", "current_school", "applying_for_grade"
+    ).prefetch_related("completed_checks", "documents")
     permission_classes = [permissions.IsAuthenticated]
     filter_backends = [
         filters.SearchFilter,
         filters.OrderingFilter,
         DjangoFilterBackend,
     ]
-    search_fields = ["first_name", "last_name", "guardian_name"]
+    search_fields = ["first_name", "last_name", "primary_parent_name"]
     filterset_fields = [
-        "current_level",
+        "level",
         "school_year",
-        "target_grade_level",
-        "feeder_school",
+        "applying_for_grade",
+        "current_school",
         "gender",
     ]
-    ordering_fields = ["last_name", "first_name", "application_date", "created_at"]
-    ordering = ["-application_date", "last_name"]
+    ordering_fields = ["last_name", "first_name", "created_at"]
+    ordering = ["-created_at", "last_name"]
 
     def get_serializer_class(self):
         """Use different serializers based on action."""
@@ -174,8 +174,8 @@ class ApplicantViewSet(viewsets.ModelViewSet):
         return Response(
             {
                 "can_advance": can_advance,
-                "current_level": applicant.current_level.name
-                if applicant.current_level
+                "level": applicant.level.name
+                if applicant.level
                 else None,
                 "completed_checks_count": applicant.completed_checks.count(),
             }
@@ -196,7 +196,7 @@ class ApplicantViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["get"], url_path="by-level/(?P<level_id>[^/.]+)")
     def by_level(self, request, level_id=None):
         """Get all applicants at a specific admission level."""
-        applicants = self.get_queryset().filter(current_level_id=level_id)
+        applicants = self.get_queryset().filter(level_id=level_id)
         serializer = ApplicantSummarySerializer(applicants, many=True)
         return Response(serializer.data)
 
@@ -216,11 +216,11 @@ class ApplicantViewSet(viewsets.ModelViewSet):
 
         # Count by admission level
         for level in AdmissionLevel.objects.filter(is_active=True):
-            count = queryset.filter(current_level=level).count()
+            count = queryset.filter(level=level).count()
             stats["by_level"][level.name] = count
 
         # Count by target grade
-        grade_counts = queryset.values("target_grade_level__name").distinct().count()
+        grade_counts = queryset.values("applying_for_grade__name").distinct().count()
         stats["by_grade"] = grade_counts
 
         return Response(stats)
@@ -232,11 +232,11 @@ class ApplicantViewSet(viewsets.ModelViewSet):
     create=extend_schema(description="Upload new file", tags=["admissions"]),
     destroy=extend_schema(description="Delete file", tags=["admissions"]),
 )
-class ApplicantFileViewSet(viewsets.ModelViewSet):
+class ApplicantDocumentViewSet(viewsets.ModelViewSet):
     """ViewSet for managing applicant document files."""
 
-    queryset = ApplicantFile.objects.select_related("applicant")
-    serializer_class = ApplicantFileSerializer
+    queryset = ApplicantDocument.objects.select_related("applicant")
+    serializer_class = ApplicantDocumentSerializer
     permission_classes = [permissions.IsAuthenticated]
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     filterset_fields = ["applicant"]

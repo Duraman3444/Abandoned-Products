@@ -19,6 +19,8 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from core.views import DemoPageView
+from core.explorer_views import ApiLandingView
 from . import views
 from .auth_views import CustomLoginView, SignUpView
 from .profile_views import profile_view, ProfileEditView, CustomPasswordChangeView
@@ -26,6 +28,7 @@ from .profile_views import profile_view, ProfileEditView, CustomPasswordChangeVi
 urlpatterns = [
     # Public URLs (no authentication required)
     path("", include("public.urls")),
+    path("demo/", DemoPageView.as_view(), name="demo"),
     # Authentication URLs
     path("accounts/login/", CustomLoginView.as_view(), name="login"),
     path("accounts/signup/", SignUpView.as_view(), name="signup"),
@@ -56,8 +59,12 @@ urlpatterns = [
     path("admissions-old/", include("admissions.urls")),
     # Health check and utilities
     path("health/", views.health_check, name="health_check"),
-    # API endpoints
-    path("api/v1/", include("api.urls")),
+    # API landing page  
+    path("api/", ApiLandingView.as_view(), name="api-landing"),
+    # API endpoints - documentation and API v1
+    path("api/", include("schooldriver_modern.api_urls")),
+    # Legacy API v1 (disabled for now due to missing models)
+    # path("api/v1/", include("api.urls")),
 ]
 
 # Serve media and static files during development

@@ -1,0 +1,3086 @@
+openapi: 3.0.3
+info:
+  title: SchoolDriver Modern API
+  version: 1.0.0
+  description: Modern school management system API with student information, admissions,
+    and academic tracking.
+paths:
+  /api/v1/admission-checks/:
+    get:
+      operationId: admission_checks_list
+      description: List admission requirements/checks
+      parameters:
+      - in: query
+        name: is_active
+        schema:
+          type: boolean
+      - in: query
+        name: is_required
+        schema:
+          type: boolean
+      - in: query
+        name: level
+        schema:
+          type: string
+          format: uuid
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - admissions
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAdmissionCheckList'
+          description: ''
+    post:
+      operationId: admission_checks_create
+      description: Create new admission check
+      tags:
+      - admissions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdmissionCheckRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdmissionCheckRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdmissionCheckRequest'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdmissionCheck'
+          description: ''
+  /api/v1/admission-checks/{id}/:
+    get:
+      operationId: admission_checks_retrieve
+      description: Get admission check details
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this admission check.
+        required: true
+      tags:
+      - admissions
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdmissionCheck'
+          description: ''
+    put:
+      operationId: admission_checks_update
+      description: Update admission check
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this admission check.
+        required: true
+      tags:
+      - admissions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdmissionCheckRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdmissionCheckRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdmissionCheckRequest'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdmissionCheck'
+          description: ''
+    patch:
+      operationId: admission_checks_partial_update
+      description: ViewSet for managing admission requirements and checks.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this admission check.
+        required: true
+      tags:
+      - admission-checks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedAdmissionCheckRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedAdmissionCheckRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedAdmissionCheckRequest'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdmissionCheck'
+          description: ''
+    delete:
+      operationId: admission_checks_destroy
+      description: Delete admission check
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this admission check.
+        required: true
+      tags:
+      - admissions
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/admission-levels/:
+    get:
+      operationId: admission_levels_list
+      description: List admission process levels
+      parameters:
+      - in: query
+        name: is_active
+        schema:
+          type: boolean
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - admissions
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAdmissionLevelList'
+          description: ''
+    post:
+      operationId: admission_levels_create
+      description: Create new admission level
+      tags:
+      - admissions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdmissionLevelRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdmissionLevelRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdmissionLevelRequest'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdmissionLevel'
+          description: ''
+  /api/v1/admission-levels/{id}/:
+    get:
+      operationId: admission_levels_retrieve
+      description: Get admission level details
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this admission level.
+        required: true
+      tags:
+      - admissions
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdmissionLevel'
+          description: ''
+    put:
+      operationId: admission_levels_update
+      description: Update admission level
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this admission level.
+        required: true
+      tags:
+      - admissions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdmissionLevelRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdmissionLevelRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdmissionLevelRequest'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdmissionLevel'
+          description: ''
+    patch:
+      operationId: admission_levels_partial_update
+      description: ViewSet for managing admission process levels.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this admission level.
+        required: true
+      tags:
+      - admission-levels
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedAdmissionLevelRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedAdmissionLevelRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedAdmissionLevelRequest'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdmissionLevel'
+          description: ''
+    delete:
+      operationId: admission_levels_destroy
+      description: Delete admission level
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this admission level.
+        required: true
+      tags:
+      - admissions
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/applicant-documents/:
+    get:
+      operationId: applicant_documents_list
+      description: List applicant files
+      parameters:
+      - in: query
+        name: applicant
+        schema:
+          type: string
+          format: uuid
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - admissions
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedApplicantDocumentList'
+          description: ''
+    post:
+      operationId: applicant_documents_create
+      description: Upload new file
+      tags:
+      - admissions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicantDocumentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ApplicantDocumentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ApplicantDocumentRequest'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicantDocument'
+          description: ''
+  /api/v1/applicant-documents/{id}/:
+    get:
+      operationId: applicant_documents_retrieve
+      description: Get file details
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this applicant document.
+        required: true
+      tags:
+      - admissions
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicantDocument'
+          description: ''
+    delete:
+      operationId: applicant_documents_destroy
+      description: Delete file
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this applicant document.
+        required: true
+      tags:
+      - admissions
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/applicants/:
+    get:
+      operationId: applicants_list
+      description: List all applicants with filtering
+      parameters:
+      - in: query
+        name: applying_for_grade
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: current_school
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: gender
+        schema:
+          type: string
+          enum:
+          - F
+          - M
+          - N
+          - O
+        description: |-
+          * `M` - Male
+          * `F` - Female
+          * `O` - Other
+          * `N` - Prefer not to say
+      - in: query
+        name: level
+        schema:
+          type: string
+          format: uuid
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: school_year
+        schema:
+          type: string
+          format: uuid
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - admissions
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedApplicantSummaryList'
+          description: ''
+    post:
+      operationId: applicants_create
+      description: Create a new applicant
+      tags:
+      - admissions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicantCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ApplicantCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ApplicantCreateRequest'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicantCreate'
+          description: ''
+  /api/v1/applicants/{id}/:
+    get:
+      operationId: applicants_retrieve
+      description: Get detailed applicant information
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this applicant.
+        required: true
+      tags:
+      - admissions
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Applicant'
+          description: ''
+    put:
+      operationId: applicants_update
+      description: Update applicant information
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this applicant.
+        required: true
+      tags:
+      - admissions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicantRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ApplicantRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ApplicantRequest'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Applicant'
+          description: ''
+    patch:
+      operationId: applicants_partial_update
+      description: ViewSet for managing applicant records.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this applicant.
+        required: true
+      tags:
+      - applicants
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedApplicantRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedApplicantRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedApplicantRequest'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Applicant'
+          description: ''
+    delete:
+      operationId: applicants_destroy
+      description: Remove an applicant
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this applicant.
+        required: true
+      tags:
+      - admissions
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/applicants/{id}/advance_level/:
+    post:
+      operationId: applicants_advance_level_create
+      description: Advance applicant to next admission level
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this applicant.
+        required: true
+      tags:
+      - admissions
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Applicant'
+          description: ''
+  /api/v1/applicants/{id}/can_advance/:
+    get:
+      operationId: applicants_can_advance_retrieve
+      description: Check if applicant can advance to next level
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this applicant.
+        required: true
+      tags:
+      - admissions
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Applicant'
+          description: ''
+  /api/v1/applicants/by-level/{level_id}/:
+    get:
+      operationId: applicants_by_level_retrieve
+      description: Get applicants by admission level
+      parameters:
+      - in: path
+        name: level_id
+        schema:
+          type: string
+          format: uuid
+          description: Current stage in admission process
+        required: true
+      tags:
+      - admissions
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Applicant'
+          description: ''
+  /api/v1/applicants/stats/:
+    get:
+      operationId: applicants_stats_retrieve
+      description: Get admission statistics
+      tags:
+      - admissions
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Applicant'
+          description: ''
+  /api/v1/emergency-contacts/:
+    get:
+      operationId: emergency_contacts_list
+      description: List emergency contacts
+      parameters:
+      - in: query
+        name: is_primary
+        schema:
+          type: boolean
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: relationship
+        schema:
+          type: string
+          enum:
+          - emergency
+          - father
+          - grandparent
+          - guardian
+          - mother
+          - other
+        description: |-
+          * `mother` - Mother
+          * `father` - Father
+          * `guardian` - Legal Guardian
+          * `grandparent` - Grandparent
+          * `other` - Other Relative
+          * `emergency` - Emergency Contact
+      - in: query
+        name: student
+        schema:
+          type: array
+          items:
+            type: string
+            format: uuid
+        explode: true
+        style: form
+      tags:
+      - students
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedEmergencyContactList'
+          description: ''
+    post:
+      operationId: emergency_contacts_create
+      description: Add new emergency contact
+      tags:
+      - students
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmergencyContactRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/EmergencyContactRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/EmergencyContactRequest'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmergencyContact'
+          description: ''
+  /api/v1/emergency-contacts/{id}/:
+    get:
+      operationId: emergency_contacts_retrieve
+      description: Get emergency contact details
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this emergency contact.
+        required: true
+      tags:
+      - students
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmergencyContact'
+          description: ''
+    put:
+      operationId: emergency_contacts_update
+      description: Update emergency contact
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this emergency contact.
+        required: true
+      tags:
+      - students
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmergencyContactRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/EmergencyContactRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/EmergencyContactRequest'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmergencyContact'
+          description: ''
+    patch:
+      operationId: emergency_contacts_partial_update
+      description: ViewSet for managing student emergency contacts.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this emergency contact.
+        required: true
+      tags:
+      - emergency-contacts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedEmergencyContactRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedEmergencyContactRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedEmergencyContactRequest'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmergencyContact'
+          description: ''
+    delete:
+      operationId: emergency_contacts_destroy
+      description: Remove emergency contact
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this emergency contact.
+        required: true
+      tags:
+      - students
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/feeder-schools/:
+    get:
+      operationId: feeder_schools_list
+      description: List all feeder schools
+      parameters:
+      - in: query
+        name: is_active
+        schema:
+          type: boolean
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: school_type
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: state
+        schema:
+          type: string
+      tags:
+      - admissions
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedFeederSchoolList'
+          description: ''
+    post:
+      operationId: feeder_schools_create
+      description: Create a new feeder school
+      tags:
+      - admissions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FeederSchoolRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/FeederSchoolRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FeederSchoolRequest'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeederSchool'
+          description: ''
+  /api/v1/feeder-schools/{id}/:
+    get:
+      operationId: feeder_schools_retrieve
+      description: Get feeder school details
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this feeder school.
+        required: true
+      tags:
+      - admissions
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeederSchool'
+          description: ''
+    put:
+      operationId: feeder_schools_update
+      description: Update feeder school information
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this feeder school.
+        required: true
+      tags:
+      - admissions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FeederSchoolRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/FeederSchoolRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FeederSchoolRequest'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeederSchool'
+          description: ''
+    patch:
+      operationId: feeder_schools_partial_update
+      description: ViewSet for managing feeder schools.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this feeder school.
+        required: true
+      tags:
+      - feeder-schools
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedFeederSchoolRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedFeederSchoolRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedFeederSchoolRequest'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeederSchool'
+          description: ''
+    delete:
+      operationId: feeder_schools_destroy
+      description: Delete a feeder school
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this feeder school.
+        required: true
+      tags:
+      - admissions
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/grade-levels/:
+    get:
+      operationId: grade_levels_list
+      description: List all grade levels
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - students
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedGradeLevelList'
+          description: ''
+    post:
+      operationId: grade_levels_create
+      description: Create a new grade level
+      tags:
+      - students
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GradeLevelRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/GradeLevelRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/GradeLevelRequest'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GradeLevel'
+          description: ''
+  /api/v1/grade-levels/{id}/:
+    get:
+      operationId: grade_levels_retrieve
+      description: Get a specific grade level
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this grade level.
+        required: true
+      tags:
+      - students
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GradeLevel'
+          description: ''
+    put:
+      operationId: grade_levels_update
+      description: Update a grade level
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this grade level.
+        required: true
+      tags:
+      - students
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GradeLevelRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/GradeLevelRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/GradeLevelRequest'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GradeLevel'
+          description: ''
+    patch:
+      operationId: grade_levels_partial_update
+      description: ViewSet for managing grade levels (K, 1st, 2nd, etc.).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this grade level.
+        required: true
+      tags:
+      - grade-levels
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedGradeLevelRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedGradeLevelRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedGradeLevelRequest'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GradeLevel'
+          description: ''
+    delete:
+      operationId: grade_levels_destroy
+      description: Delete a grade level
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this grade level.
+        required: true
+      tags:
+      - students
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/school-years/:
+    get:
+      operationId: school_years_list
+      description: List all school years
+      parameters:
+      - in: query
+        name: is_active
+        schema:
+          type: boolean
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - students
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedSchoolYearList'
+          description: ''
+    post:
+      operationId: school_years_create
+      description: Create a new school year
+      tags:
+      - students
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolYearRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SchoolYearRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SchoolYearRequest'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SchoolYear'
+          description: ''
+  /api/v1/school-years/{id}/:
+    get:
+      operationId: school_years_retrieve
+      description: Get a specific school year
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this school year.
+        required: true
+      tags:
+      - students
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SchoolYear'
+          description: ''
+    put:
+      operationId: school_years_update
+      description: Update a school year
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this school year.
+        required: true
+      tags:
+      - students
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolYearRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SchoolYearRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SchoolYearRequest'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SchoolYear'
+          description: ''
+    patch:
+      operationId: school_years_partial_update
+      description: ViewSet for managing academic years (2024-2025, etc.).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this school year.
+        required: true
+      tags:
+      - school-years
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedSchoolYearRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedSchoolYearRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedSchoolYearRequest'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SchoolYear'
+          description: ''
+    delete:
+      operationId: school_years_destroy
+      description: Delete a school year
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this school year.
+        required: true
+      tags:
+      - students
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/school-years/current/:
+    get:
+      operationId: school_years_current_retrieve
+      description: Get the currently active school year
+      tags:
+      - students
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SchoolYear'
+          description: ''
+  /api/v1/students/:
+    get:
+      operationId: students_list
+      description: List all students with filtering and search
+      parameters:
+      - in: query
+        name: gender
+        schema:
+          type: string
+          enum:
+          - F
+          - M
+          - N
+          - O
+        description: |-
+          * `M` - Male
+          * `F` - Female
+          * `O` - Other
+          * `N` - Prefer not to say
+      - in: query
+        name: grade_level
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: is_active
+        schema:
+          type: boolean
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - students
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedStudentList'
+          description: ''
+    post:
+      operationId: students_create
+      description: Create a new student record
+      tags:
+      - students
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/StudentCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/StudentCreateRequest'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentCreate'
+          description: ''
+  /api/v1/students/{id}/:
+    get:
+      operationId: students_retrieve
+      description: Get detailed student information
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this student.
+        required: true
+      tags:
+      - students
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+          description: ''
+    put:
+      operationId: students_update
+      description: Update student information
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this student.
+        required: true
+      tags:
+      - students
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/StudentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/StudentRequest'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+          description: ''
+    patch:
+      operationId: students_partial_update
+      description: ViewSet for managing student records.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this student.
+        required: true
+      tags:
+      - students
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedStudentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedStudentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedStudentRequest'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+          description: ''
+    delete:
+      operationId: students_destroy
+      description: Remove a student record
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this student.
+        required: true
+      tags:
+      - students
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/students/by-grade/{grade_level_id}/:
+    get:
+      operationId: students_by_grade_retrieve
+      description: Get students by grade level
+      parameters:
+      - in: path
+        name: grade_level_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - students
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+          description: ''
+  /api/v1/students/stats/:
+    get:
+      operationId: students_stats_retrieve
+      description: Get student statistics
+      tags:
+      - students
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+          description: ''
+components:
+  schemas:
+    AdmissionCheck:
+      type: object
+      description: Serializer for admission requirements/checks.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          maxLength: 200
+        level:
+          type: string
+          format: uuid
+        level_name:
+          type: string
+          readOnly: true
+        is_required:
+          type: boolean
+          description: When true, applicant cannot advance past this level without
+            completing this check
+        description:
+          type: string
+        is_active:
+          type: boolean
+      required:
+      - id
+      - level
+      - level_name
+      - name
+    AdmissionCheckRequest:
+      type: object
+      description: Serializer for admission requirements/checks.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        level:
+          type: string
+          format: uuid
+        is_required:
+          type: boolean
+          description: When true, applicant cannot advance past this level without
+            completing this check
+        description:
+          type: string
+        is_active:
+          type: boolean
+      required:
+      - level
+      - name
+    AdmissionLevel:
+      type: object
+      description: Serializer for admission process levels.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          pattern: ^[a-zA-Z0-9\s\-]+$
+          maxLength: 100
+        order:
+          type: integer
+          description: Order in admission process, 1 being first
+        description:
+          type: string
+          description: What happens at this level
+        is_active:
+          type: boolean
+      required:
+      - id
+      - name
+      - order
+    AdmissionLevelRequest:
+      type: object
+      description: Serializer for admission process levels.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          pattern: ^[a-zA-Z0-9\s\-]+$
+          maxLength: 100
+        order:
+          type: integer
+          description: Order in admission process, 1 being first
+        description:
+          type: string
+          description: What happens at this level
+        is_active:
+          type: boolean
+      required:
+      - name
+      - order
+    Applicant:
+      type: object
+      description: Serializer for applicant information.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        first_name:
+          type: string
+          maxLength: 100
+        last_name:
+          type: string
+          maxLength: 100
+        date_of_birth:
+          type: string
+          format: date
+          nullable: true
+        gender:
+          oneOf:
+          - $ref: '#/components/schemas/GenderEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        level:
+          type: string
+          format: uuid
+          nullable: true
+          description: Current stage in admission process
+        level_name:
+          type: string
+          readOnly: true
+        school_year:
+          type: string
+          format: uuid
+          nullable: true
+        school_year_name:
+          type: string
+          readOnly: true
+        applying_for_grade:
+          type: string
+          format: uuid
+          nullable: true
+        current_school:
+          type: string
+          format: uuid
+          nullable: true
+        current_school_name:
+          type: string
+          readOnly: true
+        email:
+          type: string
+          format: email
+          description: Student's email if available
+          maxLength: 254
+        street:
+          type: string
+          maxLength: 200
+        city:
+          type: string
+          maxLength: 100
+        state:
+          type: string
+          maxLength: 50
+        zip_code:
+          type: string
+          maxLength: 10
+        primary_parent_name:
+          type: string
+          readOnly: true
+        primary_parent_email:
+          type: string
+          format: email
+          readOnly: true
+        primary_parent_phone:
+          type: string
+          readOnly: true
+        notes:
+          type: string
+          description: Internal notes about applicant
+        completed_checks:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdmissionCheck'
+          readOnly: true
+        documents:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApplicantDocument'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - completed_checks
+      - created_at
+      - current_school_name
+      - documents
+      - first_name
+      - id
+      - last_name
+      - level_name
+      - primary_parent_email
+      - primary_parent_name
+      - primary_parent_phone
+      - school_year_name
+      - updated_at
+    ApplicantCreate:
+      type: object
+      description: Serializer for creating new applicants with required fields only.
+      properties:
+        first_name:
+          type: string
+          maxLength: 100
+        last_name:
+          type: string
+          maxLength: 100
+        date_of_birth:
+          type: string
+          format: date
+          nullable: true
+        school_year:
+          type: string
+          format: uuid
+          nullable: true
+        applying_for_grade:
+          type: string
+          format: uuid
+          nullable: true
+        primary_parent_name:
+          type: string
+          readOnly: true
+        primary_parent_phone:
+          type: string
+          readOnly: true
+      required:
+      - first_name
+      - last_name
+      - primary_parent_name
+      - primary_parent_phone
+    ApplicantCreateRequest:
+      type: object
+      description: Serializer for creating new applicants with required fields only.
+      properties:
+        first_name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        last_name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        date_of_birth:
+          type: string
+          format: date
+          nullable: true
+        school_year:
+          type: string
+          format: uuid
+          nullable: true
+        applying_for_grade:
+          type: string
+          format: uuid
+          nullable: true
+      required:
+      - first_name
+      - last_name
+    ApplicantDocument:
+      type: object
+      description: Serializer for applicant document files.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        applicant:
+          type: string
+          format: uuid
+        file:
+          type: string
+          format: uri
+          description: Upload document image or PDF
+        title:
+          type: string
+          description: Document title or description
+          maxLength: 200
+        document_type:
+          $ref: '#/components/schemas/DocumentTypeEnum'
+        uploaded_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - applicant
+      - document_type
+      - file
+      - id
+      - title
+      - uploaded_at
+    ApplicantDocumentRequest:
+      type: object
+      description: Serializer for applicant document files.
+      properties:
+        applicant:
+          type: string
+          format: uuid
+        file:
+          type: string
+          format: binary
+          description: Upload document image or PDF
+        title:
+          type: string
+          minLength: 1
+          description: Document title or description
+          maxLength: 200
+        document_type:
+          $ref: '#/components/schemas/DocumentTypeEnum'
+      required:
+      - applicant
+      - document_type
+      - file
+      - title
+    ApplicantRequest:
+      type: object
+      description: Serializer for applicant information.
+      properties:
+        first_name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        last_name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        date_of_birth:
+          type: string
+          format: date
+          nullable: true
+        gender:
+          oneOf:
+          - $ref: '#/components/schemas/GenderEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        level:
+          type: string
+          format: uuid
+          nullable: true
+          description: Current stage in admission process
+        school_year:
+          type: string
+          format: uuid
+          nullable: true
+        applying_for_grade:
+          type: string
+          format: uuid
+          nullable: true
+        current_school:
+          type: string
+          format: uuid
+          nullable: true
+        email:
+          type: string
+          format: email
+          description: Student's email if available
+          maxLength: 254
+        street:
+          type: string
+          maxLength: 200
+        city:
+          type: string
+          maxLength: 100
+        state:
+          type: string
+          maxLength: 50
+        zip_code:
+          type: string
+          maxLength: 10
+        notes:
+          type: string
+          description: Internal notes about applicant
+      required:
+      - first_name
+      - last_name
+    ApplicantSummary:
+      type: object
+      description: Lightweight serializer for applicant lists.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        first_name:
+          type: string
+          maxLength: 100
+        last_name:
+          type: string
+          maxLength: 100
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        level:
+          type: string
+          format: uuid
+          nullable: true
+          description: Current stage in admission process
+        level_name:
+          type: string
+          readOnly: true
+        primary_parent_phone:
+          type: string
+          readOnly: true
+      required:
+      - created_at
+      - first_name
+      - id
+      - last_name
+      - level_name
+      - primary_parent_phone
+    BlankEnum:
+      enum:
+      - ''
+    DocumentTypeEnum:
+      enum:
+      - birth_certificate
+      - immunization_records
+      - previous_school_records
+      - special_needs_documentation
+      - photo_id
+      - proof_of_residency
+      - other
+      type: string
+      description: |-
+        * `birth_certificate` - Birth Certificate
+        * `immunization_records` - Immunization Records
+        * `previous_school_records` - Previous School Records
+        * `special_needs_documentation` - Special Needs Documentation
+        * `photo_id` - Photo ID
+        * `proof_of_residency` - Proof of Residency
+        * `other` - Other Document
+    EmergencyContact:
+      type: object
+      description: Serializer for student emergency contacts.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        first_name:
+          type: string
+          pattern: ^[a-zA-Z\s\-\'\.]+$
+          maxLength: 100
+          minLength: 1
+        last_name:
+          type: string
+          pattern: ^[a-zA-Z\s\-\'\.]+$
+          maxLength: 100
+          minLength: 1
+        relationship:
+          $ref: '#/components/schemas/RelationshipEnum'
+        phone_primary:
+          type: string
+          pattern: ^\+?1?[-.\s]?\(?[0-9]{3}\)?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}$
+          maxLength: 20
+        phone_secondary:
+          type: string
+          pattern: ^\+?1?[-.\s]?\(?[0-9]{3}\)?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}$
+          maxLength: 20
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        street:
+          type: string
+          pattern: ^[a-zA-Z0-9\s\-\.\,\#]+$
+          maxLength: 200
+        city:
+          type: string
+          pattern: ^[a-zA-Z\s\-\.]+$
+          maxLength: 100
+        state:
+          type: string
+          pattern: ^[a-zA-Z\s]+$
+          maxLength: 50
+        zip_code:
+          type: string
+          pattern: ^\d{5}(-\d{4})?$
+          maxLength: 10
+        is_primary:
+          type: boolean
+          description: Primary contact for school communications
+      required:
+      - first_name
+      - id
+      - last_name
+      - relationship
+    EmergencyContactRequest:
+      type: object
+      description: Serializer for student emergency contacts.
+      properties:
+        first_name:
+          type: string
+          minLength: 1
+          pattern: ^[a-zA-Z\s\-\'\.]+$
+          maxLength: 100
+        last_name:
+          type: string
+          minLength: 1
+          pattern: ^[a-zA-Z\s\-\'\.]+$
+          maxLength: 100
+        relationship:
+          $ref: '#/components/schemas/RelationshipEnum'
+        phone_primary:
+          type: string
+          pattern: ^\+?1?[-.\s]?\(?[0-9]{3}\)?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}$
+          maxLength: 20
+        phone_secondary:
+          type: string
+          pattern: ^\+?1?[-.\s]?\(?[0-9]{3}\)?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}$
+          maxLength: 20
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        street:
+          type: string
+          pattern: ^[a-zA-Z0-9\s\-\.\,\#]+$
+          maxLength: 200
+        city:
+          type: string
+          pattern: ^[a-zA-Z\s\-\.]+$
+          maxLength: 100
+        state:
+          type: string
+          pattern: ^[a-zA-Z\s]+$
+          maxLength: 50
+        zip_code:
+          type: string
+          pattern: ^\d{5}(-\d{4})?$
+          maxLength: 10
+        is_primary:
+          type: boolean
+          description: Primary contact for school communications
+      required:
+      - first_name
+      - last_name
+      - relationship
+    FeederSchool:
+      type: object
+      description: Serializer for feeder schools.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          maxLength: 200
+        school_type:
+          type: string
+          description: Public, Private, Charter, etc.
+          maxLength: 50
+        city:
+          type: string
+          maxLength: 100
+        state:
+          type: string
+          maxLength: 50
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - name
+    FeederSchoolRequest:
+      type: object
+      description: Serializer for feeder schools.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        school_type:
+          type: string
+          description: Public, Private, Charter, etc.
+          maxLength: 50
+        city:
+          type: string
+          maxLength: 100
+        state:
+          type: string
+          maxLength: 50
+        is_active:
+          type: boolean
+      required:
+      - name
+    GenderEnum:
+      enum:
+      - M
+      - F
+      - O
+      - N
+      type: string
+      description: |-
+        * `M` - Male
+        * `F` - Female
+        * `O` - Other
+        * `N` - Prefer not to say
+    GradeLevel:
+      type: object
+      description: Serializer for grade levels like K, 1st, 2nd, etc.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          maxLength: 50
+        order:
+          type: integer
+          description: 1=Kindergarten, 2=1st grade, etc.
+      required:
+      - id
+      - name
+      - order
+    GradeLevelRequest:
+      type: object
+      description: Serializer for grade levels like K, 1st, 2nd, etc.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 50
+        order:
+          type: integer
+          description: 1=Kindergarten, 2=1st grade, etc.
+      required:
+      - name
+      - order
+    PaginatedAdmissionCheckList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdmissionCheck'
+    PaginatedAdmissionLevelList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdmissionLevel'
+    PaginatedApplicantDocumentList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApplicantDocument'
+    PaginatedApplicantSummaryList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApplicantSummary'
+    PaginatedEmergencyContactList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmergencyContact'
+    PaginatedFeederSchoolList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/FeederSchool'
+    PaginatedGradeLevelList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/GradeLevel'
+    PaginatedSchoolYearList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/SchoolYear'
+    PaginatedStudentList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Student'
+    PatchedAdmissionCheckRequest:
+      type: object
+      description: Serializer for admission requirements/checks.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        level:
+          type: string
+          format: uuid
+        is_required:
+          type: boolean
+          description: When true, applicant cannot advance past this level without
+            completing this check
+        description:
+          type: string
+        is_active:
+          type: boolean
+    PatchedAdmissionLevelRequest:
+      type: object
+      description: Serializer for admission process levels.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          pattern: ^[a-zA-Z0-9\s\-]+$
+          maxLength: 100
+        order:
+          type: integer
+          description: Order in admission process, 1 being first
+        description:
+          type: string
+          description: What happens at this level
+        is_active:
+          type: boolean
+    PatchedApplicantRequest:
+      type: object
+      description: Serializer for applicant information.
+      properties:
+        first_name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        last_name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        date_of_birth:
+          type: string
+          format: date
+          nullable: true
+        gender:
+          oneOf:
+          - $ref: '#/components/schemas/GenderEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        level:
+          type: string
+          format: uuid
+          nullable: true
+          description: Current stage in admission process
+        school_year:
+          type: string
+          format: uuid
+          nullable: true
+        applying_for_grade:
+          type: string
+          format: uuid
+          nullable: true
+        current_school:
+          type: string
+          format: uuid
+          nullable: true
+        email:
+          type: string
+          format: email
+          description: Student's email if available
+          maxLength: 254
+        street:
+          type: string
+          maxLength: 200
+        city:
+          type: string
+          maxLength: 100
+        state:
+          type: string
+          maxLength: 50
+        zip_code:
+          type: string
+          maxLength: 10
+        notes:
+          type: string
+          description: Internal notes about applicant
+    PatchedEmergencyContactRequest:
+      type: object
+      description: Serializer for student emergency contacts.
+      properties:
+        first_name:
+          type: string
+          minLength: 1
+          pattern: ^[a-zA-Z\s\-\'\.]+$
+          maxLength: 100
+        last_name:
+          type: string
+          minLength: 1
+          pattern: ^[a-zA-Z\s\-\'\.]+$
+          maxLength: 100
+        relationship:
+          $ref: '#/components/schemas/RelationshipEnum'
+        phone_primary:
+          type: string
+          pattern: ^\+?1?[-.\s]?\(?[0-9]{3}\)?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}$
+          maxLength: 20
+        phone_secondary:
+          type: string
+          pattern: ^\+?1?[-.\s]?\(?[0-9]{3}\)?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}$
+          maxLength: 20
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        street:
+          type: string
+          pattern: ^[a-zA-Z0-9\s\-\.\,\#]+$
+          maxLength: 200
+        city:
+          type: string
+          pattern: ^[a-zA-Z\s\-\.]+$
+          maxLength: 100
+        state:
+          type: string
+          pattern: ^[a-zA-Z\s]+$
+          maxLength: 50
+        zip_code:
+          type: string
+          pattern: ^\d{5}(-\d{4})?$
+          maxLength: 10
+        is_primary:
+          type: boolean
+          description: Primary contact for school communications
+    PatchedFeederSchoolRequest:
+      type: object
+      description: Serializer for feeder schools.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        school_type:
+          type: string
+          description: Public, Private, Charter, etc.
+          maxLength: 50
+        city:
+          type: string
+          maxLength: 100
+        state:
+          type: string
+          maxLength: 50
+        is_active:
+          type: boolean
+    PatchedGradeLevelRequest:
+      type: object
+      description: Serializer for grade levels like K, 1st, 2nd, etc.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 50
+        order:
+          type: integer
+          description: 1=Kindergarten, 2=1st grade, etc.
+    PatchedSchoolYearRequest:
+      type: object
+      description: Serializer for academic years like 2024-2025.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          description: e.g. 2024-2025
+          maxLength: 50
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        is_active:
+          type: boolean
+    PatchedStudentRequest:
+      type: object
+      description: Serializer for student information.
+      properties:
+        student_id:
+          type: string
+          description: School-specific student ID number
+          pattern: ^[A-Za-z0-9\-]+$
+          maxLength: 20
+        first_name:
+          type: string
+          minLength: 1
+          pattern: ^[a-zA-Z\s\-\'\.]+$
+          maxLength: 100
+        last_name:
+          type: string
+          minLength: 1
+          pattern: ^[a-zA-Z\s\-\'\.]+$
+          maxLength: 100
+        date_of_birth:
+          type: string
+          format: date
+        gender:
+          oneOf:
+          - $ref: '#/components/schemas/GenderEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        grade_level:
+          type: string
+          format: uuid
+          nullable: true
+        enrollment_date:
+          type: string
+          format: date
+        is_active:
+          type: boolean
+        photo:
+          type: string
+          format: binary
+          nullable: true
+          description: Student photo for ID purposes
+        special_needs:
+          type: string
+          description: IEP, 504 plan, allergies, medical needs
+        notes:
+          type: string
+          description: Administrative notes
+    RelationshipEnum:
+      enum:
+      - mother
+      - father
+      - guardian
+      - grandparent
+      - other
+      - emergency
+      type: string
+      description: |-
+        * `mother` - Mother
+        * `father` - Father
+        * `guardian` - Legal Guardian
+        * `grandparent` - Grandparent
+        * `other` - Other Relative
+        * `emergency` - Emergency Contact
+    SchoolYear:
+      type: object
+      description: Serializer for academic years like 2024-2025.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          description: e.g. 2024-2025
+          maxLength: 50
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        is_active:
+          type: boolean
+      required:
+      - end_date
+      - id
+      - name
+      - start_date
+    SchoolYearRequest:
+      type: object
+      description: Serializer for academic years like 2024-2025.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          description: e.g. 2024-2025
+          maxLength: 50
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        is_active:
+          type: boolean
+      required:
+      - end_date
+      - name
+      - start_date
+    Student:
+      type: object
+      description: Serializer for student information.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        student_id:
+          type: string
+          description: School-specific student ID number
+          pattern: ^[A-Za-z0-9\-]+$
+          maxLength: 20
+        first_name:
+          type: string
+          pattern: ^[a-zA-Z\s\-\'\.]+$
+          maxLength: 100
+          minLength: 1
+        last_name:
+          type: string
+          pattern: ^[a-zA-Z\s\-\'\.]+$
+          maxLength: 100
+          minLength: 1
+        date_of_birth:
+          type: string
+          format: date
+        gender:
+          oneOf:
+          - $ref: '#/components/schemas/GenderEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        grade_level:
+          type: string
+          format: uuid
+          nullable: true
+        grade_level_name:
+          type: string
+          readOnly: true
+        enrollment_date:
+          type: string
+          format: date
+        is_active:
+          type: boolean
+        primary_contact_name:
+          type: string
+          readOnly: true
+        primary_contact_phone:
+          type: string
+          readOnly: true
+        primary_contact_email:
+          type: string
+          format: email
+          readOnly: true
+        photo:
+          type: string
+          format: uri
+          nullable: true
+          description: Student photo for ID purposes
+        special_needs:
+          type: string
+          description: IEP, 504 plan, allergies, medical needs
+        notes:
+          type: string
+          description: Administrative notes
+        emergency_contacts:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmergencyContact'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - date_of_birth
+      - emergency_contacts
+      - enrollment_date
+      - first_name
+      - grade_level_name
+      - id
+      - last_name
+      - primary_contact_email
+      - primary_contact_name
+      - primary_contact_phone
+      - updated_at
+    StudentCreate:
+      type: object
+      description: Serializer for creating new students with required fields only.
+      properties:
+        first_name:
+          type: string
+          pattern: ^[a-zA-Z\s\-\'\.]+$
+          maxLength: 100
+          minLength: 1
+        last_name:
+          type: string
+          pattern: ^[a-zA-Z\s\-\'\.]+$
+          maxLength: 100
+          minLength: 1
+        date_of_birth:
+          type: string
+          format: date
+        gender:
+          oneOf:
+          - $ref: '#/components/schemas/GenderEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        grade_level:
+          type: string
+          format: uuid
+          nullable: true
+        primary_contact_name:
+          type: string
+          readOnly: true
+        primary_contact_phone:
+          type: string
+          readOnly: true
+      required:
+      - date_of_birth
+      - first_name
+      - last_name
+      - primary_contact_name
+      - primary_contact_phone
+    StudentCreateRequest:
+      type: object
+      description: Serializer for creating new students with required fields only.
+      properties:
+        first_name:
+          type: string
+          minLength: 1
+          pattern: ^[a-zA-Z\s\-\'\.]+$
+          maxLength: 100
+        last_name:
+          type: string
+          minLength: 1
+          pattern: ^[a-zA-Z\s\-\'\.]+$
+          maxLength: 100
+        date_of_birth:
+          type: string
+          format: date
+        gender:
+          oneOf:
+          - $ref: '#/components/schemas/GenderEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        grade_level:
+          type: string
+          format: uuid
+          nullable: true
+      required:
+      - date_of_birth
+      - first_name
+      - last_name
+    StudentRequest:
+      type: object
+      description: Serializer for student information.
+      properties:
+        student_id:
+          type: string
+          description: School-specific student ID number
+          pattern: ^[A-Za-z0-9\-]+$
+          maxLength: 20
+        first_name:
+          type: string
+          minLength: 1
+          pattern: ^[a-zA-Z\s\-\'\.]+$
+          maxLength: 100
+        last_name:
+          type: string
+          minLength: 1
+          pattern: ^[a-zA-Z\s\-\'\.]+$
+          maxLength: 100
+        date_of_birth:
+          type: string
+          format: date
+        gender:
+          oneOf:
+          - $ref: '#/components/schemas/GenderEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        grade_level:
+          type: string
+          format: uuid
+          nullable: true
+        enrollment_date:
+          type: string
+          format: date
+        is_active:
+          type: boolean
+        photo:
+          type: string
+          format: binary
+          nullable: true
+          description: Student photo for ID purposes
+        special_needs:
+          type: string
+          description: IEP, 504 plan, allergies, medical needs
+        notes:
+          type: string
+          description: Administrative notes
+      required:
+      - date_of_birth
+      - enrollment_date
+      - first_name
+      - last_name
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
+    tokenAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: Token-based authentication with required prefix "Token"
+tags:
+- name: students
+  description: Student management operations
+- name: admissions
+  description: Admissions and applicant tracking
+- name: auth
+  description: Authentication and user management

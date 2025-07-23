@@ -1,0 +1,15 @@
+# Demo Page Screenshot Placeholder
+
+This file represents where the demo page screenshot would be stored.
+
+The screenshot should show:
+- Hero section with SchoolDriver Modern title and metrics
+- Six feature cards in responsive grid layout
+- Interactive elements like charts and search boxes  
+- Call-to-action buttons at bottom
+- Mobile and desktop responsive views
+
+To capture the actual screenshot:
+1. Navigate to http://localhost:8000/demo/
+2. Take full-page screenshot showing all features
+3. Replace this placeholder with the actual PNG file

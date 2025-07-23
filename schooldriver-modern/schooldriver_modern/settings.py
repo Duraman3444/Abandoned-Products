@@ -239,7 +239,13 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "Modern school management system API with student information, admissions, and academic tracking.",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
+    "SCHEMA_PATH_PREFIX": r"/api/v1",
     "COMPONENT_SPLIT_REQUEST": True,
+    "SWAGGER_UI_SETTINGS": {
+        "deepLinking": True,
+        "persistAuthorization": True,
+        "displayOperationId": False,
+    },
     "TAGS": [
         {"name": "students", "description": "Student management operations"},
         {"name": "admissions", "description": "Admissions and applicant tracking"},

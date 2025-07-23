@@ -78,7 +78,7 @@ class StudentViewSet(viewsets.ModelViewSet):
     """ViewSet for managing student records."""
 
     queryset = Student.objects.select_related(
-        "grade_level", "school_year"
+        "grade_level"
     ).prefetch_related("emergency_contacts")
     serializer_class = StudentSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -88,7 +88,7 @@ class StudentViewSet(viewsets.ModelViewSet):
         DjangoFilterBackend,
     ]
     search_fields = ["first_name", "last_name", "student_id"]
-    filterset_fields = ["grade_level", "school_year", "is_active", "gender"]
+    filterset_fields = ["grade_level", "is_active", "gender"]
     ordering_fields = ["last_name", "first_name", "enrollment_date", "created_at"]
     ordering = ["last_name", "first_name"]
 

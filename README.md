@@ -40,6 +40,7 @@ This repository contains two versions of SchoolDriver, a comprehensive Student I
 - **Modern Dependencies** - Updated package management
 - **Global Search** - Cross-module fuzzy search powered by PostgreSQL full-text search and `search` app
 - **Advanced Dashboard Charts** - Interactive admin analytics built with Chart.js (`static/js/admin_charts.js`)
+- **Live Analytics Widget** - Real-time continuously updating Chart.js visualization with sliding window
 - **Automated Test Suite** - Pytest & Django test coverage with GitHub Actions CI
 - **AI-Generated Documentation** - Detailed AI work-logs & prompts in `/docs` (`AI_UTILIZATION.md`, etc.)
 - **Static Asset Pipeline** - Pre-compiled `staticfiles/` ready for production deployment
@@ -74,6 +75,24 @@ python manage.py runserver 8000
 ```
 
 ### Access the Application
+
+**🚀 Demo Page:**
+- URL: `http://localhost:8000/demo/`
+- Public showcase of all flagship features
+- Interactive charts and live demonstrations
+
+**📊 Live Analytics Widget:**
+- Available on Student Dashboard: `http://localhost:8000/student/`
+- Continuously updating Chart.js line graph (never stops)
+- Updates every 2 seconds with sliding window of 50 data points
+- Pause/Resume controls with performance optimization (30 FPS cap)
+
+**🔌 API Explorer:**
+- URL: `http://localhost:8000/api/`
+- Interactive Swagger UI and ReDoc documentation
+- Complete OpenAPI 3.0 specification
+- Live API testing and endpoint exploration
+- Multiple documentation formats available
 
 **Admin Interface:**
 - URL: `http://localhost:8000/admin`

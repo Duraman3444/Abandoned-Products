@@ -1,6 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
+from core.explorer_views import ApiLandingView
 
 from students.api_views import (
     StudentViewSet,
@@ -13,7 +14,7 @@ from admissions.api_views import (
     FeederSchoolViewSet,
     AdmissionLevelViewSet,
     AdmissionCheckViewSet,
-    ApplicantFileViewSet,
+    ApplicantDocumentViewSet,
 )
 
 # Create a router and register our viewsets
@@ -32,14 +33,17 @@ router.register(r"applicants", ApplicantViewSet, basename="applicant")
 router.register(r"feeder-schools", FeederSchoolViewSet, basename="feederschool")
 router.register(r"admission-levels", AdmissionLevelViewSet, basename="admissionlevel")
 router.register(r"admission-checks", AdmissionCheckViewSet, basename="admissioncheck")
-router.register(r"applicant-files", ApplicantFileViewSet, basename="applicantfile")
+router.register(r"applicant-documents", ApplicantDocumentViewSet, basename="applicantdocument")
 
 urlpatterns = [
-    # API documentation endpoints
+    # API documentation endpoints  
     path("schema/", SpectacularAPIView.as_view(), name="schema"),
-    path("docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
+    path("schema/swagger-ui/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
+    path("schema/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
+    # Legacy docs endpoint (redirect to new swagger-ui)
+    path("docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="docs-legacy"),
     # DRF auth endpoints
     path("auth/", include("rest_framework.urls")),
-    # All API endpoints
-    path("", include(router.urls)),
+    # All API endpoints from router (students/, applicants/, etc.)
+    path("v1/", include(router.urls)),
 ]

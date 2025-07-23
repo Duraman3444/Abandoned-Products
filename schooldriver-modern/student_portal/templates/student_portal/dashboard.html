@@ -1,4 +1,5 @@
 {% extends "student_base.html" %}
+{% load static %}
 
 {% block title %}Student Dashboard - SchoolDriver Modern{% endblock %}
 
@@ -64,6 +65,31 @@
                 <i class="bi bi-clipboard-check text-info" style="font-size: 2.5rem;"></i>
                 <h4 class="mt-2 mb-0">{{ pending_count }}</h4>
                 <p class="text-muted">Pending Assignments</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Live Analytics Widget -->
+<div class="row g-4 mb-4">
+    <div class="col-lg-8">
+        <!-- Today's Schedule & Assignments will go here -->
+    </div>
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0 text-success">
+                    <i class="bi bi-graph-up me-2"></i>Live Analytics
+                </h6>
+                <button id="pauseLiveAnalytics" class="btn btn-outline-warning btn-sm">Pause</button>
+            </div>
+            <div class="card-body p-2">
+                <div style="height: 200px; position: relative;">
+                    <canvas id="liveAnalyticsChart"></canvas>
+                </div>
+                <div class="text-center mt-2">
+                    <small class="text-muted">Updates every 2 seconds • Last 50 data points</small>
+                </div>
             </div>
         </div>
     </div>
@@ -227,6 +253,8 @@
 
 {% block extra_js %}
 {{ block.super }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{% static 'js/live_analytics.js' %}"></script>
 <script>
     // Display current date
     document.addEventListener('DOMContentLoaded', function() {
@@ -239,6 +267,15 @@
         };
         document.getElementById('current-date').textContent = 
             currentDate.toLocaleDateString('en-US', options);
+            
+        // Initialize Live Analytics Widget
+        if (typeof initializeLiveAnalytics === 'function') {
+            initializeLiveAnalytics('liveAnalyticsChart', {
+                maxDataPoints: 50,
+                updateInterval: 2000,
+                maxFPS: 30
+            });
+        }
     });
 </script>
 {% endblock %}

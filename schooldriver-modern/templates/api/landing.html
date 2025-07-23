@@ -1,0 +1,289 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}API Explorer - SchoolDriver Modern{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/api_docs.css' %}">
+<style>
+.api-hero {
+    background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+    color: white;
+    padding: 3rem 0;
+}
+
+.api-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    height: 100%;
+}
+
+.api-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+.endpoint-card {
+    background: #f8f9fa;
+    border-left: 4px solid #007bff;
+    padding: 1rem;
+    margin: 0.5rem 0;
+    border-radius: 0.375rem;
+}
+
+.endpoint-url {
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    color: #e83e8c;
+}
+
+.doc-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.endpoint-card .text-muted {
+    color: #495057 !important;
+}
+
+.endpoint-card h6 {
+    color: #212529 !important;
+}
+
+.btn-outline-primary {
+    color: #007bff !important;
+    border-color: #007bff !important;
+    font-weight: 500 !important;
+}
+
+.btn-outline-primary:hover {
+    background-color: #007bff !important;
+    border-color: #007bff !important;
+    color: white !important;
+}
+
+.bg-light h3 {
+    color: #212529 !important;
+}
+
+.bg-light .text-muted {
+    color: #6c757d !important;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- API Hero Section -->
+<section class="api-hero">
+    <div class="container">
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-8">
+                <h1 class="display-4 fw-bold mb-4">
+                    <i class="bi bi-code-slash me-3"></i>
+                    API Explorer
+                </h1>
+                <p class="lead mb-4">
+                    Interactive documentation for SchoolDriver Modern REST API
+                </p>
+                <p class="mb-0">
+                    Explore endpoints, test requests, and integrate with our comprehensive educational platform API
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Documentation Options -->
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center mb-5">
+            <div class="col-lg-8 text-center">
+                <h2 class="fw-bold mb-3">Choose Your Documentation Style</h2>
+                <p class="text-muted">Multiple interfaces to explore and test our API endpoints</p>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-5">
+            <!-- Swagger UI -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card api-card">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-layout-text-window-reverse doc-icon text-primary"></i>
+                        <h5 class="card-title fw-bold">Swagger UI</h5>
+                        <p class="card-text text-muted">
+                            Interactive API documentation with try-it-out functionality. 
+                            Test endpoints directly in your browser.
+                        </p>
+                        <a href="{{ swagger_ui_url }}" class="btn btn-primary btn-lg">
+                            <i class="bi bi-play-circle me-2"></i>Open Swagger UI
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ReDoc -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card api-card">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-book doc-icon text-success"></i>
+                        <h5 class="card-title fw-bold">ReDoc</h5>
+                        <p class="card-text text-muted">
+                            Clean, responsive documentation with detailed schema descriptions
+                            and example responses.
+                        </p>
+                        <a href="{{ redoc_url }}" class="btn btn-success btn-lg">
+                            <i class="bi bi-book-half me-2"></i>Open ReDoc
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Raw Schema -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card api-card">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-filetype-json doc-icon text-warning"></i>
+                        <h5 class="card-title fw-bold">OpenAPI Schema</h5>
+                        <p class="card-text text-muted">
+                            Raw OpenAPI 3.0 specification in JSON format for programmatic
+                            access and code generation.
+                        </p>
+                        <a href="{{ schema_url }}" class="btn btn-outline-warning btn-lg" target="_blank">
+                            <i class="bi bi-download me-2"></i>View JSON Schema
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Available Endpoints -->
+<section class="bg-light py-5">
+    <div class="container">
+        <div class="row justify-content-center mb-4">
+            <div class="col-lg-8 text-center">
+                <h3 class="fw-bold mb-3">Available API Endpoints</h3>
+                <p class="text-muted">Quick overview of our REST API resources</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                {% for endpoint in api_endpoints %}
+                <div class="endpoint-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1 fw-bold">{{ endpoint.name }}</h6>
+                            <p class="mb-1 text-muted">{{ endpoint.description }}</p>
+                            <code class="endpoint-url">{{ endpoint.url }}</code>
+                        </div>
+                        <div>
+                            <a href="{{ endpoint.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-arrow-up-right-circle me-1"></i>Test
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Authentication Info -->
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card border-info">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">
+                            <i class="bi bi-shield-lock me-2"></i>Authentication
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-3">
+                            Our API uses token-based authentication. To access protected endpoints:
+                        </p>
+                        <ol>
+                            <li>Obtain an authentication token via <code>POST /api/auth/token/</code></li>
+                            <li>Include the token in your request headers: <code>Authorization: Token your_token_here</code></li>
+                            <li>Use the interactive documentation above to test authenticated requests</li>
+                        </ol>
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            <strong>Note:</strong> Some endpoints require specific user permissions. 
+                            Refer to the detailed documentation for permission requirements.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Quick Start -->
+<section class="bg-primary text-white py-5">
+    <div class="container">
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-8">
+                <h3 class="fw-bold mb-3">Ready to Start Building?</h3>
+                <p class="lead mb-4">
+                    Get started with our comprehensive REST API for educational management
+                </p>
+                <div class="btn-group" role="group">
+                    <a href="{{ swagger_ui_url }}" class="btn btn-light btn-lg">
+                        <i class="bi bi-play-circle me-2"></i>Try API Now
+                    </a>
+                    <a href="/demo/" class="btn btn-outline-light btn-lg">
+                        <i class="bi bi-eye me-2"></i>View Demo
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add smooth scrolling to anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+    
+    // Add copy-to-clipboard functionality for endpoint URLs
+    document.querySelectorAll('.endpoint-url').forEach(element => {
+        element.addEventListener('click', function() {
+            navigator.clipboard.writeText(this.textContent).then(() => {
+                // Show temporary tooltip
+                const tooltip = document.createElement('span');
+                tooltip.textContent = ' Copied!';
+                tooltip.className = 'text-success small';
+                this.appendChild(tooltip);
+                
+                setTimeout(() => {
+                    tooltip.remove();
+                }, 2000);
+            });
+        });
+        
+        // Add cursor pointer and title
+        element.style.cursor = 'pointer';
+        element.title = 'Click to copy URL';
+    });
+});
+</script>
+{% endblock %}

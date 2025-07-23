@@ -1,0 +1,416 @@
+/**
+ * API Documentation Styling
+ * Custom styles for Swagger UI and ReDoc to match site theme
+ */
+
+/* Swagger UI Custom Styling */
+.swagger-ui {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    color: #333 !important;
+    background-color: #fff !important;
+}
+
+/* Ensure text is visible in light mode */
+.swagger-ui .info .title {
+    color: #333 !important;
+}
+
+.swagger-ui .info .description {
+    color: #555 !important;
+}
+
+.swagger-ui .opblock .opblock-summary-description {
+    color: #555 !important;
+}
+
+.swagger-ui .opblock .opblock-summary-path {
+    color: #333 !important;
+}
+
+.swagger-ui .parameter__name {
+    color: #333 !important;
+}
+
+.swagger-ui .parameter__type {
+    color: #555 !important;
+}
+
+.swagger-ui .response-col_status {
+    color: #333 !important;
+}
+
+.swagger-ui .response-col_description {
+    color: #555 !important;
+}
+
+/* Ensure operation blocks are visible */
+.swagger-ui .opblock {
+    background-color: #f8f9fa !important;
+    border: 1px solid #dee2e6 !important;
+    border-radius: 8px !important;
+    margin-bottom: 1rem !important;
+}
+
+.swagger-ui .opblock.is-open {
+    background-color: #fff !important;
+    border-color: #007bff !important;
+}
+
+.swagger-ui .opblock-summary {
+    border: none !important;
+    background-color: transparent !important;
+}
+
+.swagger-ui .opblock-summary:hover {
+    background-color: rgba(0,123,255,0.05) !important;
+}
+
+/* Dark mode styles for Swagger UI */
+@media (prefers-color-scheme: dark) {
+    .swagger-ui {
+        background-color: #1a1a1a !important;
+        color: #e6edf3 !important;
+    }
+    
+    .swagger-ui .topbar {
+        background-color: #2d3748 !important;
+        border-bottom: 1px solid #4a5568 !important;
+    }
+    
+    .swagger-ui .info {
+        background-color: #2d3748 !important;
+        border: 1px solid #4a5568 !important;
+        border-radius: 8px !important;
+        padding: 1.5rem !important;
+    }
+    
+    .swagger-ui .info .title {
+        color: #e6edf3 !important;
+    }
+    
+    .swagger-ui .info .description {
+        color: #a0aec0 !important;
+    }
+    
+    .swagger-ui .scheme-container {
+        background-color: #2d3748 !important;
+        border: 1px solid #4a5568 !important;
+        border-radius: 8px !important;
+    }
+    
+    .swagger-ui .opblock {
+        background-color: #2d3748 !important;
+        border: 1px solid #4a5568 !important;
+        border-radius: 8px !important;
+        margin-bottom: 1rem !important;
+    }
+    
+    .swagger-ui .opblock .opblock-summary {
+        border-bottom: 1px solid #4a5568 !important;
+    }
+    
+    .swagger-ui .opblock .opblock-summary-description {
+        color: #a0aec0 !important;
+    }
+    
+    .swagger-ui .opblock.opblock-get {
+        border-color: #38a169 !important;
+    }
+    
+    .swagger-ui .opblock.opblock-post {
+        border-color: #3182ce !important;
+    }
+    
+    .swagger-ui .opblock.opblock-put {
+        border-color: #d69e2e !important;
+    }
+    
+    .swagger-ui .opblock.opblock-delete {
+        border-color: #e53e3e !important;
+    }
+    
+    .swagger-ui .parameters-container {
+        background-color: #1a202c !important;
+        border: 1px solid #4a5568 !important;
+        border-radius: 6px !important;
+    }
+    
+    .swagger-ui .responses-wrapper {
+        background-color: #1a202c !important;
+        border: 1px solid #4a5568 !important;
+        border-radius: 6px !important;
+    }
+    
+    .swagger-ui .model-container {
+        background-color: #1a202c !important;
+        border: 1px solid #4a5568 !important;
+        border-radius: 6px !important;
+    }
+    
+    .swagger-ui input[type="text"],
+    .swagger-ui input[type="password"],
+    .swagger-ui input[type="email"],
+    .swagger-ui textarea,
+    .swagger-ui select {
+        background-color: #2d3748 !important;
+        border: 1px solid #4a5568 !important;
+        color: #e6edf3 !important;
+        border-radius: 4px !important;
+    }
+    
+    .swagger-ui .btn {
+        border-radius: 6px !important;
+        font-weight: 500 !important;
+    }
+    
+    .swagger-ui .btn.execute {
+        background-color: #3182ce !important;
+        border-color: #3182ce !important;
+        color: white !important;
+    }
+    
+    .swagger-ui .btn.execute:hover {
+        background-color: #2c5282 !important;
+        border-color: #2c5282 !important;
+    }
+}
+
+/* ReDoc Custom Styling */
+.redoc-container {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+}
+
+/* Dark mode styles for ReDoc */
+@media (prefers-color-scheme: dark) {
+    .redoc-container {
+        --redoc-bg-color: #1a1a1a;
+        --redoc-text-color: #e6edf3;
+        --redoc-border-color: #4a5568;
+        --redoc-code-bg-color: #2d3748;
+        --redoc-header-bg-color: #2d3748;
+    }
+}
+
+/* Light mode enhancements */
+.swagger-ui .info {
+    background-color: #f8f9fa !important;
+    border: 1px solid #dee2e6 !important;
+    border-radius: 8px !important;
+    padding: 1.5rem !important;
+    margin-bottom: 2rem !important;
+}
+
+.swagger-ui .info .title {
+    color: #2c3e50 !important;
+    font-weight: 600 !important;
+    margin-bottom: 1rem !important;
+}
+
+.swagger-ui .info .description {
+    color: #6c757d !important;
+    line-height: 1.6 !important;
+}
+
+.swagger-ui .opblock {
+    border-radius: 8px !important;
+    margin-bottom: 1rem !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+.swagger-ui .opblock .opblock-summary {
+    padding: 1rem 1.5rem !important;
+}
+
+.swagger-ui .opblock-summary-method {
+    font-weight: 600 !important;
+    border-radius: 4px !important;
+    padding: 0.25rem 0.5rem !important;
+    font-size: 0.75rem !important;
+    text-transform: uppercase !important;
+}
+
+.swagger-ui .opblock.opblock-get {
+    border-left: 4px solid #28a745 !important;
+}
+
+.swagger-ui .opblock.opblock-post {
+    border-left: 4px solid #007bff !important;
+}
+
+.swagger-ui .opblock.opblock-put {
+    border-left: 4px solid #ffc107 !important;
+}
+
+.swagger-ui .opblock.opblock-delete {
+    border-left: 4px solid #dc3545 !important;
+}
+
+.swagger-ui .opblock.opblock-patch {
+    border-left: 4px solid #6f42c1 !important;
+}
+
+/* Enhanced button styles */
+.swagger-ui .btn {
+    border-radius: 6px !important;
+    font-weight: 500 !important;
+    padding: 0.5rem 1rem !important;
+    transition: all 0.2s ease !important;
+}
+
+.swagger-ui .btn.execute {
+    background-color: #007bff !important;
+    border-color: #007bff !important;
+    color: white !important;
+    font-weight: 600 !important;
+    box-shadow: 0 2px 4px rgba(0,123,255,0.3) !important;
+}
+
+.swagger-ui .btn.execute:hover {
+    background-color: #0056b3 !important;
+    border-color: #0056b3 !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 8px rgba(0,123,255,0.4) !important;
+}
+
+.swagger-ui .btn.clear {
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
+    color: white !important;
+}
+
+.swagger-ui .btn.clear:hover {
+    background-color: #5a6268 !important;
+    border-color: #5a6268 !important;
+}
+
+/* Form input enhancements */
+.swagger-ui input[type="text"],
+.swagger-ui input[type="password"],
+.swagger-ui input[type="email"],
+.swagger-ui textarea,
+.swagger-ui select {
+    border-radius: 6px !important;
+    border: 1px solid #ced4da !important;
+    padding: 0.5rem 0.75rem !important;
+    font-size: 0.875rem !important;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out !important;
+}
+
+.swagger-ui input[type="text"]:focus,
+.swagger-ui input[type="password"]:focus,
+.swagger-ui input[type="email"]:focus,
+.swagger-ui textarea:focus,
+.swagger-ui select:focus {
+    border-color: #007bff !important;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
+    outline: 0 !important;
+}
+
+/* Response section styling */
+.swagger-ui .responses-wrapper {
+    border-radius: 8px !important;
+    border: 1px solid #dee2e6 !important;
+    margin-top: 1rem !important;
+}
+
+.swagger-ui .responses-wrapper .responses-inner {
+    padding: 1rem !important;
+}
+
+/* Model section styling */
+.swagger-ui .model-container {
+    border-radius: 8px !important;
+    border: 1px solid #dee2e6 !important;
+    background-color: #f8f9fa !important;
+}
+
+.swagger-ui .model-container .model-box {
+    padding: 1rem !important;
+}
+
+/* Code block styling */
+.swagger-ui .highlight-code {
+    background-color: #f8f9fa !important;
+    border: 1px solid #e9ecef !important;
+    border-radius: 6px !important;
+    padding: 1rem !important;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace !important;
+}
+
+/* Custom scrollbar for code blocks */
+.swagger-ui .highlight-code::-webkit-scrollbar {
+    height: 8px !important;
+    width: 8px !important;
+}
+
+.swagger-ui .highlight-code::-webkit-scrollbar-track {
+    background: #f1f1f1 !important;
+    border-radius: 4px !important;
+}
+
+.swagger-ui .highlight-code::-webkit-scrollbar-thumb {
+    background: #c1c1c1 !important;
+    border-radius: 4px !important;
+}
+
+.swagger-ui .highlight-code::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8 !important;
+}
+
+/* Authentication section styling */
+.swagger-ui .auth-container {
+    background-color: #fff3cd !important;
+    border: 1px solid #ffeaa7 !important;
+    border-radius: 8px !important;
+    padding: 1rem !important;
+    margin-bottom: 2rem !important;
+}
+
+.swagger-ui .auth-container h4 {
+    color: #856404 !important;
+    margin-bottom: 0.5rem !important;
+}
+
+/* Loading spinner */
+.swagger-ui .loading-container {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    padding: 2rem !important;
+}
+
+.swagger-ui .loading-container .loading {
+    width: 2rem !important;
+    height: 2rem !important;
+    border: 3px solid #f3f3f3 !important;
+    border-top: 3px solid #007bff !important;
+    border-radius: 50% !important;
+    animation: spin 1s linear infinite !important;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .swagger-ui .opblock {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+    
+    .swagger-ui .opblock .opblock-summary {
+        padding: 0.75rem 1rem !important;
+        flex-wrap: wrap !important;
+    }
+    
+    .swagger-ui .opblock-summary-method {
+        margin-bottom: 0.5rem !important;
+    }
+    
+    .swagger-ui .btn {
+        width: 100% !important;
+        margin-bottom: 0.5rem !important;
+    }
+}
