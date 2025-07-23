@@ -140,7 +140,7 @@
                                         </div>
                                     </div>
                                     
-                                {% elif course.name == "Algebra II" or course.course_code == "MATH-ALG2" %}
+                                {% elif course.name == "Algebra II" or course.course_code == "ALG2" or "Algebra II" in course.name %}
                                     <div class="alert alert-success">
                                         <h6><i class="bi bi-book me-2"></i>Course Overview</h6>
                                         <p>Algebra II builds upon the foundation of Algebra I, introducing advanced algebraic concepts, functions, and mathematical modeling. Students will explore complex relationships and prepare for higher-level mathematics.</p>
@@ -216,6 +216,477 @@
                                             <div class="col-md-2">
                                                 <strong>Projects (20%)</strong>
                                                 <p class="small">Mathematical modeling and real-world applications</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                {% elif course.name == "Geometry" or course.course_code == "GEO" or "Geometry" in course.name %}
+                                    <div class="alert alert-warning">
+                                        <h6><i class="bi bi-book me-2"></i>Course Overview</h6>
+                                        <p>Geometry explores the properties of shapes, spatial relationships, and logical reasoning. Students will develop visual thinking skills and learn to construct formal mathematical proofs.</p>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <h6>Unit 1: Foundations of Geometry</h6>
+                                            <ul>
+                                                <li>Points, lines, and planes</li>
+                                                <li>Segments, rays, and angles</li>
+                                                <li>Geometric notation and measurement</li>
+                                                <li>Introduction to proofs</li>
+                                            </ul>
+                                            
+                                            <h6>Unit 2: Reasoning and Proof</h6>
+                                            <ul>
+                                                <li>Conditional statements and logic</li>
+                                                <li>Algebraic and geometric proofs</li>
+                                                <li>Properties of equality and congruence</li>
+                                                <li>Two-column and paragraph proofs</li>
+                                            </ul>
+                                            
+                                            <h6>Unit 3: Parallel and Perpendicular Lines</h6>
+                                            <ul>
+                                                <li>Angle relationships with parallel lines</li>
+                                                <li>Proving lines parallel</li>
+                                                <li>Perpendicular lines and planes</li>
+                                                <li>Distance and slope formulas</li>
+                                            </ul>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h6>Unit 4: Congruent Triangles</h6>
+                                            <ul>
+                                                <li>Triangle congruence postulates (SSS, SAS, ASA)</li>
+                                                <li>CPCTC (Corresponding Parts)</li>
+                                                <li>Isosceles and equilateral triangles</li>
+                                                <li>Triangle inequality theorem</li>
+                                            </ul>
+                                            
+                                            <h6>Unit 5: Relationships in Triangles</h6>
+                                            <ul>
+                                                <li>Perpendicular and angle bisectors</li>
+                                                <li>Medians and altitudes</li>
+                                                <li>Inequalities in triangles</li>
+                                                <li>Indirect proof and contradiction</li>
+                                            </ul>
+                                            
+                                            <h6>Unit 6: Quadrilaterals and Polygons</h6>
+                                            <ul>
+                                                <li>Properties of parallelograms</li>
+                                                <li>Rectangles, rhombuses, and squares</li>
+                                                <li>Trapezoids and kites</li>
+                                                <li>Interior and exterior angles of polygons</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mt-3">
+                                        <h6>Assessment Methods</h6>
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <strong>Tests (40%)</strong>
+                                                <p class="small">Unit tests and proof assessments</p>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <strong>Quizzes (25%)</strong>
+                                                <p class="small">Regular concept and computation checks</p>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <strong>Homework (20%)</strong>
+                                                <p class="small">Daily practice and proof assignments</p>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <strong>Projects (15%)</strong>
+                                                <p class="small">Geometric constructions and real-world applications</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                {% elif course.name == "Pre-Calculus" or course.course_code == "PRECALC" or "Pre-Calculus" in course.name or "Precalculus" in course.name %}
+                                    <div class="alert alert-primary">
+                                        <h6><i class="bi bi-book me-2"></i>Course Overview</h6>
+                                        <p>Pre-Calculus prepares students for calculus by strengthening algebra skills and introducing advanced functions, trigonometry, and mathematical analysis techniques.</p>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <h6>Unit 1: Functions and Graphs</h6>
+                                            <ul>
+                                                <li>Function notation and composition</li>
+                                                <li>Transformations of functions</li>
+                                                <li>Inverse functions</li>
+                                                <li>Piecewise and absolute value functions</li>
+                                            </ul>
+                                            
+                                            <h6>Unit 2: Polynomial and Rational Functions</h6>
+                                            <ul>
+                                                <li>Complex numbers and operations</li>
+                                                <li>Polynomial division and synthetic division</li>
+                                                <li>Zeros of polynomial functions</li>
+                                                <li>Rational functions and asymptotes</li>
+                                            </ul>
+                                            
+                                            <h6>Unit 3: Exponential and Logarithmic Functions</h6>
+                                            <ul>
+                                                <li>Properties of exponential functions</li>
+                                                <li>Logarithmic functions and properties</li>
+                                                <li>Solving exponential and logarithmic equations</li>
+                                                <li>Applications in growth and decay</li>
+                                            </ul>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h6>Unit 4: Trigonometric Functions</h6>
+                                            <ul>
+                                                <li>Unit circle and radian measure</li>
+                                                <li>Trigonometric functions and graphs</li>
+                                                <li>Trigonometric identities</li>
+                                                <li>Solving trigonometric equations</li>
+                                            </ul>
+                                            
+                                            <h6>Unit 5: Analytic Trigonometry</h6>
+                                            <ul>
+                                                <li>Sum and difference formulas</li>
+                                                <li>Double and half-angle formulas</li>
+                                                <li>Law of sines and cosines</li>
+                                                <li>Vectors and applications</li>
+                                            </ul>
+                                            
+                                            <h6>Unit 6: Advanced Topics</h6>
+                                            <ul>
+                                                <li>Sequences and series</li>
+                                                <li>Mathematical induction</li>
+                                                <li>Conic sections</li>
+                                                <li>Introduction to limits</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mt-3">
+                                        <h6>Assessment Methods</h6>
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <strong>Tests (40%)</strong>
+                                                <p class="small">Unit tests and comprehensive exams</p>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <strong>Quizzes (25%)</strong>
+                                                <p class="small">Regular skill and concept assessments</p>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <strong>Homework (20%)</strong>
+                                                <p class="small">Daily practice and problem solving</p>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <strong>Projects (15%)</strong>
+                                                <p class="small">Mathematical modeling and applications</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                {% elif course.name == "Calculus" or course.course_code == "CALC" or "Calculus" in course.name %}
+                                    <div class="alert alert-danger">
+                                        <h6><i class="bi bi-book me-2"></i>Course Overview</h6>
+                                        <p>Calculus is the study of change and motion through derivatives and integrals. Students will explore limits, continuity, differentiation, and integration with applications to real-world problems.</p>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <h6>Unit 1: Limits and Continuity</h6>
+                                            <ul>
+                                                <li>Understanding limits graphically and numerically</li>
+                                                <li>Limit laws and algebraic manipulation</li>
+                                                <li>Continuity and intermediate value theorem</li>
+                                                <li>Limits involving infinity</li>
+                                            </ul>
+                                            
+                                            <h6>Unit 2: Derivatives</h6>
+                                            <ul>
+                                                <li>Definition of derivative</li>
+                                                <li>Power, product, quotient, and chain rules</li>
+                                                <li>Derivatives of transcendental functions</li>
+                                                <li>Implicit differentiation</li>
+                                            </ul>
+                                            
+                                            <h6>Unit 3: Applications of Derivatives</h6>
+                                            <ul>
+                                                <li>Related rates problems</li>
+                                                <li>Linear approximation and differentials</li>
+                                                <li>Optimization problems</li>
+                                                <li>Mean value theorem</li>
+                                            </ul>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h6>Unit 4: Integrals</h6>
+                                            <ul>
+                                                <li>Antiderivatives and indefinite integrals</li>
+                                                <li>Riemann sums and definite integrals</li>
+                                                <li>Fundamental theorem of calculus</li>
+                                                <li>Integration techniques</li>
+                                            </ul>
+                                            
+                                            <h6>Unit 5: Applications of Integrals</h6>
+                                            <ul>
+                                                <li>Area between curves</li>
+                                                <li>Volume of solids of revolution</li>
+                                                <li>Arc length and surface area</li>
+                                                <li>Physics applications (work, fluid force)</li>
+                                            </ul>
+                                            
+                                            <h6>Unit 6: Advanced Integration</h6>
+                                            <ul>
+                                                <li>Integration by parts</li>
+                                                <li>Trigonometric integrals</li>
+                                                <li>Partial fractions</li>
+                                                <li>Improper integrals</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mt-3">
+                                        <h6>Assessment Methods</h6>
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <strong>Tests (45%)</strong>
+                                                <p class="small">Unit tests and AP-style assessments</p>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <strong>Quizzes (25%)</strong>
+                                                <p class="small">Regular computational and conceptual checks</p>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <strong>Homework (20%)</strong>
+                                                <p class="small">Daily practice and problem sets</p>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <strong>Projects (10%)</strong>
+                                                <p class="small">Applications and mathematical investigations</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                {% elif "Mathematics" in course.name or "Math" in course.name or course.course_code|slice:":4" == "MATH" %}
+                                    {% if "Kindergarten" in course.name or course.course_code == "MATH-K" %}
+                                        <div class="alert alert-light">
+                                            <h6><i class="bi bi-book me-2"></i>Kindergarten Mathematics</h6>
+                                            <p>Introduction to numbers, counting, shapes, and basic mathematical concepts through play and hands-on activities.</p>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <h6>Number Sense (0-10)</h6>
+                                                <ul>
+                                                    <li>Counting objects and numbers</li>
+                                                    <li>Number recognition and writing</li>
+                                                    <li>Comparing quantities (more/less)</li>
+                                                    <li>Simple addition and subtraction</li>
+                                                </ul>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <h6>Shapes and Patterns</h6>
+                                                <ul>
+                                                    <li>Basic shapes (circle, square, triangle)</li>
+                                                    <li>Pattern recognition and creation</li>
+                                                    <li>Sorting and classifying objects</li>
+                                                    <li>Measurement concepts (big/small, long/short)</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        
+                                    {% elif "1st Grade" in course.name or course.course_code == "MATH-1" %}
+                                        <div class="alert alert-light">
+                                            <h6><i class="bi bi-book me-2"></i>1st Grade Mathematics</h6>
+                                            <p>Building foundational skills in addition, subtraction, place value, and geometric reasoning.</p>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <h6>Addition and Subtraction (0-20)</h6>
+                                                <ul>
+                                                    <li>Addition and subtraction facts</li>
+                                                    <li>Problem solving strategies</li>
+                                                    <li>Word problems with pictures</li>
+                                                    <li>Number bonds and relationships</li>
+                                                </ul>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <h6>Place Value and Measurement</h6>
+                                                <ul>
+                                                    <li>Tens and ones place value</li>
+                                                    <li>Comparing two-digit numbers</li>
+                                                    <li>Length measurement</li>
+                                                    <li>Time to the hour</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        
+                                    {% elif "6th Grade" in course.name or course.course_code == "MATH-6" %}
+                                        <div class="alert alert-info">
+                                            <h6><i class="bi bi-book me-2"></i>6th Grade Mathematics</h6>
+                                            <p>Transition to middle school mathematics with ratios, proportions, integers, and algebraic thinking.</p>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <h6>Ratios and Proportions</h6>
+                                                <ul>
+                                                    <li>Understanding ratios and rates</li>
+                                                    <li>Proportional relationships</li>
+                                                    <li>Percent problems</li>
+                                                    <li>Unit rates and comparisons</li>
+                                                </ul>
+                                                
+                                                <h6>Number System</h6>
+                                                <ul>
+                                                    <li>Integers and rational numbers</li>
+                                                    <li>Absolute value</li>
+                                                    <li>Coordinate plane</li>
+                                                    <li>Ordering rational numbers</li>
+                                                </ul>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <h6>Expressions and Equations</h6>
+                                                <ul>
+                                                    <li>Writing algebraic expressions</li>
+                                                    <li>Evaluating expressions</li>
+                                                    <li>One-step equations</li>
+                                                    <li>Inequalities on number line</li>
+                                                </ul>
+                                                
+                                                <h6>Geometry and Statistics</h6>
+                                                <ul>
+                                                    <li>Area of triangles and quadrilaterals</li>
+                                                    <li>Surface area and volume</li>
+                                                    <li>Statistical questions</li>
+                                                    <li>Measures of center and variability</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        
+                                    {% elif "7th Grade" in course.name or course.course_code == "MATH-7" %}
+                                        <div class="alert alert-info">
+                                            <h6><i class="bi bi-book me-2"></i>7th Grade Mathematics</h6>
+                                            <p>Advanced middle school mathematics including linear relationships, probability, and geometric constructions.</p>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <h6>Ratios and Proportional Relationships</h6>
+                                                <ul>
+                                                    <li>Unit rates and proportional relationships</li>
+                                                    <li>Recognizing proportional relationships</li>
+                                                    <li>Graphing proportional relationships</li>
+                                                    <li>Percent increase and decrease</li>
+                                                </ul>
+                                                
+                                                <h6>Expressions and Equations</h6>
+                                                <ul>
+                                                    <li>Simplifying linear expressions</li>
+                                                    <li>Solving multi-step equations</li>
+                                                    <li>Solving inequalities</li>
+                                                    <li>Word problems and applications</li>
+                                                </ul>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <h6>Geometry</h6>
+                                                <ul>
+                                                    <li>Scale drawings and similar figures</li>
+                                                    <li>Constructing triangles</li>
+                                                    <li>Angle relationships</li>
+                                                    <li>Area and circumference of circles</li>
+                                                </ul>
+                                                
+                                                <h6>Statistics and Probability</h6>
+                                                <ul>
+                                                    <li>Random sampling</li>
+                                                    <li>Comparing populations</li>
+                                                    <li>Probability models</li>
+                                                    <li>Compound events</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        
+                                    {% elif "8th Grade" in course.name or course.course_code == "MATH-8" %}
+                                        <div class="alert alert-success">
+                                            <h6><i class="bi bi-book me-2"></i>8th Grade Mathematics</h6>
+                                            <p>Pre-algebra concepts preparing students for high school mathematics, including linear functions, systems, and the Pythagorean theorem.</p>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <h6>Linear Functions</h6>
+                                                <ul>
+                                                    <li>Slope and y-intercept</li>
+                                                    <li>Linear equations in various forms</li>
+                                                    <li>Graphing linear equations</li>
+                                                    <li>Systems of linear equations</li>
+                                                </ul>
+                                                
+                                                <h6>Exponents and Scientific Notation</h6>
+                                                <ul>
+                                                    <li>Properties of exponents</li>
+                                                    <li>Scientific notation</li>
+                                                    <li>Operations with scientific notation</li>
+                                                    <li>Square roots and cube roots</li>
+                                                </ul>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <h6>Geometry</h6>
+                                                <ul>
+                                                    <li>Transformations in the coordinate plane</li>
+                                                    <li>Congruence and similarity</li>
+                                                    <li>Pythagorean theorem</li>
+                                                    <li>Volume of cylinders, cones, and spheres</li>
+                                                </ul>
+                                                
+                                                <h6>Statistics</h6>
+                                                <ul>
+                                                    <li>Scatter plots and association</li>
+                                                    <li>Linear models and correlation</li>
+                                                    <li>Two-way tables</li>
+                                                    <li>Interpreting data</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        
+                                    {% else %}
+                                        <div class="alert alert-light">
+                                            <h6><i class="bi bi-book me-2"></i>Mathematics Course</h6>
+                                            <p>This mathematics course covers essential concepts and skills appropriate for the grade level, building mathematical understanding through problem-solving and real-world applications.</p>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <h6>Core Mathematical Concepts</h6>
+                                                <ul>
+                                                    <li>Number sense and operations</li>
+                                                    <li>Algebraic thinking</li>
+                                                    <li>Geometric reasoning</li>
+                                                    <li>Measurement and data</li>
+                                                </ul>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <h6>Problem-Solving Skills</h6>
+                                                <ul>
+                                                    <li>Mathematical reasoning</li>
+                                                    <li>Communication of ideas</li>
+                                                    <li>Real-world applications</li>
+                                                    <li>Technology integration</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                    
+                                    <div class="mt-3">
+                                        <h6>Assessment Methods</h6>
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <strong>Tests & Quizzes (35%)</strong>
+                                                <p class="small">Regular assessments of understanding</p>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <strong>Homework (30%)</strong>
+                                                <p class="small">Daily practice and reinforcement</p>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <strong>Projects (20%)</strong>
+                                                <p class="small">Real-world applications</p>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <strong>Participation (15%)</strong>
+                                                <p class="small">Class engagement and collaboration</p>
                                             </div>
                                         </div>
                                     </div>
