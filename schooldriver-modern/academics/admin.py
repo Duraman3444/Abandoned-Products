@@ -9,8 +9,12 @@ from .models import (
     Grade,
     Schedule,
     Attendance,
+    EarlyDismissalRequest,
+    AttendanceNotification,
+    SchoolCalendarEvent,
     Announcement,
     Message,
+    MessageAttachment,
 )
 
 
@@ -158,6 +162,77 @@ class AttendanceAdmin(admin.ModelAdmin):
     date_hierarchy = "date"
 
 
+@admin.register(EarlyDismissalRequest)
+class EarlyDismissalRequestAdmin(admin.ModelAdmin):
+    list_display = ["student", "request_date", "dismissal_time", "status", "requested_by", "processed_by"]
+    list_filter = ["status", "request_date", "is_recurring"]
+    search_fields = ["student__first_name", "student__last_name", "reason"]
+    date_hierarchy = "request_date"
+    readonly_fields = ["created_at", "updated_at"]
+    
+    fieldsets = (
+        ("Request Information", {
+            "fields": ("student", "requested_by", "request_date", "dismissal_time", "reason")
+        }),
+        ("Pickup Details", {
+            "fields": ("pickup_person", "contact_phone")
+        }),
+        ("Status", {
+            "fields": ("status", "processed_by", "processed_at", "school_notes", "actual_dismissal_time")
+        }),
+        ("Recurring Options", {
+            "fields": ("is_recurring", "recurring_days", "recurring_end_date"),
+            "classes": ("collapse",)
+        }),
+        ("Timestamps", {
+            "fields": ("created_at", "updated_at"),
+            "classes": ("collapse",)
+        })
+    )
+
+
+@admin.register(AttendanceNotification)
+class AttendanceNotificationAdmin(admin.ModelAdmin):
+    list_display = ["student", "recipient", "notification_type", "is_sent", "sent_at", "created_at"]
+    list_filter = ["notification_type", "is_sent", "delivery_method", "created_at"]
+    search_fields = ["student__first_name", "student__last_name", "recipient__email"]
+    readonly_fields = ["created_at", "sent_at"]
+    date_hierarchy = "created_at"
+
+
+@admin.register(SchoolCalendarEvent)
+class SchoolCalendarEventAdmin(admin.ModelAdmin):
+    list_display = ["title", "event_type", "start_date", "end_date", "is_public", "affects_all_students", "school_year"]
+    list_filter = ["event_type", "is_public", "affects_all_students", "school_year", "start_date"]
+    search_fields = ["title", "description"]
+    date_hierarchy = "start_date"
+    readonly_fields = ["created_at", "updated_at"]
+    
+    fieldsets = (
+        ("Event Information", {
+            "fields": ("title", "description", "event_type", "school_year")
+        }),
+        ("Schedule", {
+            "fields": ("start_date", "end_date", "start_time", "end_time", "dismissal_time")
+        }),
+        ("Display Options", {
+            "fields": ("is_public", "color")
+        }),
+        ("Affected Students", {
+            "fields": ("affects_all_students", "specific_grades")
+        }),
+        ("Metadata", {
+            "fields": ("created_by", "created_at", "updated_at"),
+            "classes": ("collapse",)
+        })
+    )
+    
+    def save_model(self, request, obj, form, change):
+        if not change:  # Only set created_by for new objects
+            obj.created_by = request.user
+        super().save_model(request, obj, form, change)
+
+
 @admin.register(Announcement)
 class AnnouncementAdmin(admin.ModelAdmin):
     list_display = [
@@ -173,9 +248,34 @@ class AnnouncementAdmin(admin.ModelAdmin):
     date_hierarchy = "publish_date"
 
 
+class MessageAttachmentInline(admin.TabularInline):
+    model = MessageAttachment
+    extra = 0
+    readonly_fields = ["original_filename", "file_size", "content_type", "uploaded_at", "download_count"]
+
+
 @admin.register(Message)
 class MessageAdmin(admin.ModelAdmin):
-    list_display = ["subject", "sender", "recipient", "is_read", "is_urgent", "sent_at"]
+    list_display = ["subject", "sender", "recipient", "is_read", "is_urgent", "sent_at", "has_attachments"]
     list_filter = ["is_read", "is_urgent", "sent_at"]
-    search_fields = ["subject", "sender__username", "recipient__username"]
+    search_fields = ["subject", "content", "sender__username", "recipient__username"]
+    readonly_fields = ["sent_at", "read_at", "thread_id"]
     date_hierarchy = "sent_at"
+    inlines = [MessageAttachmentInline]
+    
+    def has_attachments(self, obj):
+        return obj.attachments.exists()
+    has_attachments.boolean = True
+    has_attachments.short_description = "Has Attachments"
+
+
+@admin.register(MessageAttachment)
+class MessageAttachmentAdmin(admin.ModelAdmin):
+    list_display = ["original_filename", "message", "file_size_display", "content_type", "uploaded_at", "download_count"]
+    list_filter = ["content_type", "uploaded_at"]
+    search_fields = ["original_filename", "message__subject"]
+    readonly_fields = ["file_size", "content_type", "uploaded_at", "download_count", "last_downloaded_at"]
+    
+    def file_size_display(self, obj):
+        return obj.get_file_size_display()
+    file_size_display.short_description = "File Size"

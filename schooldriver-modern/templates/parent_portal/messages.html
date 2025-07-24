@@ -1,0 +1,188 @@
+{% extends "parent_base.html" %}
+{% load static %}
+
+{% block page_title %}Messages{% endblock %}
+{% block page_subtitle %}Communications with teachers and school staff{% endblock %}
+
+{% block parent_content %}
+{% if error %}
+    <div class="alert alert-warning text-center">
+        <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+        <h4>{{ error }}</h4>
+    </div>
+{% else %}
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="stats-card text-center">
+            <div class="text-info mb-2">
+                <i class="fas fa-envelope fa-2x"></i>
+            </div>
+            <h3 class="text-info">{{ total_unread }}</h3>
+            <p class="text-muted mb-0">Unread Messages</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stats-card text-center">
+            <div class="text-danger mb-2">
+                <i class="fas fa-exclamation-circle fa-2x"></i>
+            </div>
+            <h3 class="text-danger">{{ total_urgent }}</h3>
+            <p class="text-muted mb-0">Urgent Messages</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stats-card text-center">
+            <a href="{% url 'parent_portal:compose_message' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>
+                New Message
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+            <i class="fas fa-comments text-primary me-2"></i>
+            Message Threads
+        </h5>
+    </div>
+    <div class="card-body">
+        {% if page_obj %}
+            {% for thread in page_obj %}
+            <div class="message-thread border-bottom py-3 {% if thread.unread_count > 0 %}thread-unread{% endif %}">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <div class="d-flex align-items-start">
+                            <div class="thread-icon me-3">
+                                <i class="fas fa-comments text-primary"></i>
+                                {% if thread.has_attachments %}
+                                    <i class="fas fa-paperclip text-secondary ms-1" title="Has attachments"></i>
+                                {% endif %}
+                            </div>
+                            <div class="thread-content">
+                                <h6 class="mb-1">
+                                    <a href="{% url 'parent_portal:message_thread' thread.thread_id %}" class="text-decoration-none">
+                                        {{ thread.subject }}
+                                    </a>
+                                    {% if thread.has_urgent %}
+                                        <span class="badge bg-danger ms-2">Urgent</span>
+                                    {% endif %}
+                                    {% if thread.unread_count > 0 %}
+                                        <span class="badge bg-info ms-2">{{ thread.unread_count }} new</span>
+                                    {% endif %}
+                                </h6>
+                                <p class="text-muted mb-1">
+                                    <strong>Participants:</strong> 
+                                    {% for participant in thread.participants %}
+                                        {{ participant.get_full_name }}{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </p>
+                                {% if thread.student_context %}
+                                    <p class="small text-info mb-1">
+                                        <i class="fas fa-user-graduate me-1"></i>
+                                        About: {{ thread.student_context.display_name }}
+                                    </p>
+                                {% endif %}
+                                <p class="small text-muted mb-0">
+                                    <strong>{{ thread.latest_message.sender.get_full_name }}:</strong>
+                                    {{ thread.latest_message.content|truncatechars:80 }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <small class="text-muted d-block">{{ thread.latest_message.sent_at|date:"M d, Y g:i A" }}</small>
+                        <small class="text-muted d-block">{{ thread.message_count }} message{{ thread.message_count|pluralize }}</small>
+                        {% if thread.latest_message.read_at and thread.latest_message.recipient != request.user %}
+                            <small class="text-success d-block">
+                                <i class="fas fa-check-double me-1"></i>
+                                Read {{ thread.latest_message.read_at|date:"M d, g:i A" }}
+                            </small>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            
+            <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+                <nav aria-label="Messages pagination" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                            </li>
+                        {% endif %}
+                        
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ num }}</span>
+                                </li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% endif %}
+        {% else %}
+            <div class="text-center py-4">
+                <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">No messages yet</h5>
+                <p class="text-muted">When teachers send you messages, they'll appear here.</p>
+                <a href="{% url 'parent_portal:compose_message' %}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>
+                    Send your first message
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endif %}
+
+<style>
+.thread-unread {
+    background-color: #f8f9fa;
+    border-left: 4px solid #007bff !important;
+}
+
+.message-thread:hover {
+    background-color: #f8f9fa;
+    cursor: pointer;
+}
+
+.thread-icon {
+    font-size: 1.2rem;
+}
+
+.thread-content a:hover {
+    text-decoration: underline !important;
+}
+</style>
+
+<script>
+// Make entire thread row clickable
+document.querySelectorAll('.message-thread').forEach(function(thread) {
+    thread.addEventListener('click', function(e) {
+        if (e.target.tagName !== 'A') {
+            const link = thread.querySelector('a');
+            if (link) {
+                window.location.href = link.href;
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

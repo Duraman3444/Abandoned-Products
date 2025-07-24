@@ -1,0 +1,248 @@
+{% extends "parent_base.html" %}
+{% load static %}
+
+{% block page_title %}Message Thread{% endblock %}
+{% block page_subtitle %}{{ original_message.subject }}{% endblock %}
+
+{% block parent_content %}
+{% if error %}
+    <div class="alert alert-warning text-center">
+        <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+        <h4>{{ error }}</h4>
+    </div>
+{% else %}
+
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <!-- Thread Header -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="mb-1">{{ original_message.subject }}</h5>
+                        {% if original_message.student_context %}
+                            <small class="text-info">
+                                <i class="fas fa-user-graduate me-1"></i>
+                                About: {{ original_message.student_context.display_name }}
+                            </small>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <a href="{% url 'parent_portal:messages' %}" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-arrow-left me-1"></i>
+                            Back to Messages
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Message Thread -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-comments text-primary me-2"></i>
+                    Conversation ({{ thread_messages.count }} message{{ thread_messages.count|pluralize }})
+                </h6>
+            </div>
+            <div class="card-body p-0">
+                {% for message in thread_messages %}
+                <div class="message-item {% if message.sender == request.user %}message-sent{% else %}message-received{% endif %} {% if not forloop.last %}border-bottom{% endif %}">
+                    <div class="p-3">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div class="message-header">
+                                <strong class="text-primary">
+                                    {% if message.sender == request.user %}
+                                        You
+                                    {% else %}
+                                        {{ message.sender.get_full_name }}
+                                    {% endif %}
+                                </strong>
+                                {% if message.is_urgent %}
+                                    <span class="badge bg-danger ms-2">Urgent</span>
+                                {% endif %}
+                                <div class="small text-muted">
+                                    {{ message.sent_at|date:"M d, Y g:i A" }}
+                                    {% if message.read_at and message.recipient == request.user %}
+                                        <span class="text-success ms-2">
+                                            <i class="fas fa-check-double"></i>
+                                        </span>
+                                    {% elif message.sender == request.user and message.read_at %}
+                                        <span class="text-success ms-2">
+                                            <i class="fas fa-check-double"></i>
+                                            Read {{ message.read_at|date:"M d, g:i A" }}
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="message-content">
+                            {{ message.content|linebreaks }}
+                        </div>
+                        
+                        <!-- Attachments -->
+                        {% if message.attachments.exists %}
+                            <div class="message-attachments mt-3">
+                                <h6 class="small text-muted mb-2">
+                                    <i class="fas fa-paperclip me-1"></i>
+                                    Attachments:
+                                </h6>
+                                {% for attachment in message.attachments.all %}
+                                <div class="attachment-item mb-2">
+                                    <a href="{% url 'parent_portal:download_attachment' attachment.id %}" 
+                                       class="btn btn-outline-primary btn-sm">
+                                        {% if attachment.is_image %}
+                                            <i class="fas fa-image me-1"></i>
+                                        {% else %}
+                                            <i class="fas fa-file me-1"></i>
+                                        {% endif %}
+                                        {{ attachment.original_filename }}
+                                        <small class="text-muted">({{ attachment.get_file_size_display }})</small>
+                                    </a>
+                                    <small class="text-muted ms-2">
+                                        Downloaded {{ attachment.download_count }} time{{ attachment.download_count|pluralize }}
+                                    </small>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Reply Form -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-reply text-success me-2"></i>
+                    Reply to this conversation
+                </h6>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <!-- Reply Content -->
+                    <div class="mb-3">
+                        <label for="{{ form.content.id_for_label }}" class="form-label">
+                            <i class="fas fa-comment me-1"></i>
+                            Your Reply <span class="text-danger">*</span>
+                        </label>
+                        {{ form.content }}
+                        {% if form.content.errors %}
+                            <div class="text-danger small">{{ form.content.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- File Attachments -->
+                    <div class="mb-3">
+                        <label for="{{ form.attachments.id_for_label }}" class="form-label">
+                            <i class="fas fa-paperclip me-1"></i>
+                            Attachments (Optional)
+                        </label>
+                        {{ form.attachments }}
+                        {% if form.attachments.errors %}
+                            <div class="text-danger small">{{ form.attachments.errors.0 }}</div>
+                        {% endif %}
+                        <small class="form-text text-muted">
+                            Attach files to your reply (PDF, DOC, DOCX, JPG, PNG, TXT - max 10MB each)
+                        </small>
+                    </div>
+                    
+                    <!-- Message Options -->
+                    <div class="mb-3">
+                        <div class="form-check">
+                            {{ form.is_urgent }}
+                            <label class="form-check-label" for="{{ form.is_urgent.id_for_label }}">
+                                <i class="fas fa-exclamation-triangle text-warning me-1"></i>
+                                Mark reply as urgent
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Submit Buttons -->
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane me-1"></i>
+                            Send Reply
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endif %}
+
+<style>
+.message-sent {
+    background-color: #e3f2fd;
+    border-left: 4px solid #2196f3;
+}
+
+.message-received {
+    background-color: #f5f5f5;
+    border-left: 4px solid #4caf50;
+}
+
+.message-content {
+    word-wrap: break-word;
+    white-space: pre-wrap;
+}
+
+.attachment-item {
+    display: inline-block;
+    margin-right: 10px;
+}
+
+.message-item:hover {
+    background-color: rgba(0,0,0,0.02);
+}
+</style>
+
+<script>
+// Show file names when files are selected
+document.getElementById('{{ form.attachments.id_for_label }}').addEventListener('change', function(e) {
+    const files = e.target.files;
+    let fileNames = [];
+    
+    for (let i = 0; i < files.length; i++) {
+        fileNames.push(files[i].name);
+    }
+    
+    if (fileNames.length > 0) {
+        const fileList = document.createElement('div');
+        fileList.className = 'mt-2 small text-info';
+        fileList.innerHTML = '<i class="fas fa-file me-1"></i>Selected files: ' + fileNames.join(', ');
+        
+        // Remove existing file list
+        const existingList = e.target.parentNode.querySelector('.file-list');
+        if (existingList) {
+            existingList.remove();
+        }
+        
+        fileList.className += ' file-list';
+        e.target.parentNode.appendChild(fileList);
+    }
+});
+
+// Auto-resize textarea
+document.getElementById('{{ form.content.id_for_label }}').addEventListener('input', function(e) {
+    e.target.style.height = 'auto';
+    e.target.style.height = (e.target.scrollHeight) + 'px';
+});
+
+// Auto-scroll to bottom of messages on page load
+window.addEventListener('load', function() {
+    const messageContainer = document.querySelector('.card-body.p-0');
+    if (messageContainer) {
+        messageContainer.scrollTop = messageContainer.scrollHeight;
+    }
+});
+</script>
+
+{% endblock %}

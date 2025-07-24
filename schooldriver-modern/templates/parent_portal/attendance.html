@@ -1,0 +1,251 @@
+{% extends "parent_base.html" %}
+{% load static %}
+
+{% block page_title %}Attendance{% endblock %}
+{% block page_subtitle %}{{ current_child.display_name }} - Detailed Attendance Records{% endblock %}
+
+{% block parent_content %}
+{% if error %}
+    <div class="alert alert-warning text-center">
+        <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+        <h4>{{ error }}</h4>
+    </div>
+{% else %}
+
+<!-- Attendance Summary Cards -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stats-card">
+            <div class="text-success mb-2">
+                <i class="fas fa-check-circle fa-2x"></i>
+            </div>
+            <h3 class="text-success">{{ attendance_summary.present_days }}</h3>
+            <p class="text-muted mb-0">Present Days</p>
+            <small class="text-success">{{ attendance_summary.attendance_rate }}% Rate</small>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stats-card">
+            <div class="text-danger mb-2">
+                <i class="fas fa-times-circle fa-2x"></i>
+            </div>
+            <h3 class="text-danger">{{ attendance_summary.absent_days }}</h3>
+            <p class="text-muted mb-0">Absent Days</p>
+            <small class="text-muted">{{ attendance_summary.excused_days }} excused</small>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stats-card">
+            <div class="text-warning mb-2">
+                <i class="fas fa-clock fa-2x"></i>
+            </div>
+            <h3 class="text-warning">{{ attendance_summary.tardy_days }}</h3>
+            <p class="text-muted mb-0">Tardy Days</p>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stats-card">
+            <div class="text-primary mb-2">
+                <i class="fas fa-calendar fa-2x"></i>
+            </div>
+            <h3 class="text-primary">{{ attendance_summary.total_days }}</h3>
+            <p class="text-muted mb-0">Total School Days</p>
+        </div>
+    </div>
+</div>
+
+<!-- Attendance Patterns and Alerts -->
+{% if attendance_patterns.consecutive_absences > 1 or attendance_patterns.frequent_tardiness %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="alert alert-warning">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
+                <div>
+                    <h5 class="alert-heading mb-2">Attendance Patterns Detected</h5>
+                    {% if attendance_patterns.consecutive_absences > 1 %}
+                        <p class="mb-1"><strong>{{ attendance_patterns.consecutive_absences }} consecutive absences</strong> in the last 30 days</p>
+                    {% endif %}
+                    {% if attendance_patterns.frequent_tardiness %}
+                        <p class="mb-1"><strong>Frequent tardiness pattern</strong> detected in recent weeks</p>
+                    {% endif %}
+                    {% if attendance_patterns.monday_pattern %}
+                        <p class="mb-1"><strong>Monday absence pattern</strong> observed</p>
+                    {% endif %}
+                    {% if attendance_patterns.friday_pattern %}
+                        <p class="mb-1"><strong>Friday absence pattern</strong> observed</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="row">
+    <!-- Recent Attendance Records -->
+    <div class="col-lg-8 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-list text-primary me-2"></i>
+                    Recent Attendance Records
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if attendance_records %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Reason</th>
+                                    <th>Minutes Late</th>
+                                    <th>Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for record in attendance_records %}
+                                <tr>
+                                    <td>{{ record.date|date:"M d, Y" }} <small class="text-muted">({{ record.date|date:"l" }})</small></td>
+                                    <td>
+                                        <span class="badge {% if record.status == 'P' %}bg-success{% elif record.status == 'A' %}bg-danger{% elif record.status == 'T' %}bg-warning text-dark{% elif record.status == 'E' %}bg-info{% else %}bg-secondary{% endif %}">
+                                            {{ record.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if record.absence_reason %}
+                                            {{ record.absence_reason.name }}
+                                            {% if record.absence_reason.is_excused %}
+                                                <small class="text-success">(Excused)</small>
+                                            {% endif %}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if record.minutes_late %}
+                                            {{ record.minutes_late }} min
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if record.notes %}
+                                            <small>{{ record.notes|truncatechars:50 }}</small>
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center">No attendance records found.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Attendance Summary and Actions -->
+    <div class="col-lg-4 mb-4">
+        <!-- Absence Reasons -->
+        {% if absence_reasons %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-chart-pie text-info me-2"></i>
+                    Absence Reasons
+                </h6>
+            </div>
+            <div class="card-body">
+                {% for reason, data in absence_reasons.items %}
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="small">
+                        {{ reason }}
+                        {% if data.is_excused %}
+                            <small class="text-success">(Excused)</small>
+                        {% endif %}
+                    </span>
+                    <span class="badge bg-secondary">{{ data.count }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Recent Notifications -->
+        {% if recent_notifications %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-bell text-warning me-2"></i>
+                    Recent Notifications
+                </h6>
+            </div>
+            <div class="card-body">
+                {% for notification in recent_notifications %}
+                <div class="mb-2">
+                    <small class="text-muted">{{ notification.parent_notified_at|date:"M d, g:i A" }}</small>
+                    <div class="small">
+                        <span class="badge {% if notification.status == 'A' %}bg-danger{% elif notification.status == 'T' %}bg-warning text-dark{% else %}bg-info{% endif %}">
+                            {{ notification.get_status_display }}
+                        </span>
+                        on {{ notification.date|date:"M d" }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Actions -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-tools text-secondary me-2"></i>
+                    Actions
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'parent_portal:early_dismissal_request' %}{% if request.GET.child %}?child={{ request.GET.child }}{% endif %}" 
+                       class="btn btn-primary btn-sm">
+                        <i class="fas fa-clock me-1"></i>
+                        Request Early Dismissal
+                    </a>
+                    <a href="{% url 'parent_portal:school_calendar' %}{% if request.GET.child %}?child={{ request.GET.child }}{% endif %}" 
+                       class="btn btn-info btn-sm">
+                        <i class="fas fa-calendar-alt me-1"></i>
+                        View School Calendar
+                    </a>
+                    <button class="btn btn-success btn-sm" onclick="exportAttendance()">
+                        <i class="fas fa-download me-1"></i>
+                        Export Records
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endif %}
+
+<script>
+function requestEarlyDismissal() {
+    alert('Early dismissal request feature coming soon!');
+}
+
+function viewFullCalendar() {
+    alert('Full calendar view coming soon!');
+}
+
+function exportAttendance() {
+    alert('Export attendance feature coming soon!');
+}
+</script>
+
+{% endblock %}

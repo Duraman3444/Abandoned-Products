@@ -1,0 +1,338 @@
+{% extends 'parent_portal/base.html' %}
+{% load static %}
+
+{% block title %}Emergency Contacts - Parent Portal{% endblock %}
+
+{% block extra_css %}
+<style>
+    .emergency-contact-card {
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        background: white;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .primary-contact {
+        border-left: 4px solid #28a745;
+        background-color: #f8fff9;
+    }
+    
+    .contact-header {
+        display: flex;
+        justify-content: between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .contact-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .section-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1rem;
+        border-radius: 8px 8px 0 0;
+        margin-bottom: 0;
+    }
+    
+    .section-body {
+        border: 1px solid #e9ecef;
+        border-top: none;
+        border-radius: 0 0 8px 8px;
+        padding: 1.5rem;
+        background: white;
+    }
+    
+    .medical-alert {
+        background-color: #fff3cd;
+        border: 1px solid #ffeaa7;
+        color: #856404;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+    }
+    
+    .pickup-person-card {
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 0.5rem;
+        background: #f8f9fa;
+    }
+    
+    .child-selector {
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 2rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-address-book me-2"></i>Emergency Contacts</h1>
+                <a href="{% url 'parent_portal:dashboard' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                </a>
+            </div>
+            
+            <!-- Child Selector (for multiple children) -->
+            {% if children.count > 1 %}
+            <div class="child-selector">
+                <label class="form-label fw-bold">Select Child:</label>
+                <div class="btn-group" role="group">
+                    {% for student in children %}
+                    <a href="?child={{ student.id }}" 
+                       class="btn {% if student.id == child.id %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                        {{ student.full_name }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="row">
+                <!-- Emergency Contacts Section -->
+                <div class="col-lg-6 mb-4">
+                    <div class="section-header">
+                        <h4 class="mb-0">
+                            <i class="fas fa-phone me-2"></i>Emergency Contacts
+                        </h4>
+                    </div>
+                    <div class="section-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <p class="text-muted mb-0">Manage emergency contact information for {{ child.full_name }}</p>
+                            <a href="{% url 'parent_portal:add_emergency_contact' %}?child={{ child.id }}" 
+                               class="btn btn-success btn-sm">
+                                <i class="fas fa-plus me-1"></i>Add Contact
+                            </a>
+                        </div>
+                        
+                        {% if emergency_contacts %}
+                            {% for contact in emergency_contacts %}
+                            <div class="emergency-contact-card {% if contact.is_primary %}primary-contact{% endif %}">
+                                <div class="contact-header">
+                                    <div>
+                                        <h5 class="mb-1">
+                                            {{ contact.full_name }}
+                                            {% if contact.is_primary %}
+                                                <span class="badge bg-success ms-2">Primary</span>
+                                            {% endif %}
+                                        </h5>
+                                        <p class="text-muted mb-0">{{ contact.get_relationship_display }}</p>
+                                    </div>
+                                    <div class="contact-actions">
+                                        <a href="{% url 'parent_portal:edit_emergency_contact' contact.id %}" 
+                                           class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    {% if contact.phone_primary %}
+                                    <div class="col-md-6 mb-2">
+                                        <strong>Primary Phone:</strong><br>
+                                        <a href="tel:{{ contact.phone_primary }}">{{ contact.phone_primary }}</a>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    {% if contact.phone_secondary %}
+                                    <div class="col-md-6 mb-2">
+                                        <strong>Secondary Phone:</strong><br>
+                                        <a href="tel:{{ contact.phone_secondary }}">{{ contact.phone_secondary }}</a>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    {% if contact.email %}
+                                    <div class="col-md-6 mb-2">
+                                        <strong>Email:</strong><br>
+                                        <a href="mailto:{{ contact.email }}">{{ contact.email }}</a>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    {% if contact.street %}
+                                    <div class="col-12 mb-2">
+                                        <strong>Address:</strong><br>
+                                        {{ contact.street }}<br>
+                                        {{ contact.city }}, {{ contact.state }} {{ contact.zip_code }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="text-center py-4">
+                                <i class="fas fa-address-book fa-3x text-muted mb-3"></i>
+                                <h5>No Emergency Contacts</h5>
+                                <p class="text-muted">Add emergency contact information for {{ child.full_name }}</p>
+                                <a href="{% url 'parent_portal:add_emergency_contact' %}?child={{ child.id }}" 
+                                   class="btn btn-success">
+                                    <i class="fas fa-plus me-2"></i>Add Emergency Contact
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Authorized Pickup Persons Section -->
+                <div class="col-lg-6 mb-4">
+                    <div class="section-header">
+                        <h4 class="mb-0">
+                            <i class="fas fa-user-check me-2"></i>Authorized Pickup Persons
+                        </h4>
+                    </div>
+                    <div class="section-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <p class="text-muted mb-0">People authorized to pick up {{ child.full_name }}</p>
+                            <a href="{% url 'parent_portal:add_pickup_person' %}?child={{ child.id }}" 
+                               class="btn btn-success btn-sm">
+                                <i class="fas fa-plus me-1"></i>Add Person
+                            </a>
+                        </div>
+                        
+                        {% if pickup_persons %}
+                            {% for person in pickup_persons %}
+                            <div class="pickup-person-card">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="mb-1">{{ person.full_name }}</h6>
+                                        <p class="text-muted small mb-1">{{ person.get_relationship_display }}</p>
+                                        <p class="mb-1">
+                                            <i class="fas fa-phone me-1"></i>
+                                            <a href="tel:{{ person.phone }}">{{ person.phone }}</a>
+                                        </p>
+                                        {% if person.email %}
+                                        <p class="mb-1">
+                                            <i class="fas fa-envelope me-1"></i>
+                                            <a href="mailto:{{ person.email }}">{{ person.email }}</a>
+                                        </p>
+                                        {% endif %}
+                                        {% if person.id_requirements %}
+                                        <p class="small text-info mb-0">
+                                            <i class="fas fa-info-circle me-1"></i>{{ person.id_requirements }}
+                                        </p>
+                                        {% endif %}
+                                    </div>
+                                    <div class="d-flex gap-1">
+                                        {% if person.is_emergency_contact %}
+                                        <span class="badge bg-warning small">Emergency Contact</span>
+                                        {% endif %}
+                                        <a href="{% url 'parent_portal:edit_pickup_person' person.id %}" 
+                                           class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="text-center py-4">
+                                <i class="fas fa-user-check fa-3x text-muted mb-3"></i>
+                                <h6>No Authorized Pickup Persons</h6>
+                                <p class="text-muted small">Add people who can pick up {{ child.full_name }}</p>
+                                <a href="{% url 'parent_portal:add_pickup_person' %}?child={{ child.id }}" 
+                                   class="btn btn-success btn-sm">
+                                    <i class="fas fa-plus me-2"></i>Add Person
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Medical Information Section -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="section-header">
+                        <h4 class="mb-0">
+                            <i class="fas fa-heartbeat me-2"></i>Medical Information
+                        </h4>
+                    </div>
+                    <div class="section-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <p class="text-muted mb-0">Medical information and health details for {{ child.full_name }}</p>
+                            <a href="{% url 'parent_portal:medical_information' %}?child={{ child.id }}" 
+                               class="btn btn-primary btn-sm">
+                                <i class="fas fa-edit me-1"></i>
+                                {% if medical_info %}Update{% else %}Add{% endif %} Medical Info
+                            </a>
+                        </div>
+                        
+                        {% if medical_info %}
+                            {% if medical_info.allergies or medical_info.medical_conditions %}
+                            <div class="medical-alert">
+                                <h6><i class="fas fa-exclamation-triangle me-2"></i>Important Medical Information</h6>
+                                {% if medical_info.allergies %}
+                                <p><strong>Allergies:</strong> {{ medical_info.allergies }}</p>
+                                {% endif %}
+                                {% if medical_info.medical_conditions %}
+                                <p><strong>Medical Conditions:</strong> {{ medical_info.medical_conditions }}</p>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                            
+                            <div class="row">
+                                {% if medical_info.medications %}
+                                <div class="col-md-6 mb-3">
+                                    <h6><i class="fas fa-pills me-2"></i>Current Medications</h6>
+                                    <p>{{ medical_info.medications }}</p>
+                                </div>
+                                {% endif %}
+                                
+                                {% if medical_info.primary_physician %}
+                                <div class="col-md-6 mb-3">
+                                    <h6><i class="fas fa-user-md me-2"></i>Primary Physician</h6>
+                                    <p>{{ medical_info.primary_physician }}</p>
+                                    {% if medical_info.primary_physician_phone %}
+                                    <p><a href="tel:{{ medical_info.primary_physician_phone }}">{{ medical_info.primary_physician_phone }}</a></p>
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+                                
+                                {% if medical_info.dietary_restrictions %}
+                                <div class="col-md-6 mb-3">
+                                    <h6><i class="fas fa-utensils me-2"></i>Dietary Restrictions</h6>
+                                    <p>{{ medical_info.dietary_restrictions }}</p>
+                                </div>
+                                {% endif %}
+                                
+                                {% if medical_info.emergency_action_plan %}
+                                <div class="col-12 mb-3">
+                                    <h6><i class="fas fa-procedures me-2"></i>Emergency Action Plan</h6>
+                                    <p>{{ medical_info.emergency_action_plan }}</p>
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <p class="text-muted small">
+                                <i class="fas fa-clock me-1"></i>
+                                Last updated: {{ medical_info.updated_at|date:"M d, Y g:i A" }}
+                            </p>
+                        {% else %}
+                            <div class="text-center py-4">
+                                <i class="fas fa-heartbeat fa-3x text-muted mb-3"></i>
+                                <h5>No Medical Information</h5>
+                                <p class="text-muted">Add medical information for {{ child.full_name }}</p>
+                                <a href="{% url 'parent_portal:medical_information' %}?child={{ child.id }}" 
+                                   class="btn btn-primary">
+                                    <i class="fas fa-plus me-2"></i>Add Medical Information
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

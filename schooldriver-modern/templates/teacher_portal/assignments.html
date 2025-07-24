@@ -1,0 +1,498 @@
+{% extends "teacher_base.html" %}
+
+{% block page_title %}Assignments{% endblock %}
+{% block page_subtitle %}Manage assignments and track student progress{% endblock %}
+
+{% block teacher_content %}
+<div class="container-fluid">
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-tasks text-primary me-2"></i>Assignment Management
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            {% if current_section %}
+                                <a href="{% url 'teacher_portal:create_assignment' %}?section={{ current_section.id }}" class="btn btn-primary btn-lg w-100 mb-2">
+                                    <i class="fas fa-plus me-2"></i>Create Assignment
+                                </a>
+                            {% else %}
+                                <button type="button" class="btn btn-primary btn-lg w-100 mb-2" disabled>
+                                    <i class="fas fa-plus me-2"></i>Create Assignment
+                                </button>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-3">
+                            {% if current_section %}
+                                <button type="button" class="btn btn-success btn-lg w-100 mb-2" onclick="showTemplateSelector()">
+                                    <i class="fas fa-copy me-2"></i>Copy from Template
+                                </button>
+                            {% else %}
+                                <button type="button" class="btn btn-success btn-lg w-100 mb-2" disabled>
+                                    <i class="fas fa-copy me-2"></i>Copy from Template
+                                </button>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-3">
+                            {% if current_section %}
+                                <button type="button" class="btn btn-info btn-lg w-100 mb-2" onclick="showAssignmentCalendar()">
+                                    <i class="fas fa-calendar me-2"></i>Assignment Calendar
+                                </button>
+                            {% else %}
+                                <button type="button" class="btn btn-info btn-lg w-100 mb-2" disabled>
+                                    <i class="fas fa-calendar me-2"></i>Assignment Calendar
+                                </button>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-3">
+                            {% if current_section %}
+                                <a href="{% url 'teacher_portal:assignment_analytics' %}?section={{ current_section.id }}" class="btn btn-warning btn-lg w-100 mb-2">
+                                    <i class="fas fa-chart-bar me-2"></i>Grade Statistics
+                                </a>
+                            {% else %}
+                                <button type="button" class="btn btn-warning btn-lg w-100 mb-2" disabled>
+                                    <i class="fas fa-chart-bar me-2"></i>Grade Statistics
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Current Section Assignments -->
+    {% if current_section %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-clipboard-list text-success me-2"></i>
+                        {{ current_section.course.name }} - Section {{ current_section.section_name }}
+                    </h5>
+                    <span class="badge bg-primary">{{ assignments.count|default:0 }} Assignments</span>
+                </div>
+                <div class="card-body">
+                    {% if assignments %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Assignment</th>
+                                    <th>Category</th>
+                                    <th>Due Date</th>
+                                    <th>Points</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for assignment in assignments %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ assignment.name }}</strong>
+                                        {% if assignment.description %}
+                                        <br><small class="text-muted">{{ assignment.description|truncatechars:50 }}</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary">{{ assignment.category.name }}</span>
+                                    </td>
+                                    <td>{{ assignment.due_date|date:"M d, Y" }}</td>
+                                    <td>{{ assignment.max_points }} pts</td>
+                                    <td>
+                                        {% if assignment.is_published %}
+                                        <span class="badge bg-success">Published</span>
+                                        {% else %}
+                                        <span class="badge bg-warning">Draft</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="#" class="btn btn-outline-primary" title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="#" class="btn btn-outline-success" title="View Grades">
+                                                <i class="fas fa-chart-line"></i>
+                                            </a>
+                                            <a href="#" class="btn btn-outline-info" title="Copy">
+                                                <i class="fas fa-copy"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-clipboard fa-3x text-muted mb-3"></i>
+                        <h4 class="text-muted">No Assignments Yet</h4>
+                        <p class="text-muted">Create your first assignment to get started.</p>
+                        <a href="#" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Create Assignment
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-chalkboard-teacher fa-3x text-muted mb-3"></i>
+        <h4 class="text-muted">No Section Selected</h4>
+        <p class="text-muted">Select a section to manage assignments.</p>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function showTemplateSelector() {
+    const templateHTML = `
+        <div class="modal fade" id="templateModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="fas fa-copy text-success me-2"></i>Copy from Template
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Select an assignment template to copy:</p>
+                        <div class="list-group">
+                            <a href="#" class="list-group-item list-group-item-action" onclick="copyTemplate('quiz')">
+                                <i class="fas fa-question-circle me-2"></i>Quiz Template
+                                <small class="d-block text-muted">Basic quiz with 10 questions</small>
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action" onclick="copyTemplate('test')">
+                                <i class="fas fa-file-alt me-2"></i>Test Template
+                                <small class="d-block text-muted">Comprehensive test format</small>
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action" onclick="copyTemplate('homework')">
+                                <i class="fas fa-home me-2"></i>Homework Template
+                                <small class="d-block text-muted">Standard homework assignment</small>
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action" onclick="copyTemplate('project')">
+                                <i class="fas fa-project-diagram me-2"></i>Project Template
+                                <small class="d-block text-muted">Long-term project assignment</small>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Remove existing modal if any
+    const existingModal = document.getElementById('templateModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    // Add modal to body
+    document.body.insertAdjacentHTML('beforeend', templateHTML);
+    
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('templateModal'));
+    modal.show();
+}
+
+function copyTemplate(templateType) {
+    // Close the modal
+    const modal = bootstrap.Modal.getInstance(document.getElementById('templateModal'));
+    modal.hide();
+    
+    // Redirect to create assignment with template parameter
+    {% if current_section %}
+    window.location.href = '{% url "teacher_portal:create_assignment" %}?section={{ current_section.id }}&template=' + templateType;
+    {% else %}
+    window.location.href = '{% url "teacher_portal:create_assignment" %}?template=' + templateType;
+    {% endif %}
+}
+
+function showAssignmentCalendar() {
+    const today = new Date();
+    const month = today.toLocaleString('default', { month: 'long' });
+    const year = today.getFullYear();
+    
+    const calendarHTML = `
+        <div class="modal fade" id="assignmentCalendarModal" tabindex="-1">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="fas fa-calendar text-info me-2"></i>Assignment Calendar - ${month} ${year}
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Assignment calendar showing due dates and scheduling for all active assignments.
+                        </div>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="calendar-placeholder bg-light p-4 text-center">
+                                    <h4 class="text-muted">${month} ${year}</h4>
+                                    <p class="text-muted">Calendar view would display here</p>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="card bg-primary text-white">
+                                                <div class="card-body">
+                                                    <h6>Today</h6>
+                                                    <small>2 assignments due</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="card bg-warning">
+                                                <div class="card-body">
+                                                    <h6>This Week</h6>
+                                                    <small>5 assignments due</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="card bg-success text-white">
+                                                <div class="card-body">
+                                                    <h6>Next Week</h6>
+                                                    <small>3 assignments due</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <h6>Upcoming Assignments</h6>
+                                <div class="list-group">
+                                    <div class="list-group-item">
+                                        <strong>Math Quiz 3</strong>
+                                        <small class="d-block text-muted">Due: Tomorrow</small>
+                                    </div>
+                                    <div class="list-group-item">
+                                        <strong>History Essay</strong>
+                                        <small class="d-block text-muted">Due: Friday</small>
+                                    </div>
+                                    <div class="list-group-item">
+                                        <strong>Science Project</strong>
+                                        <small class="d-block text-muted">Due: Next Week</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Remove existing modal if any
+    const existingModal = document.getElementById('assignmentCalendarModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    // Add modal to body
+    document.body.insertAdjacentHTML('beforeend', calendarHTML);
+    
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('assignmentCalendarModal'));
+    modal.show();
+}
+</script>
+
+<style>
+/* Fix Button Text Visibility - Override dashboard.css */
+.btn, .btn *, .btn i, .btn span {
+    color: white !important;  
+    text-shadow: none !important;
+}
+
+.btn-primary, .btn-primary *, .btn-primary i, .btn-primary span {
+    color: white !important;
+    background-color: #0d6efd !important;
+}
+
+.btn-success, .btn-success *, .btn-success i, .btn-success span {
+    color: white !important;
+    background-color: #198754 !important;
+}
+
+.btn-info, .btn-info *, .btn-info i, .btn-info span {
+    color: white !important;
+    background-color: #0dcaf0 !important;
+}
+
+.btn-warning, .btn-warning *, .btn-warning i, .btn-warning span {
+    color: white !important;
+    background-color: #ffc107 !important;
+}
+
+.btn-danger, .btn-danger *, .btn-danger i, .btn-danger span {
+    color: white !important;
+    background-color: #dc3545 !important;
+}
+
+/* Improve disabled button appearance */
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn:disabled, .btn:disabled *, .btn:disabled i, .btn:disabled span {
+    color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* Hover states */
+.btn:hover, .btn:hover *, .btn:hover i, .btn:hover span {
+    color: white !important;
+}
+
+/* Override any conflicting dashboard.css rules */
+.teacher-content .btn,
+.teacher-content .btn *,
+.card-body .btn,
+.card-body .btn * {
+    color: white !important;
+}
+
+/* Modal content visibility fixes */
+.modal-content {
+    background-color: var(--bg-secondary, #ffffff) !important;
+    color: var(--text-primary, #000000) !important;
+}
+
+.modal-header, .modal-footer {
+    border-color: var(--border-color, #dee2e6) !important;
+    background-color: var(--bg-tertiary, #f8f9fa) !important;
+}
+
+.modal-title {
+    color: var(--text-primary, #000000) !important;
+}
+
+.modal-body {
+    color: var(--text-primary, #000000) !important;
+    background-color: var(--bg-secondary, #ffffff) !important;
+}
+
+/* Form elements in modals */
+.modal .form-control, .modal .form-select {
+    background-color: var(--bg-primary, #ffffff) !important;
+    border-color: var(--border-color, #ced4da) !important;
+    color: var(--text-primary, #000000) !important;
+}
+
+.modal .form-label {
+    color: var(--text-primary, #000000) !important;
+    font-weight: 500 !important;
+}
+
+.modal .form-text {
+    color: var(--text-secondary, #6c757d) !important;
+}
+
+/* List group items in modals */
+.modal .list-group-item {
+    background-color: var(--bg-primary, #ffffff) !important;
+    border-color: var(--border-color, #dee2e6) !important;
+    color: var(--text-primary, #000000) !important;
+}
+
+.modal .list-group-item:hover {
+    background-color: var(--bg-tertiary, #f8f9fa) !important;
+}
+
+.modal .list-group-item small {
+    color: var(--text-secondary, #6c757d) !important;
+}
+
+/* Alert in modals */
+.modal .alert {
+    color: var(--text-primary, #000000) !important;
+}
+
+.modal .alert-info {
+    background-color: rgba(13, 202, 240, 0.1) !important;
+    border-color: rgba(13, 202, 240, 0.2) !important;
+    color: #055160 !important;
+}
+
+/* Card elements in modals */
+.modal .card {
+    background-color: var(--bg-primary, #ffffff) !important;
+    border-color: var(--border-color, #dee2e6) !important;
+}
+
+.modal .card-body {
+    color: var(--text-primary, #000000) !important;
+}
+
+/* Calendar placeholder styling */
+.calendar-placeholder {
+    background-color: var(--bg-tertiary, #f8f9fa) !important;
+    color: var(--text-primary, #000000) !important;
+}
+
+.calendar-placeholder h4, .calendar-placeholder p {
+    color: var(--text-secondary, #6c757d) !important;
+}
+
+/* Specific fixes for template modal */
+#templateModal .modal-content,
+#assignmentCalendarModal .modal-content {
+    background-color: var(--bg-secondary, #ffffff) !important;
+}
+
+#templateModal .modal-body,
+#assignmentCalendarModal .modal-body {
+    color: var(--text-primary, #000000) !important;
+}
+
+/* Secondary button styling */
+.btn-secondary, .btn-secondary *, .btn-secondary i, .btn-secondary span {
+    color: white !important;
+    background-color: #6c757d !important;
+}
+
+/* Close button */
+.btn-close {
+    filter: var(--bs-btn-close-white-filter, invert(1) grayscale(100%) brightness(200%));
+}
+
+/* Dark theme adjustments */
+@media (prefers-color-scheme: dark) {
+    .modal-content {
+        background-color: #2d3748 !important;
+        color: #e2e8f0 !important;
+    }
+    
+    .modal-header, .modal-footer {
+        background-color: #1a202c !important;
+        border-color: #4a5568 !important;
+    }
+    
+    .form-control, .form-select {
+        background-color: #1a202c !important;
+        border-color: #4a5568 !important;
+        color: #e2e8f0 !important;
+    }
+}
+</style>
+{% endblock %}

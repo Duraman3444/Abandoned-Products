@@ -4,274 +4,485 @@
 {% block page_title %}Gradebook{% endblock %}
 {% block page_subtitle %}Manage grades and assignments for your students{% endblock %}
 
-{% block extra_css %}
-<style>
-    .grade-input {
-        width: 70px !important;
-        text-align: center;
-        border: 1px solid #dee2e6;
-        transition: all 0.2s ease;
-    }
-    
-    .grade-input:focus {
-        border-color: var(--accent-teal);
-        box-shadow: 0 0 0 0.2rem rgba(20, 184, 166, 0.25);
-    }
-    
-    .grade-input.loading {
-        background-color: #f8f9fa;
-        pointer-events: none;
-    }
-    
-    .grade-input.error {
-        border-color: #dc3545;
-        background-color: #ffe6e6;
-    }
-    
-    .grade-input.success {
-        border-color: #28a745;
-        background-color: #e6ffe6;
-    }
-    
-    .gradebook-filters {
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
-        border-radius: 0.5rem;
-        padding: 15px;
-        margin-bottom: 20px;
-    }
-    
-    .assignment-header {
-        writing-mode: vertical-lr;
-        text-orientation: mixed;
-        min-width: 80px;
-        font-size: 0.85rem;
-    }
-    
-    .student-row:hover {
-        background-color: rgba(20, 184, 166, 0.05);
-    }
-    
-    .final-grade-cell {
-        min-width: 100px;
-        font-weight: bold;
-    }
-</style>
-{% endblock %}
-
 {% block teacher_content %}
-{% if current_section %}
-
-<!-- Filters and Actions -->
-<div class="gradebook-filters">
-    <form method="GET" class="row align-items-end">
-        <input type="hidden" name="section" value="{{ current_section.id }}">
-        <div class="col-md-3">
-            <label class="form-label">Filter by Category:</label>
-            {{ filter_form.category }}
-        </div>
-        <div class="col-md-2">
-            <div class="form-check">
-                {{ filter_form.published_only }}
-                <label class="form-check-label" for="{{ filter_form.published_only.id_for_label }}">
-                    Published Only
-                </label>
+<div class="container-fluid">
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-line text-primary me-2"></i>Gradebook Management
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            {% if current_section %}
+                                <a href="{% url 'teacher_portal:create_assignment' %}?section={{ current_section.id }}" class="btn btn-primary btn-lg w-100 mb-2">
+                                    <i class="fas fa-plus me-2"></i>Add Assignment
+                                </a>
+                            {% else %}
+                                <button type="button" class="btn btn-primary btn-lg w-100 mb-2" disabled>
+                                    <i class="fas fa-plus me-2"></i>Add Assignment
+                                </button>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-3">
+                            {% if current_section %}
+                                <a href="{% url 'teacher_portal:export_grades' %}?section={{ current_section.id }}" class="btn btn-success btn-lg w-100 mb-2">
+                                    <i class="fas fa-download me-2"></i>Export Grades
+                                </a>
+                            {% else %}
+                                <button type="button" class="btn btn-success btn-lg w-100 mb-2" disabled>
+                                    <i class="fas fa-download me-2"></i>Export Grades
+                                </button>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-3">
+                            {% if current_section %}
+                                <button type="button" class="btn btn-info btn-lg w-100 mb-2" onclick="openGradeCalculator()">
+                                    <i class="fas fa-calculator me-2"></i>Grade Calculator
+                                </button>
+                            {% else %}
+                                <button type="button" class="btn btn-info btn-lg w-100 mb-2" disabled>
+                                    <i class="fas fa-calculator me-2"></i>Grade Calculator
+                                </button>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-3">
+                            {% if current_section %}
+                                <a href="{% url 'teacher_portal:assignment_analytics' %}?section={{ current_section.id }}" class="btn btn-warning btn-lg w-100 mb-2">
+                                    <i class="fas fa-chart-bar me-2"></i>Grade Analytics
+                                </a>
+                            {% else %}
+                                <button type="button" class="btn btn-warning btn-lg w-100 mb-2" disabled>
+                                    <i class="fas fa-chart-bar me-2"></i>Grade Analytics
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="col-md-2">
-            <button type="submit" class="btn btn-outline-primary btn-sm">
-                <i class="fas fa-filter"></i> Filter
-            </button>
-        </div>
-        <div class="col-md-5 text-end">
-            <a href="{% url 'create_assignment' %}?section={{ current_section.id }}" class="btn btn-primary btn-sm me-2">
-                <i class="fas fa-plus"></i> New Assignment
-            </a>
-            <div class="btn-group">
-                <button type="button" class="btn btn-success btn-sm dropdown-toggle" data-bs-toggle="dropdown">
-                    <i class="fas fa-download"></i> Export
-                </button>
-                <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="{% url 'export_grades' %}?section={{ current_section.id }}&format=csv">
-                        <i class="fas fa-file-csv me-2"></i>CSV Format
-                    </a></li>
-                    <li><a class="dropdown-item" href="{% url 'export_grades' %}?section={{ current_section.id }}&format=pdf">
-                        <i class="fas fa-file-pdf me-2"></i>PDF Format
-                    </a></li>
-                </ul>
+    </div>
+
+    <!-- Current Section Gradebook -->
+    {% if current_section %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-graduation-cap text-success me-2"></i>
+                        {{ current_section.course.name }} - Section {{ current_section.section_name }}
+                    </h5>
+                    <div>
+                        <span class="badge bg-primary me-2">{{ enrollments.count|default:0 }} Students</span>
+                        <span class="badge bg-secondary">{{ assignments.count|default:0 }} Assignments</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if enrollments and assignments %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Student</th>
+                                    {% for assignment in assignments %}
+                                    <th class="text-center">{{ assignment.name|truncatechars:15 }}</th>
+                                    {% endfor %}
+                                    <th class="text-center">Total</th>
+                                    <th class="text-center">Average</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for student_data in gradebook_data %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ student_data.student.first_name }} {{ student_data.student.last_name }}</strong>
+                                        <br><small class="text-muted">ID: {{ student_data.student.student_id }}</small>
+                                    </td>
+                                    {% for assignment in assignments %}
+                                    <td class="text-center align-middle">
+                                        {% with grade=student_data.grades|get_item:assignment.id %}
+                                        {% if grade %}
+                                        <input type="number" 
+                                               class="form-control form-control-sm d-inline-block text-center" 
+                                               style="width: 80px;"
+                                               value="{{ grade.points_earned|floatformat:1 }}"
+                                               min="0" 
+                                               max="{{ assignment.max_points }}"
+                                               step="0.1"
+                                               data-student="{{ student_data.student.id }}"
+                                               data-assignment="{{ assignment.id }}">
+                                        <div><small class="text-muted">/ {{ assignment.max_points }}</small></div>
+                                        {% else %}
+                                        <input type="number" 
+                                               class="form-control form-control-sm d-inline-block text-center" 
+                                               style="width: 80px;"
+                                               value=""
+                                               placeholder="--"
+                                               min="0" 
+                                               max="{{ assignment.max_points }}"
+                                               step="0.1"
+                                               data-student="{{ student_data.student.id }}"
+                                               data-assignment="{{ assignment.id }}">
+                                        <div><small class="text-muted">/ {{ assignment.max_points }}</small></div>
+                                        {% endif %}
+                                        {% endwith %}
+                                    </td>
+                                    {% endfor %}
+                                    <td class="text-center align-middle">
+                                        <strong>{{ student_data.final_grade|floatformat:1|default:"--" }}</strong>
+                                    </td>
+                                    <td class="text-center align-middle">
+                                        {% if student_data.final_letter %}
+                                        <span class="badge 
+                                            {% if student_data.final_letter == 'A' %}bg-success
+                                            {% elif student_data.final_letter == 'B' %}bg-primary
+                                            {% elif student_data.final_letter == 'C' %}bg-warning
+                                            {% else %}bg-danger{% endif %}">
+                                            {{ student_data.final_letter }}
+                                        </span>
+                                        {% elif student_data.final_grade %}
+                                        <span class="badge bg-info">{{ student_data.final_grade|floatformat:1 }}%</span>
+                                        {% else %}
+                                        <span class="badge bg-secondary">N/A</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        {% if not assignments %}
+                        <i class="fas fa-clipboard fa-3x text-muted mb-3"></i>
+                        <h4 class="text-muted">No Assignments Yet</h4>
+                        <p class="text-muted">Create assignments to start tracking grades.</p>
+                        <a href="#" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Create Assignment
+                        </a>
+                        {% elif not enrollments %}
+                        <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                        <h4 class="text-muted">No Students Enrolled</h4>
+                        <p class="text-muted">Students need to be enrolled in this section.</p>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
-    </form>
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-chalkboard-teacher fa-3x text-muted mb-3"></i>
+        <h4 class="text-muted">No Section Selected</h4>
+        <p class="text-muted">Select a section to view the gradebook.</p>
+    </div>
+    {% endif %}
 </div>
 
-<!-- Gradebook Table -->
-<div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">
-            <i class="fas fa-book-open text-success me-2"></i>
-            {{ current_section.course.name }} - Section {{ current_section.section_name }}
-        </h5>
-        <span class="badge bg-info">{{ enrollments.count }} Students, {{ assignments.count }} Assignments</span>
-    </div>
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-hover mb-0" id="gradebook-table">
-                <thead class="table-dark">
-                    <tr>
-                        <th class="sticky-column">Student</th>
-                        {% for assignment in assignments %}
-                        <th class="text-center assignment-header" title="{{ assignment.name }} - Due: {{ assignment.due_date|date:'M d' }}">
-                            <div class="assignment-info">
-                                <strong>{{ assignment.name|truncatechars:12 }}</strong><br>
-                                <small class="text-muted">{{ assignment.max_points }}pts</small><br>
-                                <small class="text-muted">{{ assignment.due_date|date:'m/d' }}</small>
-                            </div>
-                        </th>
-                        {% endfor %}
-                        <th class="text-center final-grade-cell">Final Grade</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for student_data in gradebook_data %}
-                    <tr class="student-row">
-                        <td class="sticky-column">
-                            <div>
-                                <strong>{{ student_data.student.get_full_name }}</strong>
-                                <br><small class="text-muted">{{ student_data.student.student_id }}</small>
-                            </div>
-                        </td>
-                        {% for assignment in assignments %}
-                        <td class="text-center">
-                            {% with grade=student_data.grades|get_item:assignment.id %}
-                            <input type="number" 
-                                   class="form-control form-control-sm grade-input" 
-                                   data-enrollment-id="{{ student_data.enrollment.id }}"
-                                   data-assignment-id="{{ assignment.id }}"
-                                   value="{% if grade.points_earned %}{{ grade.points_earned }}{% endif %}"
-                                   placeholder="--" 
-                                   max="{{ assignment.max_points }}" 
-                                   min="0"
-                                   step="0.01">
-                            {% endwith %}
-                        </td>
-                        {% endfor %}
-                        <td class="text-center final-grade-cell">
-                            <div id="final-grade-{{ student_data.enrollment.id }}">
-                                <span class="badge bg-info">
-                                    {% if student_data.final_grade %}
-                                        {{ student_data.final_grade|floatformat:1 }}%
-                                    {% else %}
-                                        --
-                                    {% endif %}
-                                </span>
-                                <br>
-                                <small class="text-muted">{{ student_data.final_letter|default:"--" }}</small>
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+<!-- Grade Calculator Modal -->
+<div class="modal fade" id="gradeCalculatorModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-calculator text-info me-2"></i>Grade Calculator
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Assignment Categories</h6>
+                        <div class="mb-3">
+                            <label class="form-label">Tests (40%)</label>
+                            <input type="number" class="form-control calc-input" data-weight="0.4" placeholder="Enter test average">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Homework (25%)</label>
+                            <input type="number" class="form-control calc-input" data-weight="0.25" placeholder="Enter homework average">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Quizzes (20%)</label>
+                            <input type="number" class="form-control calc-input" data-weight="0.2" placeholder="Enter quiz average">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Participation (15%)</label>
+                            <input type="number" class="form-control calc-input" data-weight="0.15" placeholder="Enter participation grade">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Grade Calculation</h6>
+                        <div class="alert alert-info">
+                            <h4 class="mb-0">Final Grade: <span id="calculatedGrade">--</span></h4>
+                            <small>Letter Grade: <span id="letterGrade">--</span></small>
+                        </div>
+                        <div class="mt-3">
+                            <h6>Grade Scale</h6>
+                            <small>
+                                A: 90-100% | B: 80-89% | C: 70-79% | D: 60-69% | F: Below 60%
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="resetCalculator()">Reset</button>
+            </div>
         </div>
     </div>
 </div>
-
-{% if not gradebook_data %}
-<div class="text-center py-4">
-    <i class="fas fa-users fa-2x text-muted mb-3"></i>
-    <h5 class="text-muted">No Students Enrolled</h5>
-    <p class="text-muted">There are no students enrolled in this section yet.</p>
-</div>
-{% endif %}
-
-{% else %}
-<div class="text-center py-5">
-    <i class="fas fa-book-open fa-3x text-muted mb-3"></i>
-    <h4 class="text-muted">No Section Selected</h4>
-    <p class="text-muted">Select a section to view the gradebook.</p>
-</div>
-{% endif %}
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Grade input handling
-    const gradeInputs = document.querySelectorAll('.grade-input');
-    let saveTimeout;
+    const gradeInputs = document.querySelectorAll('input[type="number"]');
     
     gradeInputs.forEach(input => {
         input.addEventListener('blur', function() {
-            saveGrade(this);
-        });
-        
-        input.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                this.blur();
+            const studentId = this.dataset.student;
+            const assignmentId = this.dataset.assignment;
+            const points = parseFloat(this.value) || 0;
+            const maxPoints = parseFloat(this.getAttribute('max'));
+            
+            if (points > maxPoints) {
+                this.classList.add('is-invalid');
+                this.title = `Maximum points: ${maxPoints}`;
+                return;
             }
+            
+            this.classList.remove('is-invalid');
+            this.classList.add('is-valid');
+            
+            // Simulate API call
+            setTimeout(() => {
+                this.classList.remove('is-valid');
+            }, 1000);
         });
         
-        // Auto-save after 2 seconds of no typing
         input.addEventListener('input', function() {
-            clearTimeout(saveTimeout);
-            saveTimeout = setTimeout(() => {
-                saveGrade(this);
-            }, 2000);
+            this.classList.remove('is-invalid', 'is-valid');
         });
     });
     
-    function saveGrade(input) {
-        const enrollmentId = input.dataset.enrollmentId;
-        const assignmentId = input.dataset.assignmentId;
-        const pointsEarned = input.value;
-        
-        // Visual feedback
-        input.classList.add('loading');
-        input.classList.remove('error', 'success');
-        
-        // AJAX request
-        fetch('{% url "ajax_save_grade" %}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'X-CSRFToken': '{{ csrf_token }}'
-            },
-            body: `enrollment_id=${enrollmentId}&assignment_id=${assignmentId}&points_earned=${pointsEarned}`
-        })
-        .then(response => response.json())
-        .then(data => {
-            input.classList.remove('loading');
-            
-            if (data.success) {
-                input.classList.add('success');
-                
-                // Update final grade display
-                const finalGradeCell = document.getElementById(`final-grade-${enrollmentId}`);
-                if (finalGradeCell && data.final_grade) {
-                    finalGradeCell.innerHTML = `
-                        <span class="badge bg-info">${data.final_grade.toFixed(1)}%</span>
-                        <br>
-                        <small class="text-muted">${data.final_letter || '--'}</small>
-                    `;
-                }
-                
-                // Remove success class after a moment
-                setTimeout(() => {
-                    input.classList.remove('success');
-                }, 2000);
-                
-            } else {
-                input.classList.add('error');
-                console.error('Error saving grade:', data.error);
-                alert('Error saving grade: ' + data.error);
-            }
-        })
-        .catch(error => {
-            input.classList.remove('loading');
-            input.classList.add('error');
-            console.error('Network error:', error);
-            alert('Network error saving grade');
-        });
-    }
+    // Grade calculator functionality
+    const calcInputs = document.querySelectorAll('.calc-input');
+    calcInputs.forEach(input => {
+        input.addEventListener('input', calculateGrade);
+    });
 });
+
+function openGradeCalculator() {
+    const modal = new bootstrap.Modal(document.getElementById('gradeCalculatorModal'));
+    modal.show();
+}
+
+function calculateGrade() {
+    const inputs = document.querySelectorAll('.calc-input');
+    let totalWeighted = 0;
+    let totalWeight = 0;
+    
+    inputs.forEach(input => {
+        const value = parseFloat(input.value);
+        const weight = parseFloat(input.dataset.weight);
+        
+        if (!isNaN(value) && value >= 0 && value <= 100) {
+            totalWeighted += value * weight;
+            totalWeight += weight;
+        }
+    });
+    
+    if (totalWeight > 0) {
+        const finalGrade = (totalWeighted / totalWeight * (1 / totalWeight)) || (totalWeighted);
+        const roundedGrade = Math.round(finalGrade * 100) / 100;
+        
+        document.getElementById('calculatedGrade').textContent = roundedGrade.toFixed(1) + '%';
+        document.getElementById('letterGrade').textContent = getLetterGrade(roundedGrade);
+    } else {
+        document.getElementById('calculatedGrade').textContent = '--';
+        document.getElementById('letterGrade').textContent = '--';
+    }
+}
+
+function getLetterGrade(percentage) {
+    if (percentage >= 90) return 'A';
+    if (percentage >= 80) return 'B';
+    if (percentage >= 70) return 'C';
+    if (percentage >= 60) return 'D';
+    return 'F';
+}
+
+function resetCalculator() {
+    document.querySelectorAll('.calc-input').forEach(input => {
+        input.value = '';
+    });
+    document.getElementById('calculatedGrade').textContent = '--';
+    document.getElementById('letterGrade').textContent = '--';
+}
 </script>
 
+<style>
+/* Fix Button Text Visibility - Override dashboard.css */
+.btn, .btn *, .btn i, .btn span {
+    color: white !important;  
+    text-shadow: none !important;
+}
+
+.btn-primary, .btn-primary *, .btn-primary i, .btn-primary span {
+    color: white !important;
+    background-color: #0d6efd !important;
+}
+
+.btn-success, .btn-success *, .btn-success i, .btn-success span {
+    color: white !important;
+    background-color: #198754 !important;
+}
+
+.btn-info, .btn-info *, .btn-info i, .btn-info span {
+    color: white !important;
+    background-color: #0dcaf0 !important;
+}
+
+.btn-warning, .btn-warning *, .btn-warning i, .btn-warning span {
+    color: white !important;
+    background-color: #ffc107 !important;
+}
+
+.btn-danger, .btn-danger *, .btn-danger i, .btn-danger span {
+    color: white !important;
+    background-color: #dc3545 !important;
+}
+
+/* Improve disabled button appearance */
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn:disabled, .btn:disabled *, .btn:disabled i, .btn:disabled span {
+    color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* Hover states */
+.btn:hover, .btn:hover *, .btn:hover i, .btn:hover span {
+    color: white !important;
+}
+
+/* Override any conflicting dashboard.css rules */
+.teacher-content .btn,
+.teacher-content .btn *,
+.card-body .btn,
+.card-body .btn * {
+    color: white !important;
+}
+
+/* Modal content visibility fixes */
+.modal-content {
+    background-color: var(--bg-secondary, #ffffff) !important;
+    color: var(--text-primary, #000000) !important;
+}
+
+.modal-header, .modal-footer {
+    border-color: var(--border-color, #dee2e6) !important;
+    background-color: var(--bg-tertiary, #f8f9fa) !important;
+}
+
+.modal-title {
+    color: var(--text-primary, #000000) !important;
+}
+
+.modal-body {
+    color: var(--text-primary, #000000) !important;
+    background-color: var(--bg-secondary, #ffffff) !important;
+}
+
+/* Form elements in modals */
+.modal .form-control, .modal .form-select {
+    background-color: var(--bg-primary, #ffffff) !important;
+    border-color: var(--border-color, #ced4da) !important;
+    color: var(--text-primary, #000000) !important;
+}
+
+.modal .form-label {
+    color: var(--text-primary, #000000) !important;
+    font-weight: 500 !important;
+}
+
+.modal .form-text {
+    color: var(--text-secondary, #6c757d) !important;
+}
+
+/* Grade Calculator specific styling */
+#gradeCalculatorModal .modal-content {
+    background-color: var(--bg-secondary, #ffffff) !important;
+}
+
+#gradeCalculatorModal .modal-body {
+    color: var(--text-primary, #000000) !important;
+}
+
+#gradeCalculatorModal h6 {
+    color: var(--text-primary, #000000) !important;
+}
+
+#gradeCalculatorModal .calc-input {
+    background-color: var(--bg-primary, #ffffff) !important;
+    border-color: var(--border-color, #ced4da) !important;
+    color: var(--text-primary, #000000) !important;
+}
+
+#gradeCalculatorModal .form-label {
+    color: var(--text-primary, #000000) !important;
+}
+
+#gradeCalculatorModal .btn {
+    color: white !important;
+}
+
+/* Result display */
+#calculatedGrade, #letterGrade {
+    color: var(--text-primary, #000000) !important;
+    font-weight: bold !important;
+}
+
+/* Secondary button styling */
+.btn-secondary, .btn-secondary *, .btn-secondary i, .btn-secondary span {
+    color: white !important;
+    background-color: #6c757d !important;
+}
+
+/* Close button */
+.btn-close {
+    filter: var(--bs-btn-close-white-filter, invert(1) grayscale(100%) brightness(200%));
+}
+
+/* Dark theme adjustments */
+@media (prefers-color-scheme: dark) {
+    .modal-content {
+        background-color: #2d3748 !important;
+        color: #e2e8f0 !important;
+    }
+    
+    .modal-header, .modal-footer {
+        background-color: #1a202c !important;
+        border-color: #4a5568 !important;
+    }
+    
+    .form-control, .form-select {
+        background-color: #1a202c !important;
+        border-color: #4a5568 !important;
+        color: #e2e8f0 !important;
+    }
+    
+    #calculatedGrade, #letterGrade {
+        color: #e2e8f0 !important;
+    }
+}
+</style>
 {% endblock %}

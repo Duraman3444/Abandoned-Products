@@ -1,355 +1,768 @@
 Watching for file changes with StatReloader
-INFO 2025-07-21 15:11:27,377 autoreload Watching for file changes with StatReloader
-[21/Jul/2025 15:11:36] "GET /dashboard/ HTTP/1.1" 200 3020
-[21/Jul/2025 15:11:36] "HEAD /static/js/chart.min.js HTTP/1.1" 200 0
-[21/Jul/2025 15:11:41] "GET /dashboard/ HTTP/1.1" 200 3020
-[21/Jul/2025 15:11:47] "GET /dashboard/ HTTP/1.1" 200 3020
-[21/Jul/2025 15:12:11] "GET /dashboard/ HTTP/1.1" 200 3020
-[21/Jul/2025 15:12:11] "GET /static/js/chart.min.js HTTP/1.1" 304 0
-[21/Jul/2025 15:12:17] "GET /admin/ HTTP/1.1" 200 11631
-[21/Jul/2025 15:12:17] "GET /static/admin/img/icon-changelink.svg HTTP/1.1" 304 0
-[21/Jul/2025 15:12:17] "GET /static/admin/css/dashboard.css HTTP/1.1" 304 0
-[21/Jul/2025 15:12:17] "GET /static/admin/css/base.css HTTP/1.1" 304 0
-[21/Jul/2025 15:12:17] "GET /static/admin/js/theme.js HTTP/1.1" 304 0
-[21/Jul/2025 15:12:17] "GET /static/admin/css/dark_mode.css HTTP/1.1" 304 0
-[21/Jul/2025 15:12:17] "GET /static/admin/js/nav_sidebar.js HTTP/1.1" 304 0
-[21/Jul/2025 15:12:17] "GET /static/admin/css/responsive.css HTTP/1.1" 304 0
-[21/Jul/2025 15:12:17] "GET /static/admin/css/nav_sidebar.css HTTP/1.1" 304 0
-[21/Jul/2025 15:12:17] "GET /static/admin/img/icon-addlink.svg HTTP/1.1" 304 0
-Not Found: /
-WARNING 2025-07-21 15:13:40,925 log Not Found: /
-[21/Jul/2025 15:13:40] "GET / HTTP/1.1" 404 2453
-[21/Jul/2025 15:13:53] "GET /dashboard/ HTTP/1.1" 200 3020
-[21/Jul/2025 15:17:01] "GET /admin/ HTTP/1.1" 200 11631
-/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/schooldriver_modern/views.py changed, reloading.
-INFO 2025-07-21 15:21:06,176 autoreload /Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/schooldriver_modern/views.py changed, reloading.
-Performing system checks...
-
-System check identified no issues (0 silenced).
-July 21, 2025 - 15:11:27
-Django version 4.2.16, using settings 'schooldriver_modern.settings'
-Starting development server at http://127.0.0.1:8000/
-Quit the server with CONTROL-C.
-
-Watching for file changes with StatReloader
-INFO 2025-07-21 15:21:06,450 autoreload Watching for file changes with StatReloader
-[21/Jul/2025 15:24:14] "GET /dashboard/ HTTP/1.1" 200 14626
-Not Found: /
-WARNING 2025-07-21 15:25:10,271 log Not Found: /
-[21/Jul/2025 15:25:10] "GET / HTTP/1.1" 404 2453
-Not Found: /
-WARNING 2025-07-21 15:25:13,169 log Not Found: /
-[21/Jul/2025 15:25:13] "GET / HTTP/1.1" 404 2453
-[21/Jul/2025 15:25:20] "GET /dashboard/ HTTP/1.1" 200 14626
-[21/Jul/2025 15:25:20] "GET /static/js/chart.min.js HTTP/1.1" 304 0
-/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/schooldriver_modern/views.py changed, reloading.
-INFO 2025-07-21 15:27:37,453 autoreload /Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/schooldriver_modern/views.py changed, reloading.
-Performing system checks...
-
-System check identified no issues (0 silenced).
-July 21, 2025 - 15:21:06
-Django version 4.2.16, using settings 'schooldriver_modern.settings'
-Starting development server at http://127.0.0.1:8000/
-Quit the server with CONTROL-C.
-
-Watching for file changes with StatReloader
-INFO 2025-07-21 15:27:37,731 autoreload Watching for file changes with StatReloader
-/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/schooldriver_modern/views.py changed, reloading.
-INFO 2025-07-21 15:27:47,062 autoreload /Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/schooldriver_modern/views.py changed, reloading.
-Performing system checks...
-
-System check identified no issues (0 silenced).
-July 21, 2025 - 15:27:37
-Django version 4.2.16, using settings 'schooldriver_modern.settings'
-Starting development server at http://127.0.0.1:8000/
-Quit the server with CONTROL-C.
-
-Watching for file changes with StatReloader
-INFO 2025-07-21 15:27:47,244 autoreload Watching for file changes with StatReloader
-[21/Jul/2025 15:32:18] "HEAD /dashboard/ HTTP/1.1" 302 0
-[21/Jul/2025 15:32:49] "GET /admin/ HTTP/1.1" 200 11862
-[21/Jul/2025 15:32:49] "GET /static/admin/css/dashboard.css HTTP/1.1" 304 0
-[21/Jul/2025 15:32:49] "GET /static/admin/img/icon-changelink.svg HTTP/1.1" 304 0
-[21/Jul/2025 15:32:49] "GET /static/admin/js/theme.js HTTP/1.1" 304 0
-[21/Jul/2025 15:32:49] "GET /static/admin/css/dark_mode.css HTTP/1.1" 304 0
-[21/Jul/2025 15:32:49] "GET /static/admin/js/nav_sidebar.js HTTP/1.1" 304 0
-[21/Jul/2025 15:32:49] "GET /static/admin/css/nav_sidebar.css HTTP/1.1" 304 0
-[21/Jul/2025 15:32:49] "GET /static/admin/css/base.css HTTP/1.1" 304 0
-[21/Jul/2025 15:32:49] "GET /static/admin/css/responsive.css HTTP/1.1" 304 0
-[21/Jul/2025 15:32:49] "GET /static/admin/img/icon-addlink.svg HTTP/1.1" 304 0
-[21/Jul/2025 15:32:51] "GET /dashboard/ HTTP/1.1" 200 16935
-[21/Jul/2025 15:32:51] "GET /static/js/chart.min.js HTTP/1.1" 304 0
-[21/Jul/2025 16:44:03] "GET /admin/ HTTP/1.1" 200 11862
-[21/Jul/2025 16:44:03] "GET /static/admin/css/base.css HTTP/1.1" 304 0
-[21/Jul/2025 16:44:03] "GET /static/admin/js/theme.js HTTP/1.1" 304 0
-[21/Jul/2025 16:44:03] "GET /static/admin/css/responsive.css HTTP/1.1" 304 0
-[21/Jul/2025 16:44:03] "GET /static/admin/css/dashboard.css HTTP/1.1" 304 0
-[21/Jul/2025 16:44:03] "GET /static/admin/css/dark_mode.css HTTP/1.1" 304 0
-[21/Jul/2025 16:44:03] "GET /static/admin/js/nav_sidebar.js HTTP/1.1" 304 0
-[21/Jul/2025 16:44:03] "GET /static/admin/css/nav_sidebar.css HTTP/1.1" 304 0
-[21/Jul/2025 16:44:03] "GET /static/admin/img/icon-addlink.svg HTTP/1.1" 304 0
-[21/Jul/2025 16:44:03] "GET /static/admin/img/icon-changelink.svg HTTP/1.1" 304 0
-Not Found: /
-WARNING 2025-07-21 16:44:04,679 log Not Found: /
-[21/Jul/2025 16:44:04] "GET / HTTP/1.1" 404 2453
-[21/Jul/2025 16:44:07] "GET /dashboard/ HTTP/1.1" 200 16935
-[21/Jul/2025 16:44:07] "GET /static/js/chart.min.js HTTP/1.1" 304 0
-[21/Jul/2025 16:44:07] "GET /static/js/chart.min.js HTTP/1.1" 304 0
-/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/schooldriver_modern/urls.py changed, reloading.
-INFO 2025-07-21 16:47:38,176 autoreload /Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/schooldriver_modern/urls.py changed, reloading.
-Performing system checks...
-
-System check identified no issues (0 silenced).
-July 21, 2025 - 15:27:47
-Django version 4.2.16, using settings 'schooldriver_modern.settings'
-Starting development server at http://127.0.0.1:8000/
-Quit the server with CONTROL-C.
-
-Watching for file changes with StatReloader
-INFO 2025-07-21 16:47:38,447 autoreload Watching for file changes with StatReloader
-/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/schooldriver_modern/settings.py changed, reloading.
-INFO 2025-07-21 16:47:45,718 autoreload /Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/schooldriver_modern/settings.py changed, reloading.
-Performing system checks...
-
-System check identified no issues (0 silenced).
-July 21, 2025 - 16:47:38
-Django version 4.2.16, using settings 'schooldriver_modern.settings'
-Starting development server at http://127.0.0.1:8000/
-Quit the server with CONTROL-C.
-
-Watching for file changes with StatReloader
-INFO 2025-07-21 16:47:45,976 autoreload Watching for file changes with StatReloader
-/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/schooldriver_modern/urls.py changed, reloading.
-INFO 2025-07-21 16:49:01,084 autoreload /Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/schooldriver_modern/urls.py changed, reloading.
-Performing system checks...
-
-System check identified no issues (0 silenced).
-July 21, 2025 - 16:47:46
-Django version 4.2.16, using settings 'schooldriver_modern.settings'
-Starting development server at http://127.0.0.1:8000/
-Quit the server with CONTROL-C.
-
-Watching for file changes with StatReloader
-INFO 2025-07-21 16:49:01,267 autoreload Watching for file changes with StatReloader
-[21/Jul/2025 16:53:58] "GET /dashboard/ HTTP/1.1" 200 16935
-[21/Jul/2025 16:53:58] "GET /static/js/chart.min.js HTTP/1.1" 304 0
-[21/Jul/2025 16:53:59] "GET /dashboard/ HTTP/1.1" 200 16935
-[21/Jul/2025 16:53:59] "GET /dashboard/ HTTP/1.1" 200 16935
-[21/Jul/2025 16:54:05] "GET /admin/ HTTP/1.1" 200 11862
-[21/Jul/2025 16:54:13] "POST /admin/logout/ HTTP/1.1" 302 0
-[21/Jul/2025 16:54:13] "GET /accounts/login/ HTTP/1.1" 200 8375
-[21/Jul/2025 16:54:17] "POST /accounts/login/ HTTP/1.1" 302 0
-[21/Jul/2025 16:54:17] "GET /dashboard/ HTTP/1.1" 200 16935
-[21/Jul/2025 16:54:25] "GET /admin/ HTTP/1.1" 200 11862
-/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/schooldriver_modern/settings.py changed, reloading.
-INFO 2025-07-21 16:57:38,700 autoreload /Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/schooldriver_modern/settings.py changed, reloading.
-Performing system checks...
-
-System check identified no issues (0 silenced).
-July 21, 2025 - 16:49:01
-Django version 4.2.16, using settings 'schooldriver_modern.settings'
-Starting development server at http://127.0.0.1:8000/
-Quit the server with CONTROL-C.
-
-Watching for file changes with StatReloader
-INFO 2025-07-21 16:57:38,966 autoreload Watching for file changes with StatReloader
-/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/schooldriver_modern/auth_views.py changed, reloading.
-INFO 2025-07-21 16:58:10,910 autoreload /Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/schooldriver_modern/auth_views.py changed, reloading.
-Performing system checks...
-
-System check identified no issues (0 silenced).
-July 21, 2025 - 16:57:39
-Django version 4.2.16, using settings 'schooldriver_modern.settings'
-Starting development server at http://127.0.0.1:8000/
-Quit the server with CONTROL-C.
-
-Watching for file changes with StatReloader
-INFO 2025-07-21 16:58:11,136 autoreload Watching for file changes with StatReloader
-/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/schooldriver_modern/views.py changed, reloading.
-INFO 2025-07-21 16:58:31,768 autoreload /Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/schooldriver_modern/views.py changed, reloading.
-Performing system checks...
-
-System check identified no issues (0 silenced).
-July 21, 2025 - 16:58:11
-Django version 4.2.16, using settings 'schooldriver_modern.settings'
-Starting development server at http://127.0.0.1:8000/
-Quit the server with CONTROL-C.
-
-Watching for file changes with StatReloader
-INFO 2025-07-21 16:58:31,949 autoreload Watching for file changes with StatReloader
-/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/schooldriver_modern/views.py changed, reloading.
-INFO 2025-07-21 16:58:47,456 autoreload /Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/schooldriver_modern/views.py changed, reloading.
-Performing system checks...
-
-System check identified no issues (0 silenced).
-July 21, 2025 - 16:58:31
-Django version 4.2.16, using settings 'schooldriver_modern.settings'
-Starting development server at http://127.0.0.1:8000/
-Quit the server with CONTROL-C.
-
-Watching for file changes with StatReloader
-INFO 2025-07-21 16:58:47,655 autoreload Watching for file changes with StatReloader
-/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/schooldriver_modern/urls.py changed, reloading.
-INFO 2025-07-21 16:59:01,109 autoreload /Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/schooldriver_modern/urls.py changed, reloading.
-Performing system checks...
-
-System check identified no issues (0 silenced).
-July 21, 2025 - 16:58:47
-Django version 4.2.16, using settings 'schooldriver_modern.settings'
-Starting development server at http://127.0.0.1:8000/
-Quit the server with CONTROL-C.
-
-Watching for file changes with StatReloader
-INFO 2025-07-21 16:59:01,304 autoreload Watching for file changes with StatReloader
-Not Found: /
-WARNING 2025-07-21 17:03:26,969 log Not Found: /
-[21/Jul/2025 17:03:26] "HEAD / HTTP/1.1" 404 0
-Internal Server Error: /accounts/login/
+INFO 2025-07-23 21:27:00,273 autoreload Watching for file changes with StatReloader
+/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+[23/Jul/2025 21:27:06] "HEAD /teacher/ HTTP/1.1" 302 0
+[23/Jul/2025 21:44:10] "GET /teacher/ HTTP/1.1" 200 33735
+[23/Jul/2025 21:44:10] "GET /static/css/mobile-responsive.css HTTP/1.1" 200 6627
+[23/Jul/2025 21:44:10] "GET /static/css/print-styles.css HTTP/1.1" 200 10308
+[23/Jul/2025 21:44:10] "GET /static/js/accessibility.js HTTP/1.1" 200 12460
+[23/Jul/2025 21:44:10] "GET /static/js/onboarding.js HTTP/1.1" 200 23796
+[23/Jul/2025 21:44:15] "GET /teacher/assignments/ HTTP/1.1" 200 56885
+[23/Jul/2025 21:44:18] "GET /teacher/assignments/create/ HTTP/1.1" 200 33092
+[24/Jul/2025 15:24:27] "GET /search/?q=Math HTTP/1.1" 302 0
+[24/Jul/2025 15:24:27] "GET /accounts/login/?next=/search/%3Fq%3DMath HTTP/1.1" 200 7179
+Not Found: /favicon.ico
+WARNING 2025-07-24 15:24:27,513 log Not Found: /favicon.ico
+[24/Jul/2025 15:24:27] "GET /favicon.ico HTTP/1.1" 404 6333
+[24/Jul/2025 15:24:28] "GET /api/schema/redoc/ HTTP/1.1" 200 739
+/Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/admissions/api_views.py: Warning [ApplicantViewSet]: could not resolve parameter annotation {'name': 'level_id', 'in': 'path', 'required': True, 'schema': {'type': 'string', 'format': 'uuid'}}. Skipping.
+/Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/students/api_views.py: Warning [StudentViewSet]: could not resolve parameter annotation {'name': 'grade_level_id', 'in': 'path', 'required': True, 'schema': {'type': 'string', 'format': 'uuid'}}. Skipping.
+[24/Jul/2025 15:24:29] "GET /api/schema/ HTTP/1.1" 200 82740
+[24/Jul/2025 15:24:30] "GET /api/schema/swagger-ui/ HTTP/1.1" 200 4528
+/Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/admissions/api_views.py: Warning [ApplicantViewSet]: could not resolve parameter annotation {'name': 'level_id', 'in': 'path', 'required': True, 'schema': {'type': 'string', 'format': 'uuid'}}. Skipping.
+/Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/students/api_views.py: Warning [StudentViewSet]: could not resolve parameter annotation {'name': 'grade_level_id', 'in': 'path', 'required': True, 'schema': {'type': 'string', 'format': 'uuid'}}. Skipping.
+[24/Jul/2025 15:24:30] "GET /api/schema/ HTTP/1.1" 200 174137
+[24/Jul/2025 15:24:36] "GET /teacher/assignments/analytics/ HTTP/1.1" 302 0
+[24/Jul/2025 15:24:36] "GET /accounts/login/?next=/teacher/assignments/analytics/ HTTP/1.1" 200 7179
+[24/Jul/2025 15:24:36] "GET /static/css/auth.css HTTP/1.1" 304 0
+INFO 2025-07-24 15:24:37,704 security_middleware Login attempt for username 'lisa.garcia' from 127.0.0.1
+[24/Jul/2025 15:24:37] "POST /accounts/login/ HTTP/1.1" 302 0
+[24/Jul/2025 15:24:37] "GET /teacher/ HTTP/1.1" 200 33735
+[24/Jul/2025 15:24:37] "GET /static/css/print-styles.css HTTP/1.1" 304 0
+[24/Jul/2025 15:24:37] "GET /static/js/onboarding.js HTTP/1.1" 304 0
+[24/Jul/2025 15:24:37] "GET /static/css/mobile-responsive.css HTTP/1.1" 304 0
+[24/Jul/2025 15:24:37] "GET /static/js/accessibility.js HTTP/1.1" 304 0
+[24/Jul/2025 15:24:39] "GET /teacher/assignments/ HTTP/1.1" 200 56885
+[24/Jul/2025 15:24:41] "GET /teacher/assignments/create/ HTTP/1.1" 200 33092
+Internal Server Error: /teacher/assignments/analytics/
 Traceback (most recent call last):
-  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/defaulttags.py", line 1026, in find_library
-    return parser.libraries[name]
-KeyError: 'custom_tags'
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/core/handlers/exception.py", line 55, in inner
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/core/handlers/exception.py", line 55, in inner
     response = get_response(request)
-  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/core/handlers/base.py", line 220, in _get_response
-    response = response.render()
-  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/response.py", line 114, in render
-    self.content = self.rendered_content
-  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/response.py", line 92, in rendered_content
-    return template.render(context, self._request)
-  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/backends/django.py", line 61, in render
-    return self.template.render(context)
-  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/base.py", line 175, in render
-    return self._render(context)
-  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/base.py", line 167, in _render
-    return self.nodelist.render(context)
-  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/base.py", line 1005, in render
-    return SafeString("".join([node.render_annotated(context) for node in self]))
-  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/base.py", line 1005, in <listcomp>
-    return SafeString("".join([node.render_annotated(context) for node in self]))
-  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/base.py", line 966, in render_annotated
-    return self.render(context)
-  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/loader_tags.py", line 132, in render
-    compiled_parent = self.get_parent(context)
-  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/loader_tags.py", line 129, in get_parent
-    return self.find_template(parent, context)
-  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/loader_tags.py", line 107, in find_template
-    template, origin = context.template.engine.find_template(
-  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/engine.py", line 157, in find_template
-    template = loader.get_template(name, skip=skip)
-  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/loaders/cached.py", line 57, in get_template
-    template = super().get_template(template_name, skip)
-  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/loaders/base.py", line 28, in get_template
-    return Template(
-  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/base.py", line 154, in __init__
-    self.nodelist = self.compile_nodelist()
-  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/base.py", line 200, in compile_nodelist
-    return parser.parse()
-  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/base.py", line 513, in parse
-    raise self.error(token, e)
-  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/base.py", line 511, in parse
-    compiled_result = compile_func(self, token)
-  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/defaulttags.py", line 953, in do_if
-    nodelist = parser.parse(("elif", "else", "endif"))
-  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/base.py", line 513, in parse
-    raise self.error(token, e)
-  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/base.py", line 511, in parse
-    compiled_result = compile_func(self, token)
-  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/defaulttags.py", line 1088, in load
-    lib = find_library(parser, name)
-  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/defaulttags.py", line 1028, in find_library
-    raise TemplateSyntaxError(
-django.template.exceptions.TemplateSyntaxError: 'custom_tags' is not a registered tag library. Must be one of:
-admin_list
-admin_modify
-admin_urls
-cache
-i18n
-l10n
-log
-rest_framework
-static
-tz
-ERROR 2025-07-21 17:03:30,622 log Internal Server Error: /accounts/login/
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/contrib/auth/decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/contrib/auth/decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py", line 904, in assignment_analytics
+    return redirect('teacher_assignments')
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/shortcuts.py", line 48, in redirect
+    return redirect_class(resolve_url(to, *args, **kwargs))
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/shortcuts.py", line 145, in resolve_url
+    return reverse(to, args=args, kwargs=kwargs)
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/urls/base.py", line 88, in reverse
+    return resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/urls/resolvers.py", line 828, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'teacher_assignments' not found. 'teacher_assignments' is not a valid view function or pattern name.
+ERROR 2025-07-24 15:24:55,360 log Internal Server Error: /teacher/assignments/analytics/
 Traceback (most recent call last):
-  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/defaulttags.py", line 1026, in find_library
-    return parser.libraries[name]
-KeyError: 'custom_tags'
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/core/handlers/exception.py", line 55, in inner
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/core/handlers/exception.py", line 55, in inner
     response = get_response(request)
-  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/core/handlers/base.py", line 220, in _get_response
-    response = response.render()
-  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/response.py", line 114, in render
-    self.content = self.rendered_content
-  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/response.py", line 92, in rendered_content
-    return template.render(context, self._request)
-  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/backends/django.py", line 61, in render
-    return self.template.render(context)
-  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/base.py", line 175, in render
-    return self._render(context)
-  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/base.py", line 167, in _render
-    return self.nodelist.render(context)
-  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/base.py", line 1005, in render
-    return SafeString("".join([node.render_annotated(context) for node in self]))
-  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/base.py", line 1005, in <listcomp>
-    return SafeString("".join([node.render_annotated(context) for node in self]))
-  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/base.py", line 966, in render_annotated
-    return self.render(context)
-  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/loader_tags.py", line 132, in render
-    compiled_parent = self.get_parent(context)
-  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/loader_tags.py", line 129, in get_parent
-    return self.find_template(parent, context)
-  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/loader_tags.py", line 107, in find_template
-    template, origin = context.template.engine.find_template(
-  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/engine.py", line 157, in find_template
-    template = loader.get_template(name, skip=skip)
-  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/loaders/cached.py", line 57, in get_template
-    template = super().get_template(template_name, skip)
-  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/loaders/base.py", line 28, in get_template
-    return Template(
-  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/base.py", line 154, in __init__
-    self.nodelist = self.compile_nodelist()
-  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/base.py", line 200, in compile_nodelist
-    return parser.parse()
-  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/base.py", line 513, in parse
-    raise self.error(token, e)
-  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/base.py", line 511, in parse
-    compiled_result = compile_func(self, token)
-  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/defaulttags.py", line 953, in do_if
-    nodelist = parser.parse(("elif", "else", "endif"))
-  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/base.py", line 513, in parse
-    raise self.error(token, e)
-  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/base.py", line 511, in parse
-    compiled_result = compile_func(self, token)
-  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/defaulttags.py", line 1088, in load
-    lib = find_library(parser, name)
-  File "/Users/abdurrahmanmirza/Gauntlet Projects/Abandoned-Products/schooldriver-modern/venv/lib/python3.9/site-packages/django/template/defaulttags.py", line 1028, in find_library
-    raise TemplateSyntaxError(
-django.template.exceptions.TemplateSyntaxError: 'custom_tags' is not a registered tag library. Must be one of:
-admin_list
-admin_modify
-admin_urls
-cache
-i18n
-l10n
-log
-rest_framework
-static
-tz
-[21/Jul/2025 17:03:30] "HEAD /accounts/login/ HTTP/1.1" 500 0
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/contrib/auth/decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/contrib/auth/decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py", line 904, in assignment_analytics
+    return redirect('teacher_assignments')
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/shortcuts.py", line 48, in redirect
+    return redirect_class(resolve_url(to, *args, **kwargs))
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/shortcuts.py", line 145, in resolve_url
+    return reverse(to, args=args, kwargs=kwargs)
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/urls/base.py", line 88, in reverse
+    return resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/urls/resolvers.py", line 828, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'teacher_assignments' not found. 'teacher_assignments' is not a valid view function or pattern name.
+[24/Jul/2025 15:24:55] "GET /teacher/assignments/analytics/ HTTP/1.1" 500 99951
+[24/Jul/2025 15:26:31] "GET /teacher/assignments/create/ HTTP/1.1" 200 33092
+/Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py changed, reloading.
+INFO 2025-07-24 15:29:13,492 autoreload /Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py changed, reloading.
 Performing system checks...
 
 System check identified no issues (0 silenced).
-July 21, 2025 - 16:59:01
+July 23, 2025 - 21:27:00
 Django version 4.2.16, using settings 'schooldriver_modern.settings'
-Starting development server at http://127.0.0.1:8000/
+Starting development server at http://0.0.0.0:8000/
 Quit the server with CONTROL-C.
 
+Watching for file changes with StatReloader
+INFO 2025-07-24 15:29:13,984 autoreload Watching for file changes with StatReloader
+/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py changed, reloading.
+INFO 2025-07-24 15:29:26,646 autoreload /Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+July 24, 2025 - 15:29:14
+Django version 4.2.16, using settings 'schooldriver_modern.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+INFO 2025-07-24 15:29:26,959 autoreload Watching for file changes with StatReloader
+/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py changed, reloading.
+INFO 2025-07-24 15:29:33,372 autoreload /Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+July 24, 2025 - 15:29:27
+Django version 4.2.16, using settings 'schooldriver_modern.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+INFO 2025-07-24 15:29:33,638 autoreload Watching for file changes with StatReloader
+/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py changed, reloading.
+INFO 2025-07-24 15:29:44,158 autoreload /Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+July 24, 2025 - 15:29:33
+Django version 4.2.16, using settings 'schooldriver_modern.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+INFO 2025-07-24 15:29:44,464 autoreload Watching for file changes with StatReloader
+/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py changed, reloading.
+INFO 2025-07-24 15:29:55,062 autoreload /Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+July 24, 2025 - 15:29:44
+Django version 4.2.16, using settings 'schooldriver_modern.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+INFO 2025-07-24 15:29:55,387 autoreload Watching for file changes with StatReloader
+/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+[24/Jul/2025 15:29:59] "GET / HTTP/1.1" 200 20063
+[24/Jul/2025 15:29:59] "GET /static/js/accessibility.js HTTP/1.1" 304 0
+[24/Jul/2025 15:29:59] "GET /static/js/onboarding.js HTTP/1.1" 304 0
+[24/Jul/2025 15:29:59] "GET /static/css/mobile-responsive.css HTTP/1.1" 200 6627
+[24/Jul/2025 15:29:59] "GET /static/css/print-styles.css HTTP/1.1" 200 10308
+Not Found: /.well-known/appspecific/com.chrome.devtools.json
+WARNING 2025-07-24 15:29:59,443 log Not Found: /.well-known/appspecific/com.chrome.devtools.json
+[24/Jul/2025 15:29:59] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 6444
+[24/Jul/2025 15:30:02] "GET /accounts/login/ HTTP/1.1" 200 7179
+[24/Jul/2025 15:30:02] "GET /static/css/auth.css HTTP/1.1" 304 0
+/Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py changed, reloading.
+INFO 2025-07-24 15:30:06,064 autoreload /Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+July 24, 2025 - 15:29:55
+Django version 4.2.16, using settings 'schooldriver_modern.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+INFO 2025-07-24 15:30:06,429 autoreload Watching for file changes with StatReloader
+/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+[24/Jul/2025 15:30:09] "GET /teacher/assignments/ HTTP/1.1" 200 56885
+/Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py changed, reloading.
+INFO 2025-07-24 15:30:17,093 autoreload /Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+July 24, 2025 - 15:30:06
+Django version 4.2.16, using settings 'schooldriver_modern.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+INFO 2025-07-24 15:30:17,408 autoreload Watching for file changes with StatReloader
+/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py changed, reloading.
+INFO 2025-07-24 15:30:28,183 autoreload /Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+July 24, 2025 - 15:30:17
+Django version 4.2.16, using settings 'schooldriver_modern.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+INFO 2025-07-24 15:30:28,500 autoreload Watching for file changes with StatReloader
+/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py changed, reloading.
+INFO 2025-07-24 15:30:39,323 autoreload /Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+July 24, 2025 - 15:30:28
+Django version 4.2.16, using settings 'schooldriver_modern.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+INFO 2025-07-24 15:30:39,636 autoreload Watching for file changes with StatReloader
+/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py changed, reloading.
+INFO 2025-07-24 15:30:50,224 autoreload /Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+July 24, 2025 - 15:30:40
+Django version 4.2.16, using settings 'schooldriver_modern.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+INFO 2025-07-24 15:30:50,434 autoreload Watching for file changes with StatReloader
+/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py changed, reloading.
+INFO 2025-07-24 15:31:10,341 autoreload /Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+July 24, 2025 - 15:30:50
+Django version 4.2.16, using settings 'schooldriver_modern.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+INFO 2025-07-24 15:31:10,580 autoreload Watching for file changes with StatReloader
+/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py changed, reloading.
+INFO 2025-07-24 15:31:20,245 autoreload /Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+July 24, 2025 - 15:31:10
+Django version 4.2.16, using settings 'schooldriver_modern.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+INFO 2025-07-24 15:31:20,470 autoreload Watching for file changes with StatReloader
+/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py changed, reloading.
+INFO 2025-07-24 15:31:29,956 autoreload /Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+July 24, 2025 - 15:31:20
+Django version 4.2.16, using settings 'schooldriver_modern.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+INFO 2025-07-24 15:31:30,378 autoreload Watching for file changes with StatReloader
+/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py changed, reloading.
+INFO 2025-07-24 15:31:49,232 autoreload /Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+July 24, 2025 - 15:31:30
+Django version 4.2.16, using settings 'schooldriver_modern.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+INFO 2025-07-24 15:31:49,567 autoreload Watching for file changes with StatReloader
+/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+[24/Jul/2025 15:32:25] "HEAD /teacher/assignments/analytics/?section=1 HTTP/1.1" 302 0
+[24/Jul/2025 15:33:04] "GET /teacher/assignments/analytics/ HTTP/1.1" 302 0
+[24/Jul/2025 15:33:04] "GET /teacher/assignments/ HTTP/1.1" 200 56885
+[24/Jul/2025 15:33:05] "GET /teacher/assignments/analytics/ HTTP/1.1" 302 0
+[24/Jul/2025 15:33:05] "GET /teacher/assignments/ HTTP/1.1" 200 56885
+[24/Jul/2025 15:33:08] "GET /teacher/assignments/ HTTP/1.1" 200 56885
+[24/Jul/2025 15:33:10] "GET /teacher/assignments/analytics/ HTTP/1.1" 302 0
+[24/Jul/2025 15:33:10] "GET /teacher/assignments/ HTTP/1.1" 200 56885
+[24/Jul/2025 15:33:11] "GET /teacher/assignments/analytics/ HTTP/1.1" 302 0
+[24/Jul/2025 15:33:11] "GET /teacher/assignments/ HTTP/1.1" 200 56885
+[24/Jul/2025 15:33:11] "GET /teacher/assignments/analytics/ HTTP/1.1" 302 0
+[24/Jul/2025 15:33:12] "GET /teacher/assignments/ HTTP/1.1" 200 56885
+[24/Jul/2025 15:33:12] "GET /teacher/assignments/analytics/ HTTP/1.1" 302 0
+[24/Jul/2025 15:33:12] "GET /teacher/assignments/ HTTP/1.1" 200 56885
+[24/Jul/2025 15:33:12] "GET /teacher/assignments/analytics/ HTTP/1.1" 302 0
+[24/Jul/2025 15:33:12] "GET /teacher/assignments/ HTTP/1.1" 200 56885
+[24/Jul/2025 15:33:14] "GET /teacher/assignments/ HTTP/1.1" 200 56885
+[24/Jul/2025 15:33:14] "GET /static/css/mobile-responsive.css HTTP/1.1" 200 6627
+[24/Jul/2025 15:33:14] "GET /static/css/print-styles.css HTTP/1.1" 200 10308
+[24/Jul/2025 15:33:14] "GET /static/js/accessibility.js HTTP/1.1" 200 12460
+[24/Jul/2025 15:33:14] "GET /static/js/onboarding.js HTTP/1.1" 200 23796
+[24/Jul/2025 15:33:14] "GET /static/js/accessibility.js HTTP/1.1" 200 12460
+[24/Jul/2025 15:33:14] "GET /static/js/onboarding.js HTTP/1.1" 200 23796
+[24/Jul/2025 15:33:15] "GET /teacher/assignments/analytics/ HTTP/1.1" 302 0
+[24/Jul/2025 15:33:15] "GET /teacher/assignments/ HTTP/1.1" 200 56885
+[24/Jul/2025 15:35:44] "GET /teacher/students/ HTTP/1.1" 200 27633
+[24/Jul/2025 15:35:47] "GET /teacher/reports/ HTTP/1.1" 200 35405
+/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/db/models/fields/__init__.py:1535: RuntimeWarning: DateTimeField Announcement.publish_date received a naive datetime (2025-07-24 00:00:00) while time zone support is active.
+  warnings.warn(
+/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/db/models/fields/__init__.py:1535: RuntimeWarning: DateTimeField Announcement.expire_date received a naive datetime (2025-07-24 00:00:00) while time zone support is active.
+  warnings.warn(
+[24/Jul/2025 15:35:48] "GET /teacher/messages/ HTTP/1.1" 200 35982
+[24/Jul/2025 15:35:55] "GET /teacher/ HTTP/1.1" 200 33735
+[24/Jul/2025 15:35:57] "GET /teacher/assignments/ HTTP/1.1" 200 56897
+[24/Jul/2025 15:35:59] "GET /teacher/ HTTP/1.1" 200 33735
+[24/Jul/2025 15:36:00] "GET /teacher/students/ HTTP/1.1" 200 27633
+[24/Jul/2025 15:36:01] "GET /teacher/ HTTP/1.1" 200 33735
+[24/Jul/2025 15:36:04] "GET /teacher/assignments/analytics/?section=1 HTTP/1.1" 302 0
+[24/Jul/2025 15:36:04] "GET /teacher/attendance/ HTTP/1.1" 200 74566
+[24/Jul/2025 15:36:09] "GET /teacher/ HTTP/1.1" 200 33735
+[24/Jul/2025 15:36:49] "GET /teacher/attendance/ HTTP/1.1" 200 74566
+[24/Jul/2025 15:37:00] "GET /teacher/assignments/ HTTP/1.1" 200 56897
+[24/Jul/2025 15:37:02] "GET /teacher/students/ HTTP/1.1" 200 27633
+[24/Jul/2025 15:37:20] "GET /teacher/students/ HTTP/1.1" 200 27633
+[24/Jul/2025 15:37:21] "GET /teacher/attendance/ HTTP/1.1" 200 74566
+[24/Jul/2025 15:37:22] "GET /teacher/assignments/ HTTP/1.1" 200 56897
+[24/Jul/2025 15:37:22] "GET /teacher/attendance/ HTTP/1.1" 200 74566
+[24/Jul/2025 15:37:23] "GET /teacher/assignments/ HTTP/1.1" 200 56897
+[24/Jul/2025 15:37:24] "GET /teacher/assignments/analytics/?section=130 HTTP/1.1" 200 61369
+[24/Jul/2025 15:37:29] "GET /teacher/gradebook/ HTTP/1.1" 200 143902
+[24/Jul/2025 15:41:09] "GET /teacher/assignments/ HTTP/1.1" 200 57710
+[24/Jul/2025 15:41:10] "GET /teacher/assignments/create/?section=130 HTTP/1.1" 200 33261
+[24/Jul/2025 15:41:14] "GET /teacher/assignments/ HTTP/1.1" 200 57710
+[24/Jul/2025 15:41:15] "GET /teacher/assignments/create/?section=130 HTTP/1.1" 200 33261
+[24/Jul/2025 15:41:22] "GET /teacher/gradebook/ HTTP/1.1" 200 144705
+[24/Jul/2025 15:41:22] "GET /static/css/mobile-responsive.css HTTP/1.1" 200 6627
+[24/Jul/2025 15:41:22] "GET /static/css/print-styles.css HTTP/1.1" 200 10308
+[24/Jul/2025 15:41:22] "GET /static/js/accessibility.js HTTP/1.1" 200 12460
+[24/Jul/2025 15:41:22] "GET /static/js/onboarding.js HTTP/1.1" 200 23796
+[24/Jul/2025 15:41:22] "GET /static/js/accessibility.js HTTP/1.1" 200 12460
+[24/Jul/2025 15:41:22] "GET /static/js/onboarding.js HTTP/1.1" 200 23796
+[24/Jul/2025 15:41:22] "GET /teacher/gradebook/ HTTP/1.1" 200 144705
+[24/Jul/2025 15:41:22] "GET /static/css/print-styles.css HTTP/1.1" 200 10308
+[24/Jul/2025 15:41:22] "GET /static/css/mobile-responsive.css HTTP/1.1" 200 6627
+[24/Jul/2025 15:41:22] "GET /static/js/accessibility.js HTTP/1.1" 200 12460
+[24/Jul/2025 15:41:22] "GET /static/js/onboarding.js HTTP/1.1" 200 23796
+[24/Jul/2025 15:41:22] "GET /static/js/accessibility.js HTTP/1.1" 200 12460
+[24/Jul/2025 15:41:22] "GET /static/js/onboarding.js HTTP/1.1" 200 23796
+[24/Jul/2025 15:41:23] "GET /teacher/gradebook/ HTTP/1.1" 200 144705
+[24/Jul/2025 15:41:23] "GET /static/css/mobile-responsive.css HTTP/1.1" 200 6627
+[24/Jul/2025 15:41:23] "GET /static/js/accessibility.js HTTP/1.1" 200 12460
+[24/Jul/2025 15:41:23] "GET /static/js/onboarding.js HTTP/1.1" 200 23796
+[24/Jul/2025 15:41:23] "GET /static/css/print-styles.css HTTP/1.1" 200 10308
+[24/Jul/2025 15:41:23] "GET /static/js/accessibility.js HTTP/1.1" 200 12460
+[24/Jul/2025 15:41:23] "GET /static/js/onboarding.js HTTP/1.1" 200 23796
+[24/Jul/2025 15:41:23] "GET /teacher/gradebook/ HTTP/1.1" 200 144705
+[24/Jul/2025 15:41:23] "GET /static/css/mobile-responsive.css HTTP/1.1" 200 6627
+[24/Jul/2025 15:41:23] "GET /static/css/print-styles.css HTTP/1.1" 200 10308
+[24/Jul/2025 15:41:23] "GET /static/js/accessibility.js HTTP/1.1" 200 12460
+[24/Jul/2025 15:41:23] "GET /static/js/onboarding.js HTTP/1.1" 200 23796
+[24/Jul/2025 15:41:23] "GET /static/js/accessibility.js HTTP/1.1" 200 12460
+[24/Jul/2025 15:41:23] "GET /static/js/onboarding.js HTTP/1.1" 200 23796
+[24/Jul/2025 15:41:24] "GET /teacher/assignments/ HTTP/1.1" 200 57710
+[24/Jul/2025 15:41:25] "GET /teacher/assignments/create/?section=130 HTTP/1.1" 200 33261
+[24/Jul/2025 15:41:58] "GET /teacher/assignments/create/?section=130 HTTP/1.1" 200 33261
+[24/Jul/2025 15:43:51] "GET /teacher/reports/ HTTP/1.1" 200 35405
+[24/Jul/2025 15:43:55] "GET /teacher/attendance/ HTTP/1.1" 200 74566
+[24/Jul/2025 15:44:01] "GET /teacher/attendance/?date=2025-07-25 HTTP/1.1" 200 74564
+[24/Jul/2025 15:44:02] "GET /teacher/attendance/?date=2025-07-24 HTTP/1.1" 200 74566
+[24/Jul/2025 15:44:09] "GET /teacher/ HTTP/1.1" 200 33735
+[24/Jul/2025 15:44:11] "GET /teacher/assignments/ HTTP/1.1" 200 58573
+[24/Jul/2025 15:44:15] "GET /teacher/gradebook/ HTTP/1.1" 200 145568
+[24/Jul/2025 15:44:18] "GET /teacher/messages/ HTTP/1.1" 200 35982
+[24/Jul/2025 15:44:25] "GET /teacher/messages/ HTTP/1.1" 200 35982
+[24/Jul/2025 15:44:59,365] - Broken pipe from ('127.0.0.1', 49468)
+[24/Jul/2025 15:46:06] "GET /teacher/assignments/ HTTP/1.1" 200 58573
+[24/Jul/2025 15:46:08] "GET /teacher/assignments/ HTTP/1.1" 200 58573
+[24/Jul/2025 15:46:08] "GET /teacher/assignments/create/?section=130 HTTP/1.1" 200 33261
+[24/Jul/2025 15:46:13] "GET /teacher/assignments/create/?section=130&template=quiz HTTP/1.1" 200 33261
+[24/Jul/2025 15:46:17] "GET /teacher/assignments/ HTTP/1.1" 200 58573
+[24/Jul/2025 15:46:51] "GET /teacher/assignments/ HTTP/1.1" 200 58573
+[24/Jul/2025 15:47:01] "GET /teacher/reports/ HTTP/1.1" 200 35405
+[24/Jul/2025 15:47:02] "GET /teacher/messages/ HTTP/1.1" 200 35982
+[24/Jul/2025 15:47:07] "GET /teacher/messages/ HTTP/1.1" 200 35982
+[24/Jul/2025 15:47:37,975] - Broken pipe from ('127.0.0.1', 49521)
+[24/Jul/2025 15:48:57] "GET /teacher/messages/ HTTP/1.1" 200 53447
+[24/Jul/2025 15:49:15] "GET /teacher/messages/ HTTP/1.1" 200 53447
+[24/Jul/2025 15:49:33] "GET /teacher/reports/ HTTP/1.1" 200 35405
+[24/Jul/2025 15:49:36] "GET /teacher/assignments/ HTTP/1.1" 200 58573
+[24/Jul/2025 15:49:38] "GET /teacher/assignments/create/?section=130 HTTP/1.1" 200 33261
+[24/Jul/2025 15:49:43] "GET /teacher/messages/ HTTP/1.1" 200 53447
+[24/Jul/2025 15:51:14] "GET /teacher/reports/ HTTP/1.1" 200 35405
+[24/Jul/2025 15:51:19] "GET /teacher/students/ HTTP/1.1" 200 27633
+[24/Jul/2025 15:51:21] "GET /teacher/assignments/ HTTP/1.1" 200 61830
+[24/Jul/2025 15:51:23] "GET /teacher/assignments/analytics/?section=130 HTTP/1.1" 200 61369
+[24/Jul/2025 15:51:26] "GET /teacher/gradebook/ HTTP/1.1" 200 145568
+[24/Jul/2025 15:51:27] "GET /teacher/assignments/create/?section=130 HTTP/1.1" 200 33261
+Internal Server Error: /teacher/export/grades/
+Traceback (most recent call last):
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/contrib/auth/decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/contrib/auth/decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py", line 527, in export_grades
+    return export_grades_csv(section)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py", line 555, in export_grades_csv
+    row = [enrollment.student.student_id, enrollment.student.get_full_name()]
+AttributeError: 'Student' object has no attribute 'get_full_name'
+ERROR 2025-07-24 15:51:30,487 log Internal Server Error: /teacher/export/grades/
+Traceback (most recent call last):
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/contrib/auth/decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/contrib/auth/decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py", line 527, in export_grades
+    return export_grades_csv(section)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py", line 555, in export_grades_csv
+    row = [enrollment.student.student_id, enrollment.student.get_full_name()]
+AttributeError: 'Student' object has no attribute 'get_full_name'
+[24/Jul/2025 15:51:30] "GET /teacher/export/grades/?section=130 HTTP/1.1" 500 89367
+[24/Jul/2025 15:51:37] "GET /teacher/gradebook/ HTTP/1.1" 200 145568
+[24/Jul/2025 15:51:39] "GET /teacher/assignments/analytics/?section=130 HTTP/1.1" 200 61369
+[24/Jul/2025 15:51:41] "GET /teacher/assignments/create/?section=130 HTTP/1.1" 200 35655
+[24/Jul/2025 15:52:11] "GET /teacher/gradebook/ HTTP/1.1" 200 145568
+[24/Jul/2025 15:52:12] "GET /teacher/attendance/ HTTP/1.1" 200 76287
+[24/Jul/2025 15:52:14] "GET /teacher/assignments/ HTTP/1.1" 200 61830
+[24/Jul/2025 15:52:15] "GET /teacher/assignments/create/?section=130 HTTP/1.1" 200 35655
+[24/Jul/2025 15:52:17] "GET /teacher/assignments/ HTTP/1.1" 200 61830
+[24/Jul/2025 15:52:17] "GET /teacher/assignments/ HTTP/1.1" 200 61830
+[24/Jul/2025 15:52:17] "GET /teacher/assignments/ HTTP/1.1" 200 61830
+[24/Jul/2025 15:52:17] "GET /teacher/assignments/ HTTP/1.1" 200 61830
+[24/Jul/2025 15:52:24] "GET /teacher/assignments/analytics/?section=130 HTTP/1.1" 200 61369
+Internal Server Error: /teacher/export/grades/
+Traceback (most recent call last):
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/contrib/auth/decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/contrib/auth/decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py", line 527, in export_grades
+    return export_grades_csv(section)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py", line 555, in export_grades_csv
+    row = [enrollment.student.student_id, enrollment.student.get_full_name()]
+AttributeError: 'Student' object has no attribute 'get_full_name'
+ERROR 2025-07-24 15:52:26,954 log Internal Server Error: /teacher/export/grades/
+Traceback (most recent call last):
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/contrib/auth/decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/contrib/auth/decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py", line 527, in export_grades
+    return export_grades_csv(section)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py", line 555, in export_grades_csv
+    row = [enrollment.student.student_id, enrollment.student.get_full_name()]
+AttributeError: 'Student' object has no attribute 'get_full_name'
+[24/Jul/2025 15:52:26] "GET /teacher/export/grades/?section=130 HTTP/1.1" 500 89367
+[24/Jul/2025 15:52:32] "GET /teacher/students/ HTTP/1.1" 200 27633
+[24/Jul/2025 15:52:33] "GET /teacher/assignments/ HTTP/1.1" 200 61830
+[24/Jul/2025 15:52:37] "GET /teacher/assignments/analytics/?section=130 HTTP/1.1" 200 61369
+[24/Jul/2025 15:52:42] "GET /teacher/assignments/create/?section=130 HTTP/1.1" 200 35655
+[24/Jul/2025 15:52:43] "GET /teacher/attendance/ HTTP/1.1" 200 76287
+[24/Jul/2025 15:52:44] "GET /teacher/reports/attendance/ HTTP/1.1" 302 0
+[24/Jul/2025 15:52:44] "GET /teacher/attendance/ HTTP/1.1" 200 76287
+[24/Jul/2025 15:52:45] "GET /teacher/reports/attendance/ HTTP/1.1" 302 0
+[24/Jul/2025 15:52:45] "GET /teacher/attendance/ HTTP/1.1" 200 76287
+[24/Jul/2025 15:52:53] "GET /teacher/reports/attendance/ HTTP/1.1" 302 0
+[24/Jul/2025 15:52:53] "GET /teacher/attendance/ HTTP/1.1" 200 76287
+[24/Jul/2025 15:52:54] "GET /teacher/gradebook/ HTTP/1.1" 200 145568
+Internal Server Error: /teacher/export/grades/
+Traceback (most recent call last):
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/contrib/auth/decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/contrib/auth/decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py", line 527, in export_grades
+    return export_grades_csv(section)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py", line 555, in export_grades_csv
+    row = [enrollment.student.student_id, enrollment.student.get_full_name()]
+AttributeError: 'Student' object has no attribute 'get_full_name'
+ERROR 2025-07-24 15:52:55,650 log Internal Server Error: /teacher/export/grades/
+Traceback (most recent call last):
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/contrib/auth/decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/contrib/auth/decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py", line 527, in export_grades
+    return export_grades_csv(section)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py", line 555, in export_grades_csv
+    row = [enrollment.student.student_id, enrollment.student.get_full_name()]
+AttributeError: 'Student' object has no attribute 'get_full_name'
+[24/Jul/2025 15:52:55] "GET /teacher/export/grades/?section=130 HTTP/1.1" 500 89386
+[24/Jul/2025 15:53:15] "GET /teacher/assignments/analytics/?section=130 HTTP/1.1" 200 61369
+Internal Server Error: /teacher/export/grades/
+Traceback (most recent call last):
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/contrib/auth/decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/contrib/auth/decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py", line 527, in export_grades
+    return export_grades_csv(section)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py", line 555, in export_grades_csv
+    row = [enrollment.student.student_id, enrollment.student.get_full_name()]
+AttributeError: 'Student' object has no attribute 'get_full_name'
+ERROR 2025-07-24 15:53:17,634 log Internal Server Error: /teacher/export/grades/
+Traceback (most recent call last):
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/contrib/auth/decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/contrib/auth/decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py", line 527, in export_grades
+    return export_grades_csv(section)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py", line 555, in export_grades_csv
+    row = [enrollment.student.student_id, enrollment.student.get_full_name()]
+AttributeError: 'Student' object has no attribute 'get_full_name'
+[24/Jul/2025 15:53:17] "GET /teacher/export/grades/?section=130 HTTP/1.1" 500 89386
+[24/Jul/2025 15:53:55] "GET /teacher/reports/attendance/ HTTP/1.1" 302 0
+[24/Jul/2025 15:53:55] "GET /teacher/attendance/ HTTP/1.1" 200 76287
+[24/Jul/2025 15:54:13] "GET /teacher/assignments/ HTTP/1.1" 200 61830
+[24/Jul/2025 15:54:15] "GET /teacher/reports/ HTTP/1.1" 200 35405
+[24/Jul/2025 15:54:15] "GET /teacher/students/ HTTP/1.1" 200 27633
+[24/Jul/2025 15:54:16] "GET /teacher/attendance/ HTTP/1.1" 200 76287
+[24/Jul/2025 15:54:16] "GET /teacher/gradebook/ HTTP/1.1" 200 145568
+Internal Server Error: /teacher/export/grades/
+Traceback (most recent call last):
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/contrib/auth/decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/contrib/auth/decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py", line 527, in export_grades
+    return export_grades_csv(section)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py", line 555, in export_grades_csv
+    row = [enrollment.student.student_id, enrollment.student.get_full_name()]
+AttributeError: 'Student' object has no attribute 'get_full_name'
+ERROR 2025-07-24 15:54:17,527 log Internal Server Error: /teacher/export/grades/
+Traceback (most recent call last):
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/contrib/auth/decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/contrib/auth/decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py", line 527, in export_grades
+    return export_grades_csv(section)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py", line 555, in export_grades_csv
+    row = [enrollment.student.student_id, enrollment.student.get_full_name()]
+AttributeError: 'Student' object has no attribute 'get_full_name'
+[24/Jul/2025 15:54:17] "GET /teacher/export/grades/?section=130 HTTP/1.1" 500 89386
+Internal Server Error: /teacher/export/grades/
+Traceback (most recent call last):
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/contrib/auth/decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/contrib/auth/decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py", line 527, in export_grades
+    return export_grades_csv(section)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py", line 555, in export_grades_csv
+    row = [enrollment.student.student_id, enrollment.student.get_full_name()]
+AttributeError: 'Student' object has no attribute 'get_full_name'
+ERROR 2025-07-24 15:54:33,172 log Internal Server Error: /teacher/export/grades/
+Traceback (most recent call last):
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/contrib/auth/decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/contrib/auth/decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py", line 527, in export_grades
+    return export_grades_csv(section)
+  File "/Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py", line 555, in export_grades_csv
+    row = [enrollment.student.student_id, enrollment.student.get_full_name()]
+AttributeError: 'Student' object has no attribute 'get_full_name'
+[24/Jul/2025 15:54:33] "GET /teacher/export/grades/?section=130 HTTP/1.1" 500 89386
+[24/Jul/2025 15:55:02,200] - Broken pipe from ('127.0.0.1', 49596)
+[24/Jul/2025 15:55:36] "GET /teacher/gradebook/ HTTP/1.1" 200 148223
+[24/Jul/2025 15:55:48] "GET /teacher/attendance/ HTTP/1.1" 200 80062
+[24/Jul/2025 15:55:56] "GET /teacher/assignments/ HTTP/1.1" 200 61830
+[24/Jul/2025 15:55:57] "GET /teacher/assignments/create/?section=130 HTTP/1.1" 200 35655
+[24/Jul/2025 15:56:04] "GET /teacher/reports/attendance/ HTTP/1.1" 302 0
+[24/Jul/2025 15:56:04] "GET /teacher/attendance/ HTTP/1.1" 200 80062
+/Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py changed, reloading.
+INFO 2025-07-24 16:02:07,847 autoreload /Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+July 24, 2025 - 15:31:49
+Django version 4.2.16, using settings 'schooldriver_modern.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+INFO 2025-07-24 16:02:08,207 autoreload Watching for file changes with StatReloader
+/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+[24/Jul/2025 16:13:14] "GET /teacher/attendance/ HTTP/1.1" 200 80132
+[24/Jul/2025 16:13:16] "GET /teacher/reports/attendance/?section=130 HTTP/1.1" 200 34363
+[24/Jul/2025 16:13:18] "GET /teacher/assignments/ HTTP/1.1" 200 61830
+[24/Jul/2025 16:13:21] "GET /teacher/students/ HTTP/1.1" 200 27633
+[24/Jul/2025 16:13:22] "GET /teacher/gradebook/ HTTP/1.1" 200 148223
+[24/Jul/2025 16:13:23] "GET /teacher/export/grades/?section=130 HTTP/1.1" 200 955
+[24/Jul/2025 16:13:36] "GET /teacher/gradebook/?section=112 HTTP/1.1" 200 127099
+[24/Jul/2025 16:13:36] "GET /teacher/export/grades/?section=112 HTTP/1.1" 200 964
+[24/Jul/2025 16:13:44] "GET /teacher/attendance/ HTTP/1.1" 200 80132
+[24/Jul/2025 16:13:45] "GET /teacher/assignments/ HTTP/1.1" 200 61830
+[24/Jul/2025 16:13:46] "GET /teacher/students/ HTTP/1.1" 200 27633
+[24/Jul/2025 16:13:47] "GET /teacher/reports/ HTTP/1.1" 200 35405
+Method Not Allowed (POST): /teacher/reports/
+WARNING 2025-07-24 16:13:51,979 base Method Not Allowed (POST): /teacher/reports/
+Method Not Allowed: /teacher/reports/
+WARNING 2025-07-24 16:13:51,982 log Method Not Allowed: /teacher/reports/
+[24/Jul/2025 16:13:51] "POST /teacher/reports/ HTTP/1.1" 405 0
+/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/db/models/fields/__init__.py:1535: RuntimeWarning: DateTimeField Announcement.publish_date received a naive datetime (2025-07-24 00:00:00) while time zone support is active.
+  warnings.warn(
+/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/django/db/models/fields/__init__.py:1535: RuntimeWarning: DateTimeField Announcement.expire_date received a naive datetime (2025-07-24 00:00:00) while time zone support is active.
+  warnings.warn(
+[24/Jul/2025 16:14:25] "GET /teacher/messages/ HTTP/1.1" 200 53447
+/Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py changed, reloading.
+INFO 2025-07-24 16:15:10,889 autoreload /Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+July 24, 2025 - 16:02:08
+Django version 4.2.16, using settings 'schooldriver_modern.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+INFO 2025-07-24 16:15:11,216 autoreload Watching for file changes with StatReloader
+/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py changed, reloading.
+INFO 2025-07-24 16:15:18,732 autoreload /Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+July 24, 2025 - 16:15:11
+Django version 4.2.16, using settings 'schooldriver_modern.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+INFO 2025-07-24 16:15:18,925 autoreload Watching for file changes with StatReloader
+/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py changed, reloading.
+INFO 2025-07-24 16:15:26,260 autoreload /Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+July 24, 2025 - 16:15:19
+Django version 4.2.16, using settings 'schooldriver_modern.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+INFO 2025-07-24 16:15:26,551 autoreload Watching for file changes with StatReloader
+/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py changed, reloading.
+INFO 2025-07-24 16:15:50,659 autoreload /Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+July 24, 2025 - 16:15:26
+Django version 4.2.16, using settings 'schooldriver_modern.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+INFO 2025-07-24 16:15:51,134 autoreload Watching for file changes with StatReloader
+/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+/Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py changed, reloading.
+INFO 2025-07-24 16:16:03,724 autoreload /Users/abdurrahmanmirza/Gauntlet Projects/Schooldriver-ModernVersion/schooldriver-modern/teacher_portal/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+July 24, 2025 - 16:15:51
+Django version 4.2.16, using settings 'schooldriver_modern.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
+Watching for file changes with StatReloader
+INFO 2025-07-24 16:16:04,023 autoreload Watching for file changes with StatReloader
+/Users/abdurrahmanmirza/Library/Python/3.9/lib/python/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+[24/Jul/2025 16:17:13] "GET /teacher/reports/ HTTP/1.1" 200 35405
+Method Not Allowed (POST): /teacher/reports/
+WARNING 2025-07-24 16:17:16,432 base Method Not Allowed (POST): /teacher/reports/
+Method Not Allowed: /teacher/reports/
+WARNING 2025-07-24 16:17:16,435 log Method Not Allowed: /teacher/reports/
+[24/Jul/2025 16:17:16] "POST /teacher/reports/ HTTP/1.1" 405 0
+Method Not Allowed (POST): /teacher/reports/
+WARNING 2025-07-24 16:17:19,463 base Method Not Allowed (POST): /teacher/reports/
+Method Not Allowed: /teacher/reports/
+WARNING 2025-07-24 16:17:19,464 log Method Not Allowed: /teacher/reports/
+[24/Jul/2025 16:17:19] "POST /teacher/reports/ HTTP/1.1" 405 0
+[24/Jul/2025 16:17:21] "GET /teacher/reports/ HTTP/1.1" 200 35405
+[24/Jul/2025 16:17:21] "GET /teacher/reports/ HTTP/1.1" 200 35405
+[24/Jul/2025 16:17:21] "GET /teacher/reports/ HTTP/1.1" 200 35405
+[24/Jul/2025 16:17:22] "GET /teacher/reports/ HTTP/1.1" 200 35405
+Method Not Allowed (POST): /teacher/reports/
+WARNING 2025-07-24 16:17:25,241 base Method Not Allowed (POST): /teacher/reports/
+Method Not Allowed: /teacher/reports/
+WARNING 2025-07-24 16:17:25,244 log Method Not Allowed: /teacher/reports/
+[24/Jul/2025 16:17:25] "POST /teacher/reports/ HTTP/1.1" 405 0
+[24/Jul/2025 16:17:59] "GET /teacher/ HTTP/1.1" 200 33735
+[24/Jul/2025 16:18:00] "GET /teacher/gradebook/ HTTP/1.1" 200 148223
+[24/Jul/2025 16:18:02] "GET /teacher/attendance/ HTTP/1.1" 200 80132
+[24/Jul/2025 16:18:03] "GET /teacher/reports/attendance/?section=130 HTTP/1.1" 200 34965
+[24/Jul/2025 16:18:06] "GET /teacher/reports/ HTTP/1.1" 200 35405
+Method Not Allowed (POST): /teacher/reports/
+WARNING 2025-07-24 16:18:11,868 base Method Not Allowed (POST): /teacher/reports/
+Method Not Allowed: /teacher/reports/
+WARNING 2025-07-24 16:18:11,870 log Method Not Allowed: /teacher/reports/
+[24/Jul/2025 16:18:11] "POST /teacher/reports/ HTTP/1.1" 405 0
+[24/Jul/2025 16:18:14] "GET /teacher/attendance/ HTTP/1.1" 200 80132
+[24/Jul/2025 16:18:38] "GET /teacher/reports/ HTTP/1.1" 200 35405

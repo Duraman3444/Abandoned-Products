@@ -177,6 +177,7 @@
                     <option value="">Select your role</option>
                     <option value="parent" {% if form.role.value == 'parent' %}selected{% endif %}>Parent</option>
                     <option value="student" {% if form.role.value == 'student' %}selected{% endif %}>Student</option>
+                    <option value="staff" {% if form.role.value == 'staff' %}selected{% endif %}>Staff/Teacher</option>
                 </select>
                 {% if form.role.errors %}
                     {% for error in form.role.errors %}

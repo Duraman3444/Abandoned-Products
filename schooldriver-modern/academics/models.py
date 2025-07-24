@@ -563,6 +563,300 @@ class AbsenceReason(models.Model):
         ordering = ['name']
 
 
+class EarlyDismissalRequest(models.Model):
+    """Early dismissal requests from parents"""
+    
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('denied', 'Denied'),
+        ('completed', 'Completed'),
+    ]
+    
+    student = models.ForeignKey(
+        'students.Student', on_delete=models.CASCADE, related_name='dismissal_requests'
+    )
+    requested_by = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='dismissal_requests'
+    )
+    request_date = models.DateField()
+    dismissal_time = models.TimeField()
+    reason = models.TextField()
+    pickup_person = models.CharField(max_length=100, help_text="Name of person picking up student")
+    contact_phone = models.CharField(max_length=20)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    
+    # School office fields
+    processed_by = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True, related_name='processed_dismissals'
+    )
+    processed_at = models.DateTimeField(null=True, blank=True)
+    school_notes = models.TextField(blank=True)
+    actual_dismissal_time = models.TimeField(null=True, blank=True)
+    
+    # Recurring request fields
+    is_recurring = models.BooleanField(default=False)
+    recurring_days = models.CharField(
+        max_length=20, blank=True, 
+        help_text="Comma-separated days: MON,TUE,WED,THU,FRI"
+    )
+    recurring_end_date = models.DateField(null=True, blank=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"{self.student.display_name} - {self.request_date} at {self.dismissal_time}"
+    
+    @property
+    def is_approved(self):
+        return self.status == 'approved'
+    
+    @property 
+    def is_pending(self):
+        return self.status == 'pending'
+        
+    @property
+    def is_overdue(self):
+        from django.utils import timezone
+        if self.status == 'pending':
+            return timezone.now().date() > self.request_date
+        return False
+    
+    class Meta:
+        ordering = ['-request_date', '-dismissal_time']
+
+
+class AttendanceNotification(models.Model):
+    """Notifications sent to parents about attendance"""
+    
+    NOTIFICATION_TYPES = [
+        ('absence', 'Absence Alert'),
+        ('tardiness', 'Tardiness Alert'),
+        ('pattern', 'Pattern Alert'),
+        ('early_dismissal', 'Early Dismissal Confirmation'),
+    ]
+    
+    DELIVERY_METHODS = [
+        ('email', 'Email'),
+        ('sms', 'SMS'),
+        ('both', 'Email & SMS'),
+    ]
+    
+    student = models.ForeignKey(
+        'students.Student', on_delete=models.CASCADE, related_name='attendance_notifications'
+    )
+    recipient = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='received_notifications'
+    )
+    notification_type = models.CharField(max_length=20, choices=NOTIFICATION_TYPES)
+    message = models.TextField()
+    delivery_method = models.CharField(max_length=10, choices=DELIVERY_METHODS, default='email')
+    
+    # Delivery tracking
+    is_sent = models.BooleanField(default=False)
+    sent_at = models.DateTimeField(null=True, blank=True)
+    email_sent = models.BooleanField(default=False)
+    sms_sent = models.BooleanField(default=False)
+    
+    # Reference fields
+    attendance_record = models.ForeignKey(
+        'Attendance', on_delete=models.CASCADE, null=True, blank=True, 
+        related_name='notifications'
+    )
+    dismissal_request = models.ForeignKey(
+        EarlyDismissalRequest, on_delete=models.CASCADE, null=True, blank=True,
+        related_name='notifications'
+    )
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"{self.get_notification_type_display()} for {self.student.display_name} to {self.recipient.get_full_name()}"
+    
+    @classmethod
+    def create_absence_notification(cls, attendance_record):
+        """Create absence notification for parents"""
+        student = attendance_record.enrollment.student
+        
+        for parent in student.family_access_users.all():
+            message = f"{student.display_name} was marked absent on {attendance_record.date.strftime('%B %d, %Y')}."
+            if attendance_record.absence_reason:
+                message += f" Reason: {attendance_record.absence_reason.name}"
+            
+            notification = cls.objects.create(
+                student=student,
+                recipient=parent,
+                notification_type='absence',
+                message=message,
+                attendance_record=attendance_record,
+                delivery_method='email'  # Default to email for now
+            )
+            
+            # Mark the attendance record as parent notified
+            attendance_record.parent_notified = True
+            attendance_record.parent_notified_at = timezone.now()
+            attendance_record.save()
+            
+            return notification
+    
+    @classmethod
+    def create_tardiness_notification(cls, attendance_record):
+        """Create tardiness notification for parents"""
+        student = attendance_record.enrollment.student
+        
+        for parent in student.family_access_users.all():
+            message = f"{student.display_name} was marked tardy on {attendance_record.date.strftime('%B %d, %Y')}."
+            if attendance_record.minutes_late:
+                message += f" They were {attendance_record.minutes_late} minutes late."
+            
+            notification = cls.objects.create(
+                student=student,
+                recipient=parent,
+                notification_type='tardiness',
+                message=message,
+                attendance_record=attendance_record,
+                delivery_method='email'
+            )
+            
+            return notification
+    
+    class Meta:
+        ordering = ['-created_at']
+
+
+class SchoolCalendarEvent(models.Model):
+    """School calendar events like holidays, early dismissal days, etc."""
+    
+    EVENT_TYPES = [
+        ('holiday', 'Holiday'),
+        ('early_dismissal', 'Early Dismissal'),
+        ('no_school', 'No School'),
+        ('half_day', 'Half Day'),
+        ('testing', 'Testing Day'),
+        ('conference', 'Parent-Teacher Conference'),
+        ('event', 'School Event'),
+        ('break', 'School Break'),
+    ]
+    
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    event_type = models.CharField(max_length=20, choices=EVENT_TYPES)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    start_time = models.TimeField(null=True, blank=True, help_text="For events with specific times")
+    end_time = models.TimeField(null=True, blank=True, help_text="For events with specific times")
+    
+    # For early dismissal days
+    dismissal_time = models.TimeField(null=True, blank=True, help_text="Early dismissal time")
+    
+    # Display options
+    is_public = models.BooleanField(default=True, help_text="Show to parents in portal")
+    color = models.CharField(max_length=7, default='#007bff', help_text="Hex color code for calendar display")
+    
+    # Affected groups
+    affects_all_students = models.BooleanField(default=True)
+    specific_grades = models.CharField(
+        max_length=100, blank=True, 
+        help_text="Comma-separated grade levels if not affecting all (e.g., K,1,2)"
+    )
+    
+    school_year = models.ForeignKey(
+        'students.SchoolYear', on_delete=models.CASCADE, related_name='calendar_events'
+    )
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    
+    def __str__(self):
+        if self.start_date == self.end_date:
+            return f"{self.title} - {self.start_date}"
+        return f"{self.title} - {self.start_date} to {self.end_date}"
+    
+    @property
+    def is_single_day(self):
+        """Check if event is a single day event"""
+        return self.start_date == self.end_date
+    
+    @property
+    def is_ongoing(self):
+        """Check if event is currently ongoing"""
+        from django.utils import timezone
+        today = timezone.now().date()
+        return self.start_date <= today <= self.end_date
+    
+    @property
+    def is_upcoming(self):
+        """Check if event is upcoming"""
+        from django.utils import timezone
+        today = timezone.now().date()
+        return self.start_date > today
+    
+    @property
+    def duration_days(self):
+        """Get the duration of the event in days"""
+        return (self.end_date - self.start_date).days + 1
+    
+    def affects_student(self, student):
+        """Check if this event affects a specific student"""
+        if self.affects_all_students:
+            return True
+        
+        if self.specific_grades:
+            student_grade = student.grade_level.name if student.grade_level else ''
+            affected_grades = [grade.strip() for grade in self.specific_grades.split(',')]
+            return student_grade in affected_grades
+        
+        return False
+    
+    @classmethod
+    def get_events_for_month(cls, year, month, school_year=None):
+        """Get all events for a specific month"""
+        from datetime import date
+        from calendar import monthrange
+        
+        if not school_year:
+            from students.models import SchoolYear
+            school_year = SchoolYear.objects.filter(is_active=True).first()
+        
+        start_date = date(year, month, 1)
+        end_date = date(year, month, monthrange(year, month)[1])
+        
+        return cls.objects.filter(
+            school_year=school_year,
+            is_public=True,
+            start_date__lte=end_date,
+            end_date__gte=start_date
+        ).order_by('start_date')
+    
+    @classmethod
+    def get_upcoming_events(cls, days=30, school_year=None):
+        """Get upcoming events within specified days"""
+        from datetime import date, timedelta
+        from students.models import SchoolYear
+        
+        if not school_year:
+            school_year = SchoolYear.objects.filter(is_active=True).first()
+        
+        today = date.today()
+        end_date = today + timedelta(days=days)
+        
+        return cls.objects.filter(
+            school_year=school_year,
+            is_public=True,
+            start_date__gte=today,
+            start_date__lte=end_date
+        ).order_by('start_date')
+    
+    class Meta:
+        ordering = ['start_date', 'start_time']
+        verbose_name = "School Calendar Event"
+        verbose_name_plural = "School Calendar Events"
+
+
 class Attendance(models.Model):
     """Student attendance records"""
 
@@ -814,8 +1108,92 @@ class Message(models.Model):
     def __str__(self):
         return f"From {self.sender} to {self.recipient}: {self.subject}"
 
+    def mark_as_read(self):
+        """Mark message as read and set read timestamp"""
+        if not self.is_read:
+            self.is_read = True
+            self.read_at = timezone.now()
+            self.save()
+    
+    def get_thread_messages(self):
+        """Get all messages in this thread"""
+        if self.thread_id:
+            return Message.objects.filter(thread_id=self.thread_id).order_by('sent_at')
+        return Message.objects.filter(id=self.id)
+    
+    def generate_thread_id(self):
+        """Generate a unique thread ID for this message"""
+        import uuid
+        return f"thread_{uuid.uuid4().hex[:8]}"
+    
+    def save(self, *args, **kwargs):
+        # Generate thread_id if not provided and not a reply
+        if not self.thread_id and not self.parent_message:
+            self.thread_id = self.generate_thread_id()
+        elif self.parent_message and not self.thread_id:
+            # Use parent's thread_id for replies
+            self.thread_id = self.parent_message.thread_id
+        
+        super().save(*args, **kwargs)
+
     class Meta:
         ordering = ["-sent_at"]
+
+
+class MessageAttachment(models.Model):
+    """File attachments for messages"""
+    
+    message = models.ForeignKey(
+        Message, on_delete=models.CASCADE, related_name='attachments'
+    )
+    file = models.FileField(
+        upload_to='message_attachments/%Y/%m/',
+        help_text="Supported files: PDF, DOC, DOCX, JPG, PNG, TXT (max 10MB)"
+    )
+    original_filename = models.CharField(max_length=255)
+    file_size = models.PositiveIntegerField(help_text="File size in bytes")
+    content_type = models.CharField(max_length=100)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    
+    # Download tracking
+    download_count = models.PositiveIntegerField(default=0)
+    last_downloaded_at = models.DateTimeField(null=True, blank=True)
+    
+    def __str__(self):
+        return f"Attachment: {self.original_filename} for {self.message.subject}"
+    
+    def get_file_size_display(self):
+        """Return human readable file size"""
+        size = self.file_size
+        for unit in ['B', 'KB', 'MB', 'GB']:
+            if size < 1024.0:
+                return f"{size:.1f} {unit}"
+            size /= 1024.0
+        return f"{size:.1f} TB"
+    
+    def is_image(self):
+        """Check if attachment is an image"""
+        image_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+        return self.content_type.lower() in image_types
+    
+    def record_download(self):
+        """Record when file was downloaded"""
+        self.download_count += 1
+        self.last_downloaded_at = timezone.now()
+        self.save()
+    
+    @classmethod
+    def get_allowed_extensions(cls):
+        """Get list of allowed file extensions"""
+        return ['.pdf', '.doc', '.docx', '.txt', '.jpg', '.jpeg', '.png', '.gif']
+    
+    @classmethod
+    def get_max_file_size(cls):
+        """Get maximum file size in bytes (10MB)"""
+        return 10 * 1024 * 1024  # 10MB
+    
+    class Meta:
+        ordering = ['-uploaded_at']
 
 
 class StudentProgressNote(models.Model):

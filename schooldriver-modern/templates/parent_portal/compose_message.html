@@ -1,0 +1,181 @@
+{% extends "parent_base.html" %}
+{% load static %}
+
+{% block page_title %}Compose Message{% endblock %}
+{% block page_subtitle %}Send a message to your child's teacher{% endblock %}
+
+{% block parent_content %}
+{% if error %}
+    <div class="alert alert-warning text-center">
+        <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+        <h4>{{ error }}</h4>
+    </div>
+{% else %}
+
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-pen text-primary me-2"></i>
+                    New Message
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <!-- Recipient Selection -->
+                    <div class="mb-3">
+                        <label for="{{ form.recipient.id_for_label }}" class="form-label">
+                            <i class="fas fa-user-tie me-1"></i>
+                            To (Teacher) <span class="text-danger">*</span>
+                        </label>
+                        {{ form.recipient }}
+                        {% if form.recipient.errors %}
+                            <div class="text-danger small">{{ form.recipient.errors.0 }}</div>
+                        {% endif %}
+                        {% if available_teachers.count == 0 %}
+                            <div class="alert alert-info mt-2">
+                                <small>
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    No teachers found. Teachers will appear here once your children are enrolled in classes.
+                                </small>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Student Context -->
+                    {% if children.count > 1 %}
+                    <div class="mb-3">
+                        <label for="{{ form.student_context.id_for_label }}" class="form-label">
+                            <i class="fas fa-user-graduate me-1"></i>
+                            About Student (Optional)
+                        </label>
+                        {{ form.student_context }}
+                        {% if form.student_context.errors %}
+                            <div class="text-danger small">{{ form.student_context.errors.0 }}</div>
+                        {% endif %}
+                        <small class="form-text text-muted">
+                            Select which child this message is about (helpful for multi-child families)
+                        </small>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Subject -->
+                    <div class="mb-3">
+                        <label for="{{ form.subject.id_for_label }}" class="form-label">
+                            <i class="fas fa-tag me-1"></i>
+                            Subject <span class="text-danger">*</span>
+                        </label>
+                        {{ form.subject }}
+                        {% if form.subject.errors %}
+                            <div class="text-danger small">{{ form.subject.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Message Content -->
+                    <div class="mb-3">
+                        <label for="{{ form.content.id_for_label }}" class="form-label">
+                            <i class="fas fa-comment me-1"></i>
+                            Message <span class="text-danger">*</span>
+                        </label>
+                        {{ form.content }}
+                        {% if form.content.errors %}
+                            <div class="text-danger small">{{ form.content.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- File Attachments -->
+                    <div class="mb-3">
+                        <label for="{{ form.attachments.id_for_label }}" class="form-label">
+                            <i class="fas fa-paperclip me-1"></i>
+                            Attachments (Optional)
+                        </label>
+                        {{ form.attachments }}
+                        {% if form.attachments.errors %}
+                            <div class="text-danger small">{{ form.attachments.errors.0 }}</div>
+                        {% endif %}
+                        <small class="form-text text-muted">
+                            You can attach multiple files. Supported formats: PDF, DOC, DOCX, JPG, PNG, TXT (max 10MB each)
+                        </small>
+                    </div>
+                    
+                    <!-- Message Options -->
+                    <div class="mb-3">
+                        <div class="form-check">
+                            {{ form.is_urgent }}
+                            <label class="form-check-label" for="{{ form.is_urgent.id_for_label }}">
+                                <i class="fas fa-exclamation-triangle text-warning me-1"></i>
+                                Mark as urgent
+                            </label>
+                        </div>
+                        <small class="form-text text-muted">
+                            Urgent messages will be highlighted for the recipient
+                        </small>
+                    </div>
+                    
+                    <!-- Message Guidelines -->
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-info-circle me-1"></i>Message Guidelines:</h6>
+                        <ul class="mb-0 small">
+                            <li>Be clear and specific about your concern or question</li>
+                            <li>Include your child's name if the message is about a specific student</li>
+                            <li>Allow 24-48 hours for a response during school days</li>
+                            <li>For urgent matters, please call the school office directly</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Submit Buttons -->
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'parent_portal:messages' %}" class="btn btn-secondary me-md-2">
+                            <i class="fas fa-times me-1"></i>
+                            Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane me-1"></i>
+                            Send Message
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endif %}
+
+<script>
+// Show file names when files are selected
+document.getElementById('{{ form.attachments.id_for_label }}').addEventListener('change', function(e) {
+    const files = e.target.files;
+    let fileNames = [];
+    
+    for (let i = 0; i < files.length; i++) {
+        fileNames.push(files[i].name);
+    }
+    
+    if (fileNames.length > 0) {
+        const fileList = document.createElement('div');
+        fileList.className = 'mt-2 small text-info';
+        fileList.innerHTML = '<i class="fas fa-file me-1"></i>Selected files: ' + fileNames.join(', ');
+        
+        // Remove existing file list
+        const existingList = e.target.parentNode.querySelector('.file-list');
+        if (existingList) {
+            existingList.remove();
+        }
+        
+        fileList.className += ' file-list';
+        e.target.parentNode.appendChild(fileList);
+    }
+});
+
+// Auto-resize textarea
+document.getElementById('{{ form.content.id_for_label }}').addEventListener('input', function(e) {
+    e.target.style.height = 'auto';
+    e.target.style.height = (e.target.scrollHeight) + 'px';
+});
+</script>
+
+{% endblock %}

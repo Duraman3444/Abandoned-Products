@@ -2,8 +2,13 @@
 <html lang="en" class="h-full">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, minimum-scale=1.0, maximum-scale=5.0">
     <title>{% block title %}SchoolDriver Modern{% endblock %}</title>
+    
+    <!-- Touch Icons for Mobile -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="SchoolDriver">
     {% load static %}
     {% load custom_tags %}
     
@@ -11,6 +16,10 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <!-- Mobile Responsive CSS -->
+    <link href="{% static 'css/mobile-responsive.css' %}" rel="stylesheet">
+    <!-- Print Styles CSS -->
+    <link href="{% static 'css/print-styles.css' %}" rel="stylesheet">
     
     <style>
         :root {
@@ -255,6 +264,26 @@
             clip: auto !important;
             white-space: inherit !important;
         }
+        
+        /* Dark Theme Variables */
+        [data-theme="dark"] {
+            --bs-body-bg: var(--bg-primary);
+            --bs-body-color: var(--text-primary);
+            --bs-emphasis-color: var(--text-primary);
+            --bs-secondary-color: var(--text-secondary);
+            --bs-tertiary-color: var(--text-muted);
+            
+            /* Bootstrap component overrides */
+            --bs-border-color: #30363D;
+            --bs-border-color-translucent: rgba(255, 255, 255, 0.15);
+        }
+        
+        /* Theme transition */
+        *, *::before, *::after {
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+        
+
     </style>
     
     {% block extra_css %}{% endblock %}
@@ -274,7 +303,7 @@
                         <i class="bi bi-mortarboard-fill me-2"></i>SchoolDriver Modern
                     </a>
                 {% elif user_role == 'Admin' or user_role == 'Staff' %}
-                <a class="navbar-brand fw-bold" href="{% url 'teacher_dashboard' %}">
+                <a class="navbar-brand fw-bold" href="{% url 'public:home' %}">
                 <i class="bi bi-mortarboard-fill me-2"></i>SchoolDriver Modern
                 </a>
                 {% else %}
@@ -300,7 +329,7 @@
                         <!-- Dashboard for Staff/Admin -->
                         {% if user_role == 'Admin' or user_role == 'Staff' %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'teacher_dashboard' %}">
+                            <a class="nav-link" href="{% url 'teacher_portal:teacher_dashboard' %}">
                                 <i class="bi bi-speedometer2 me-1"></i>Teacher Portal
                             </a>
                         </li>
@@ -398,6 +427,8 @@
         </div>
     </nav>
     
+
+    
     <!-- Breadcrumb -->
     {% block breadcrumb %}{% endblock %}
     
@@ -429,6 +460,8 @@
     
     <!-- User onboarding and help system -->
     <script src="{% static 'js/onboarding.js' %}"></script>
+    
+
     
     {% block extra_js %}{% endblock %}
 </body>

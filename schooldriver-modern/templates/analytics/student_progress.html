@@ -180,10 +180,10 @@
     <!-- Student Cards -->
     <div id="studentsList">
         {% for student_data in student_analytics %}
-            <div class="student-card" data-student-name="{{ student_data.student.get_full_name|lower }}">
+            <div class="student-card" data-student-name="{{ student_data.student.full_name|lower }}">
                 <div class="student-header">
                     <div>
-                        <h5 class="mb-1">{{ student_data.student.get_full_name }}</h5>
+                        <h5 class="mb-1">{{ student_data.student.full_name }}</h5>
                         <small>Student ID: {{ student_data.student.student_id }}</small>
                     </div>
                     <div class="text-end">

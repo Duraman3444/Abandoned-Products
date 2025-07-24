@@ -1,0 +1,408 @@
+/* Print-Friendly Styles for SchoolDriver Modern */
+
+@media print {
+    /* General print optimization */
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+    
+    /* Hide elements that shouldn't appear in print */
+    .no-print,
+    .navbar,
+    .breadcrumb,
+    .footer,
+    .dark-mode-toggle,
+    .mobile-actions,
+    .mobile-fab,
+    .quick-actions,
+    .btn-group .dropdown-toggle::after,
+    .toast,
+    .modal,
+    .alert-dismissible .btn-close,
+    .pagination,
+    button:not(.print-keep),
+    .btn:not(.print-keep),
+    input[type="button"]:not(.print-keep),
+    input[type="submit"]:not(.print-keep),
+    .form-check,
+    .gradebook-filters,
+    .bulk-actions,
+    .date-navigator,
+    .mobile-attendance-actions,
+    .quick-attendance-mobile {
+        display: none !important;
+    }
+    
+    /* Page setup */
+    @page {
+        size: A4 landscape;
+        margin: 0.5in;
+    }
+    
+    /* General typography */
+    body {
+        font-family: "Times New Roman", serif !important;
+        font-size: 12pt !important;
+        line-height: 1.2 !important;
+        color: #000 !important;
+        background: white !important;
+    }
+    
+    /* Headings */
+    h1, h2, h3, h4, h5, h6 {
+        color: #000 !important;
+        font-weight: bold !important;
+        page-break-after: avoid !important;
+        margin-top: 0.5em !important;
+        margin-bottom: 0.3em !important;
+    }
+    
+    h1 { font-size: 18pt !important; }
+    h2 { font-size: 16pt !important; }
+    h3 { font-size: 14pt !important; }
+    h4, h5, h6 { font-size: 12pt !important; }
+    
+    /* Cards and containers */
+    .card {
+        border: 1px solid #000 !important;
+        box-shadow: none !important;
+        margin-bottom: 0.5in !important;
+        background: white !important;
+        page-break-inside: avoid !important;
+    }
+    
+    .card-header {
+        background: #f0f0f0 !important;
+        border-bottom: 1px solid #000 !important;
+        padding: 0.2in !important;
+        font-weight: bold !important;
+        color: #000 !important;
+    }
+    
+    .card-body {
+        padding: 0.2in !important;
+        color: #000 !important;
+    }
+    
+    /* Print header */
+    .print-header {
+        display: block !important;
+        text-align: center;
+        margin-bottom: 0.3in;
+        border-bottom: 2px solid #000;
+        padding-bottom: 0.1in;
+    }
+    
+    .print-title {
+        font-size: 18pt !important;
+        font-weight: bold !important;
+        margin-bottom: 0.1in !important;
+    }
+    
+    .print-subtitle {
+        font-size: 12pt !important;
+        margin-bottom: 0.1in !important;
+    }
+    
+    .print-date {
+        font-size: 10pt !important;
+        font-style: italic !important;
+    }
+    
+    /* Gradebook specific styles */
+    .gradebook-table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        font-size: 9pt !important;
+        margin-bottom: 0.2in !important;
+    }
+    
+    .gradebook-table th,
+    .gradebook-table td {
+        border: 1px solid #000 !important;
+        padding: 0.05in !important;
+        text-align: center !important;
+        vertical-align: middle !important;
+        color: #000 !important;
+        background: white !important;
+    }
+    
+    .gradebook-table th {
+        background: #e0e0e0 !important;
+        font-weight: bold !important;
+        font-size: 8pt !important;
+    }
+    
+    .gradebook-table .sticky-column {
+        position: static !important;
+        background: white !important;
+        text-align: left !important;
+        font-weight: bold !important;
+        width: 1.5in !important;
+        min-width: 1.5in !important;
+    }
+    
+    .assignment-header {
+        writing-mode: horizontal-tb !important;
+        text-orientation: mixed !important;
+        width: 0.7in !important;
+        min-width: 0.7in !important;
+        max-width: 0.7in !important;
+    }
+    
+    .assignment-info {
+        font-size: 7pt !important;
+        line-height: 1.1 !important;
+    }
+    
+    .final-grade-cell {
+        width: 0.8in !important;
+        min-width: 0.8in !important;
+        font-weight: bold !important;
+    }
+    
+    /* Grade inputs for print */
+    .grade-input {
+        border: none !important;
+        background: transparent !important;
+        text-align: center !important;
+        font-weight: bold !important;
+        width: 100% !important;
+        color: #000 !important;
+    }
+    
+    /* Attendance specific styles */
+    .attendance-grid {
+        display: block !important;
+        columns: 2 !important;
+        column-gap: 0.3in !important;
+        column-fill: balance !important;
+    }
+    
+    .attendance-card {
+        display: inline-block !important;
+        width: 100% !important;
+        margin-bottom: 0.1in !important;
+        border: 1px solid #000 !important;
+        padding: 0.1in !important;
+        break-inside: avoid !important;
+        background: white !important;
+    }
+    
+    .attendance-card.absent {
+        background: #f0f0f0 !important;
+        border-left: 4px solid #000 !important;
+    }
+    
+    .attendance-card.tardy {
+        background: #f8f8f8 !important;
+        border-left: 4px solid #666 !important;
+    }
+    
+    .attendance-card.excused {
+        background: #f4f4f4 !important;
+        border-left: 4px solid #333 !important;
+    }
+    
+    .student-name {
+        font-weight: bold !important;
+        font-size: 10pt !important;
+        margin-bottom: 0.05in !important;
+        color: #000 !important;
+    }
+    
+    .student-id {
+        font-size: 8pt !important;
+        color: #666 !important;
+        margin-bottom: 0.05in !important;
+    }
+    
+    .attendance-status {
+        font-size: 9pt !important;
+        font-weight: bold !important;
+        color: #000 !important;
+    }
+    
+    /* Print summary boxes */
+    .print-summary {
+        border: 2px solid #000 !important;
+        padding: 0.15in !important;
+        margin: 0.2in 0 !important;
+        background: #f9f9f9 !important;
+        page-break-inside: avoid !important;
+    }
+    
+    .print-summary h4 {
+        margin-top: 0 !important;
+        text-align: center !important;
+        text-decoration: underline !important;
+    }
+    
+    .summary-stats {
+        display: flex !important;
+        justify-content: space-around !important;
+        font-size: 10pt !important;
+        font-weight: bold !important;
+    }
+    
+    /* Print signatures area */
+    .print-signatures {
+        margin-top: 0.5in !important;
+        border-top: 1px solid #000 !important;
+        padding-top: 0.2in !important;
+        display: flex !important;
+        justify-content: space-between !important;
+    }
+    
+    .signature-line {
+        width: 2.5in !important;
+        border-bottom: 1px solid #000 !important;
+        padding-bottom: 0.1in !important;
+        margin-bottom: 0.05in !important;
+    }
+    
+    .signature-label {
+        font-size: 9pt !important;
+        text-align: center !important;
+        margin-top: 0.05in !important;
+    }
+    
+    /* Page breaks */
+    .page-break-before {
+        page-break-before: always !important;
+    }
+    
+    .page-break-after {
+        page-break-after: always !important;
+    }
+    
+    .page-break-inside-avoid {
+        page-break-inside: avoid !important;
+    }
+    
+    /* Print utilities */
+    .print-only {
+        display: block !important;
+    }
+    
+    .print-inline {
+        display: inline !important;
+    }
+    
+    .print-flex {
+        display: flex !important;
+    }
+    
+    /* Footer for each printed page */
+    .print-footer {
+        position: fixed !important;
+        bottom: 0.2in !important;
+        left: 0 !important;
+        right: 0 !important;
+        text-align: center !important;
+        font-size: 8pt !important;
+        color: #666 !important;
+        border-top: 1px solid #ccc !important;
+        padding-top: 0.05in !important;
+    }
+    
+    /* Ensure proper spacing and readability */
+    p, div, span {
+        color: #000 !important;
+        background: transparent !important;
+    }
+    
+    .text-muted {
+        color: #666 !important;
+    }
+    
+    .badge {
+        border: 1px solid #000 !important;
+        background: white !important;
+        color: #000 !important;
+        padding: 0.02in 0.05in !important;
+    }
+    
+    /* Special handling for different grade statuses */
+    .text-success, .badge.bg-success {
+        color: #000 !important;
+        background: #e8e8e8 !important;
+    }
+    
+    .text-warning, .badge.bg-warning {
+        color: #000 !important;
+        background: #f0f0f0 !important;
+    }
+    
+    .text-danger, .badge.bg-danger {
+        color: #000 !important;
+        background: #ddd !important;
+        font-weight: bold !important;
+    }
+    
+    /* Optimize for black and white printing */
+    .btn-primary, .btn-success, .btn-warning, .btn-danger, .btn-info {
+        border: 1px solid #000 !important;
+        background: white !important;
+        color: #000 !important;
+    }
+    
+    /* Table striping for better readability */
+    .table-striped tbody tr:nth-of-type(odd) {
+        background: #f8f8f8 !important;
+    }
+    
+    /* Ensure links are readable */
+    a {
+        color: #000 !important;
+        text-decoration: underline !important;
+    }
+    
+    /* Form elements in print */
+    input, select, textarea {
+        background: white !important;
+        border: 1px solid #000 !important;
+        color: #000 !important;
+    }
+}
+
+/* Print button styles (visible on screen, hidden in print) */
+.print-button {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 1000;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    font-size: 1.2rem;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.print-button:hover {
+    background: #0056b3;
+    transform: scale(1.05);
+}
+
+@media print {
+    .print-button {
+        display: none !important;
+    }
+}
+
+/* Mobile print button */
+@media (max-width: 768px) {
+    .print-button {
+        width: 50px;
+        height: 50px;
+        bottom: 80px; /* Above other FABs */
+        font-size: 1rem;
+    }
+}

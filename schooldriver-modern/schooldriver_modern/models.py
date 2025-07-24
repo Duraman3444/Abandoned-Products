@@ -58,6 +58,12 @@ class UserProfile(models.Model):
     parent_portal_access = models.BooleanField(
         default=True, verbose_name="Parent Portal Access"
     )
+    preferred_language = models.CharField(
+        max_length=10, 
+        choices=[('en', 'English'), ('es', 'Spanish'), ('fr', 'French')],
+        default='en',
+        verbose_name="Preferred Language"
+    )
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

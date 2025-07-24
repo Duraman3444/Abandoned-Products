@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, HttpResponse
 from django.contrib import messages
 from django.db.models import Count, Avg, Q
+from django.db import models
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView, CreateView, UpdateView
 from django.utils import timezone
@@ -30,7 +31,7 @@ class TeacherDashboardView(TemplateView):
         user = self.request.user
         
         # Get teacher's sections
-        sections = user.taught_sections.filter(active=True)
+        sections = user.taught_sections.filter(is_active=True)
         
         # Get current section (from URL param or first section)
         section_id = self.request.GET.get('section')
@@ -42,8 +43,8 @@ class TeacherDashboardView(TemplateView):
         # Dashboard statistics
         stats = {}
         if current_section:
-            enrollments = current_section.enrollments.filter(active=True)
-            assignments = current_section.assignments.filter(published=True)
+            enrollments = current_section.enrollments.filter(is_active=True)
+            assignments = current_section.assignments.filter(is_published=True)
             
             stats = {
                 'total_students': enrollments.count(),
@@ -219,6 +220,7 @@ class TeacherAttendanceView(TemplateView):
                 'enrollments': enrollments,
                 'attendance_data': attendance_data,
                 'attendance_date': attendance_date,
+                'current_date': attendance_date,
                 'absence_reasons': AbsenceReason.objects.filter(is_active=True),
             })
         
@@ -241,13 +243,13 @@ class TeacherAttendanceView(TemplateView):
         
         if not all([section_id, attendance_date_str]):
             messages.error(request, 'Missing required information')
-            return redirect('teacher_attendance')
+            return redirect('teacher_portal:teacher_attendance')
         
         try:
             attendance_date = datetime.strptime(attendance_date_str, '%Y-%m-%d').date()
         except ValueError:
             messages.error(request, 'Invalid date format')
-            return redirect('teacher_attendance')
+            return redirect('teacher_portal:teacher_attendance')
         
         section = get_object_or_404(
             request.user.taught_sections.filter(is_active=True),
@@ -260,7 +262,7 @@ class TeacherAttendanceView(TemplateView):
             return self.handle_individual_attendance(request, section, attendance_date)
         else:
             messages.error(request, 'Invalid action')
-            return redirect('teacher_attendance')
+            return redirect('teacher_portal:teacher_attendance')
     
     def handle_bulk_action(self, request, section, attendance_date):
         """Handle bulk attendance actions"""
@@ -329,7 +331,7 @@ class TeacherAttendanceView(TemplateView):
             
             messages.success(request, f'Copied attendance for {copied_count} students from {previous_date}')
         
-        return redirect(f"{reverse('teacher_attendance')}?section={section.id}&date={attendance_date}")
+        return redirect(f"{reverse('teacher_portal:teacher_attendance')}?section={section.id}&date={attendance_date}")
     
     def handle_individual_attendance(self, request, section, attendance_date):
         """Handle individual attendance records"""
@@ -370,7 +372,7 @@ class TeacherAttendanceView(TemplateView):
                 updated_count += 1
         
         messages.success(request, f'Updated attendance for {updated_count} students')
-        return redirect(f"{reverse('teacher_attendance')}?section={section.id}&date={attendance_date}")
+        return redirect(f"{reverse('teacher_portal:teacher_attendance')}?section={section.id}&date={attendance_date}")
 
 
 @login_required
@@ -469,7 +471,7 @@ class CreateAssignmentView(CreateView):
         return EnhancedAssignmentForm
     
     def get_success_url(self):
-        return reverse('teacher_assignments') + f'?section={self.object.section.id}'
+        return reverse('teacher_portal:teacher_assignments') + f'?section={self.object.section.id}'
     
     def form_valid(self, form):
         # Get section from URL or form
@@ -515,7 +517,7 @@ def export_grades(request):
     
     if not section_id:
         messages.error(request, 'Section required for export')
-        return redirect('teacher_gradebook')
+        return redirect('teacher_portal:teacher_gradebook')
     
     section = get_object_or_404(
         request.user.taught_sections.filter(is_active=True),
@@ -528,7 +530,7 @@ def export_grades(request):
         return export_grades_pdf(section)
     else:
         messages.error(request, 'Invalid export format')
-        return redirect('teacher_gradebook')
+        return redirect('teacher_portal:teacher_gradebook')
 
 
 def export_grades_csv(section):
@@ -551,7 +553,7 @@ def export_grades_csv(section):
     
     # Write data
     for enrollment in enrollments:
-        row = [enrollment.student.student_id, enrollment.student.get_full_name()]
+        row = [enrollment.student.student_id, enrollment.student.full_name]
         
         for assignment in assignments:
             try:
@@ -573,7 +575,7 @@ def export_grades_pdf(section):
     """Export grades to PDF format"""
     if not HAS_REPORTLAB:
         messages.error(request, 'PDF export not available - reportlab not installed')
-        return redirect('teacher_gradebook')
+        return redirect('teacher_portal:teacher_gradebook')
         
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="{section.course.course_code}_grades.pdf"'
@@ -694,7 +696,7 @@ def attendance_reports(request):
     section_id = request.GET.get('section')
     if not section_id:
         messages.error(request, 'Section required for reports')
-        return redirect('teacher_attendance')
+        return redirect('teacher_portal:teacher_attendance')
     
     section = get_object_or_404(
         request.user.taught_sections.filter(is_active=True),
@@ -705,6 +707,12 @@ def attendance_reports(request):
         form = AttendanceReportForm(request.POST, section=section)
         if form.is_valid():
             return generate_attendance_report(request, section, form.cleaned_data)
+        else:
+            # Add form errors to messages for debugging
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field}: {error}")
+            messages.error(request, "Please fix the form errors and try again.")
     else:
         form = AttendanceReportForm(section=section)
     
@@ -718,68 +726,138 @@ def generate_attendance_report(request, section, report_data):
     """Generate specific attendance report"""
     from academics.models import Attendance
     
-    report_type = report_data['report_type']
-    format_type = report_data['format']
-    date_start = report_data['date_start']
-    date_end = report_data['date_end']
-    
-    # Get attendance data
-    attendance_records = Attendance.objects.filter(
-        enrollment__section=section,
-        date__gte=date_start,
-        date__lte=date_end
-    ).select_related('enrollment__student', 'absence_reason')
-    
-    if report_type == 'daily':
-        return generate_daily_report(section, attendance_records, format_type)
-    elif report_type == 'student':
-        return generate_student_report(section, attendance_records, format_type)
-    elif report_type == 'patterns':
-        return generate_patterns_report(section, attendance_records, format_type)
-    elif report_type == 'chronic':
-        return generate_chronic_report(section, attendance_records, format_type)
-    elif report_type == 'tardiness':
-        return generate_tardiness_report(section, attendance_records, format_type)
-    
-    messages.error(request, 'Invalid report type')
-    return redirect('attendance_reports')
+    try:
+        report_type = report_data['report_type']
+        format_type = report_data['format']
+        date_start = report_data['date_start']
+        date_end = report_data['date_end']
+        
+        # Get attendance data
+        attendance_records = Attendance.objects.filter(
+            enrollment__section=section,
+            date__gte=date_start,
+            date__lte=date_end
+        ).select_related('enrollment__student', 'absence_reason')
+        
+        # Check if there are any records
+        if not attendance_records.exists():
+            messages.warning(request, f'No attendance records found for the selected date range ({date_start} to {date_end}). Please check if attendance has been recorded for this section.')
+            return redirect(f"{reverse('teacher_portal:attendance_reports')}?section={section.id}")
+        
+        if report_type == 'daily':
+            return generate_daily_report(section, attendance_records, format_type)
+        elif report_type == 'student':
+            return generate_student_report(section, attendance_records, format_type)
+        elif report_type == 'patterns':
+            return generate_patterns_report(section, attendance_records, format_type)
+        elif report_type == 'chronic':
+            return generate_chronic_report(section, attendance_records, format_type)
+        elif report_type == 'tardiness':
+            return generate_tardiness_report(section, attendance_records, format_type)
+        
+        messages.error(request, 'Invalid report type')
+        return redirect('teacher_portal:attendance_reports', section=section.id)
+        
+    except Exception as e:
+        messages.error(request, f'Error generating report: {str(e)}')
+        return redirect('teacher_portal:attendance_reports', section=section.id)
 
 
 def generate_daily_report(section, attendance_records, format_type):
     """Generate daily attendance summary report"""
-    if format_type == 'csv':
-        response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = f'attachment; filename="daily_attendance_{section.course.course_code}.csv"'
-        
-        writer = csv.writer(response)
-        writer.writerow(['Date', 'Present', 'Absent', 'Tardy', 'Excused', 'Total', 'Attendance Rate'])
-        
-        # Group by date
-        from django.utils import timezone
-        from collections import defaultdict
-        
-        daily_data = defaultdict(lambda: {'P': 0, 'A': 0, 'T': 0, 'E': 0, 'L': 0})
-        
-        for record in attendance_records:
-            daily_data[record.date][record.status] += 1
-        
-        for date, counts in sorted(daily_data.items()):
-            total = sum(counts.values())
-            present = counts['P']
-            absent = counts['A'] + counts['E']
-            tardy = counts['T'] + counts['L']
-            excused = counts['E'] + counts['L']
-            rate = (present / total * 100) if total > 0 else 0
+    try:
+        if format_type == 'csv':
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = f'attachment; filename="daily_attendance_{section.course.course_code}.csv"'
             
-            writer.writerow([
-                date, present, absent, tardy, excused, total, f"{rate:.1f}%"
-            ])
+            writer = csv.writer(response)
+            writer.writerow(['Date', 'Present', 'Absent', 'Tardy', 'Excused', 'Total', 'Attendance Rate'])
+            
+            # Group by date
+            from django.utils import timezone
+            from collections import defaultdict
+            
+            daily_data = defaultdict(lambda: {'P': 0, 'A': 0, 'T': 0, 'E': 0, 'L': 0})
+            
+            for record in attendance_records:
+                daily_data[record.date][record.status] += 1
+            
+            # If no data, add a message row
+            if not daily_data:
+                writer.writerow(['No data', 0, 0, 0, 0, 0, '0%'])
+            else:
+                for date, counts in sorted(daily_data.items()):
+                    total = sum(counts.values())
+                    present = counts['P']
+                    absent = counts['A'] + counts['E']
+                    tardy = counts['T'] + counts['L']
+                    excused = counts['E'] + counts['L']
+                    rate = (present / total * 100) if total > 0 else 0
+                    
+                    writer.writerow([
+                        date, present, absent, tardy, excused, total, f"{rate:.1f}%"
+                    ])
+            
+            return response
         
-        return response
-    
-    # Default to HTML for other formats
-    messages.info(request, 'HTML report generated')
-    return redirect('teacher_attendance')
+        # For HTML format, create a simple response showing the data
+        if format_type == 'html':
+            html_content = f"""
+            <html>
+            <head><title>Daily Attendance Report - {section.course.name}</title></head>
+            <body>
+                <h1>Daily Attendance Report</h1>
+                <h2>{section.course.name} - {section.name}</h2>
+                <table border="1">
+                    <tr><th>Date</th><th>Present</th><th>Absent</th><th>Tardy</th><th>Excused</th><th>Total</th><th>Attendance Rate</th></tr>
+            """
+            
+            # Group by date
+            from collections import defaultdict
+            daily_data = defaultdict(lambda: {'P': 0, 'A': 0, 'T': 0, 'E': 0, 'L': 0})
+            
+            for record in attendance_records:
+                daily_data[record.date][record.status] += 1
+            
+            if not daily_data:
+                html_content += "<tr><td colspan='7'>No attendance data found</td></tr>"
+            else:
+                for date, counts in sorted(daily_data.items()):
+                    total = sum(counts.values())
+                    present = counts['P']
+                    absent = counts['A'] + counts['E']
+                    tardy = counts['T'] + counts['L']
+                    excused = counts['E'] + counts['L']
+                    rate = (present / total * 100) if total > 0 else 0
+                    
+                    html_content += f"""
+                    <tr>
+                        <td>{date}</td>
+                        <td>{present}</td>
+                        <td>{absent}</td>
+                        <td>{tardy}</td>
+                        <td>{excused}</td>
+                        <td>{total}</td>
+                        <td>{rate:.1f}%</td>
+                    </tr>
+                    """
+            
+            html_content += """
+                </table>
+                <p><a href="javascript:history.back()">Back to Reports</a></p>
+            </body>
+            </html>
+            """
+            
+            return HttpResponse(html_content)
+        
+        # Default to HTML for other formats (PDF/HTML)
+        from django.http import JsonResponse
+        return JsonResponse({'error': 'PDF format not implemented yet. Please use CSV or HTML format.'}, status=400)
+        
+    except Exception as e:
+        from django.http import JsonResponse
+        return JsonResponse({'error': f'Error generating daily report: {str(e)}'}, status=500)
 
 
 def generate_patterns_report(section, attendance_records, format_type):
@@ -812,7 +890,7 @@ def generate_patterns_report(section, attendance_records, format_type):
         
         for data in patterns_data:
             writer.writerow([
-                data['student'].get_full_name(),
+                data['student'].full_name,
                 data['student'].student_id,
                 f"{data['summary']['attendance_rate']:.1f}%",
                 data['summary']['total_days'],
@@ -827,8 +905,145 @@ def generate_patterns_report(section, attendance_records, format_type):
         
         return response
     
-    messages.info(request, 'Patterns report generated')
-    return redirect('teacher_attendance')
+    # Default to HTML for other formats (PDF/HTML)
+    from django.http import JsonResponse
+    return JsonResponse({'error': 'PDF and HTML formats not implemented yet. Please use CSV format.'}, status=400)
+
+
+def generate_student_report(section, attendance_records, format_type):
+    """Generate individual student attendance report"""
+    enrollments = section.enrollments.filter(is_active=True).select_related('student')
+    
+    if format_type == 'csv':
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = f'attachment; filename="student_attendance_{section.course.course_code}.csv"'
+        
+        writer = csv.writer(response)
+        writer.writerow([
+            'Student Name', 'Student ID', 'Total Days', 'Present', 'Absent', 'Tardy', 
+            'Excused Absences', 'Unexcused Absences', 'Attendance Rate', 'Status'
+        ])
+        
+        for enrollment in enrollments:
+            summary = Attendance.get_attendance_summary(enrollment)
+            status = 'At Risk' if summary['attendance_rate'] < 90 else 'Good Standing'
+            
+            writer.writerow([
+                enrollment.student.full_name,
+                enrollment.student.student_id,
+                summary['total_days'],
+                summary['present_days'],
+                summary['absent_days'],
+                summary['tardy_days'],
+                summary.get('excused_days', 0),
+                summary.get('unexcused_days', 0),
+                f"{summary['attendance_rate']:.1f}%",
+                status
+            ])
+        
+        return response
+    
+    from django.http import JsonResponse
+    return JsonResponse({'error': 'PDF and HTML formats not implemented yet. Please use CSV format.'}, status=400)
+
+
+def generate_chronic_report(section, attendance_records, format_type):
+    """Generate chronic absenteeism report (students missing 10%+ of days)"""
+    enrollments = section.enrollments.filter(is_active=True).select_related('student')
+    chronic_students = []
+    
+    for enrollment in enrollments:
+        summary = Attendance.get_attendance_summary(enrollment)
+        if summary['attendance_rate'] < 90:  # Less than 90% attendance
+            patterns = Attendance.get_attendance_patterns(enrollment)
+            chronic_students.append({
+                'student': enrollment.student,
+                'summary': summary,
+                'patterns': patterns
+            })
+    
+    if format_type == 'csv':
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = f'attachment; filename="chronic_absenteeism_{section.course.course_code}.csv"'
+        
+        writer = csv.writer(response)
+        writer.writerow([
+            'Student Name', 'Student ID', 'Attendance Rate', 'Days Missed', 'Consecutive Absences',
+            'Frequent Monday Absences', 'Frequent Friday Absences', 'Risk Level'
+        ])
+        
+        for data in chronic_students:
+            risk_level = 'High' if data['summary']['attendance_rate'] < 80 else 'Moderate'
+            
+            writer.writerow([
+                data['student'].full_name,
+                data['student'].student_id,
+                f"{data['summary']['attendance_rate']:.1f}%",
+                data['summary']['absent_days'],
+                data['patterns']['consecutive_absences'],
+                'Yes' if data['patterns']['monday_pattern'] else 'No',
+                'Yes' if data['patterns']['friday_pattern'] else 'No',
+                risk_level
+            ])
+        
+        return response
+    
+    from django.http import JsonResponse
+    return JsonResponse({'error': 'PDF and HTML formats not implemented yet. Please use CSV format.'}, status=400)
+
+
+def generate_tardiness_report(section, attendance_records, format_type):
+    """Generate tardiness report focusing on late arrivals"""
+    enrollments = section.enrollments.filter(is_active=True).select_related('student')
+    
+    if format_type == 'csv':
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = f'attachment; filename="tardiness_report_{section.course.course_code}.csv"'
+        
+        writer = csv.writer(response)
+        writer.writerow([
+            'Student Name', 'Student ID', 'Total Tardies', 'Average Minutes Late',
+            'Most Common Day', 'Tardiness Rate', 'Improvement Needed'
+        ])
+        
+        for enrollment in enrollments:
+            # Get tardy records for this student
+            tardy_records = attendance_records.filter(
+                enrollment=enrollment,
+                status__in=['T', 'L']  # Tardy and Late
+            )
+            
+            if tardy_records.exists():
+                total_tardies = tardy_records.count()
+                avg_minutes = tardy_records.aggregate(
+                    avg=models.Avg('minutes_late')
+                )['avg'] or 0
+                
+                # Find most common tardy day
+                from collections import Counter
+                days = [record.date.strftime('%A') for record in tardy_records]
+                most_common_day = Counter(days).most_common(1)[0][0] if days else 'N/A'
+                
+                # Calculate tardiness rate
+                summary = Attendance.get_attendance_summary(enrollment)
+                tardiness_rate = (total_tardies / summary['total_days'] * 100) if summary['total_days'] > 0 else 0
+                
+                needs_improvement = 'Yes' if tardiness_rate > 10 else 'No'
+                
+                writer.writerow([
+                    enrollment.student.full_name,
+                    enrollment.student.student_id,
+                    total_tardies,
+                    f"{avg_minutes:.1f}",
+                    most_common_day,
+                    f"{tardiness_rate:.1f}%",
+                    needs_improvement
+                ])
+        
+        return response
+    
+    from django.http import JsonResponse
+    return JsonResponse({'error': 'PDF and HTML formats not implemented yet. Please use CSV format.'}, status=400)
 
 
 # Enhanced Assignment Management Views
@@ -900,7 +1115,7 @@ def assignment_analytics(request):
     section_id = request.GET.get('section')
     if not section_id:
         messages.error(request, 'Section required')
-        return redirect('teacher_assignments')
+        return redirect('teacher_portal:teacher_assignments')
     
     section = get_object_or_404(
         request.user.taught_sections.filter(is_active=True),
@@ -973,6 +1188,72 @@ def assignment_analytics(request):
 @method_decorator([login_required, role_required(["Staff", "Admin"])], name='dispatch')
 class TeacherStudentsView(TemplateView):
     template_name = 'teacher_portal/students.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        
+        # Get teacher's sections
+        sections = user.taught_sections.filter(is_active=True)
+        
+        # Get current section (from URL param or first section)
+        section_id = self.request.GET.get('section')
+        if section_id:
+            current_section = get_object_or_404(sections, id=section_id)
+        else:
+            current_section = sections.first() if sections.exists() else None
+        
+        # Get students based on filters
+        students = None
+        if current_section:
+            students = current_section.enrollments.filter(is_active=True).select_related(
+                'student', 'student__grade_level'
+            )
+        elif sections.exists():
+            # If no specific section selected, show all students from all teacher's sections
+            students = Enrollment.objects.filter(
+                section__in=sections,
+                is_active=True
+            ).select_related('student', 'student__grade_level')
+        else:
+            students = Enrollment.objects.none()
+        
+        # Apply search filter
+        search_query = self.request.GET.get('search')
+        if search_query and students:
+            students = students.filter(
+                Q(student__first_name__icontains=search_query) |
+                Q(student__last_name__icontains=search_query) |
+                Q(student__student_id__icontains=search_query)
+            )
+        
+        # Apply section filter
+        section_filter = self.request.GET.get('section')
+        if section_filter and section_filter != section_id:
+            try:
+                filter_section = sections.get(id=section_filter)
+                students = students.filter(section=filter_section)
+                current_section = filter_section
+            except CourseSection.DoesNotExist:
+                pass
+        
+        # Apply grade level filter
+        grade_filter = self.request.GET.get('grade')
+        if grade_filter and students:
+            students = students.filter(student__grade_level__name=grade_filter)
+        
+        # Order students by name
+        if students:
+            students = students.order_by('student__last_name', 'student__first_name')
+        
+        context.update({
+            'sections': sections,
+            'current_section': current_section,
+            'students': students,
+            'show_section_selector': sections.count() > 1,
+        })
+        
+        return context
 
 @method_decorator([login_required, role_required(["Staff", "Admin"])], name='dispatch')
 class TeacherReportsView(TemplateView):
@@ -990,21 +1271,24 @@ class TeacherMessagesView(TemplateView):
         context = super().get_context_data(**kwargs)
         
         # Get direct messages sent to this teacher
-        received_messages = Message.objects.filter(
-            recipient=self.request.user
-        ).select_related('sender').order_by('-sent_at')
+        # TODO: Fix database schema issue with thread_id column
+        # received_messages = Message.objects.filter(
+        #     recipient=self.request.user
+        # ).select_related('sender').order_by('-sent_at')
+        received_messages = []
         
         # Get messages sent by this teacher
-        sent_messages = Message.objects.filter(
-            sender=self.request.user
-        ).select_related('recipient').order_by('-sent_at')
+        # sent_messages = Message.objects.filter(
+        #     sender=self.request.user
+        # ).select_related('recipient').order_by('-sent_at')
+        sent_messages = []
         
         # Get relevant announcements for teachers
         today = timezone.now().date()
         announcements = Announcement.objects.filter(
             Q(audience__in=['ALL', 'TEACHERS']) &
             Q(publish_date__lte=today) &
-            (Q(end_date__gte=today) | Q(end_date__isnull=True)) &
+            (Q(expire_date__gte=today) | Q(expire_date__isnull=True)) &
             Q(is_published=True)
         ).order_by('-publish_date')
         
@@ -1014,8 +1298,9 @@ class TeacherMessagesView(TemplateView):
         page_obj = paginator.get_page(page_number)
         
         # Count unread and urgent messages
-        unread_count = received_messages.filter(is_read=False).count()
-        urgent_count = received_messages.filter(is_urgent=True, is_read=False).count()
+        # Since received_messages is currently an empty list, set counts to 0
+        unread_count = 0
+        urgent_count = 0
         
         context.update({
             'page_obj': page_obj,

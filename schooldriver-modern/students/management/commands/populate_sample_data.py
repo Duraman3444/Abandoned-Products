@@ -58,6 +58,7 @@ class Command(BaseCommand):
             self.create_sample_documents()
             self.create_open_houses()
             self.create_academic_data()
+            self.create_sample_messages()
 
         self.stdout.write(
             self.style.SUCCESS(
@@ -329,156 +330,127 @@ class Command(BaseCommand):
             )
             return
 
-        # Sample student data
+        # Expanded student data for more comprehensive testing
         students_data = [
-            # Elementary students
-            (
-                "Emma",
-                "Rose",
-                "Johnson",
-                "F",
-                date(2016, 3, 15),
-                "K",
-                "Loves art and reading stories",
-            ),
-            (
-                "Liam",
-                "James",
-                "Williams",
-                "M",
-                date(2015, 8, 22),
-                "1",
-                "Energetic and great at math",
-            ),
-            (
-                "Sophia",
-                "Grace",
-                "Brown",
-                "F",
-                date(2014, 11, 10),
-                "2",
-                "Very social and creative",
-            ),
-            (
-                "Noah",
-                "Alexander",
-                "Davis",
-                "M",
-                date(2013, 5, 30),
-                "3",
-                "Loves science experiments",
-            ),
-            (
-                "Olivia",
-                "Marie",
-                "Miller",
-                "F",
-                date(2012, 9, 18),
-                "4",
-                "Excellent reader and writer",
-            ),
-            (
-                "William",
-                "Joseph",
-                "Wilson",
-                "M",
-                date(2011, 12, 3),
-                "5",
-                "Team player, loves sports",
-            ),
-            # Middle school students
-            (
-                "Ava",
-                "Elizabeth",
-                "Moore",
-                "F",
-                date(2010, 7, 25),
-                "6",
-                "Student council member",
-            ),
-            (
-                "James",
-                "Robert",
-                "Taylor",
-                "M",
-                date(2009, 4, 12),
-                "7",
-                "Band member, plays trumpet",
-            ),
-            (
-                "Isabella",
-                "Claire",
-                "Anderson",
-                "F",
-                date(2008, 10, 8),
-                "8",
-                "Drama club president",
-            ),
-            # High school students
-            (
-                "Michael",
-                "David",
-                "Thomas",
-                "M",
-                date(2007, 2, 20),
-                "9",
-                "Varsity soccer player",
-            ),
-            (
-                "Charlotte",
-                "Anne",
-                "Jackson",
-                "F",
-                date(2006, 6, 14),
-                "10",
-                "Honor roll student, debate team",
-            ),
-            (
-                "Benjamin",
-                "Samuel",
-                "White",
-                "M",
-                date(2005, 1, 7),
-                "11",
-                "NHS member, volunteers at library",
-            ),
-            (
-                "Amelia",
-                "Kate",
-                "Harris",
-                "F",
-                date(2004, 4, 28),
-                "12",
-                "Student body president, headed to Stanford",
-            ),
-            # Additional diverse students
-            (
-                "Diego",
-                "Carlos",
-                "Martinez",
-                "M",
-                date(2013, 8, 15),
-                "3",
-                "Bilingual student, loves soccer",
-            ),
-            (
-                "Aisha",
-                "Fatima",
-                "Hassan",
-                "F",
-                date(2011, 3, 12),
-                "5",
-                "New student from Virginia",
-            ),
-            (
-                "Raj",
-                "Vikram",
-                "Patel",
-                "M",
-                date(2009, 11, 5),
-                "7",
-                "Math team captain",
-            ),
+            # Kindergarten (5-8 students)
+            ("Emma", "Rose", "Johnson", "F", date(2018, 3, 15), "K", "Loves art and reading stories"),
+            ("Mason", "Cole", "Smith", "M", date(2018, 7, 22), "K", "Curious about everything"),
+            ("Olivia", "Grace", "Williams", "F", date(2018, 1, 10), "K", "Great with puzzles"),
+            ("Ethan", "James", "Brown", "M", date(2018, 9, 8), "K", "Loves building blocks"),
+            ("Ava", "Mae", "Jones", "F", date(2018, 5, 14), "K", "Natural leader"),
+            
+            # 1st Grade (6-8 students)
+            ("Liam", "James", "Williams", "M", date(2017, 8, 22), "1", "Energetic and great at math"),
+            ("Sophia", "Claire", "Davis", "F", date(2017, 4, 18), "1", "Loves reading aloud"),
+            ("Jackson", "Lee", "Miller", "M", date(2017, 11, 5), "1", "Excellent problem solver"),
+            ("Isabella", "Rose", "Wilson", "F", date(2017, 2, 28), "1", "Creative storyteller"),
+            ("Lucas", "Ryan", "Moore", "M", date(2017, 6, 12), "1", "Helpful and kind"),
+            ("Mia", "Faith", "Taylor", "F", date(2017, 10, 3), "1", "Artistic and imaginative"),
+            
+            # 2nd Grade (6-8 students)
+            ("Sophia", "Grace", "Brown", "F", date(2016, 11, 10), "2", "Very social and creative"),
+            ("Alexander", "Stone", "Anderson", "M", date(2016, 3, 25), "2", "Loves science books"),
+            ("Emma", "Lynn", "Thomas", "F", date(2016, 8, 7), "2", "Math whiz"),
+            ("William", "Cole", "Jackson", "M", date(2016, 12, 19), "2", "Great team player"),
+            ("Charlotte", "Hope", "White", "F", date(2016, 5, 31), "2", "Excellent writer"),
+            ("Daniel", "Cruz", "Harris", "M", date(2016, 9, 14), "2", "Loves animals"),
+            
+            # 3rd Grade (7-9 students)
+            ("Noah", "Alexander", "Davis", "M", date(2015, 5, 30), "3", "Loves science experiments"),
+            ("Diego", "Carlos", "Martinez", "M", date(2015, 8, 15), "3", "Bilingual student, loves soccer"),
+            ("Abigail", "Rose", "Clark", "F", date(2015, 1, 22), "3", "Bookworm and artist"),
+            ("Jacob", "Ryan", "Rodriguez", "M", date(2015, 11, 8), "3", "Future engineer"),
+            ("Emily", "Grace", "Lewis", "F", date(2015, 4, 17), "3", "Compassionate leader"),
+            ("Michael", "James", "Walker", "M", date(2015, 7, 29), "3", "Sports enthusiast"),
+            ("Madison", "Claire", "Hall", "F", date(2015, 10, 11), "3", "Talented musician"),
+            
+            # 4th Grade (7-9 students)
+            ("Olivia", "Marie", "Miller", "F", date(2014, 9, 18), "4", "Excellent reader and writer"),
+            ("Benjamin", "Luke", "Allen", "M", date(2014, 2, 6), "4", "Science fair winner"),
+            ("Chloe", "Faith", "Young", "F", date(2014, 6, 23), "4", "Drama club star"),
+            ("Samuel", "Stone", "Hernandez", "M", date(2014, 12, 4), "4", "Chess champion"),
+            ("Grace", "Anne", "King", "F", date(2014, 4, 15), "4", "Student council rep"),
+            ("Andrew", "Cole", "Wright", "M", date(2014, 8, 27), "4", "Technology expert"),
+            ("Natalie", "Rose", "Lopez", "F", date(2014, 11, 9), "4", "Environmental activist"),
+            
+            # 5th Grade (7-9 students)
+            ("William", "Joseph", "Wilson", "M", date(2013, 12, 3), "5", "Team player, loves sports"),
+            ("Aisha", "Fatima", "Hassan", "F", date(2013, 3, 12), "5", "New student from Virginia"),
+            ("Connor", "Blake", "Scott", "M", date(2013, 7, 19), "5", "Debate team member"),
+            ("Lily", "Hope", "Green", "F", date(2013, 1, 31), "5", "Volunteer coordinator"),
+            ("Tyler", "James", "Adams", "M", date(2013, 9, 13), "5", "Band section leader"),
+            ("Zoe", "Claire", "Baker", "F", date(2013, 5, 25), "5", "Math competition winner"),
+            ("Hunter", "Ryan", "Gonzalez", "M", date(2013, 11, 7), "5", "Future programmer"),
+            
+            # 6th Grade (8-10 students)
+            ("Ava", "Elizabeth", "Moore", "F", date(2012, 7, 25), "6", "Student council member"),
+            ("Logan", "Stone", "Nelson", "M", date(2012, 2, 11), "6", "Science olympiad captain"),
+            ("Aria", "Grace", "Carter", "F", date(2012, 10, 18), "6", "Choir soloist"),
+            ("Caleb", "Cole", "Mitchell", "M", date(2012, 4, 3), "6", "History buff"),
+            ("Stella", "Rose", "Perez", "F", date(2012, 8, 16), "6", "Art portfolio winner"),
+            ("Mason", "Luke", "Roberts", "M", date(2012, 12, 29), "6", "Basketball team captain"),
+            ("Hazel", "Faith", "Turner", "F", date(2012, 6, 8), "6", "School newspaper editor"),
+            ("Owen", "James", "Phillips", "M", date(2012, 1, 21), "6", "Robotics club president"),
+            
+            # 7th Grade (8-10 students)
+            ("James", "Robert", "Taylor", "M", date(2011, 4, 12), "7", "Band member, plays trumpet"),
+            ("Raj", "Vikram", "Patel", "M", date(2011, 11, 5), "7", "Math team captain"),
+            ("Scarlett", "Anne", "Campbell", "F", date(2011, 7, 27), "7", "Drama club lead"),
+            ("Grayson", "Cole", "Parker", "M", date(2011, 3, 9), "7", "Track and field star"),
+            ("Luna", "Claire", "Evans", "F", date(2011, 9, 22), "7", "Environmental club founder"),
+            ("Nolan", "Ryan", "Edwards", "M", date(2011, 1, 14), "7", "Chess club champion"),
+            ("Violet", "Grace", "Collins", "F", date(2011, 6, 30), "7", "Peer mediator"),
+            ("Easton", "Stone", "Stewart", "M", date(2011, 10, 17), "7", "Technology mentor"),
+            
+            # 8th Grade (8-10 students)
+            ("Isabella", "Claire", "Anderson", "F", date(2010, 10, 8), "8", "Drama club president"),
+            ("Wyatt", "James", "Sanchez", "M", date(2010, 2, 24), "8", "Student body treasurer"),
+            ("Nova", "Rose", "Morris", "F", date(2010, 8, 11), "8", "Science fair winner"),
+            ("Kai", "Luke", "Rogers", "M", date(2010, 5, 28), "8", "Soccer team captain"),
+            ("Autumn", "Faith", "Reed", "F", date(2010, 12, 15), "8", "Volunteer coordinator"),
+            ("Miles", "Cole", "Cook", "M", date(2010, 7, 2), "8", "Debate team champion"),
+            ("Iris", "Hope", "Bailey", "F", date(2010, 3, 19), "8", "Orchestra first chair"),
+            ("Phoenix", "Ryan", "Rivera", "M", date(2010, 11, 6), "8", "Coding club founder"),
+            
+            # 9th Grade (8-10 students)
+            ("Michael", "David", "Thomas", "M", date(2009, 2, 20), "9", "Varsity soccer player"),
+            ("Sofia", "Grace", "Cooper", "F", date(2009, 9, 7), "9", "Honor society member"),
+            ("Adrian", "Stone", "Richardson", "M", date(2009, 5, 23), "9", "Jazz band leader"),
+            ("Layla", "Claire", "Cox", "F", date(2009, 12, 10), "9", "Yearbook editor"),
+            ("Jaxon", "Cole", "Ward", "M", date(2009, 7, 26), "9", "Wrestling champion"),
+            ("Sage", "Rose", "Torres", "F", date(2009, 4, 13), "9", "Model UN president"),
+            ("River", "James", "Peterson", "M", date(2009, 11, 29), "9", "Theatre tech director"),
+            ("Willow", "Faith", "Gray", "F", date(2009, 8, 16), "9", "Environmental activist"),
+            
+            # 10th Grade (8-10 students)
+            ("Charlotte", "Anne", "Jackson", "F", date(2008, 6, 14), "10", "Honor roll student, debate team"),
+            ("Asher", "Luke", "Ramirez", "M", date(2008, 1, 30), "10", "Robotics team captain"),
+            ("Maya", "Hope", "James", "F", date(2008, 10, 17), "10", "National merit scholar"),
+            ("Felix", "Ryan", "Watson", "M", date(2008, 4, 4), "10", "Tennis team champion"),
+            ("Ivy", "Grace", "Brooks", "F", date(2008, 8, 21), "10", "Student government VP"),
+            ("Atlas", "Stone", "Kelly", "M", date(2008, 12, 8), "10", "Academic decathlon winner"),
+            ("Wren", "Claire", "Sanders", "F", date(2008, 5, 25), "10", "Art scholarship recipient"),
+            ("Orion", "Cole", "Price", "M", date(2008, 9, 12), "10", "Science olympiad medalist"),
+            
+            # 11th Grade (8-10 students)
+            ("Benjamin", "Samuel", "White", "M", date(2007, 1, 7), "11", "NHS member, volunteers at library"),
+            ("Aurora", "Rose", "Bennett", "F", date(2007, 7, 24), "11", "Valedictorian candidate"),
+            ("Silas", "James", "Wood", "M", date(2007, 3, 11), "11", "Eagle Scout recipient"),
+            ("Serenity", "Faith", "Barnes", "F", date(2007, 11, 28), "11", "Community service leader"),
+            ("Titan", "Luke", "Ross", "M", date(2007, 6, 15), "11", "Football team captain"),
+            ("Echo", "Grace", "Henderson", "F", date(2007, 2, 2), "11", "Speech and debate champion"),
+            ("Knox", "Ryan", "Coleman", "M", date(2007, 9, 19), "11", "Engineering internship"),
+            ("Luna", "Hope", "Jenkins", "F", date(2007, 5, 6), "11", "Musical theatre lead"),
+            
+            # 12th Grade (8-10 students)
+            ("Amelia", "Kate", "Harris", "F", date(2006, 4, 28), "12", "Student body president, headed to Stanford"),
+            ("Maximus", "Stone", "Perry", "M", date(2006, 11, 14), "12", "Full scholarship to MIT"),
+            ("Celeste", "Claire", "Powell", "F", date(2006, 8, 1), "12", "Class salutatorian"),
+            ("Zander", "Cole", "Long", "M", date(2006, 1, 18), "12", "State champion swimmer"),
+            ("Harmony", "Rose", "Patterson", "F", date(2006, 6, 5), "12", "Yale early admission"),
+            ("Blaze", "Ryan", "Hughes", "M", date(2006, 10, 22), "12", "NASA internship recipient"),
+            ("Seraphina", "Faith", "Flores", "F", date(2006, 3, 9), "12", "Perfect SAT score"),
+            ("Storm", "James", "Washington", "M", date(2006, 7, 26), "12", "Rhodes Scholar finalist"),
         ]
 
         for (
@@ -1261,10 +1233,13 @@ class Command(BaseCommand):
         # Group students by grade level
         students_by_grade = {}
         for student in students:
-            grade = student.grade_level.name
-            if grade not in students_by_grade:
-                students_by_grade[grade] = []
-            students_by_grade[grade].append(student)
+            if student.grade_level:  # Check if grade_level exists
+                grade = student.grade_level.name
+                if grade not in students_by_grade:
+                    students_by_grade[grade] = []
+                students_by_grade[grade].append(student)
+            else:
+                self.stdout.write(f"  Warning: Student {student.first_name} {student.last_name} has no grade level")
 
         # Create sections for each grade
         sections_created = []
@@ -1370,28 +1345,25 @@ class Command(BaseCommand):
             return
 
         assignment_templates = [
-            "Quiz 1",
-            "Quiz 2",
-            "Quiz 3",
-            "Test 1",
-            "Test 2",
-            "Midterm Exam",
-            "Homework Set 1",
-            "Homework Set 2",
-            "Homework Set 3",
-            "Project 1",
-            "Final Project",
-            "Research Paper",
-            "Lab Report 1",
-            "Lab Report 2",
-            "Class Presentation",
+            "Quiz 1", "Quiz 2", "Quiz 3", "Quiz 4", "Quiz 5",
+            "Test 1", "Test 2", "Test 3", "Midterm Exam", "Final Exam",
+            "Homework Set 1", "Homework Set 2", "Homework Set 3", "Homework Set 4", 
+            "Homework Set 5", "Daily Practice 1", "Daily Practice 2", "Daily Practice 3",
+            "Project 1", "Final Project", "Group Project", "Science Fair Project",
+            "Research Paper", "Book Report", "Current Events Essay", "Creative Writing",
+            "Lab Report 1", "Lab Report 2", "Lab Report 3", "Field Study Report",
+            "Class Presentation", "Group Presentation", "Oral Report", "Speech",
+            "Math Problem Set", "Word Problems", "Geometry Practice", "Algebra Review",
+            "Reading Comprehension", "Vocabulary Quiz", "Grammar Test", "Spelling Test",
+            "Art Portfolio", "Creative Project", "Design Challenge", "Craft Assignment",
+            "PE Skills Test", "Fitness Assessment", "Sports Performance", "Health Quiz",
+            "Science Experiment", "Nature Observation", "Lab Practical", "Research Study",
+            "History Timeline", "Geography Map", "Government Report", "Economics Project",
         ]
 
-        for section in sections_created[
-            :20
-        ]:  # Limit to first 20 sections to avoid too much data
-            # Create 5-8 assignments per section
-            num_assignments = random.randint(5, 8)
+        for section in sections_created:  # Process all sections for fuller data
+            # Create 10-15 assignments per section for comprehensive testing
+            num_assignments = random.randint(10, 15)
 
             for i in range(num_assignments):
                 assignment_name = random.choice(assignment_templates)
@@ -1485,9 +1457,7 @@ class Command(BaseCommand):
         end_date = timezone.now().date()
         start_date = end_date - timedelta(days=30)
 
-        for enrollment in Enrollment.objects.all()[
-            :50
-        ]:  # Limit to first 50 enrollments
+        for enrollment in Enrollment.objects.all():  # Process all enrollments for complete attendance data
             current_date = start_date
             while current_date <= end_date:
                 # Skip weekends
@@ -1561,3 +1531,118 @@ class Command(BaseCommand):
         self.stdout.write(f"  Created {Schedule.objects.count()} schedules")
         self.stdout.write(f"  Created {Attendance.objects.count()} attendance records")
         self.stdout.write(f"  Created {Announcement.objects.count()} announcements")
+
+    def create_sample_messages(self):
+        """Create sample messages between teachers, students, and parents"""
+        teachers = User.objects.filter(username__contains=".")[:8]
+        students = Student.objects.filter(is_active=True)
+        
+        # Create some parent users for messaging
+        parent_users = []
+        for i, student in enumerate(students[:30]):  # Create parent users for first 30 students
+            parent_user, created = User.objects.get_or_create(
+                username=f"parent{i+1}",
+                defaults={
+                    'first_name': f"Parent{i+1}",
+                    'last_name': student.last_name,
+                    'email': f"parent{i+1}.{student.last_name.lower()}@email.com",
+                    'is_active': True,
+                }
+            )
+            if created:
+                parent_user.set_password("parent123")
+                parent_user.save()
+            parent_users.append(parent_user)
+        
+        if not teachers or not students:
+            self.stdout.write(
+                self.style.WARNING("No teachers or students found. Skipping messages.")
+            )
+            return
+
+        # Sample message data
+        message_data = [
+            ("Assignment Missing", 
+             "Hello, I wanted to let you know that {student_name} has not submitted their math homework assignment that was due yesterday. Please encourage them to complete and submit it by tomorrow. Let me know if there are any issues at home that might be affecting their schoolwork."),
+            
+            ("Great Progress!", 
+             "I'm pleased to inform you that {student_name} has been showing excellent progress in class this week. Their participation has improved significantly and they scored 95% on their recent science test. Keep up the great work!"),
+             
+            ("Parent Conference Request",
+             "I would like to schedule a brief meeting to discuss {student_name}'s progress in English class. There are some strategies we could implement together to help improve their reading comprehension. Are you available next week?"),
+             
+            ("Behavior Concern",
+             "I wanted to discuss {student_name}'s behavior in class today. They were having difficulty staying focused and disrupted the lesson several times. Let's work together to help them be more successful in the classroom."),
+             
+            ("Assignment Reminder",
+             "Hi, just a friendly reminder that {student_name}'s research project is due this Friday. Make sure to include all the required components we discussed in class. Let me know if you need any help!"),
+             
+            ("Excellent Work!",
+             "Great job on the presentation today! {student_name}'s research was thorough and they presented their findings very clearly. Keep up the outstanding work!"),
+             
+            ("Study Tips",
+             "I noticed {student_name} is having some trouble with algebra equations. I've attached some extra practice problems that might help. Remember, my office hours are Tuesday and Thursday after school if you need additional help."),
+             
+            ("Field Trip Permission",
+             "Don't forget to return your signed permission slip for next week's science museum field trip. We need all forms back by Friday. This will be a great educational experience!"),
+             
+            ("Picture Day Reminder",
+             "School pictures will be taken next Tuesday, October 15th. Please make sure your student is dressed appropriately and arrives on time."),
+             
+            ("Report Cards Available",
+             "Quarter report cards are now available in the parent portal. Please review your student's progress and don't hesitate to contact me if you have any questions about their grades."),
+        ]
+
+        # Create messages between teachers and parents
+        messages_created = 0
+        for i in range(50):  # Create 50 sample messages
+            teacher = random.choice(teachers)
+            
+            if i < 30:  # Use students with parent users
+                student = students[i % 30]
+                parent = parent_users[i % 30]
+            else:  # Create messages to any parent user
+                student = random.choice(students[:30])
+                parent = parent_users[students[:30].index(student)]
+            
+            subject, content_template = random.choice(message_data)
+            
+            # Fill in the student name in the template
+            content = content_template.format(student_name=student.first_name)
+            
+            # Create the message
+            message = Message.objects.create(
+                sender=teacher,
+                recipient=parent,
+                subject=subject,
+                content=content,
+                is_read=random.choice([True, False]),
+                is_urgent=random.choice([False, False, False, True]),  # 25% urgent
+                student_context=student,
+            )
+            messages_created += 1
+            
+            # Some messages get replies
+            if random.random() < 0.3:  # 30% get replies
+                reply_content = random.choice([
+                    f"Thank you for letting me know. I'll talk to {student.first_name} about this tonight.",
+                    f"I appreciate you reaching out. {student.first_name} mentioned having some difficulty with this topic.",
+                    f"Thank you for the update. We're very proud of {student.first_name}'s progress!",
+                    f"I'll make sure {student.first_name} focuses on completing assignments on time.",
+                    "Thank you for your message. I'd be happy to schedule a meeting to discuss this further.",
+                    "We appreciate all your hard work with our child. Thank you for keeping us informed.",
+                    f"I'll review {student.first_name}'s homework schedule with them this weekend.",
+                ])
+                
+                reply = Message.objects.create(
+                    sender=parent,
+                    recipient=teacher,
+                    subject=f"Re: {subject}",
+                    content=reply_content,
+                    parent_message=message,
+                    is_read=random.choice([True, False]),
+                    student_context=student,
+                )
+                messages_created += 1
+        
+        self.stdout.write(f"  Created {messages_created} messages")

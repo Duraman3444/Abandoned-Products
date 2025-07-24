@@ -1,0 +1,448 @@
+{% extends "parent_base.html" %}
+{% load static %}
+
+{% block page_title %}Dashboard{% endblock %}
+{% block page_subtitle %}
+    {% if current_child %}
+        Overview for {{ current_child.display_name }}
+    {% else %}
+        Family overview for {{ total_children }} child{{ total_children|pluralize }}
+    {% endif %}
+{% endblock %}
+
+{% block parent_content %}
+{% if error %}
+    <div class="alert alert-warning text-center">
+        <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+        <h4>{{ error }}</h4>
+        <p>Please contact the school office to set up parent portal access.</p>
+        <a href="{% url 'parent_portal:request_verification' %}" class="btn btn-primary">
+            Request Access
+        </a>
+    </div>
+{% else %}
+
+<!-- Current Child Overview (when a specific child is selected) -->
+{% if current_child %}
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stats-card">
+            <div class="text-primary mb-2">
+                <i class="fas fa-chart-line fa-2x"></i>
+            </div>
+            <h3 class="text-primary">{{ current_gpa }}</h3>
+            <p class="text-muted mb-0">Current GPA</p>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stats-card">
+            <div class="text-success mb-2">
+                <i class="fas fa-calendar-check fa-2x"></i>
+            </div>
+            <h3 class="text-success">{{ attendance_summary.attendance_rate }}%</h3>
+            <p class="text-muted mb-0">Attendance Rate</p>
+            {% if today_attendance %}
+                <small class="{% if today_attendance.status == 'P' %}text-success{% elif today_attendance.status == 'A' %}text-danger{% elif today_attendance.status == 'T' %}text-warning{% else %}text-info{% endif %}">
+                    Today: {{ today_attendance.get_status_display }}
+                </small>
+            {% else %}
+                <small class="text-muted">Today: Not recorded</small>
+            {% endif %}
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stats-card">
+            <div class="text-info mb-2">
+                <i class="fas fa-tasks fa-2x"></i>
+            </div>
+            <h3 class="text-info">{{ upcoming_assignments|length }}</h3>
+            <p class="text-muted mb-0">Upcoming Tasks</p>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stats-card">
+            <div class="text-warning mb-2">
+                <i class="fas fa-envelope fa-2x"></i>
+            </div>
+            <h3 class="text-warning">3</h3>
+            <p class="text-muted mb-0">Unread Messages</p>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Today's Schedule -->
+    <div class="col-lg-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-clock text-info me-2"></i>
+                    Today's Schedule
+                </h5>
+                <small class="text-muted">{{ today_date|date:"l, F d, Y" }}</small>
+            </div>
+            <div class="card-body">
+                {% if today_schedule %}
+                    <div class="list-group list-group-flush">
+                        {% for class in today_schedule %}
+                        <div class="list-group-item px-0 py-2">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <strong class="text-primary">{{ class.course }}</strong>
+                                    <div class="small text-muted">{{ class.teacher }}</div>
+                                    {% if class.room %}<small class="text-muted">Room: {{ class.room }}</small>{% endif %}
+                                </div>
+                                <div class="text-end">
+                                    <small class="badge bg-light text-dark">
+                                        {{ class.start_time|time:"g:i A" }} - {{ class.end_time|time:"g:i A" }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center">No classes scheduled for today.</p>
+                {% endif %}
+                
+                <!-- Today's Events -->
+                {% if today_events %}
+                    <hr>
+                    <h6 class="mb-2">
+                        <i class="fas fa-star text-warning me-1"></i>
+                        Today's Events
+                    </h6>
+                    {% for event in today_events %}
+                    <div class="alert alert-{% if event.event_type == 'holiday' %}success{% elif event.event_type == 'early_dismissal' %}warning{% else %}info{% endif %} py-2 mb-2">
+                        <small>
+                            <strong>{{ event.title }}</strong>
+                            {% if event.event_type == 'early_dismissal' and event.dismissal_time %}
+                                <br><i class="fas fa-clock me-1"></i>Early dismissal at {{ event.dismissal_time|time:"g:i A" }}
+                            {% endif %}
+                        </small>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Attendance Overview -->
+    <div class="col-lg-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-calendar-check text-success me-2"></i>
+                    Attendance Overview
+                </h5>
+            </div>
+            <div class="card-body">
+                <!-- Attendance Summary -->
+                <div class="mb-3">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <small class="text-muted d-block">Present Days</small>
+                            <strong class="text-success">{{ attendance_summary.present_days }}</strong>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted d-block">Absent Days</small>
+                            <strong class="text-danger">{{ attendance_summary.absent_days }}</strong>
+                        </div>
+                    </div>
+                    <div class="row text-center mt-2">
+                        <div class="col-6">
+                            <small class="text-muted d-block">Tardy Days</small>
+                            <strong class="text-warning">{{ attendance_summary.tardy_days }}</strong>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted d-block">Total Days</small>
+                            <strong class="text-primary">{{ attendance_summary.total_days }}</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Attendance -->
+                {% if recent_attendance %}
+                    <hr>
+                    <h6 class="mb-2">Recent Days</h6>
+                    <div class="list-group list-group-flush">
+                        {% for attendance in recent_attendance|slice:":5" %}
+                        <div class="list-group-item px-0 py-1 d-flex justify-content-between align-items-center">
+                            <small>{{ attendance.date|date:"M d" }}</small>
+                            <span class="badge {% if attendance.status == 'P' %}bg-success{% elif attendance.status == 'A' %}bg-danger{% elif attendance.status == 'T' %}bg-warning text-dark{% else %}bg-info{% endif %}">
+                                {{ attendance.get_status_display }}
+                            </span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <!-- Attendance Patterns -->
+                {% if attendance_patterns %}
+                    {% if attendance_patterns.consecutive_absences > 0 or attendance_patterns.frequent_tardiness %}
+                    <hr>
+                    <h6 class="mb-2 text-warning">Attendance Alerts</h6>
+                    {% if attendance_patterns.consecutive_absences > 1 %}
+                        <div class="alert alert-warning py-2">
+                            <small><i class="fas fa-exclamation-triangle me-1"></i>{{ attendance_patterns.consecutive_absences }} consecutive absences</small>
+                        </div>
+                    {% endif %}
+                    {% if attendance_patterns.frequent_tardiness %}
+                        <div class="alert alert-info py-2">
+                            <small><i class="fas fa-clock me-1"></i>Frequent tardiness pattern detected</small>
+                        </div>
+                    {% endif %}
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Grades -->
+    <div class="col-lg-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-graduation-cap text-primary me-2"></i>
+                    Recent Grades
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if recent_grades %}
+                    <div class="list-group list-group-flush">
+                        {% for grade in recent_grades %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <div>
+                                <strong>{{ grade.course }}</strong>
+                                <div class="small text-muted">{{ grade.assignment }}</div>
+                                <small class="text-muted">{{ grade.date|date:"M d, Y" }}</small>
+                            </div>
+                            <div class="text-end">
+                                {% if grade.letter_grade %}
+                                    <span class="badge bg-primary rounded-pill">{{ grade.letter_grade }}</span>
+                                {% endif %}
+                                <div class="small text-muted">
+                                    {{ grade.points_earned }}/{{ grade.max_points }}
+                                    {% if grade.percentage %}({{ grade.percentage }}%){% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="text-center mt-3">
+                        <a href="{% url 'parent_portal:grades_current' %}{% if request.GET.child %}?child={{ request.GET.child }}{% endif %}" class="btn btn-outline-primary me-2">
+                            View All Grades
+                        </a>
+                        <a href="{% url 'parent_portal:progress_report_current' %}{% if request.GET.child %}?child={{ request.GET.child }}{% endif %}" class="btn btn-outline-success">
+                            Progress Report
+                        </a>
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center">No recent grades available.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Upcoming Assignments -->
+    <div class="col-lg-12 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-calendar-alt text-info me-2"></i>
+                    Upcoming Assignments
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if upcoming_assignments %}
+                    <div class="list-group list-group-flush">
+                        {% for assignment in upcoming_assignments %}
+                        <div class="list-group-item px-0">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <strong>{{ assignment.title }}</strong>
+                                    <div class="small text-muted">{{ assignment.course }} • {{ assignment.category }}</div>
+                                    <small class="text-muted">
+                                        {% if assignment.max_points %}{{ assignment.max_points }} points{% endif %}
+                                        {% if assignment.has_grade %}• <span class="text-success">Graded</span>{% endif %}
+                                    </small>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge {% if assignment.is_overdue %}bg-danger{% else %}bg-warning{% endif %}">
+                                        {{ assignment.due_date|date:"M d" }}
+                                        {% if assignment.due_time %} {{ assignment.due_time|time:"g:i A" }}{% endif %}
+                                    </span>
+                                    {% if assignment.is_overdue %}
+                                        <div class="small text-danger">Overdue</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center">No upcoming assignments.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Family Overview (when no specific child selected or multiple children) -->
+{% if children|length > 1 %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-users text-primary me-2"></i>
+                    All Children Overview
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for child_data in children_summary %}
+                    <div class="col-lg-4 col-md-6 mb-3">
+                        <div class="card h-100 {% if child_data.student == current_child %}border-success{% endif %}">
+                            <div class="card-body text-center">
+                                <div class="mb-3">
+                                    {% if child_data.student.photo %}
+                                        <img src="{{ child_data.student.photo.url }}" 
+                                             class="rounded-circle" 
+                                             style="width: 60px; height: 60px; object-fit: cover;">
+                                    {% else %}
+                                        <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center" 
+                                             style="width: 60px; height: 60px;">
+                                            <i class="fas fa-user fa-2x"></i>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <h6 class="card-title">{{ child_data.student.display_name }}</h6>
+                                <p class="text-muted small mb-2">
+                                    {{ child_data.student.grade_level.name }} • ID: {{ child_data.student.student_id }}
+                                </p>
+                                <div class="row text-center">
+                                    <div class="col-6">
+                                        <small class="text-muted d-block">GPA</small>
+                                        <strong class="text-primary">{{ child_data.current_gpa }}</strong>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted d-block">Attendance</small>
+                                        <strong class="text-success">{{ child_data.attendance_rate }}%</strong>
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <a href="?child={{ child_data.student.id }}" class="btn btn-outline-primary btn-sm">
+                                        View Details
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Upcoming School Events -->
+{% if upcoming_events %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-calendar text-primary me-2"></i>
+                    Upcoming School Events
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for event in upcoming_events %}
+                    <div class="col-lg-4 col-md-6 mb-3">
+                        <div class="card h-100 border-start border-4" style="border-left-color: {{ event.color }} !important;">
+                            <div class="card-body p-3">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h6 class="card-title mb-1">{{ event.title }}</h6>
+                                    <span class="badge {% if event.event_type == 'holiday' %}bg-success{% elif event.event_type == 'early_dismissal' %}bg-warning text-dark{% elif event.event_type == 'no_school' %}bg-danger{% else %}bg-info{% endif %}">
+                                        {{ event.get_event_type_display }}
+                                    </span>
+                                </div>
+                                <p class="card-text small text-muted mb-2">
+                                    {% if event.is_single_day %}
+                                        <i class="fas fa-calendar-day me-1"></i>
+                                        {{ event.start_date|date:"M d, Y" }}
+                                    {% else %}
+                                        <i class="fas fa-calendar-alt me-1"></i>
+                                        {{ event.start_date|date:"M d" }} - {{ event.end_date|date:"M d, Y" }}
+                                    {% endif %}
+                                    {% if event.start_time %}
+                                        <br><i class="fas fa-clock me-1"></i>
+                                        {{ event.start_time|time:"g:i A" }}
+                                        {% if event.end_time %} - {{ event.end_time|time:"g:i A" }}{% endif %}
+                                    {% endif %}
+                                    {% if event.event_type == 'early_dismissal' and event.dismissal_time %}
+                                        <br><i class="fas fa-sign-out-alt me-1"></i>
+                                        Dismissal: {{ event.dismissal_time|time:"g:i A" }}
+                                    {% endif %}
+                                </p>
+                                {% if event.description %}
+                                    <p class="card-text small">{{ event.description|truncatechars:80 }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- School Announcements -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-bullhorn text-warning me-2"></i>
+                    School Announcements
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if announcements %}
+                    {% for announcement in announcements %}
+                    <div class="alert alert-{% if announcement.urgent %}warning{% else %}info{% endif %} mb-3">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="alert-heading mb-1">
+                                    {% if announcement.urgent %}
+                                        <i class="fas fa-exclamation-triangle me-1"></i>
+                                    {% endif %}
+                                    {{ announcement.title }}
+                                </h6>
+                                <p class="mb-1">{{ announcement.message }}</p>
+                                <small class="text-muted">
+                                    <i class="fas fa-calendar me-1"></i>
+                                    {{ announcement.date|date:"M d, Y" }}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted text-center">No current announcements.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endif %}
+{% endblock %}

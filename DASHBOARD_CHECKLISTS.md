@@ -170,114 +170,114 @@
   - ~~**🧪 Test**: Export custom reports to PDF and Excel formats~~
 
 ### 📱 **Mobile & Usability** (Priority 3)
-- [ ] Mobile-responsive design
-  - **🧪 Test**: All features accessible on smartphones (grade entry, attendance)
-  - **🧪 Test**: Touch targets sized appropriately for finger navigation
-  - **🧪 Test**: Horizontal scrolling works for gradebook on mobile
-- [ ] Quick action buttons (common tasks)
-  - **🧪 Test**: Quick attendance button takes <3 clicks to mark all present
-  - **🧪 Test**: Quick grade entry shortcuts work with keyboard navigation
-  - **🧪 Test**: Most common actions accessible from dashboard
-- [ ] Keyboard shortcuts for power users
-  - **🧪 Test**: Arrow keys navigate between grade cells
-  - **🧪 Test**: Tab key moves through attendance list
-  - **🧪 Test**: Keyboard shortcuts documented and discoverable
-- [ ] Dark mode support
+- [x] Mobile-responsive design
+  - ~~**🧪 Test**: All features accessible on smartphones (grade entry, attendance)~~
+  - ~~**🧪 Test**: Touch targets sized appropriately for finger navigation~~
+  - ~~**🧪 Test**: Horizontal scrolling works for gradebook on mobile~~
+- [x] Quick action buttons (common tasks)
+  - ~~**🧪 Test**: Quick attendance button takes <3 clicks to mark all present~~
+  - ~~**🧪 Test**: Quick grade entry shortcuts work with keyboard navigation~~
+  - ~~**🧪 Test**: Most common actions accessible from dashboard~~
+- [x] Keyboard shortcuts for power users
+  - ~~**🧪 Test**: Arrow keys navigate between grade cells~~
+  - ~~**🧪 Test**: Tab key moves through attendance list~~
+  - ~~**🧪 Test**: Keyboard shortcuts documented and discoverable~~
+- [ ] Dark mode support (REMOVED - interfered with login UI)
   - **🧪 Test**: Toggle dark mode → all colors and contrast ratios appropriate
   - **🧪 Test**: Dark mode preference persists across sessions
   - **🧪 Test**: Gradebook remains readable in dark mode
-- [ ] Accessibility compliance (ARIA labels)
-  - **🧪 Test**: Screen reader can navigate entire interface
-  - **🧪 Test**: All form inputs have appropriate labels
-  - **🧪 Test**: Color blind users can distinguish grade status indicators
-- [ ] Print-friendly views
-  - **🧪 Test**: Print gradebook → readable layout without navigation elements
-  - **🧪 Test**: Print attendance sheets → proper formatting for paper use
-  - **🧪 Test**: Print preview shows accurate layout
+- [x] Accessibility compliance (ARIA labels)
+  - ~~**🧪 Test**: Screen reader can navigate entire interface~~
+  - ~~**🧪 Test**: All form inputs have appropriate labels~~
+  - ~~**🧪 Test**: Color blind users can distinguish grade status indicators~~
+- [x] Print-friendly views
+  - ~~**🧪 Test**: Print gradebook → readable layout without navigation elements~~
+  - ~~**🧪 Test**: Print attendance sheets → proper formatting for paper use~~
+  - ~~**🧪 Test**: Print preview shows accurate layout~~
 
 ---
 
 ## 👨‍👩‍👧‍👦 Parents Dashboard Checklist
 
 ### 🏗️ **Core Infrastructure** (Priority 1)
-- [ ] Parent authentication and account linking
-  - **🧪 Test**: Parent can create account and link to student via verification code
-  - **🧪 Test**: Account linking prevents access to wrong student data
-  - **🧪 Test**: Single sign-on works if school uses external authentication
-- [ ] Multiple child support (families with several students)
-  - **🧪 Test**: Parent with 3 children can switch between them seamlessly
-  - **🧪 Test**: Child-specific data never mixed between siblings
-  - **🧪 Test**: Combined view shows all children's important updates
-- [ ] Privacy controls and data access permissions
-  - **🧪 Test**: Parents see only their child's data, not other students
-  - **🧪 Test**: Divorced parents have appropriate access controls
-  - **🧪 Test**: Data sharing preferences can be customized per parent
-- [ ] Mobile-first responsive design
-  - **🧪 Test**: Parent portal fully functional on smartphones
-  - **🧪 Test**: Touch interactions work smoothly (swipe, tap, pinch)
-  - **🧪 Test**: App-like experience when added to home screen
+- [x] Parent authentication and account linking
+  - ~~**🧪 Test**: Parent can create account and link to student via verification code~~
+  - ~~**🧪 Test**: Account linking prevents access to wrong student data~~
+  - ~~**🧪 Test**: Single sign-on works if school uses external authentication~~
+- [x] Multiple child support (families with several students)
+  - ~~**🧪 Test**: Parent with 3 children can switch between them seamlessly~~
+  - ~~**🧪 Test**: Child-specific data never mixed between siblings~~
+  - ~~**🧪 Test**: Combined view shows all children's important updates~~
+- [x] Privacy controls and data access permissions
+  - ~~**🧪 Test**: Parents see only their child's data, not other students~~
+  - ~~**🧪 Test**: Divorced parents have appropriate access controls~~
+  - ~~**🧪 Test**: Data sharing preferences can be customized per parent~~
+- [x] Mobile-first responsive design
+  - ~~**🧪 Test**: Parent portal fully functional on smartphones~~
+  - ~~**🧪 Test**: Touch interactions work smoothly (swipe, tap, pinch)~~
+  - ~~**🧪 Test**: App-like experience when added to home screen~~
 - [ ] Multi-language support (if needed)
   - **🧪 Test**: Interface translates completely to Spanish/other languages
   - **🧪 Test**: Grades and academic terms localized appropriately
   - **🧪 Test**: Language preference persists across sessions
 
 ### 📊 **Academic Overview** (Priority 1)
-- [ ] Real-time grade viewing
-  - **🧪 Test**: New grades appear within 15 minutes of teacher entry
-  - **🧪 Test**: Grade changes update immediately without page refresh
-  - **🧪 Test**: Grade history shows all revisions with timestamps
-- [ ] Assignment status and due dates
-  - **🧪 Test**: Upcoming assignments visible with countdown timers
-  - **🧪 Test**: Missing assignments clearly flagged in red
-  - **🧪 Test**: Completed assignments show submission timestamps
-- [ ] Progress reports and report cards
-  - **🧪 Test**: Generate current progress report → matches teacher's gradebook
-  - **🧪 Test**: Historical report cards accessible for previous terms
-  - **🧪 Test**: Report cards can be downloaded as PDF
-- [ ] Grade trend visualizations
-  - **🧪 Test**: Grade trends shown as line graphs over time
-  - **🧪 Test**: Subject-specific trend analysis available
-  - **🧪 Test**: Trends identify improving vs declining performance
-- [ ] Missing assignment alerts
-  - **🧪 Test**: Missing assignments trigger email/SMS notifications
-  - **🧪 Test**: Multiple missing assignments escalate alert priority
-  - **🧪 Test**: Alerts stop when assignments are submitted
+- [x] Real-time grade viewing
+  - ~~**🧪 Test**: New grades appear within 15 minutes of teacher entry~~
+  - ~~**🧪 Test**: Grade changes update immediately without page refresh~~
+  - ~~**🧪 Test**: Grade history shows all revisions with timestamps~~
+- [x] Assignment status and due dates
+  - ~~**🧪 Test**: Upcoming assignments visible with countdown timers~~
+  - ~~**🧪 Test**: Missing assignments clearly flagged in red~~
+  - ~~**🧪 Test**: Completed assignments show submission timestamps~~
+- [x] Progress reports and report cards
+  - ~~**🧪 Test**: Generate current progress report → matches teacher's gradebook~~
+  - ~~**🧪 Test**: Historical report cards accessible for previous terms~~
+  - ~~**🧪 Test**: Report cards can be downloaded as PDF~~
+- [x] Grade trend visualizations
+  - ~~**🧪 Test**: Grade trends shown as line graphs over time~~
+  - ~~**🧪 Test**: Subject-specific trend analysis available~~
+  - ~~**🧪 Test**: Trends identify improving vs declining performance~~
+- [x] Missing assignment alerts
+  - ~~**🧪 Test**: Missing assignments trigger email/SMS notifications~~
+  - ~~**🧪 Test**: Multiple missing assignments escalate alert priority~~
+  - ~~**🧪 Test**: Alerts stop when assignments are submitted~~
 - [ ] Academic calendar integration
   - **🧪 Test**: School calendar events appear with personal assignments
   - **🧪 Test**: Test dates and project due dates highlighted
   - **🧪 Test**: Calendar can be exported to Google/Apple calendars
 
 ### 📅 **Attendance & Schedule** (Priority 1)
-- [ ] Daily attendance status
-  - **🧪 Test**: Today's attendance status visible prominently on dashboard
-  - **🧪 Test**: Absence notifications sent within 30 minutes
-  - **🧪 Test**: Tardiness and early dismissals tracked separately
-- [ ] Class schedule display
-  - **🧪 Test**: Current day's schedule prominently displayed
-  - **🧪 Test**: Room changes and schedule modifications updated immediately
+- [x] Daily attendance status
+  - ~~**🧪 Test**: Today's attendance status visible prominently on dashboard~~
+  - ~~**🧪 Test**: Absence notifications sent within 30 minutes~~
+  - ~~**🧪 Test**: Tardiness and early dismissals tracked separately~~
+- [x] Class schedule display
+  - ~~**🧪 Test**: Current day's schedule prominently displayed~~
+  - ~~**🧪 Test**: Room changes and schedule modifications updated immediately~~
   - **🧪 Test**: Schedule can be viewed by day, week, or full term
-- [ ] Absence history and patterns
-  - **🧪 Test**: Absence calendar shows clear absence patterns
-  - **🧪 Test**: Absence reasons displayed (excused vs unexcused)
-  - **🧪 Test**: Attendance percentage calculated accurately
-- [ ] School calendar integration
-  - **🧪 Test**: School holidays and events appear on family calendar
-  - **🧪 Test**: Early dismissal days clearly marked
+- [x] Absence history and patterns
+  - ~~**🧪 Test**: Absence calendar shows clear absence patterns~~
+  - ~~**🧪 Test**: Absence reasons displayed (excused vs unexcused)~~
+  - ~~**🧪 Test**: Attendance percentage calculated accurately~~
+- [x] School calendar integration
+  - ~~**🧪 Test**: School holidays and events appear on family calendar~~
+  - ~~**🧪 Test**: Early dismissal days clearly marked~~
   - **🧪 Test**: Calendar syncs with external calendar apps
-- [ ] Early dismissal requests
-  - **🧪 Test**: Submit early dismissal request → school office notified
-  - **🧪 Test**: Request status updates visible to parent
-  - **🧪 Test**: Recurring requests (medical appointments) can be scheduled
-- [ ] Attendance notifications
-  - **🧪 Test**: Parents notified of absences via preferred method (email/SMS)
+- [x] Early dismissal requests
+  - ~~**🧪 Test**: Submit early dismissal request → school office notified~~
+  - ~~**🧪 Test**: Request status updates visible to parent~~
+  - ~~**🧪 Test**: Recurring requests (medical appointments) can be scheduled~~
+- [x] Attendance notifications
+  - ~~**🧪 Test**: Parents notified of absences via preferred method (email/SMS)~~
   - **🧪 Test**: Attendance alerts can be customized (immediate vs daily summary)
-  - **🧪 Test**: Both parents receive notifications when applicable
+  - ~~**🧪 Test**: Both parents receive notifications when applicable~~
 
 ### 💬 **Communication Hub** (Priority 2)
-- [ ] Teacher messaging interface
-  - **🧪 Test**: Send message to teacher → delivered and read receipt available
-  - **🧪 Test**: Attach files to messages → teachers can download attachments
-  - **🧪 Test**: Message threads maintain conversation context
+- [x] Teacher messaging interface
+  - ~~**🧪 Test**: Send message to teacher → delivered and read receipt available~~
+  - ~~**🧪 Test**: Attach files to messages → teachers can download attachments~~
+  - ~~**🧪 Test**: Message threads maintain conversation context~~
 - [ ] School announcements viewing
   - **🧪 Test**: All school announcements visible in chronological order
   - **🧪 Test**: Important announcements pinned at top
@@ -290,14 +290,14 @@
   - **🧪 Test**: Customize notification frequency (immediate, daily, weekly)
   - **🧪 Test**: Choose between email, SMS, or both for different alert types
   - **🧪 Test**: Notification preferences apply correctly to all communications
-- [ ] Message history and archiving
-  - **🧪 Test**: Search message history by teacher, date, or keyword
-  - **🧪 Test**: Archive old conversations while keeping important ones accessible
-  - **🧪 Test**: Message export functionality for record keeping
-- [ ] Emergency contact updates
-  - **🧪 Test**: Update emergency contacts → changes reflected in school system
-  - **🧪 Test**: Add/remove authorized pickup persons
-  - **🧪 Test**: Medical information updates propagate to school nurse
+- [x] Message history and archiving
+  - ~~**🧪 Test**: Search message history by teacher, date, or keyword~~
+  - ~~**🧪 Test**: Archive old conversations while keeping important ones accessible~~
+  - ~~**🧪 Test**: Message export functionality for record keeping~~
+- [x] Emergency contact updates
+  - ~~**🧪 Test**: Update emergency contacts → changes reflected in school system~~
+  - ~~**🧪 Test**: Add/remove authorized pickup persons~~
+  - ~~**🧪 Test**: Medical information updates propagate to school nurse~~
 
 ### 📱 **Mobile Features** (Priority 2)
 - [ ] Push notifications for important updates

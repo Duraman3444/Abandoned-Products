@@ -1,0 +1,271 @@
+{% extends "parent_base.html" %}
+{% load static %}
+
+{% block page_title %}Progress Report{% endblock %}
+{% block page_subtitle %}
+    Comprehensive academic report for {{ student.display_name }}
+{% endblock %}
+
+{% block parent_content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h4 class="mb-1">{{ report_data.school_year.name }} Progress Report</h4>
+                <p class="text-muted mb-0">Generated on {{ report_data.generated_date|date:"F d, Y \a\t g:i A" }}</p>
+            </div>
+            <div>
+                <a href="{% url 'parent_portal:historical_reports_current' %}{% if request.GET.child %}?child={{ request.GET.child }}{% endif %}" 
+                   class="btn btn-outline-secondary me-2">
+                    <i class="fas fa-history me-2"></i>Historical Reports
+                </a>
+                <a href="{% url 'parent_portal:progress_report_pdf_current' %}{% if request.GET.child %}?child={{ request.GET.child }}{% endif %}" 
+                   class="btn btn-primary">
+                    <i class="fas fa-download me-2"></i>Download PDF
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Student Summary -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stats-card">
+            <div class="text-primary mb-2">
+                <i class="fas fa-graduation-cap fa-2x"></i>
+            </div>
+            <h3 class="text-primary">{{ report_data.overall_gpa }}</h3>
+            <p class="text-muted mb-0">Overall GPA</p>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stats-card">
+            <div class="text-info mb-2">
+                <i class="fas fa-book fa-2x"></i>
+            </div>
+            <h3 class="text-info">{{ report_data.total_credits }}</h3>
+            <p class="text-muted mb-0">Total Credits</p>
+        </div>
+    </div>
+    {% if report_data.attendance_summary %}
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stats-card">
+            <div class="text-success mb-2">
+                <i class="fas fa-calendar-check fa-2x"></i>
+            </div>
+            <h3 class="text-success">{{ report_data.attendance_summary.attendance_rate }}%</h3>
+            <p class="text-muted mb-0">Attendance Rate</p>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stats-card">
+            <div class="text-warning mb-2">
+                <i class="fas fa-calendar-times fa-2x"></i>
+            </div>
+            <h3 class="text-warning">{{ report_data.attendance_summary.absent_days }}</h3>
+            <p class="text-muted mb-0">Days Absent</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Course Grades -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-bar text-primary me-2"></i>
+                    Course Grades
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if report_data.courses %}
+                    {% for course in report_data.courses %}
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <h6 class="mb-1">{{ course.code }}: {{ course.name }}</h6>
+                                    <small class="text-muted">
+                                        {{ course.teacher }} • Section {{ course.section }} • {{ course.credit_hours }} credits
+                                    </small>
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <div class="d-flex align-items-center justify-content-end">
+                                        <div class="text-end me-3">
+                                            <div class="h5 mb-0 text-primary">{{ course.current_grade }}</div>
+                                            {% if course.percentage %}
+                                                <small class="text-muted">{{ course.percentage }}%</small>
+                                            {% endif %}
+                                        </div>
+                                        <div class="progress-circle">
+                                            {% if course.percentage %}
+                                                <svg width="50" height="50">
+                                                    <circle cx="25" cy="25" r="20" stroke="#e9ecef" stroke-width="4" fill="transparent"/>
+                                                    <circle cx="25" cy="25" r="20" 
+                                                            stroke="{% if course.percentage >= 90 %}#28a745{% elif course.percentage >= 80 %}#17a2b8{% elif course.percentage >= 70 %}#ffc107{% else %}#dc3545{% endif %}" 
+                                                            stroke-width="4" fill="transparent"
+                                                            stroke-dasharray="{{ course.percentage|floatformat:0|mul:1.256 }} 125.6"
+                                                            stroke-dashoffset="31.4"
+                                                            transform="rotate(-90 25 25)"/>
+                                                </svg>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            {% if course.assignment_categories %}
+                                <div class="row">
+                                    {% for category, data in course.assignment_categories.items %}
+                                    <div class="col-md-6 col-lg-4 mb-3">
+                                        <div class="border rounded p-3">
+                                            <h6 class="text-primary mb-2">{{ category }}</h6>
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <span class="text-muted">Average:</span>
+                                                <strong>
+                                                    {% if data.average %}
+                                                        {{ data.average }}%
+                                                    {% else %}
+                                                        N/A
+                                                    {% endif %}
+                                                </strong>
+                                            </div>
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <span class="text-muted">Points:</span>
+                                                <strong>{{ data.earned_points|floatformat:1 }}/{{ data.total_points|floatformat:1 }}</strong>
+                                            </div>
+                                            <small class="text-muted">{{ data.count }} assignment{{ data.count|pluralize }}</small>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p class="text-muted text-center">No graded assignments yet.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-book-open fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No courses found</h5>
+                        <p class="text-muted">No course enrollments found for this student.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Attendance Summary -->
+{% if report_data.attendance_summary %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-calendar-alt text-success me-2"></i>
+                    Attendance Summary
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 text-center mb-3">
+                        <div class="border rounded p-3">
+                            <i class="fas fa-calendar fa-2x text-primary mb-2"></i>
+                            <h4 class="text-primary mb-1">{{ report_data.attendance_summary.total_days }}</h4>
+                            <small class="text-muted">Total School Days</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-center mb-3">
+                        <div class="border rounded p-3">
+                            <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                            <h4 class="text-success mb-1">{{ report_data.attendance_summary.present_days }}</h4>
+                            <small class="text-muted">Days Present</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-center mb-3">
+                        <div class="border rounded p-3">
+                            <i class="fas fa-times-circle fa-2x text-danger mb-2"></i>
+                            <h4 class="text-danger mb-1">{{ report_data.attendance_summary.absent_days }}</h4>
+                            <small class="text-muted">Days Absent</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-center mb-3">
+                        <div class="border rounded p-3">
+                            <i class="fas fa-clock fa-2x text-warning mb-2"></i>
+                            <h4 class="text-warning mb-1">{{ report_data.attendance_summary.tardy_days }}</h4>
+                            <small class="text-muted">Days Tardy</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Attendance Rate Visualization -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <h6 class="mb-3">Attendance Rate: {{ report_data.attendance_summary.attendance_rate }}%</h6>
+                        <div class="progress mb-2" style="height: 25px;">
+                            <div class="progress-bar 
+                                {% if report_data.attendance_summary.attendance_rate >= 95 %}bg-success
+                                {% elif report_data.attendance_summary.attendance_rate >= 90 %}bg-info
+                                {% elif report_data.attendance_summary.attendance_rate >= 85 %}bg-warning
+                                {% else %}bg-danger{% endif %}"
+                                role="progressbar" 
+                                style="width: {{ report_data.attendance_summary.attendance_rate }}%"
+                                aria-valuenow="{{ report_data.attendance_summary.attendance_rate }}" 
+                                aria-valuemin="0" 
+                                aria-valuemax="100">
+                                {{ report_data.attendance_summary.attendance_rate }}%
+                            </div>
+                        </div>
+                        <small class="text-muted">
+                            {% if report_data.attendance_summary.attendance_rate >= 95 %}
+                                Excellent attendance!
+                            {% elif report_data.attendance_summary.attendance_rate >= 90 %}
+                                Good attendance
+                            {% elif report_data.attendance_summary.attendance_rate >= 85 %}
+                                Attendance needs improvement
+                            {% else %}
+                                Poor attendance - please contact the school
+                            {% endif %}
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<style>
+.progress-circle {
+    transform: rotate(-90deg);
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+@media print {
+    .btn, .navbar, .sidebar-parent {
+        display: none !important;
+    }
+    
+    .main-content {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    .card {
+        border: 1px solid #dee2e6 !important;
+        box-shadow: none !important;
+        page-break-inside: avoid;
+    }
+}
+</style>
+{% endblock %}

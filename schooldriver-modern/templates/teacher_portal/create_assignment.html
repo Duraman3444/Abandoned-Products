@@ -109,7 +109,7 @@
                     </div>
                     
                     <div class="d-flex justify-content-between">
-                        <a href="{% url 'teacher_assignments' %}{% if current_section %}?section={{ current_section.id }}{% endif %}" 
+                        <a href="{% url 'teacher_portal:teacher_assignments' %}{% if current_section %}?section={{ current_section.id }}{% endif %}" 
                            class="btn btn-secondary">
                             <i class="fas fa-arrow-left me-2"></i>Cancel
                         </a>
@@ -172,4 +172,103 @@ document.addEventListener('DOMContentLoaded', function() {
     dueDateInput.addEventListener('change', validateDates);
 });
 </script>
+
+<style>
+/* Fix Button Text Visibility - Override dashboard.css */
+.btn, .btn *, .btn i, .btn span {
+    color: white !important;  
+    text-shadow: none !important;
+}
+
+.btn-primary, .btn-primary *, .btn-primary i, .btn-primary span {
+    color: white !important;
+    background-color: #0d6efd !important;
+}
+
+.btn-success, .btn-success *, .btn-success i, .btn-success span {
+    color: white !important;
+    background-color: #198754 !important;
+}
+
+.btn-info, .btn-info *, .btn-info i, .btn-info span {
+    color: white !important;
+    background-color: #0dcaf0 !important;
+}
+
+.btn-warning, .btn-warning *, .btn-warning i, .btn-warning span {
+    color: white !important;
+    background-color: #ffc107 !important;
+}
+
+.btn-danger, .btn-danger *, .btn-danger i, .btn-danger span {
+    color: white !important;
+    background-color: #dc3545 !important;
+}
+
+.btn-secondary, .btn-secondary *, .btn-secondary i, .btn-secondary span {
+    color: white !important;
+    background-color: #6c757d !important;
+}
+
+/* Form elements visibility */
+.form-control, .form-select, .form-textarea {
+    background-color: var(--bg-primary, #ffffff) !important;
+    border-color: var(--border-color, #ced4da) !important;
+    color: var(--text-primary, #000000) !important;
+}
+
+.form-label {
+    color: var(--text-primary, #000000) !important;
+    font-weight: 500 !important;
+}
+
+.form-text {
+    color: var(--text-secondary, #6c757d) !important;
+}
+
+/* Card content */
+.card {
+    background-color: var(--bg-secondary, #ffffff) !important;
+    border-color: var(--border-color, #dee2e6) !important;
+}
+
+.card-header {
+    background-color: var(--bg-tertiary, #f8f9fa) !important;
+    border-color: var(--border-color, #dee2e6) !important;
+}
+
+.card-body {
+    color: var(--text-primary, #000000) !important;
+    background-color: var(--bg-secondary, #ffffff) !important;
+}
+
+/* Badge styling */
+.badge {
+    color: white !important;
+}
+
+/* Text elements */
+.text-danger {
+    color: #dc3545 !important;
+}
+
+.text-muted {
+    color: var(--text-secondary, #6c757d) !important;
+}
+
+/* Override any conflicting dashboard.css rules */
+.teacher-content .btn,
+.teacher-content .btn *,
+.card-body .btn,
+.card-body .btn * {
+    color: white !important;
+}
+
+.teacher-content .form-control,
+.teacher-content .form-select,
+.card-body .form-control,
+.card-body .form-select {
+    color: var(--text-primary, #000000) !important;
+}
+</style>
 {% endblock %}

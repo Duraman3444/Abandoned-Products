@@ -1,0 +1,299 @@
+{% extends 'teacher_base.html' %}
+{% load static %}
+
+{% block title %}Assignment Analytics - Teacher Portal{% endblock %}
+
+{% block teacher_content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2><i class="fas fa-chart-bar text-warning me-2"></i>Assignment Analytics</h2>
+                    <p class="text-muted mb-0">Comprehensive analytics for {{ analytics_data.section.course.name }}</p>
+                </div>
+                <div>
+                    <a href="{% url 'teacher_portal:teacher_assignments' %}?section={{ analytics_data.section.id }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Assignments
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Form -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-filter me-2"></i>Filter Analytics</h5>
+                </div>
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <input type="hidden" name="section" value="{{ analytics_data.section.id }}">
+                        
+                        <div class="col-md-3">
+                            {{ filter_form.category.label_tag }}
+                            {{ filter_form.category }}
+                        </div>
+                        <div class="col-md-3">
+                            {{ filter_form.date_start.label_tag }}
+                            {{ filter_form.date_start }}
+                        </div>
+                        <div class="col-md-3">
+                            {{ filter_form.date_end.label_tag }}
+                            {{ filter_form.date_end }}
+                        </div>
+                        <div class="col-md-3">
+                            {{ filter_form.completion_threshold.label_tag }}
+                            {{ filter_form.completion_threshold }}
+                        </div>
+                        <div class="col-12">
+                            <div class="form-check">
+                                {{ filter_form.include_unpublished }}
+                                {{ filter_form.include_unpublished.label_tag }}
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search me-2"></i>Apply Filters
+                            </button>
+                            <a href="{% url 'teacher_portal:assignment_analytics' %}?section={{ analytics_data.section.id }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-undo me-2"></i>Reset
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analytics Overview -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="text-white">Total Assignments</h6>
+                            <h3 class="mb-0">{{ analytics_data.total_assignments }}</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-tasks fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="text-white">Published</h6>
+                            <h3 class="mb-0">{{ analytics_data.published_assignments }}</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-eye fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="text-white">Overdue</h6>
+                            <h3 class="mb-0">{{ analytics_data.overdue_assignments }}</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-clock fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="text-white">Below Threshold</h6>
+                            <h3 class="mb-0">{{ analytics_data.assignments_below_threshold }}</h3>
+                            <small class="text-white-50">(&lt; {{ completion_threshold }}% completion)</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-exclamation-triangle fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Average Completion Rate -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-percentage me-2"></i>Average Completion Rate</h5>
+                </div>
+                <div class="card-body text-center">
+                    <h2 class="text-primary">{{ analytics_data.average_completion_rate|floatformat:1 }}%</h2>
+                    <div class="progress progress-lg">
+                        <div class="progress-bar" role="progressbar" 
+                             style="width: {{ analytics_data.average_completion_rate }}%" 
+                             aria-valuenow="{{ analytics_data.average_completion_rate }}" 
+                             aria-valuemin="0" aria-valuemax="100">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-layer-group me-2"></i>Category Breakdown</h5>
+                </div>
+                <div class="card-body">
+                    {% if analytics_data.category_breakdown %}
+                        {% for category in analytics_data.category_breakdown %}
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span>{{ category.category__name|default:"Uncategorized" }}</span>
+                            <span class="badge bg-secondary">{{ category.count }} assignments</span>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted">No category data available</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Assignment Details -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-list me-2"></i>Assignment Details</h5>
+                </div>
+                <div class="card-body">
+                    {% if assignments %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Assignment</th>
+                                    <th>Category</th>
+                                    <th>Due Date</th>
+                                    <th>Max Points</th>
+                                    <th>Status</th>
+                                    <th>Completion Rate</th>
+                                    <th>Avg Score</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for assignment in assignments %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ assignment.name }}</strong>
+                                        {% if assignment.description %}
+                                            <br><small class="text-muted">{{ assignment.description|truncatechars:50 }}</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if assignment.category %}
+                                            <span class="badge bg-info">{{ assignment.category.name }}</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Uncategorized</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {{ assignment.due_date|date:"M j, Y" }}
+                                        {% if assignment.is_overdue %}
+                                            <br><span class="badge bg-danger ms-1">Overdue</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ assignment.max_points }}</td>
+                                    <td>
+                                        {% if assignment.is_published %}
+                                            <span class="badge bg-success">Published</span>
+                                        {% else %}
+                                            <span class="badge bg-warning">Draft</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% with completion_rate=assignment.get_completion_rate %}
+                                        <div class="d-flex align-items-center">
+                                            <small class="me-2">{{ completion_rate|floatformat:1 }}%</small>
+                                            <div class="progress flex-grow-1" style="height: 8px;">
+                                                <div class="progress-bar 
+                                                    {% if completion_rate >= 80 %}bg-success
+                                                    {% elif completion_rate >= 60 %}bg-warning
+                                                    {% else %}bg-danger{% endif %}" 
+                                                     role="progressbar" 
+                                                     style="width: {{ completion_rate }}%">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endwith %}
+                                    </td>
+                                    <td>
+                                        {% with avg_score=assignment.get_average_score %}
+                                        {% if avg_score %}
+                                            {{ avg_score|floatformat:1 }}%
+                                        {% else %}
+                                            <span class="text-muted">N/A</span>
+                                        {% endif %}
+                                        {% endwith %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-tasks fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No assignments found</h5>
+                            <p class="text-muted">Create some assignments to see analytics here.</p>
+                            <a href="{% url 'teacher_portal:create_assignment' %}?section={{ analytics_data.section.id }}" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Create Assignment
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Styles -->
+<style>
+.progress-lg {
+    height: 20px;
+}
+
+.progress-lg .progress-bar {
+    line-height: 20px;
+}
+
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.table th {
+    border-top: none;
+    font-weight: 600;
+    color: #495057;
+}
+
+.opacity-75 {
+    opacity: 0.75;
+}
+</style>
+{% endblock %}

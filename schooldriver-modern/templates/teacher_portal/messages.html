@@ -1,0 +1,832 @@
+{% extends "teacher_base.html" %}
+
+{% block page_title %}Messages{% endblock %}
+{% block page_subtitle %}Send and receive messages with students and parents{% endblock %}
+
+{% block teacher_content %}
+<div class="container-fluid">
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-envelope text-primary me-2"></i>Message Center
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <a href="#" class="btn btn-primary btn-lg w-100 mb-2" data-bs-toggle="modal" data-bs-target="#composeModal">
+                                <i class="fas fa-plus me-2"></i>Compose Message
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <button type="button" class="btn btn-success btn-lg w-100 mb-2" onclick="showAnnouncementModal()">
+                                <i class="fas fa-bullhorn me-2"></i>Send Announcement
+                            </button>
+                        </div>
+                        <div class="col-md-3">
+                            <button type="button" class="btn btn-info btn-lg w-100 mb-2" onclick="showGroupMessageModal()">
+                                <i class="fas fa-users me-2"></i>Group Message
+                            </button>
+                        </div>
+                        <div class="col-md-3">
+                            <button type="button" class="btn btn-warning btn-lg w-100 mb-2" onclick="showArchivedMessages()">
+                                <i class="fas fa-archive me-2"></i>Archived Messages
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Message Tabs -->
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <ul class="nav nav-tabs card-header-tabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-bs-toggle="tab" href="#inbox" role="tab">
+                                <i class="fas fa-inbox me-2"></i>Inbox
+                                {% if received_messages %}
+                                <span class="badge bg-primary ms-2">{{ received_messages|length }}</span>
+                                {% endif %}
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#sent" role="tab">
+                                <i class="fas fa-paper-plane me-2"></i>Sent
+                                {% if sent_messages %}
+                                <span class="badge bg-secondary ms-2">{{ sent_messages|length }}</span>
+                                {% endif %}
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#announcements" role="tab">
+                                <i class="fas fa-bullhorn me-2"></i>Announcements
+                                {% if announcements %}
+                                <span class="badge bg-info ms-2">{{ announcements|length }}</span>
+                                {% endif %}
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <div class="tab-content">
+                        <!-- Inbox Tab -->
+                        <div class="tab-pane fade show active" id="inbox" role="tabpanel">
+                            {% if received_messages %}
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>From</th>
+                                            <th>Subject</th>
+                                            <th>Date</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for message in received_messages %}
+                                        <tr class="{% if not message.is_read %}table-primary{% endif %}">
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar-circle bg-success text-white me-2">
+                                                        {{ message.sender.first_name|first }}{{ message.sender.last_name|first }}
+                                                    </div>
+                                                    <div>
+                                                        <strong>{{ message.sender.get_full_name }}</strong>
+                                                        <br><small class="text-muted">{{ message.sender.email }}</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <strong>{{ message.subject|truncatechars:50 }}</strong>
+                                                <br><small class="text-muted">{{ message.content|truncatechars:80 }}</small>
+                                            </td>
+                                            <td>{{ message.sent_at|date:"M d, Y H:i" }}</td>
+                                            <td>
+                                                {% if message.is_read %}
+                                                <span class="badge bg-secondary">Read</span>
+                                                {% else %}
+                                                <span class="badge bg-primary">New</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <a href="#" class="btn btn-outline-primary" title="Read">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a href="#" class="btn btn-outline-success" title="Reply">
+                                                        <i class="fas fa-reply"></i>
+                                                    </a>
+                                                    <a href="#" class="btn btn-outline-danger" title="Delete">
+                                                        <i class="fas fa-trash"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% else %}
+                            <div class="text-center py-5">
+                                <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                                <h4 class="text-muted">No Messages</h4>
+                                <p class="text-muted">You have no messages in your inbox.</p>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Sent Tab -->
+                        <div class="tab-pane fade" id="sent" role="tabpanel">
+                            {% if sent_messages %}
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>To</th>
+                                            <th>Subject</th>
+                                            <th>Date Sent</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for message in sent_messages %}
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar-circle bg-info text-white me-2">
+                                                        {{ message.recipient.first_name|first }}{{ message.recipient.last_name|first }}
+                                                    </div>
+                                                    <div>
+                                                        <strong>{{ message.recipient.get_full_name }}</strong>
+                                                        <br><small class="text-muted">{{ message.recipient.email }}</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <strong>{{ message.subject|truncatechars:50 }}</strong>
+                                                <br><small class="text-muted">{{ message.content|truncatechars:80 }}</small>
+                                            </td>
+                                            <td>{{ message.sent_at|date:"M d, Y H:i" }}</td>
+                                            <td>
+                                                {% if message.is_read %}
+                                                <span class="badge bg-success">Read</span>
+                                                {% else %}
+                                                <span class="badge bg-warning">Unread</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <a href="#" class="btn btn-outline-primary" title="View">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a href="#" class="btn btn-outline-info" title="Forward">
+                                                        <i class="fas fa-share"></i>
+                                                    </a>
+                                                    <a href="#" class="btn btn-outline-danger" title="Delete">
+                                                        <i class="fas fa-trash"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% else %}
+                            <div class="text-center py-5">
+                                <i class="fas fa-paper-plane fa-3x text-muted mb-3"></i>
+                                <h4 class="text-muted">No Sent Messages</h4>
+                                <p class="text-muted">You haven't sent any messages yet.</p>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Announcements Tab -->
+                        <div class="tab-pane fade" id="announcements" role="tabpanel">
+                            {% if announcements %}
+                            <div class="row">
+                                {% for announcement in announcements %}
+                                <div class="col-md-6 mb-3">
+                                    <div class="card border-info">
+                                        <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                                            <h6 class="mb-0">{{ announcement.title }}</h6>
+                                            {% if announcement.is_urgent %}
+                                            <span class="badge bg-danger">Urgent</span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="card-body">
+                                            <p class="card-text">{{ announcement.content|truncatechars:150 }}</p>
+                                            <div class="row">
+                                                <div class="col-6">
+                                                    <small class="text-muted">
+                                                        <i class="fas fa-calendar me-1"></i>{{ announcement.publish_date|date:"M d, Y" }}
+                                                    </small>
+                                                </div>
+                                                <div class="col-6 text-end">
+                                                    <small class="text-muted">
+                                                        <i class="fas fa-user me-1"></i>{{ announcement.created_by.get_full_name }}
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="card-footer">
+                                            <button type="button" class="btn btn-outline-info btn-sm" onclick="showAnnouncementDetail('{{ announcement.id }}', '{{ announcement.title|addslashes }}', '{{ announcement.content|addslashes }}', '{{ announcement.created_by.get_full_name }}', '{{ announcement.publish_date|date:"M d, Y" }}')">Read More</button>
+                                            {% if announcement.expire_date %}
+                                            <small class="text-muted float-end">
+                                                Expires: {{ announcement.expire_date|date:"M d, Y" }}
+                                            </small>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <div class="text-center py-5">
+                                <i class="fas fa-bullhorn fa-3x text-muted mb-3"></i>
+                                <h4 class="text-muted">No Announcements</h4>
+                                <p class="text-muted">There are no current announcements.</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Compose Message Modal -->
+<div class="modal fade" id="composeModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Compose Message</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Recipients</label>
+                        <select name="recipients" class="form-select" multiple required>
+                            <option value="">Select recipients...</option>
+                            <option value="all_students">All My Students</option>
+                            <option value="all_parents">All Parents</option>
+                            {% for section in sections %}
+                            <option value="section_{{ section.id }}">{{ section.course.name }} - {{ section.section_name }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-text">Hold Ctrl/Cmd to select multiple recipients</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Subject</label>
+                        <input type="text" name="subject" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Message</label>
+                        <textarea name="content" class="form-control" rows="6" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input type="checkbox" name="urgent" class="form-check-input" id="urgentCheck">
+                            <label class="form-check-label" for="urgentCheck">
+                                Mark as urgent
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane me-2"></i>Send Message
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Show Announcement Modal
+function showAnnouncementModal() {
+    const announcementHTML = `
+        <div class="modal fade" id="announcementModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="fas fa-bullhorn text-success me-2"></i>Send Announcement
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form method="POST" action="{% url 'teacher_portal:teacher_messages' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="send_announcement">
+                        <div class="modal-body">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Announcements will be sent to all students and parents in your sections.
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Announcement Title</label>
+                                <input type="text" name="title" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Message</label>
+                                <textarea name="content" class="form-control" rows="6" required></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input type="checkbox" name="is_urgent" class="form-check-input" id="urgent">
+                                    <label class="form-check-label" for="urgent">Mark as Urgent</label>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Expiration Date (Optional)</label>
+                                <input type="date" name="expire_date" class="form-control">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-bullhorn me-2"></i>Send Announcement
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Remove existing modal if any
+    const existingModal = document.getElementById('announcementModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    // Add modal to body
+    document.body.insertAdjacentHTML('beforeend', announcementHTML);
+    
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('announcementModal'));
+    modal.show();
+}
+
+// Show Group Message Modal
+function showGroupMessageModal() {
+    const groupMessageHTML = `
+        <div class="modal fade" id="groupMessageModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="fas fa-users text-info me-2"></i>Send Group Message
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form method="POST" action="{% url 'teacher_portal:teacher_messages' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="send_group_message">
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label">Select Groups</label>
+                                <div class="row">
+                                    {% for section in sections %}
+                                    <div class="col-md-6 mb-2">
+                                        <div class="form-check">
+                                            <input type="checkbox" name="sections" value="{{ section.id }}" class="form-check-input" id="section{{ section.id }}">
+                                            <label class="form-check-label" for="section{{ section.id }}">
+                                                {{ section.course.name }} - {{ section.section_name }}
+                                                <br><small class="text-muted">{{ section.enrollments.count }} students</small>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Subject</label>
+                                <input type="text" name="subject" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Message</label>
+                                <textarea name="content" class="form-control" rows="6" required></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input type="checkbox" name="include_parents" class="form-check-input" id="includeParents" checked>
+                                    <label class="form-check-label" for="includeParents">Also send to parents</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-info">
+                                <i class="fas fa-users me-2"></i>Send Group Message
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Remove existing modal if any
+    const existingModal = document.getElementById('groupMessageModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    // Add modal to body
+    document.body.insertAdjacentHTML('beforeend', groupMessageHTML);
+    
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('groupMessageModal'));
+    modal.show();
+}
+
+// Show Archived Messages
+function showArchivedMessages() {
+    const archivedHTML = `
+        <div class="modal fade" id="archivedModal" tabindex="-1">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="fas fa-archive text-warning me-2"></i>Archived Messages
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Subject</th>
+                                        <th>Recipients</th>
+                                        <th>Date Sent</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <strong>Parent Conference Reminder</strong>
+                                            <br><small class="text-muted">Reminder about upcoming parent conferences...</small>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-info">15 Parents</span>
+                                        </td>
+                                        <td>Jul 15, 2025</td>
+                                        <td><span class="badge bg-success">Delivered</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary" onclick="viewArchivedMessage('1', 'Parent Conference Reminder', 'Dear Parents,\\n\\nThis is a reminder about the upcoming parent conferences scheduled for next week. Please make sure to confirm your appointment time.\\n\\nIf you need to reschedule, please contact the school office as soon as possible.\\n\\nThank you,\\nTeacher Portal', 'Ms. Johnson', 'Jul 15, 2025', '15 Parents')">View</button>
+                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteArchivedMessage('1')">Delete</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <strong>Assignment Update</strong>
+                                            <br><small class="text-muted">Changes to next week's assignment due date...</small>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-success">24 Students</span>
+                                        </td>
+                                        <td>Jul 10, 2025</td>
+                                        <td><span class="badge bg-success">Delivered</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary" onclick="viewArchivedMessage('2', 'Assignment Update', 'Dear Students,\\n\\nI am writing to inform you that the due date for next week assignment has been extended by two days.\\n\\nNew due date: Friday, July 18th\\nOriginal due date: Wednesday, July 16th\\n\\nPlease make sure to submit your work on time.\\n\\nBest regards,\\nTeacher Portal', 'Ms. Johnson', 'Jul 10, 2025', '24 Students')">View</button>
+                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteArchivedMessage('2')">Delete</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <strong>Field Trip Permission</strong>
+                                            <br><small class="text-muted">Permission slips needed for upcoming field trip...</small>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-info">18 Parents</span>
+                                        </td>
+                                        <td>Jul 8, 2025</td>
+                                        <td><span class="badge bg-warning">Partially Read</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary" onclick="viewArchivedMessage('3', 'Field Trip Permission', 'Dear Parents,\\n\\nWe are planning an exciting field trip to the Science Museum for our students next month.\\n\\nDate: August 15th, 2025\\nTime: 9:00 AM - 3:00 PM\\nCost: $25 per student\\n\\nPlease fill out and return the permission slip by August 1st. Payment can be made through the school office.\\n\\nThank you,\\nTeacher Portal', 'Ms. Johnson', 'Jul 8, 2025', '18 Parents')">View</button>
+                                            <button class="btn btn-sm btn-outline-danger" onclick="deleteArchivedMessage('3')">Delete</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="text-center mt-3">
+                            <small class="text-muted">Showing archived messages from the last 30 days</small>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Remove existing modal if any
+    const existingModal = document.getElementById('archivedModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    // Add modal to body
+    document.body.insertAdjacentHTML('beforeend', archivedHTML);
+    
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('archivedModal'));
+    modal.show();
+}
+
+// View Archived Message Detail
+function viewArchivedMessage(id, title, content, author, date, recipients) {
+    const archivedDetailHTML = `
+        <div class="modal fade" id="archivedDetailModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="fas fa-envelope text-primary me-2"></i>${title}
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between text-muted">
+                                <span><i class="fas fa-user me-1"></i>From: ${author}</span>
+                                <span><i class="fas fa-calendar me-1"></i>Sent: ${date}</span>
+                            </div>
+                            <div class="mt-2 text-muted">
+                                <span><i class="fas fa-users me-1"></i>Recipients: ${recipients}</span>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="message-content">
+                            <p style="white-space: pre-line;">${content}</p>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" onclick="forwardArchivedMessage('${id}', '${title}', '${content}')">
+                            <i class="fas fa-share me-2"></i>Forward
+                        </button>
+                        <button type="button" class="btn btn-info" onclick="duplicateArchivedMessage('${id}', '${title}', '${content}')">
+                            <i class="fas fa-copy me-2"></i>Duplicate
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Remove existing modal if any
+    const existingModal = document.getElementById('archivedDetailModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    // Add modal to body
+    document.body.insertAdjacentHTML('beforeend', archivedDetailHTML);
+    
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('archivedDetailModal'));
+    modal.show();
+}
+
+// Delete Archived Message
+function deleteArchivedMessage(id) {
+    if (confirm('Are you sure you want to permanently delete this archived message?')) {
+        // In a real implementation, this would make an AJAX call to delete the message
+        alert('Message deleted successfully!');
+        
+        // Refresh the archived messages modal
+        const currentModal = bootstrap.Modal.getInstance(document.getElementById('archivedModal'));
+        if (currentModal) {
+            currentModal.hide();
+            setTimeout(() => showArchivedMessages(), 300);
+        }
+    }
+}
+
+// Forward Archived Message
+function forwardArchivedMessage(id, title, content) {
+    // Close the detail modal
+    const detailModal = bootstrap.Modal.getInstance(document.getElementById('archivedDetailModal'));
+    if (detailModal) {
+        detailModal.hide();
+    }
+    
+    // Open compose modal with forwarded content
+    setTimeout(() => {
+        const composeModal = new bootstrap.Modal(document.getElementById('composeModal'));
+        composeModal.show();
+        
+        // Pre-fill the form
+        document.querySelector('#composeModal input[name="subject"]').value = 'Fwd: ' + title;
+        document.querySelector('#composeModal textarea[name="content"]').value = '\\n\\n--- Forwarded Message ---\\n' + content;
+    }, 300);
+}
+
+// Duplicate Archived Message
+function duplicateArchivedMessage(id, title, content) {
+    // Close the detail modal
+    const detailModal = bootstrap.Modal.getInstance(document.getElementById('archivedDetailModal'));
+    if (detailModal) {
+        detailModal.hide();
+    }
+    
+    // Open compose modal with duplicated content
+    setTimeout(() => {
+        const composeModal = new bootstrap.Modal(document.getElementById('composeModal'));
+        composeModal.show();
+        
+        // Pre-fill the form
+        document.querySelector('#composeModal input[name="subject"]').value = title + ' (Copy)';
+        document.querySelector('#composeModal textarea[name="content"]').value = content;
+    }, 300);
+}
+
+// Show Announcement Detail
+function showAnnouncementDetail(id, title, content, author, date) {
+    const detailHTML = `
+        <div class="modal fade" id="announcementDetailModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="fas fa-bullhorn text-info me-2"></i>${title}
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between text-muted">
+                                <span><i class="fas fa-user me-1"></i>By: ${author}</span>
+                                <span><i class="fas fa-calendar me-1"></i>${date}</span>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="announcement-content">
+                            <p>${content}</p>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" onclick="replyToAnnouncement('${id}', '${title}')">
+                            <i class="fas fa-reply me-2"></i>Reply
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Remove existing modal if any
+    const existingModal = document.getElementById('announcementDetailModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    // Add modal to body
+    document.body.insertAdjacentHTML('beforeend', detailHTML);
+    
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('announcementDetailModal'));
+    modal.show();
+}
+
+// Reply to Announcement
+function replyToAnnouncement(id, title) {
+    // Close the detail modal first
+    const detailModal = bootstrap.Modal.getInstance(document.getElementById('announcementDetailModal'));
+    detailModal.hide();
+    
+    // Populate the compose modal with reply data
+    setTimeout(() => {
+        document.querySelector('#composeModal input[name="subject"]').value = 'Re: ' + title;
+        document.querySelector('#composeModal textarea[name="content"]').value = '\n\n--- Reply to announcement ---\n';
+        
+        // Show compose modal
+        const composeModal = new bootstrap.Modal(document.getElementById('composeModal'));
+        composeModal.show();
+    }, 300);
+}
+</script>
+
+<style>
+/* Fix Button Text Visibility - Override dashboard.css */
+.btn, .btn *, .btn i, .btn span {
+    color: white !important;  
+    text-shadow: none !important;
+}
+
+.btn-primary, .btn-primary *, .btn-primary i, .btn-primary span {
+    color: white !important;
+    background-color: #0d6efd !important;
+}
+
+.btn-success, .btn-success *, .btn-success i, .btn-success span {
+    color: white !important;
+    background-color: #198754 !important;
+}
+
+.btn-info, .btn-info *, .btn-info i, .btn-info span {
+    color: white !important;
+    background-color: #0dcaf0 !important;
+}
+
+.btn-warning, .btn-warning *, .btn-warning i, .btn-warning span {
+    color: white !important;
+    background-color: #ffc107 !important;
+}
+
+.btn-danger, .btn-danger *, .btn-danger i, .btn-danger span {
+    color: white !important;
+    background-color: #dc3545 !important;
+}
+
+.btn-secondary, .btn-secondary *, .btn-secondary i, .btn-secondary span {
+    color: white !important;
+    background-color: #6c757d !important;
+}
+
+/* Outline buttons should have colored text */
+.btn-outline-primary {
+    color: #0d6efd !important;
+    border-color: #0d6efd !important;
+}
+
+.btn-outline-success {
+    color: #198754 !important;
+    border-color: #198754 !important;
+}
+
+.btn-outline-warning {
+    color: #ffc107 !important;
+    border-color: #ffc107 !important;
+}
+
+.btn-outline-info {
+    color: #0dcaf0 !important;
+    border-color: #0dcaf0 !important;
+}
+
+.btn-outline-danger {
+    color: #dc3545 !important;
+    border-color: #dc3545 !important;
+}
+
+/* Modal content styling */
+.modal-content {
+    background-color: var(--bg-secondary, #ffffff) !important;
+}
+
+.modal-header, .modal-footer {
+    border-color: var(--border-color, #dee2e6) !important;
+}
+
+.form-control, .form-select {
+    background-color: var(--bg-primary, #ffffff) !important;
+    border-color: var(--border-color, #ced4da) !important;
+    color: var(--text-primary, #000000) !important;
+}
+
+/* Original styles */
+.avatar-circle {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 12px;
+}
+
+.table-primary {
+    background-color: rgba(13, 110, 253, 0.05);
+}
+
+/* Announcement content styling */
+.announcement-content {
+    max-height: 400px;
+    overflow-y: auto;
+}
+</style>
+{% endblock %}

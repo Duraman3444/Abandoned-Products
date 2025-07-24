@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import GradeLevel, SchoolYear, EmergencyContact, Student
+from django.utils import timezone
+from .models import GradeLevel, SchoolYear, EmergencyContact, Student, ParentVerificationCode
 
 
 @admin.register(GradeLevel)
@@ -133,12 +134,19 @@ class StudentAdmin(admin.ModelAdmin):
             },
         ),
         (
+            "Parent Portal Access",
+            {
+                "fields": ("family_access_users",),
+                "description": "Users who can access this student's information via the parent portal."
+            }
+        ),
+        (
             "System Information",
             {"fields": ("created_at", "updated_at"), "classes": ("collapse",)},
         ),
     )
 
-    filter_horizontal = ["emergency_contacts"]
+    filter_horizontal = ["emergency_contacts", "family_access_users"]
     date_hierarchy = "enrollment_date"
 
     def get_age(self, obj):
@@ -162,6 +170,67 @@ class StudentAdmin(admin.ModelAdmin):
         """Override save to ensure cached contact info is updated"""
         super().save_model(request, obj, form, change)
         # The model's save method will handle updating cached contact info
+
+
+@admin.register(ParentVerificationCode)
+class ParentVerificationCodeAdmin(admin.ModelAdmin):
+    list_display = [
+        'code',
+        'student_link',
+        'parent_name',
+        'parent_email',
+        'status',
+        'expires_at',
+        'created_by',
+        'created_at'
+    ]
+    list_filter = ['is_used', 'expires_at', 'created_at', 'used_at']
+    search_fields = ['code', 'parent_name', 'parent_email', 'student__first_name', 'student__last_name']
+    readonly_fields = ['code', 'used_by', 'used_at', 'created_at']
+    
+    fieldsets = (
+        ('Verification Code', {
+            'fields': ('code', 'student', 'expires_at')
+        }),
+        ('Parent Information', {
+            'fields': ('parent_name', 'parent_email')
+        }),
+        ('Status', {
+            'fields': ('is_used', 'used_by', 'used_at')
+        }),
+        ('Administrative', {
+            'fields': ('created_by', 'created_at', 'notes'),
+            'classes': ('collapse',)
+        })
+    )
+    
+    def student_link(self, obj):
+        if obj.student:
+            return format_html(
+                '<a href="/admin/students/student/{}/change/">{}</a>',
+                obj.student.id,
+                obj.student.full_name
+            )
+        return '-'
+    student_link.short_description = 'Student'
+    student_link.admin_order_field = 'student__last_name'
+    
+    def status(self, obj):
+        if obj.is_used:
+            return format_html('<span style="color: green;">✓ Used</span>')
+        elif obj.is_expired():
+            return format_html('<span style="color: red;">✗ Expired</span>')
+        else:
+            return format_html('<span style="color: blue;">⏳ Active</span>')
+    status.short_description = 'Status'
+    
+    def save_model(self, request, obj, form, change):
+        if not change:  # Only set created_by for new objects
+            obj.created_by = request.user
+        super().save_model(request, obj, form, change)
+    
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('student', 'created_by', 'used_by')
 
 
 # Customize admin site

@@ -1,78 +1,457 @@
 {% extends "base.html" %}
-{% load custom_tags %}
+{% load static %}
 
-{% block breadcrumb %}
-<nav aria-label="breadcrumb" class="bg-dark border-bottom border-secondary">
-    <div class="container">
-        <ol class="breadcrumb py-2 mb-0">
-            <li class="breadcrumb-item"><a href="{% url 'parent_portal:dashboard' %}" class="text-info">Parent Portal</a></li>
-            {% block breadcrumb_items %}{% endblock %}
-        </ol>
-    </div>
-</nav>
+{% block extra_css %}
+<style>
+.child-switcher {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    color: white;
+}
+
+.child-card {
+    border: 2px solid transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.child-card:hover {
+    border-color: #007bff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,123,255,0.3);
+}
+
+.child-card.active {
+    border-color: #28a745;
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+}
+
+.navbar-parent {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.sidebar-parent {
+    background: #f8f9fa;
+    min-height: 100vh;
+    padding-top: 1rem;
+}
+
+.nav-item-parent {
+    margin-bottom: 0.5rem;
+}
+
+.nav-link-parent {
+    color: #495057;
+    border-radius: 8px;
+    margin: 0.2rem 0;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.nav-link-parent:hover {
+    background: #e9ecef;
+    color: #007bff;
+    transform: translateX(5px);
+}
+
+.nav-link-parent.active {
+    background: linear-gradient(135deg, #007bff, #6610f2);
+    color: white;
+}
+
+.main-content {
+    padding: 2rem;
+    background: #f8f9fa;
+    min-height: 100vh;
+}
+
+.page-header {
+    background: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.stats-card {
+    background: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+}
+
+.mobile-menu-btn {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .mobile-menu-btn {
+        display: block;
+    }
+    
+    .sidebar-parent {
+        display: none;
+        position: fixed;
+        top: 56px; /* Account for navbar height */
+        left: 0;
+        width: 100%;
+        height: calc(100% - 56px);
+        z-index: 1050;
+        background: white;
+        padding: 1rem;
+        overflow-y: auto;
+    }
+    
+    .sidebar-parent.show {
+        display: block;
+        animation: slideIn 0.3s ease-out;
+    }
+    
+    .main-content {
+        padding: 1rem;
+        margin-top: 0;
+    }
+    
+    .child-switcher {
+        padding: 0.75rem;
+        margin-bottom: 1rem;
+    }
+    
+    .child-card {
+        margin-bottom: 0.5rem;
+        padding: 0.75rem !important;
+    }
+    
+    .page-header {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .page-header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .stats-card {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .nav-link-parent {
+        padding: 1rem;
+        font-size: 1rem;
+        border-radius: 8px;
+        margin-bottom: 0.5rem;
+    }
+    
+    .nav-link-parent i {
+        width: 20px;
+        text-align: center;
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(-100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+/* Touch-friendly improvements */
+@media (max-width: 768px) and (hover: none) {
+    .child-card:hover {
+        transform: none;
+        box-shadow: none;
+    }
+    
+    .child-card:active {
+        transform: scale(0.98);
+        transition: transform 0.1s ease;
+    }
+    
+    .nav-link-parent:hover {
+        transform: none;
+    }
+    
+    .nav-link-parent:active {
+        transform: scale(0.98);
+        transition: transform 0.1s ease;
+    }
+    
+    .stats-card:hover {
+        transform: none;
+    }
+    
+    .stats-card:active {
+        transform: scale(0.98);
+        transition: transform 0.1s ease;
+    }
+}
+
+/* Improved tablet view */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .main-content {
+        padding: 1.5rem;
+    }
+    
+    .sidebar-parent {
+        padding: 1rem;
+    }
+    
+    .child-switcher {
+        padding: 0.75rem;
+    }
+}
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4">
-    <div class="row">
-        <!-- Sidebar Navigation -->
-        <div class="col-md-3 col-lg-2">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h6 class="mb-0"><i class="bi bi-people-fill me-2"></i>Parent Menu</h6>
-                </div>
-                <div class="card-body p-0">
-                    <nav class="nav flex-column">
-                        <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active bg-teal text-white{% endif %}" 
-                           href="{% url 'parent_portal:dashboard' %}">
-                            <i class="bi bi-speedometer2 me-2"></i>Dashboard
-                        </a>
-                        <a class="nav-link {% if request.resolver_match.url_name == 'children' %}active bg-teal text-white{% endif %}" 
-                           href="{% url 'parent_portal:children' %}">
-                            <i class="bi bi-people me-2"></i>My Children
-                        </a>
-                        <a class="nav-link {% if request.resolver_match.url_name == 'messages' %}active bg-teal text-white{% endif %}" 
-                           href="{% url 'parent_portal:messages' %}">
-                            <i class="bi bi-chat-dots me-2"></i>Messages
-                        </a>
-                        <a class="nav-link {% if request.resolver_match.url_name == 'profile' %}active bg-teal text-white{% endif %}" 
-                           href="{% url 'parent_portal:profile' %}">
-                            <i class="bi bi-person me-2"></i>My Profile
-                        </a>
-                    </nav>
-                </div>
+<nav class="navbar navbar-expand-lg navbar-parent navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="{% url 'parent_portal:dashboard' %}">
+            <i class="fas fa-home me-2"></i>
+            Parent Portal
+        </a>
+        
+        <button class="navbar-toggler mobile-menu-btn" type="button" onclick="toggleMobileMenu()">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <div class="navbar-nav ms-auto">
+            <div class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown">
+                    <i class="fas fa-user-circle me-1"></i>
+                    {{ user.get_full_name|default:user.username }}
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="{% url 'parent_portal:profile' %}">
+                        <i class="fas fa-user me-2"></i>Profile
+                    </a></li>
+                    <li><a class="dropdown-item" href="{% url 'parent_portal:verify_code' %}">
+                        <i class="fas fa-plus me-2"></i>Link Another Child
+                    </a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="{% url 'authentication:logout' %}">
+                        <i class="fas fa-sign-out-alt me-2"></i>Logout
+                    </a></li>
+                </ul>
             </div>
         </div>
+    </div>
+</nav>
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <nav class="col-md-3 col-lg-2 sidebar-parent" id="sidebar">
+            <div class="position-sticky">
+                <!-- Child Switcher -->
+                {% if children and children|length > 1 %}
+                <div class="child-switcher">
+                    <h6 class="mb-3">
+                        <i class="fas fa-users me-2"></i>
+                        Select Child
+                    </h6>
+                    <div class="row g-2">
+                        {% for child in children %}
+                        <div class="col-12">
+                            <div class="child-card p-2 text-center {% if child.id == current_child.id %}active{% endif %}" 
+                                 onclick="switchChild('{{ child.id }}')">
+                                <div class="fw-bold">{{ child.display_name }}</div>
+                                <small>{{ child.grade_level.name }} • ID: {{ child.student_id }}</small>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% elif children and children|length == 1 %}
+                <div class="child-switcher text-center">
+                    <h6 class="mb-2">
+                        <i class="fas fa-user me-2"></i>
+                        {{ children.0.display_name }}
+                    </h6>
+                    <small>{{ children.0.grade_level.name }} • ID: {{ children.0.student_id }}</small>
+                </div>
+                {% endif %}
+                
+                <!-- Navigation -->
+                <ul class="nav flex-column">
+                    <li class="nav-item-parent">
+                        <a class="nav-link-parent {% if 'dashboard' in request.resolver_match.url_name %}active{% endif %}" 
+                           href="{% url 'parent_portal:dashboard' %}">
+                            <i class="fas fa-tachometer-alt me-2"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    
+                    {% if current_child %}
+                    <li class="nav-item-parent">
+                        <a class="nav-link-parent {% if 'child_detail' in request.resolver_match.url_name %}active{% endif %}" 
+                           href="{% url 'parent_portal:child_detail_current' %}{% if request.GET.child %}?child={{ request.GET.child }}{% endif %}">
+                            <i class="fas fa-user-graduate me-2"></i>
+                            Student Profile
+                        </a>
+                    </li>
+                    <li class="nav-item-parent">
+                        <a class="nav-link-parent {% if 'grades' in request.resolver_match.url_name %}active{% endif %}" 
+                           href="{% url 'parent_portal:grades_current' %}{% if request.GET.child %}?child={{ request.GET.child }}{% endif %}">
+                            <i class="fas fa-chart-line me-2"></i>
+                            Grades & Progress
+                        </a>
+                    </li>
+                    <li class="nav-item-parent">
+                        <a class="nav-link-parent {% if 'attendance' in request.resolver_match.url_name %}active{% endif %}" 
+                           href="{% url 'parent_portal:attendance_current' %}{% if request.GET.child %}?child={{ request.GET.child }}{% endif %}">
+                            <i class="fas fa-calendar-check me-2"></i>
+                            Attendance
+                        </a>
+                    </li>
+                    <li class="nav-item-parent">
+                        <a class="nav-link-parent {% if 'school_calendar' in request.resolver_match.url_name %}active{% endif %}" 
+                           href="{% url 'parent_portal:school_calendar' %}{% if request.GET.child %}?child={{ request.GET.child }}{% endif %}">
+                            <i class="fas fa-calendar me-2"></i>
+                            School Calendar
+                        </a>
+                    </li>
+                    <li class="nav-item-parent">
+                        <a class="nav-link-parent {% if 'progress_report' in request.resolver_match.url_name %}active{% endif %}" 
+                           href="{% url 'parent_portal:progress_report_current' %}{% if request.GET.child %}?child={{ request.GET.child }}{% endif %}">
+                            <i class="fas fa-file-alt me-2"></i>
+                            Progress Report
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    <li class="nav-item-parent">
+                        <a class="nav-link-parent {% if 'messages' in request.resolver_match.url_name %}active{% endif %}" 
+                           href="{% url 'parent_portal:messages' %}">
+                            <i class="fas fa-envelope me-2"></i>
+                            Messages
+                        </a>
+                    </li>
+                    <li class="nav-item-parent">
+                        <a class="nav-link-parent {% if 'emergency_contacts' in request.resolver_match.url_name %}active{% endif %}" 
+                           href="{% url 'parent_portal:emergency_contacts' %}">
+                            <i class="fas fa-address-book me-2"></i>
+                            Emergency Contacts
+                        </a>
+                    </li>
+                    <li class="nav-item-parent">
+                        <a class="nav-link-parent {% if 'profile' in request.resolver_match.url_name %}active{% endif %}" 
+                           href="{% url 'parent_portal:profile' %}">
+                            <i class="fas fa-cog me-2"></i>
+                            Settings
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
         
-        <!-- Main Content -->
-        <div class="col-md-9 col-lg-10">
-            {% block parent_content %}{% endblock %}
-        </div>
+        <!-- Main content -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 main-content">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            
+            <div class="page-header">
+                <h1 class="h2 mb-1">
+                    <i class="fas fa-{{ page_icon|default:'home' }} text-primary me-2"></i>
+                    {% block page_title %}Dashboard{% endblock %}
+                </h1>
+                <p class="text-muted mb-0">
+                    {% block page_subtitle %}Welcome to the parent portal{% endblock %}
+                </p>
+            </div>
+            
+            {% block parent_content %}
+            <!-- Page content goes here -->
+            {% endblock %}
+        </main>
     </div>
 </div>
-{% endblock %}
 
-{% block extra_css %}
-{{ block.super }}
-<style>
-    .nav-link {
-        color: var(--text-light) !important;
-        padding: 0.75rem 1rem;
-        border-bottom: 1px solid var(--dark-border);
-    }
+<script>
+// Enhanced child switching functionality moved below
+
+// Mobile menu toggle
+function toggleMobileMenu() {
+    const sidebar = document.getElementById('sidebar');
+    const isShowing = sidebar.classList.contains('show');
     
-    .nav-link:hover {
-        background-color: var(--dark-border);
-        color: var(--teal-primary) !important;
+    if (isShowing) {
+        sidebar.classList.remove('show');
+        document.body.style.overflow = '';
+    } else {
+        sidebar.classList.add('show');
+        document.body.style.overflow = 'hidden'; // Prevent background scrolling
     }
+}
+
+// Close mobile menu when clicking outside or navigating
+document.addEventListener('click', function(event) {
+    const sidebar = document.getElementById('sidebar');
+    const menuBtn = document.querySelector('.mobile-menu-btn');
     
-    .nav-link.active {
-        background-color: var(--teal-primary) !important;
-        color: white !important;
+    if (sidebar.classList.contains('show') && 
+        !sidebar.contains(event.target) && 
+        !menuBtn.contains(event.target)) {
+        sidebar.classList.remove('show');
+        document.body.style.overflow = '';
     }
+});
+
+// Close mobile menu when clicking on navigation links
+document.addEventListener('DOMContentLoaded', function() {
+    const navLinks = document.querySelectorAll('.nav-link-parent');
+    navLinks.forEach(link => {
+        link.addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar.classList.contains('show')) {
+                sidebar.classList.remove('show');
+                document.body.style.overflow = '';
+            }
+        });
+    });
+});
+
+// Handle child switching with better UX on mobile
+function switchChild(childId) {
+    // Show loading state
+    const childCards = document.querySelectorAll('.child-card');
+    childCards.forEach(card => {
+        card.style.opacity = '0.7';
+        card.style.pointerEvents = 'none';
+    });
     
-    .bg-teal {
-        background-color: var(--teal-primary) !important;
+    // Update URL and navigate
+    const url = new URL(window.location);
+    url.searchParams.set('child', childId);
+    window.location.href = url.toString();
+}
+
+// Handle window resize to close mobile menu
+window.addEventListener('resize', function() {
+    if (window.innerWidth > 768) {
+        const sidebar = document.getElementById('sidebar');
+        sidebar.classList.remove('show');
+        document.body.style.overflow = '';
     }
-</style>
+});
+</script>
 {% endblock %}

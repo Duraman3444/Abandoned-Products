@@ -1,0 +1,182 @@
+{% extends "teacher_base.html" %}
+
+{% block page_title %}Students{% endblock %}
+{% block page_subtitle %}View and manage student information{% endblock %}
+
+{% block teacher_content %}
+<div class="container-fluid">
+    <!-- Search and Filters -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-search text-primary me-2"></i>Student Search & Filters
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="GET">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label class="form-label">Search Students</label>
+                                <input type="text" name="search" class="form-control" placeholder="Search by name or student ID" value="{{ request.GET.search }}">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Section</label>
+                                <select name="section" class="form-select">
+                                    <option value="">All Sections</option>
+                                    {% for section in sections %}
+                                    <option value="{{ section.id }}" {% if section.id|stringformat:"s" == request.GET.section %}selected{% endif %}>
+                                        {{ section.course.name }} - {{ section.section_name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Grade Level</label>
+                                <select name="grade" class="form-select">
+                                    <option value="">All Grades</option>
+                                    <option value="K">Kindergarten</option>
+                                    <option value="1">1st Grade</option>
+                                    <option value="2">2nd Grade</option>
+                                    <option value="3">3rd Grade</option>
+                                    <option value="4">4th Grade</option>
+                                    <option value="5">5th Grade</option>
+                                    <option value="6">6th Grade</option>
+                                    <option value="7">7th Grade</option>
+                                    <option value="8">8th Grade</option>
+                                    <option value="9">9th Grade</option>
+                                    <option value="10">10th Grade</option>
+                                    <option value="11">11th Grade</option>
+                                    <option value="12">12th Grade</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">&nbsp;</label>
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fas fa-search me-2"></i>Search
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Student List -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-users text-success me-2"></i>
+                        {% if current_section %}
+                            {{ current_section.course.name }} - Section {{ current_section.section_name }}
+                        {% else %}
+                            All Students
+                        {% endif %}
+                    </h5>
+                    <div>
+                        <span class="badge bg-primary me-2">{{ students.count|default:0 }} Students</span>
+                        <div class="btn-group">
+                            <button class="btn btn-success btn-sm" data-bs-toggle="dropdown">
+                                <i class="fas fa-download me-2"></i>Export
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-file-csv me-2"></i>CSV Export</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-file-pdf me-2"></i>PDF Report</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-print me-2"></i>Print List</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if students %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Grade Level</th>
+                                    <th>Student ID</th>
+                                    <th>Current Grade</th>
+                                    <th>Attendance</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for enrollment in students %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-circle bg-primary text-white me-3">
+                                                {{ enrollment.student.first_name|first }}{{ enrollment.student.last_name|first }}
+                                            </div>
+                                            <div>
+                                                <strong>{{ enrollment.student.full_name }}</strong>
+                                                <br><small class="text-muted">{{ enrollment.student.email|default:"No email" }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info">{{ enrollment.student.grade_level.name|default:"N/A" }}</span>
+                                    </td>
+                                    <td>{{ enrollment.student.student_id|default:"--" }}</td>
+                                    <td>
+                                        {% if enrollment.final_percentage %}
+                                        <span class="badge bg-success">{{ enrollment.final_percentage }}%</span>
+                                        {% else %}
+                                        <span class="badge bg-secondary">No Grade</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="progress" style="height: 8px;">
+                                            <div class="progress-bar bg-success" style="width: 85%"></div>
+                                        </div>
+                                        <small class="text-muted">85% Present</small>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="#" class="btn btn-outline-primary" title="View Profile">
+                                                <i class="fas fa-user"></i>
+                                            </a>
+                                            <a href="#" class="btn btn-outline-success" title="View Grades">
+                                                <i class="fas fa-chart-line"></i>
+                                            </a>
+                                            <a href="#" class="btn btn-outline-info" title="Send Message">
+                                                <i class="fas fa-envelope"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-user-graduate fa-3x text-muted mb-3"></i>
+                        <h4 class="text-muted">No Students Found</h4>
+                        <p class="text-muted">No students match your current filters or section.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.avatar-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 14px;
+}
+</style>
+{% endblock %}

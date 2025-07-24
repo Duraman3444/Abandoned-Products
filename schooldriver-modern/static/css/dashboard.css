@@ -1,15 +1,20 @@
 /* SchoolDriver Modern - Admin Theme Dashboard Styles */
 
-/* Emergency Text Visibility Fix */
+/* Emergency Text Visibility Fix - Excluding buttons */
 .dashboard-content,
-.dashboard-content *,
+.dashboard-content *:not(.btn):not(.btn *),
 .chart-container,
 .chart-container *,
 .stat-card,
-.stat-card *,
+.stat-card *:not(.btn):not(.btn *),
 .card-body,
-.card-body * {
+.card-body *:not(.btn):not(.btn *) {
     color: var(--text-primary, #E6EDF3) !important;
+}
+
+/* Button text should remain white */
+.btn, .btn * {
+    color: white !important;
 }
 
 /* Chart.js Text Color Fix */

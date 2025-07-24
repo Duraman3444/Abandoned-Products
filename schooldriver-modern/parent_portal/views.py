@@ -1,48 +1,145 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import login
 from django.contrib import messages
-from django.db.models import Q
+from django.db.models import Q, Avg
 from django.core.paginator import Paginator
 from django.utils import timezone
+from django.http import HttpResponse
+from django.template.loader import get_template
 from datetime import timedelta, date
 from authentication.decorators import role_required
-from students.models import Student, SchoolYear
+from students.models import Student, SchoolYear, ParentVerificationCode, EmergencyContact, AuthorizedPickupPerson, MedicalInformation
+from academics.models import Enrollment, Grade, Assignment, Attendance, CourseSection, EarlyDismissalRequest, SchoolCalendarEvent, Message, MessageAttachment
+from .forms import (
+    ParentRegistrationForm, VerificationCodeForm, ParentAccountLinkForm, 
+    VerificationRequestForm, EarlyDismissalRequestForm, MessageForm, MessageReplyForm,
+    EmergencyContactForm, AuthorizedPickupPersonForm, MedicalInformationForm
+)
+from .profile_forms import ParentProfileForm
 import logging
+
+# PDF generation imports
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter, A4
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak
+from reportlab.lib.units import inch
+from io import BytesIO
 
 logger = logging.getLogger(__name__)
 
 
+# Parent Registration and Verification Views
+
+def parent_register_view(request):
+    """Parent account registration with verification code"""
+    if request.user.is_authenticated:
+        return redirect('parent_portal:dashboard')
+    
+    if request.method == 'POST':
+        form = ParentRegistrationForm(request.POST)
+        if form.is_valid():
+            try:
+                user = form.save()
+                login(request, user)
+                messages.success(
+                    request, 
+                    f"Welcome! Your account has been created and linked to {form._verification.student.full_name}."
+                )
+                return redirect('parent_portal:dashboard')
+            except Exception as e:
+                logger.error(f"Error creating parent account: {e}")
+                messages.error(request, "There was an error creating your account. Please try again.")
+    else:
+        form = ParentRegistrationForm()
+    
+    return render(request, 'parent_portal/register.html', {'form': form})
+
+
+def verification_code_view(request):
+    """Standalone verification code entry for account linking"""
+    if not request.user.is_authenticated:
+        return redirect('parent_portal:register')
+    
+    if request.method == 'POST':
+        form = VerificationCodeForm(request.POST)
+        if form.is_valid():
+            verification = form._verification
+            success = verification.use_code(request.user)
+            if success:
+                messages.success(
+                    request,
+                    f"Successfully linked {verification.student.full_name} to your account!"
+                )
+                return redirect('parent_portal:dashboard')
+            else:
+                messages.error(request, "Failed to link student to your account.")
+    else:
+        form = VerificationCodeForm()
+    
+    return render(request, 'parent_portal/verify_code.html', {'form': form})
+
+
+def request_verification_view(request):
+    """Allow parents to request verification codes (for admin approval)"""
+    if request.method == 'POST':
+        form = VerificationRequestForm(request.POST)
+        if form.is_valid():
+            # In a real implementation, this would create a request for admin approval
+            # For now, we'll just show a success message
+            messages.success(
+                request,
+                "Your verification request has been submitted. The school office will contact you "
+                "with your verification code within 1-2 business days."
+            )
+            return redirect('authentication:login')
+    else:
+        form = VerificationRequestForm()
+    
+    return render(request, 'parent_portal/request_verification.html', {'form': form})
+
+
 # Helper function to get parent's children
 def get_parent_children(user):
-    """Get all students associated with the current parent user."""
+    """Get all students associated with the current parent user via family_access_users."""
     try:
-        # Find students where the user's email matches emergency contact emails
-        children = (
-            Student.objects.filter(emergency_contacts__email=user.email, is_active=True)
-            .distinct()
-            .select_related("grade_level")
-            .prefetch_related("emergency_contacts")
-        )
-
-        # Alternative: match by name if email doesn't work
-        if not children.exists() and user.get_full_name():
-            name_parts = user.get_full_name().split()
-            if len(name_parts) >= 2:
-                children = (
-                    Student.objects.filter(
-                        Q(emergency_contacts__first_name__icontains=name_parts[0])
-                        & Q(emergency_contacts__last_name__icontains=name_parts[-1]),
-                        is_active=True,
-                    )
-                    .distinct()
-                    .select_related("grade_level")
-                    .prefetch_related("emergency_contacts")
-                )
-
+        # Use the secure family_access_users relationship
+        children = user.accessible_students.filter(is_active=True).select_related(
+            "grade_level"
+        ).prefetch_related("emergency_contacts")
+        
         return children
     except Exception as e:
         logger.error(f"Error finding children for parent {user.username}: {e}")
         return Student.objects.none()
+
+
+def get_current_child(user, request):
+    """Get the currently selected child for the parent, with proper access verification."""
+    try:
+        children = get_parent_children(user)
+        
+        if not children.exists():
+            return None, children
+        
+        # Check if a specific child is requested
+        child_id = request.GET.get('child')
+        if child_id:
+            try:
+                current_child = children.get(id=child_id)
+                return current_child, children
+            except (Student.DoesNotExist, ValueError):
+                # Invalid child ID or parent doesn't have access
+                pass
+        
+        # Default to first child
+        return children.first(), children
+        
+    except Exception as e:
+        logger.error(f"Error getting current child for parent {user.username}: {e}")
+        return None, Student.objects.none()
 
 
 def verify_parent_access(user, student):
@@ -54,10 +151,10 @@ def verify_parent_access(user, student):
 @login_required
 @role_required(["Parent"])
 def dashboard_view(request):
-    """Parent dashboard showing overview of all children"""
+    """Parent dashboard showing overview of current child or all children"""
     try:
-        children = get_parent_children(request.user)
-
+        current_child, children = get_current_child(request.user, request)
+        
         if not children.exists():
             messages.warning(
                 request,
@@ -70,45 +167,238 @@ def dashboard_view(request):
         # Get current school year
         current_school_year = SchoolYear.objects.filter(is_active=True).first()
 
-        # Aggregate data for all children
+        # If we have a current child selected, show detailed view for that child
+        if current_child:
+            # Get real academic data for the current child
+            enrollments = Enrollment.objects.filter(
+                student=current_child,
+                section__school_year=current_school_year,
+                is_active=True
+            ).select_related('section__course', 'section__teacher').prefetch_related('grades__assignment')
+            
+            # Calculate overall GPA
+            total_grade_points = 0
+            total_credits = 0
+            course_grades = []
+            
+            for enrollment in enrollments:
+                calculated_grade = enrollment.calculate_grade()
+                if calculated_grade is not None:
+                    course_grades.append({
+                        'course': enrollment.section.course.name,
+                        'teacher': enrollment.section.teacher.get_full_name(),
+                        'grade': enrollment.get_letter_grade(calculated_grade),
+                        'percentage': round(calculated_grade, 1)
+                    })
+                    
+                    # Calculate GPA points (A=4.0, B=3.0, etc.)
+                    letter = enrollment.get_letter_grade(calculated_grade)
+                    grade_points = {
+                        'A+': 4.0, 'A': 4.0, 'A-': 3.7,
+                        'B+': 3.3, 'B': 3.0, 'B-': 2.7,
+                        'C+': 2.3, 'C': 2.0, 'C-': 1.7,
+                        'D+': 1.3, 'D': 1.0, 'D-': 0.7,
+                        'F': 0.0
+                    }.get(letter, 0.0)
+                    
+                    total_grade_points += grade_points * float(enrollment.section.course.credit_hours)
+                    total_credits += float(enrollment.section.course.credit_hours)
+            
+            current_gpa = round(total_grade_points / total_credits, 2) if total_credits > 0 else 0.0
+
+            # Get recent grades (last 5 graded assignments)
+            recent_grades = Grade.objects.filter(
+                enrollment__student=current_child,
+                enrollment__section__school_year=current_school_year,
+                points_earned__isnull=False,
+                is_excused=False
+            ).select_related(
+                'assignment__section__course', 'assignment'
+            ).order_by('-graded_date', '-created_at')[:5]
+            
+            recent_grades_data = []
+            for grade in recent_grades:
+                recent_grades_data.append({
+                    'course': grade.assignment.section.course.name,
+                    'assignment': grade.assignment.name,
+                    'points_earned': grade.points_earned,
+                    'max_points': grade.assignment.max_points,
+                    'percentage': round(grade.percentage, 1) if grade.percentage else None,
+                    'letter_grade': grade.letter_grade,
+                    'date': grade.graded_date or grade.created_at
+                })
+
+            # Get upcoming assignments (next 7 days)
+            upcoming_assignments = Assignment.objects.filter(
+                section__enrollments__student=current_child,
+                section__school_year=current_school_year,
+                due_date__gte=timezone.now().date(),
+                due_date__lte=timezone.now().date() + timedelta(days=7),
+                is_published=True
+            ).select_related('section__course').order_by('due_date', 'due_time')[:10]
+            
+            upcoming_assignments_data = []
+            for assignment in upcoming_assignments:
+                # Check if student has submitted or has grade
+                has_grade = Grade.objects.filter(
+                    enrollment__student=current_child,
+                    assignment=assignment
+                ).exists()
+                
+                upcoming_assignments_data.append({
+                    'course': assignment.section.course.name,
+                    'title': assignment.name,
+                    'due_date': assignment.due_date,
+                    'due_time': assignment.due_time,
+                    'max_points': assignment.max_points,
+                    'is_overdue': assignment.is_overdue,
+                    'has_grade': has_grade,
+                    'category': assignment.category.name
+                })
+
+            # Get comprehensive attendance data for current child
+            # Today's attendance status
+            today = timezone.now().date()
+            today_attendance = Attendance.objects.filter(
+                enrollment__student=current_child,
+                enrollment__section__school_year=current_school_year,
+                date=today
+            ).first()
+            
+            # Recent attendance (last 10 days)
+            recent_attendance = Attendance.objects.filter(
+                enrollment__student=current_child,
+                enrollment__section__school_year=current_school_year,
+                date__gte=today - timedelta(days=10),
+                date__lte=today
+            ).order_by('-date')[:10]
+            
+            # Get attendance summary for the school year
+            all_enrollments = Enrollment.objects.filter(
+                student=current_child,
+                section__school_year=current_school_year,
+                is_active=True
+            )
+            
+            attendance_summary = {'total_days': 0, 'present_days': 0, 'absent_days': 0, 'tardy_days': 0, 'attendance_rate': 0.0}
+            if all_enrollments.exists():
+                # Use the first enrollment for attendance summary (they should all have same attendance)
+                enrollment = all_enrollments.first()
+                attendance_summary = Attendance.get_attendance_summary(enrollment)
+            
+            # Get attendance patterns
+            attendance_patterns = {}
+            if all_enrollments.exists():
+                enrollment = all_enrollments.first()
+                attendance_patterns = Attendance.get_attendance_patterns(enrollment, days=30)
+                
+            # Get class schedule for today
+            today_schedule = []
+            weekdays = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
+            today_weekday = weekdays[today.weekday()]
+            
+            for enrollment in all_enrollments:
+                schedules = enrollment.section.schedules.filter(
+                    day_of_week=today_weekday,
+                    is_active=True
+                ).order_by('start_time')
+                
+                for schedule in schedules:
+                    today_schedule.append({
+                        'course': enrollment.section.course.name,
+                        'teacher': enrollment.section.teacher.get_full_name(),
+                        'start_time': schedule.start_time,
+                        'end_time': schedule.end_time,
+                        'room': schedule.room,
+                    })
+            
+            # Sort schedule by start time
+            today_schedule.sort(key=lambda x: x['start_time'])
+            
+            # Get school calendar events
+            upcoming_events = SchoolCalendarEvent.get_upcoming_events(days=14, school_year=current_school_year)
+            
+            # Filter events that affect this student
+            relevant_events = []
+            for event in upcoming_events:
+                if event.affects_student(current_child):
+                    relevant_events.append(event)
+            
+            # Get today's events
+            today_events = SchoolCalendarEvent.objects.filter(
+                school_year=current_school_year,
+                is_public=True,
+                start_date__lte=today,
+                end_date__gte=today
+            )
+            
+            # Filter today's events for this student
+            relevant_today_events = []
+            for event in today_events:
+                if event.affects_student(current_child):
+                    relevant_today_events.append(event)
+
+        # Combined view for families with multiple children
         children_summary = []
         for child in children:
-            # Mock academic data (would come from grades/courses models)
-            current_gpa = 87.5  # Mock GPA
-            attendance_rate = 94.2  # Mock attendance
-
-            # Mock recent grades
-            recent_grades = [
-                {"course": "Mathematics", "grade": "A-", "date": "2024-10-15"},
-                {"course": "English", "grade": "B+", "date": "2024-10-14"},
-                {"course": "Science", "grade": "A", "date": "2024-10-13"},
-            ]
-
-            # Mock upcoming assignments
-            upcoming_assignments = [
-                {
-                    "course": "Mathematics",
-                    "title": "Quiz on Fractions",
-                    "due_date": timezone.now() + timedelta(days=3),
-                },
-                {
-                    "course": "English",
-                    "title": "Book Report",
-                    "due_date": timezone.now() + timedelta(days=7),
-                },
-            ]
-
-            children_summary.append(
-                {
-                    "student": child,
-                    "current_gpa": current_gpa,
-                    "attendance_rate": attendance_rate,
-                    "recent_grades": recent_grades[:3],  # Show last 3 grades
-                    "upcoming_assignments": upcoming_assignments[
-                        :2
-                    ],  # Show next 2 assignments
-                }
+            # Get real academic data for each child
+            child_enrollments = Enrollment.objects.filter(
+                student=child,
+                section__school_year=current_school_year,
+                is_active=True
+            ).select_related('section__course')
+            
+            # Calculate GPA for this child
+            child_total_grade_points = 0
+            child_total_credits = 0
+            
+            for enrollment in child_enrollments:
+                calculated_grade = enrollment.calculate_grade()
+                if calculated_grade is not None:
+                    letter = enrollment.get_letter_grade(calculated_grade)
+                    grade_points = {
+                        'A+': 4.0, 'A': 4.0, 'A-': 3.7,
+                        'B+': 3.3, 'B': 3.0, 'B-': 2.7,
+                        'C+': 2.3, 'C': 2.0, 'C-': 1.7,
+                        'D+': 1.3, 'D': 1.0, 'D-': 0.7,
+                        'F': 0.0
+                    }.get(letter, 0.0)
+                    
+                    child_total_grade_points += grade_points * float(enrollment.section.course.credit_hours)
+                    child_total_credits += float(enrollment.section.course.credit_hours)
+            
+            child_gpa = round(child_total_grade_points / child_total_credits, 2) if child_total_credits > 0 else 0.0
+            
+            # Calculate attendance for this child
+            child_attendance_records = Attendance.objects.filter(
+                enrollment__student=child,
+                enrollment__section__school_year=current_school_year
             )
+            
+            if child_attendance_records.exists():
+                child_total_days = child_attendance_records.count()
+                child_present_days = child_attendance_records.filter(status='P').count()
+                child_attendance_rate = round((child_present_days / child_total_days) * 100, 1) if child_total_days > 0 else 0.0
+            else:
+                child_attendance_rate = 0.0
+            
+            # Get most recent activity
+            recent_grade = Grade.objects.filter(
+                enrollment__student=child,
+                enrollment__section__school_year=current_school_year
+            ).order_by('-graded_date', '-created_at').first()
+            
+            if recent_grade and recent_grade.graded_date:
+                last_activity = recent_grade.graded_date.strftime('%b %d')
+            else:
+                last_activity = "No recent activity"
+            
+            children_summary.append({
+                "student": child,
+                "current_gpa": child_gpa,
+                "attendance_rate": child_attendance_rate,
+                "recent_activity": f"Last grade: {last_activity}"
+            })
 
         # Mock school announcements
         announcements = [
@@ -119,32 +409,267 @@ def dashboard_view(request):
                 "urgent": True,
             },
             {
-                "title": "Fall Festival",
+                "title": "Fall Festival", 
                 "message": "Join us for our annual Fall Festival on October 30th.",
                 "date": timezone.now() - timedelta(days=5),
-                "urgent": False,
-            },
-            {
-                "title": "Early Dismissal",
-                "message": "School will dismiss at 1:00 PM on November 8th for teacher training.",
-                "date": timezone.now() - timedelta(days=1),
                 "urgent": False,
             },
         ]
 
         context = {
+            "current_child": current_child,
             "children": children,
             "children_summary": children_summary,
             "current_school_year": current_school_year,
             "announcements": announcements,
             "total_children": children.count(),
         }
+        
+        # Add current child specific data if selected
+        if current_child:
+            context.update({
+                "current_gpa": current_gpa,
+                "recent_grades": recent_grades_data,
+                "upcoming_assignments": upcoming_assignments_data,
+                "course_grades": course_grades,
+                # Attendance data
+                "today_attendance": today_attendance,
+                "recent_attendance": recent_attendance,
+                "attendance_summary": attendance_summary,
+                "attendance_patterns": attendance_patterns,
+                # Schedule data
+                "today_schedule": today_schedule,
+                "today_date": today,
+                # Calendar events
+                "upcoming_events": relevant_events[:5],  # Show next 5 events
+                "today_events": relevant_today_events,
+            })
 
     except Exception as e:
         logger.error(f"Error loading parent dashboard: {e}")
         context = {"error": "Unable to load dashboard data at this time."}
 
     return render(request, "parent_portal/dashboard.html", context)
+
+
+@login_required
+@role_required(["Parent"])
+def attendance_view(request):
+    """Detailed attendance view with calendar and patterns"""
+    try:
+        current_child, children = get_current_child(request.user, request)
+        
+        if not current_child:
+            messages.warning(request, "Please select a child to view attendance details.")
+            return redirect('parent_portal:dashboard')
+        
+        # Get current school year
+        current_school_year = SchoolYear.objects.filter(is_active=True).first()
+        
+        # Get all enrollments for the student
+        enrollments = Enrollment.objects.filter(
+            student=current_child,
+            section__school_year=current_school_year,
+            is_active=True
+        )
+        
+        if not enrollments.exists():
+            context = {'error': 'No enrollment records found for this student.'}
+            return render(request, "parent_portal/attendance.html", context)
+        
+        # Get attendance records for the school year
+        enrollment = enrollments.first()  # Use first enrollment for attendance data
+        attendance_records = Attendance.objects.filter(
+            enrollment=enrollment
+        ).order_by('-date')
+        
+        # Get attendance summary
+        attendance_summary = Attendance.get_attendance_summary(enrollment)
+        
+        # Get attendance patterns
+        attendance_patterns = Attendance.get_attendance_patterns(enrollment, days=60)
+        
+        # Group attendance by month for calendar view
+        from datetime import datetime
+        import calendar
+        
+        monthly_attendance = {}
+        for record in attendance_records:
+            month_key = record.date.strftime("%Y-%m")
+            if month_key not in monthly_attendance:
+                monthly_attendance[month_key] = []
+            monthly_attendance[month_key].append(record)
+        
+        # Get absence reasons summary
+        absence_reasons = {}
+        absent_records = attendance_records.filter(status__in=['A', 'E'], absence_reason__isnull=False)
+        for record in absent_records:
+            reason_name = record.absence_reason.name
+            if reason_name not in absence_reasons:
+                absence_reasons[reason_name] = {'count': 0, 'is_excused': record.absence_reason.is_excused}
+            absence_reasons[reason_name]['count'] += 1
+        
+        # Recent attendance notifications
+        recent_notifications = attendance_records.filter(
+            parent_notified=True,
+            parent_notified_at__isnull=False
+        ).order_by('-parent_notified_at')[:10]
+        
+        context = {
+            'current_child': current_child,
+            'children': children,
+            'attendance_records': attendance_records[:50],  # Latest 50 records
+            'attendance_summary': attendance_summary,
+            'attendance_patterns': attendance_patterns,
+            'monthly_attendance': monthly_attendance,
+            'absence_reasons': absence_reasons,
+            'recent_notifications': recent_notifications,
+            'current_school_year': current_school_year,
+        }
+        
+    except Exception as e:
+        logger.error(f"Error loading attendance view: {e}")
+        context = {"error": "Unable to load attendance data at this time."}
+    
+    return render(request, "parent_portal/attendance.html", context)
+
+
+@login_required
+@role_required(["Parent"])
+def early_dismissal_request_view(request):
+    """View for parents to request early dismissal for their child"""
+    try:
+        current_child, children = get_current_child(request.user, request)
+        
+        if not current_child:
+            messages.warning(request, "Please select a child to request early dismissal.")
+            return redirect('parent_portal:dashboard')
+        
+        if request.method == 'POST':
+            form = EarlyDismissalRequestForm(
+                request.POST, 
+                student=current_child, 
+                user=request.user
+            )
+            if form.is_valid():
+                dismissal_request = form.save()
+                messages.success(
+                    request, 
+                    f"Early dismissal request submitted for {current_child.display_name} on {dismissal_request.request_date}. "
+                    "You will be notified when the request is processed."
+                )
+                return redirect('parent_portal:attendance_current')
+        else:
+            form = EarlyDismissalRequestForm(student=current_child, user=request.user)
+        
+        # Get existing requests for this student
+        existing_requests = EarlyDismissalRequest.objects.filter(
+            student=current_child,
+            requested_by=request.user
+        ).order_by('-created_at')[:10]
+        
+        context = {
+            'form': form,
+            'current_child': current_child,
+            'children': children,
+            'existing_requests': existing_requests,
+        }
+        
+    except Exception as e:
+        logger.error(f"Error in early dismissal request view: {e}")
+        messages.error(request, "Unable to process request at this time.")
+        context = {"error": "Unable to load dismissal request form."}
+    
+    return render(request, "parent_portal/early_dismissal_request.html", context)
+
+
+@login_required
+@role_required(["Parent"])
+def school_calendar_view(request):
+    """School calendar view with events and holidays"""
+    try:
+        current_child, children = get_current_child(request.user, request)
+        
+        # Get current school year
+        current_school_year = SchoolYear.objects.filter(is_active=True).first()
+        
+        # Get month and year from request, default to current
+        from datetime import datetime
+        today = datetime.now()
+        month = int(request.GET.get('month', today.month))
+        year = int(request.GET.get('year', today.year))
+        
+        # Get events for the month
+        month_events = SchoolCalendarEvent.get_events_for_month(year, month, current_school_year)
+        
+        # Filter events for current child if one is selected
+        if current_child:
+            filtered_events = []
+            for event in month_events:
+                if event.affects_student(current_child):
+                    filtered_events.append(event)
+            month_events = filtered_events
+        
+        # Get upcoming events (next 30 days)
+        upcoming_events = SchoolCalendarEvent.get_upcoming_events(days=30, school_year=current_school_year)
+        
+        # Filter upcoming events for current child
+        if current_child:
+            filtered_upcoming = []
+            for event in upcoming_events:
+                if event.affects_student(current_child):
+                    filtered_upcoming.append(event)
+            upcoming_events = filtered_upcoming
+        
+        # Generate calendar data
+        import calendar
+        cal = calendar.monthcalendar(year, month)
+        
+        # Create a dictionary to map dates to events
+        events_by_date = {}
+        for event in month_events:
+            # Handle multi-day events
+            current_date = event.start_date
+            while current_date <= event.end_date:
+                if current_date.month == month and current_date.year == year:
+                    if current_date not in events_by_date:
+                        events_by_date[current_date] = []
+                    events_by_date[current_date].append(event)
+                current_date += timedelta(days=1)
+        
+        # Month navigation
+        if month == 1:
+            prev_month, prev_year = 12, year - 1
+        else:
+            prev_month, prev_year = month - 1, year
+            
+        if month == 12:
+            next_month, next_year = 1, year + 1
+        else:
+            next_month, next_year = month + 1, year
+        
+        context = {
+            'current_child': current_child,
+            'children': children,
+            'current_school_year': current_school_year,
+            'calendar_data': cal,
+            'events_by_date': events_by_date,
+            'upcoming_events': upcoming_events[:10],
+            'current_month': month,
+            'current_year': year,
+            'month_name': calendar.month_name[month],
+            'prev_month': prev_month,
+            'prev_year': prev_year,
+            'next_month': next_month,
+            'next_year': next_year,
+            'today': today.date(),
+        }
+        
+    except Exception as e:
+        logger.error(f"Error loading school calendar: {e}")
+        context = {"error": "Unable to load school calendar at this time."}
+    
+    return render(request, "parent_portal/school_calendar.html", context)
 
 
 @login_required
@@ -236,17 +761,27 @@ def children_view(request):
 
 @login_required
 @role_required(["Parent"])
-def child_detail_view(request, student_id):
+def child_detail_view(request, student_id=None):
     """Individual child detail view with comprehensive academic information"""
     try:
-        student = get_object_or_404(Student, id=student_id)
-
-        # Verify parent has access to this student
-        if not verify_parent_access(request.user, student):
-            messages.error(
-                request, "You don't have permission to view this student's information."
-            )
-            return redirect("parent_portal:dashboard")
+        # If no student_id provided, use the current child selection
+        if student_id is None:
+            current_child, children = get_current_child(request.user, request)
+            if not current_child:
+                messages.warning(request, "Please select a child to view details.")
+                return redirect("parent_portal:dashboard")
+            student = current_child
+        else:
+            student = get_object_or_404(Student, id=student_id)
+            # Verify parent has access to this student
+            if not verify_parent_access(request.user, student):
+                messages.error(
+                    request, "You don't have permission to view this student's information."
+                )
+                return redirect("parent_portal:dashboard")
+        
+        # Get all children for the template context
+        _, children = get_current_child(request.user, request)
 
         # Mock detailed course information
         courses_with_grades = [
@@ -352,6 +887,8 @@ def child_detail_view(request, student_id):
 
         context = {
             "student": student,
+            "current_child": student,
+            "children": children,
             "courses_with_grades": courses_with_grades,
             "attendance_records": attendance_records[:10],  # Show last 10 days
             "upcoming_assignments": upcoming_assignments,
@@ -370,179 +907,165 @@ def child_detail_view(request, student_id):
 
 @login_required
 @role_required(["Parent"])
-def grades_view(request, student_id):
+def grades_view(request, student_id=None):
     """Child's detailed grades view"""
     try:
-        student = get_object_or_404(Student, id=student_id)
+        # If no student_id provided, use the current child selection
+        if student_id is None:
+            current_child, children = get_current_child(request.user, request)
+            if not current_child:
+                messages.warning(request, "Please select a child to view grades.")
+                return redirect("parent_portal:dashboard")
+            student = current_child
+        else:
+            student = get_object_or_404(Student, id=student_id)
+            # Verify parent has access to this student
+            if not verify_parent_access(request.user, student):
+                messages.error(
+                    request, "You don't have permission to view this student's information."
+                )
+                return redirect("parent_portal:dashboard")
+        
+        # Get all children for the template context
+        _, children = get_current_child(request.user, request)
 
-        # Verify parent has access to this student
-        if not verify_parent_access(request.user, student):
-            messages.error(
-                request, "You don't have permission to view this student's information."
-            )
-            return redirect("parent_portal:dashboard")
-
-        # Mock detailed grade data with assignment breakdown
-        courses_with_grades = [
-            {
-                "name": "Mathematics",
-                "teacher": "Mr. Johnson",
-                "credit_hours": 1.0,
-                "current_grade": "A-",
-                "percentage": 88.5,
-                "assignments": [
-                    {
-                        "name": "Quiz 1",
-                        "grade": 92,
-                        "max_points": 100,
-                        "date": "2024-09-15",
-                        "category": "Quiz",
-                        "weight": 20,
-                    },
-                    {
-                        "name": "Homework Set 1",
-                        "grade": 87,
-                        "max_points": 100,
-                        "date": "2024-09-20",
-                        "category": "Homework",
-                        "weight": 15,
-                    },
-                    {
-                        "name": "Test 1",
-                        "grade": 85,
-                        "max_points": 100,
-                        "date": "2024-09-25",
-                        "category": "Test",
-                        "weight": 30,
-                    },
-                    {
-                        "name": "Quiz 2",
-                        "grade": 90,
-                        "max_points": 100,
-                        "date": "2024-10-01",
-                        "category": "Quiz",
-                        "weight": 20,
-                    },
-                    {
-                        "name": "Project",
-                        "grade": 94,
-                        "max_points": 100,
-                        "date": "2024-10-05",
-                        "category": "Project",
-                        "weight": 25,
-                    },
-                ],
-            },
-            {
-                "name": "English Literature",
-                "teacher": "Ms. Davis",
-                "credit_hours": 1.0,
-                "current_grade": "B+",
-                "percentage": 86.2,
-                "assignments": [
-                    {
-                        "name": "Essay 1",
-                        "grade": 88,
-                        "max_points": 100,
-                        "date": "2024-09-18",
-                        "category": "Essay",
-                        "weight": 30,
-                    },
-                    {
-                        "name": "Reading Quiz",
-                        "grade": 82,
-                        "max_points": 100,
-                        "date": "2024-09-22",
-                        "category": "Quiz",
-                        "weight": 15,
-                    },
-                    {
-                        "name": "Discussion Posts",
-                        "grade": 90,
-                        "max_points": 100,
-                        "date": "2024-09-28",
-                        "category": "Participation",
-                        "weight": 20,
-                    },
-                    {
-                        "name": "Vocabulary Test",
-                        "grade": 85,
-                        "max_points": 100,
-                        "date": "2024-10-02",
-                        "category": "Test",
-                        "weight": 25,
-                    },
-                ],
-            },
-            {
-                "name": "Science",
-                "teacher": "Dr. Wilson",
-                "credit_hours": 1.0,
-                "current_grade": "A",
-                "percentage": 92.1,
-                "assignments": [
-                    {
-                        "name": "Lab Report 1",
-                        "grade": 95,
-                        "max_points": 100,
-                        "date": "2024-09-16",
-                        "category": "Lab",
-                        "weight": 25,
-                    },
-                    {
-                        "name": "Chapter Test",
-                        "grade": 91,
-                        "max_points": 100,
-                        "date": "2024-09-23",
-                        "category": "Test",
-                        "weight": 30,
-                    },
-                    {
-                        "name": "Lab Practical",
-                        "grade": 90,
-                        "max_points": 100,
-                        "date": "2024-09-30",
-                        "category": "Lab",
-                        "weight": 25,
-                    },
-                    {
-                        "name": "Research Project",
-                        "grade": 93,
-                        "max_points": 100,
-                        "date": "2024-10-07",
-                        "category": "Project",
-                        "weight": 20,
-                    },
-                ],
-            },
-        ]
+        # Get real detailed grade data with assignment breakdown
+        enrollments = Enrollment.objects.filter(
+            student=student,
+            section__school_year__is_active=True,
+            is_active=True
+        ).select_related(
+            'section__course', 'section__teacher'
+        ).prefetch_related(
+            'grades__assignment__category',
+            'grades__assignment'
+        )
+        
+        courses_with_grades = []
+        
+        for enrollment in enrollments:
+            # Get all grades for this enrollment
+            grades = enrollment.grades.filter(
+                is_excused=False
+            ).select_related('assignment__category').order_by('-assignment__due_date')
+            
+            assignments_data = []
+            for grade in grades:
+                assignments_data.append({
+                    'name': grade.assignment.name,
+                    'grade': grade.points_earned,
+                    'max_points': grade.assignment.max_points,
+                    'percentage': round(grade.percentage, 1) if grade.percentage else None,
+                    'letter_grade': grade.letter_grade,
+                    'date': grade.graded_date or grade.created_at,
+                    'category': grade.assignment.category.name,
+                    'weight': grade.assignment.weight,
+                    'is_late': grade.is_late,
+                    'comments': grade.comments,
+                })
+            
+            # Calculate current grade
+            calculated_grade = enrollment.calculate_grade()
+            current_percentage = round(calculated_grade, 1) if calculated_grade else None
+            current_letter = enrollment.get_letter_grade(calculated_grade) if calculated_grade else "N/A"
+            
+            courses_with_grades.append({
+                'name': enrollment.section.course.name,
+                'course_code': enrollment.section.course.course_code,
+                'teacher': enrollment.section.teacher.get_full_name(),
+                'credit_hours': enrollment.section.course.credit_hours,
+                'current_grade': current_letter,
+                'percentage': current_percentage,
+                'assignments': assignments_data,
+                'section': enrollment.section.section_name,
+            })
 
         # Calculate overall statistics
-        total_points = sum(course["percentage"] for course in courses_with_grades)
-        overall_gpa = (
-            total_points / len(courses_with_grades) if courses_with_grades else 0
-        )
+        total_points = 0
+        total_credits = 0
+        
+        for course in courses_with_grades:
+            if course["percentage"] is not None:
+                # Convert percentage to GPA points
+                letter = course["current_grade"]
+                grade_points = {
+                    'A+': 4.0, 'A': 4.0, 'A-': 3.7,
+                    'B+': 3.3, 'B': 3.0, 'B-': 2.7,
+                    'C+': 2.3, 'C': 2.0, 'C-': 1.7,
+                    'D+': 1.3, 'D': 1.0, 'D-': 0.7,
+                    'F': 0.0
+                }.get(letter, 0.0)
+                
+                total_points += grade_points * float(course["credit_hours"])
+                total_credits += float(course["credit_hours"])
+        
+        overall_gpa = round(total_points / total_credits, 2) if total_credits > 0 else 0.0
 
-        # Grade trends (mock data)
-        grade_trends = [
-            {"week": "Week 1", "average": 85.2},
-            {"week": "Week 2", "average": 87.1},
-            {"week": "Week 3", "average": 86.8},
-            {"week": "Week 4", "average": 88.5},
-            {"week": "Week 5", "average": 89.1},
-        ]
-
-        # Missing assignments
-        missing_assignments = [
-            {
-                "course": "English Literature",
-                "title": "Reading Log Entry",
-                "due_date": timezone.now() - timedelta(days=3),
-            },
-        ]
+        # Calculate grade trends based on actual grades over time
+        from datetime import datetime, timedelta
+        from django.db.models import Avg
+        
+        # Get grades from the last 8 weeks
+        eight_weeks_ago = timezone.now().date() - timedelta(weeks=8)
+        recent_grades = Grade.objects.filter(
+            enrollment__student=student,
+            enrollment__section__school_year__is_active=True,
+            graded_date__gte=eight_weeks_ago,
+            points_earned__isnull=False,
+            is_excused=False
+        ).order_by('graded_date')
+        
+        # Group grades by week and calculate averages
+        grade_trends = []
+        if recent_grades.exists():
+            current_date = eight_weeks_ago
+            week_count = 1
+            
+            while current_date <= timezone.now().date() and week_count <= 8:
+                week_end = current_date + timedelta(days=6)
+                week_grades = recent_grades.filter(
+                    graded_date__gte=current_date,
+                    graded_date__lte=week_end
+                )
+                
+                if week_grades.exists():
+                    avg_percentage = week_grades.aggregate(
+                        avg=Avg('percentage')
+                    )['avg']
+                    grade_trends.append({
+                        "week": f"Week {week_count}",
+                        "average": round(avg_percentage, 1) if avg_percentage else None
+                    })
+                
+                current_date = week_end + timedelta(days=1)
+                week_count += 1
+        
+        # Find missing assignments (assignments without grades)
+        missing_assignments = []
+        for enrollment in enrollments:
+            # Get assignments that don't have grades yet
+            assignments_with_no_grades = Assignment.objects.filter(
+                section=enrollment.section,
+                is_published=True,
+                due_date__lte=timezone.now().date()
+            ).exclude(
+                grades__enrollment=enrollment
+            ).select_related('section__course')
+            
+            for assignment in assignments_with_no_grades:
+                missing_assignments.append({
+                    'course': assignment.section.course.name,
+                    'title': assignment.name,
+                    'due_date': assignment.due_date,
+                    'days_overdue': (timezone.now().date() - assignment.due_date).days,
+                    'max_points': assignment.max_points,
+                    'category': assignment.category.name,
+                })
 
         context = {
             "student": student,
+            "current_child": student,
+            "children": children,
             "courses_with_grades": courses_with_grades,
             "overall_gpa": round(overall_gpa, 2),
             "grade_trends": grade_trends,
@@ -560,76 +1083,77 @@ def grades_view(request, student_id):
 @login_required
 @role_required(["Parent"])
 def messages_view(request):
-    """Teacher communications and school messages"""
+    """Enhanced teacher messaging with threads, attachments, and read receipts"""
     try:
-        from academics.models import Message, Announcement
-        
         children = get_parent_children(request.user)
-
-        # Get direct messages to this parent
-        direct_messages = Message.objects.filter(recipient=request.user).select_related('sender')
         
-        # Get relevant announcements 
-        today = timezone.now().date()
-        announcements = Announcement.objects.filter(
-            models.Q(audience__in=['ALL', 'PARENTS']) &
-            models.Q(publish_date__lte=today) &
-            (models.Q(end_date__gte=today) | models.Q(end_date__isnull=True)) &
-            models.Q(is_published=True)
-        ).order_by('-publish_date')
+        # Get message threads (group by thread_id)
+        from django.db.models import Q, Max
         
-        # Combine messages and announcements into unified format
-        messages_data = []
+        # Get all messages involving this parent
+        all_messages = Message.objects.filter(
+            Q(sender=request.user) | Q(recipient=request.user)
+        ).select_related('sender', 'recipient', 'student_context').prefetch_related('attachments')
         
-        # Add direct messages
-        for msg in direct_messages:
-            messages_data.append({
-                "id": f"msg_{msg.id}",
-                "type": "message",
-                "from": f"{msg.sender.get_full_name() or msg.sender.username}",
-                "subject": msg.subject,
-                "message": msg.content,
-                "date": msg.sent_at,
-                "student": None,  # Could be enhanced to link to specific student
-                "read": msg.is_read,
-                "urgent": msg.is_urgent,
-                "object": msg,
+        # Group messages by thread_id
+        threads = {}
+        for message in all_messages:
+            thread_id = message.thread_id or f"single_{message.id}"
+            if thread_id not in threads:
+                threads[thread_id] = []
+            threads[thread_id].append(message)
+        
+        # Create thread summaries
+        thread_data = []
+        for thread_id, messages in threads.items():
+            # Sort messages in thread by date
+            messages.sort(key=lambda x: x.sent_at)
+            latest_message = messages[-1]
+            
+            # Check if user has unread messages in this thread
+            unread_count = sum(1 for msg in messages if msg.recipient == request.user and not msg.is_read)
+            has_urgent = any(msg.is_urgent and msg.recipient == request.user and not msg.is_read for msg in messages)
+            
+            # Get participants (excluding current user)
+            participants = set()
+            for msg in messages:
+                if msg.sender != request.user:
+                    participants.add(msg.sender)
+                if msg.recipient != request.user:
+                    participants.add(msg.recipient)
+            
+            thread_data.append({
+                'thread_id': thread_id,
+                'subject': latest_message.subject,
+                'latest_message': latest_message,
+                'messages': messages,
+                'message_count': len(messages),
+                'unread_count': unread_count,
+                'has_urgent': has_urgent,
+                'participants': list(participants),
+                'student_context': latest_message.student_context,
+                'has_attachments': any(msg.attachments.exists() for msg in messages)
             })
         
-        # Add announcements
-        for announcement in announcements:
-            messages_data.append({
-                "id": f"ann_{announcement.id}",
-                "type": "announcement", 
-                "from": "School Administration",
-                "subject": announcement.title,
-                "message": announcement.content,
-                "date": announcement.publish_date,
-                "student": None,
-                "read": True,  # Announcements are considered read when viewed
-                "urgent": announcement.is_urgent,
-                "object": announcement,
-            })
+        # Sort threads by latest message date
+        thread_data.sort(key=lambda x: x['latest_message'].sent_at, reverse=True)
         
-        # Sort by date (newest first)
-        messages_data.sort(key=lambda x: x["date"], reverse=True)
-
-        # Paginate messages
-        paginator = Paginator(messages_data, 10)
+        # Paginate threads
+        paginator = Paginator(thread_data, 10)
         page_number = request.GET.get("page")
         page_obj = paginator.get_page(page_number)
-
-        # Count unread messages (only direct messages can be unread)
-        unread_count = direct_messages.filter(is_read=False).count()
-        urgent_count = direct_messages.filter(is_urgent=True, is_read=False).count()
-
+        
+        # Count total unread messages
+        total_unread = Message.objects.filter(recipient=request.user, is_read=False).count()
+        total_urgent = Message.objects.filter(recipient=request.user, is_read=False, is_urgent=True).count()
+        
         context = {
             "children": children,
             "page_obj": page_obj,
-            "unread_count": unread_count,
-            "urgent_count": urgent_count,
+            "total_unread": total_unread,
+            "total_urgent": total_urgent,
         }
-
+        
     except Exception as e:
         logger.error(f"Error loading parent messages: {e}")
         context = {"error": "Unable to load messages at this time."}
@@ -639,21 +1163,171 @@ def messages_view(request):
 
 @login_required
 @role_required(["Parent"])
-def profile_view(request):
-    """Parent profile management and emergency contact updates"""
+def compose_message_view(request):
+    """Compose new message to teachers"""
     try:
         children = get_parent_children(request.user)
+        
+        # Get available teachers (teachers of this parent's children)
+        teacher_ids = set()
+        for child in children:
+            enrollments = Enrollment.objects.filter(
+                student=child,
+                section__school_year__is_active=True,
+                is_active=True
+            ).select_related('section__teacher')
+            
+            for enrollment in enrollments:
+                if enrollment.section.teacher:
+                    teacher_ids.add(enrollment.section.teacher.id)
+        
+        available_teachers = User.objects.filter(id__in=teacher_ids)
+        
+        if request.method == 'POST':
+            form = MessageForm(
+                request.POST, 
+                request.FILES,
+                sender=request.user,
+                available_recipients=available_teachers,
+                student_context_options=children
+            )
+            if form.is_valid():
+                message = form.save()
+                messages.success(request, f"Message sent to {message.recipient.get_full_name()}!")
+                return redirect('parent_portal:messages')
+        else:
+            form = MessageForm(
+                sender=request.user,
+                available_recipients=available_teachers,
+                student_context_options=children
+            )
+        
+        context = {
+            'form': form,
+            'children': children,
+            'available_teachers': available_teachers,
+        }
+        
+    except Exception as e:
+        logger.error(f"Error in compose message view: {e}")
+        messages.error(request, "Unable to load compose form at this time.")
+        context = {"error": "Unable to load compose form."}
+    
+    return render(request, "parent_portal/compose_message.html", context)
+
+
+@login_required
+@role_required(["Parent"])
+def message_thread_view(request, thread_id):
+    """View individual message thread with reply functionality"""
+    try:
+        # Get all messages in thread
+        thread_messages = Message.objects.filter(
+            thread_id=thread_id
+        ).filter(
+            Q(sender=request.user) | Q(recipient=request.user)
+        ).select_related('sender', 'recipient', 'student_context').prefetch_related('attachments').order_by('sent_at')
+        
+        if not thread_messages.exists():
+            messages.error(request, "Message thread not found.")
+            return redirect('parent_portal:messages')
+        
+        # Mark unread messages as read
+        unread_messages = thread_messages.filter(recipient=request.user, is_read=False)
+        for message in unread_messages:
+            message.mark_as_read()
+        
+        # Get the original message for context
+        original_message = thread_messages.first()
+        
+        # Handle reply form
+        if request.method == 'POST':
+            form = MessageReplyForm(
+                request.POST,
+                request.FILES,
+                sender=request.user,
+                original_message=original_message
+            )
+            if form.is_valid():
+                reply = form.save()
+                messages.success(request, "Reply sent!")
+                return redirect('parent_portal:message_thread', thread_id=thread_id)
+        else:
+            form = MessageReplyForm(
+                sender=request.user,
+                original_message=original_message
+            )
+        
+        context = {
+            'thread_messages': thread_messages,
+            'thread_id': thread_id,
+            'original_message': original_message,
+            'form': form,
+        }
+        
+    except Exception as e:
+        logger.error(f"Error loading message thread: {e}")
+        messages.error(request, "Unable to load message thread.")
+        context = {"error": "Unable to load message thread."}
+    
+    return render(request, "parent_portal/message_thread.html", context)
+
+
+@login_required
+@role_required(["Parent"])
+def download_attachment_view(request, attachment_id):
+    """Download message attachment"""
+    try:
+        attachment = get_object_or_404(MessageAttachment, id=attachment_id)
+        
+        # Verify access - user must be sender or recipient of the message
+        if request.user not in [attachment.message.sender, attachment.message.recipient]:
+            messages.error(request, "You don't have permission to download this file.")
+            return redirect('parent_portal:messages')
+        
+        # Record download
+        attachment.record_download()
+        
+        # Serve file
+        response = HttpResponse(attachment.file.read(), content_type=attachment.content_type)
+        response['Content-Disposition'] = f'attachment; filename="{attachment.original_filename}"'
+        response['Content-Length'] = attachment.file_size
+        
+        return response
+        
+    except Exception as e:
+        logger.error(f"Error downloading attachment: {e}")
+        messages.error(request, "Unable to download file.")
+        return redirect('parent_portal:messages')
+
+
+@login_required
+@role_required(["Parent"])
+def profile_view(request):
+    """Parent profile management with language preference support"""
+    try:
+        children = get_parent_children(request.user)
+        
+        # Get or create user profile
+        from schooldriver_modern.models import UserProfile
+        profile, created = UserProfile.objects.get_or_create(user=request.user)
 
         if request.method == "POST":
-            # Handle profile updates
-            user = request.user
-            user.first_name = request.POST.get("first_name", "").strip()
-            user.last_name = request.POST.get("last_name", "").strip()
-            user.email = request.POST.get("email", "").strip()
-            user.save()
-
-            messages.success(request, "Profile updated successfully.")
-            return redirect("parent_portal:profile")
+            form = ParentProfileForm(request.POST, instance=profile, user=request.user)
+            if form.is_valid():
+                form.save()
+                
+                # Update language preference in session for immediate effect
+                from django.utils import translation
+                language = form.cleaned_data.get('preferred_language')
+                if language:
+                    translation.activate(language)
+                    request.session['django_language'] = language
+                
+                messages.success(request, "Profile updated successfully.")
+                return redirect("parent_portal:profile")
+        else:
+            form = ParentProfileForm(instance=profile, user=request.user)
 
         # Get emergency contact information for all children
         emergency_contacts_by_child = {}
@@ -666,20 +1340,10 @@ def profile_view(request):
                 )
             )
 
-        # Mock family information
-        family_info = {
-            "primary_address": "123 Family Lane, Suburbia, CA 90210",
-            "primary_phone": "(555) 123-4567",
-            "secondary_phone": "(555) 987-6543",
-            "preferred_contact_method": "Email",
-            "emergency_contact_name": "Grandma Smith",
-            "emergency_contact_phone": "(555) 555-5555",
-        }
-
         context = {
+            "form": form,
             "children": children,
             "emergency_contacts_by_child": emergency_contacts_by_child,
-            "family_info": family_info,
         }
 
     except Exception as e:
@@ -687,3 +1351,753 @@ def profile_view(request):
         context = {"error": "Unable to load profile information at this time."}
 
     return render(request, "parent_portal/profile.html", context)
+
+
+@login_required
+@role_required(["Parent"])
+def progress_report_view(request, student_id=None):
+    """Generate current progress report for student"""
+    try:
+        # Get student and verify access
+        if student_id is None:
+            current_child, children = get_current_child(request.user, request)
+            if not current_child:
+                messages.warning(request, "Please select a child to view progress report.")
+                return redirect("parent_portal:dashboard")
+            student = current_child
+        else:
+            student = get_object_or_404(Student, id=student_id)
+            if not verify_parent_access(request.user, student):
+                messages.error(request, "You don't have permission to view this student's information.")
+                return redirect("parent_portal:dashboard")
+        
+        # Get all children for template context
+        _, children = get_current_child(request.user, request)
+        
+        # Get current school year
+        current_school_year = SchoolYear.objects.filter(is_active=True).first()
+        if not current_school_year:
+            messages.error(request, "No active school year found.")
+            return redirect("parent_portal:dashboard")
+        
+        # Get student's enrollments for current year
+        enrollments = Enrollment.objects.filter(
+            student=student,
+            section__school_year=current_school_year,
+            is_active=True
+        ).select_related(
+            'section__course',
+            'section__teacher'
+        ).prefetch_related('grades__assignment__category')
+        
+        # Generate report data
+        report_data = {
+            'student': student,
+            'school_year': current_school_year,
+            'generated_date': timezone.now(),
+            'courses': [],
+            'overall_gpa': 0,
+            'total_credits': 0,
+            'attendance_summary': None
+        }
+        
+        total_grade_points = 0
+        total_credits = 0
+        
+        for enrollment in enrollments:
+            # Calculate current grade
+            calculated_grade = enrollment.calculate_grade()
+            current_percentage = round(calculated_grade, 1) if calculated_grade else None
+            current_letter = enrollment.get_letter_grade(calculated_grade) if calculated_grade else "N/A"
+            
+            # Get assignment breakdown by category
+            assignment_categories = {}
+            grades = enrollment.grades.filter(
+                is_excused=False,
+                points_earned__isnull=False
+            ).select_related('assignment__category')
+            
+            for grade in grades:
+                category = grade.assignment.category.name
+                if category not in assignment_categories:
+                    assignment_categories[category] = {
+                        'total_points': 0,
+                        'earned_points': 0,
+                        'count': 0,
+                        'assignments': []
+                    }
+                
+                assignment_categories[category]['total_points'] += float(grade.assignment.max_points)
+                assignment_categories[category]['earned_points'] += float(grade.points_earned)
+                assignment_categories[category]['count'] += 1
+                assignment_categories[category]['assignments'].append({
+                    'name': grade.assignment.name,
+                    'points_earned': grade.points_earned,
+                    'max_points': grade.assignment.max_points,
+                    'percentage': round(grade.percentage, 1) if grade.percentage else None,
+                    'date': grade.graded_date or grade.created_at
+                })
+            
+            # Calculate category averages
+            for category_data in assignment_categories.values():
+                if category_data['total_points'] > 0:
+                    category_data['average'] = round(
+                        (category_data['earned_points'] / category_data['total_points']) * 100, 1
+                    )
+                else:
+                    category_data['average'] = None
+            
+            # Add course data to report
+            course_data = {
+                'name': enrollment.section.course.name,
+                'code': enrollment.section.course.course_code,
+                'teacher': enrollment.section.teacher.get_full_name(),
+                'section': enrollment.section.section_name,
+                'credit_hours': enrollment.section.course.credit_hours,
+                'current_grade': current_letter,
+                'percentage': current_percentage,
+                'assignment_categories': assignment_categories,
+                'total_assignments': grades.count()
+            }
+            
+            report_data['courses'].append(course_data)
+            
+            # Calculate GPA contribution
+            if calculated_grade is not None:
+                grade_points = {
+                    'A+': 4.0, 'A': 4.0, 'A-': 3.7,
+                    'B+': 3.3, 'B': 3.0, 'B-': 2.7,
+                    'C+': 2.3, 'C': 2.0, 'C-': 1.7,
+                    'D+': 1.3, 'D': 1.0, 'D-': 0.7,
+                    'F': 0.0
+                }.get(current_letter, 0.0)
+                
+                total_grade_points += grade_points * float(enrollment.section.course.credit_hours)
+                total_credits += float(enrollment.section.course.credit_hours)
+        
+        # Calculate overall GPA
+        if total_credits > 0:
+            report_data['overall_gpa'] = round(total_grade_points / total_credits, 2)
+            report_data['total_credits'] = total_credits
+        
+        # Get attendance summary
+        attendance_records = Attendance.objects.filter(
+            enrollment__student=student,
+            enrollment__section__school_year=current_school_year
+        )
+        
+        if attendance_records.exists():
+            total_days = attendance_records.count()
+            present_days = attendance_records.filter(status='P').count()
+            absent_days = attendance_records.filter(status__in=['A', 'E']).count()
+            tardy_days = attendance_records.filter(status__in=['T', 'L']).count()
+            
+            report_data['attendance_summary'] = {
+                'total_days': total_days,
+                'present_days': present_days,
+                'absent_days': absent_days,
+                'tardy_days': tardy_days,
+                'attendance_rate': round((present_days / total_days) * 100, 1) if total_days > 0 else 0
+            }
+        
+        context = {
+            'student': student,
+            'current_child': student,
+            'children': children,
+            'report_data': report_data,
+            'page_title': f"Progress Report - {student.display_name}"
+        }
+        
+        return render(request, "parent_portal/progress_report.html", context)
+        
+    except Exception as e:
+        logger.error(f"Error generating progress report: {e}")
+        messages.error(request, "Unable to generate progress report at this time.")
+        return redirect("parent_portal:dashboard")
+
+
+@login_required
+@role_required(["Parent"])
+def progress_report_pdf(request, student_id=None):
+    """Generate and download progress report as PDF"""
+    try:
+        # Get student and verify access
+        if student_id is None:
+            current_child, children = get_current_child(request.user, request)
+            if not current_child:
+                messages.warning(request, "Please select a child to download report.")
+                return redirect("parent_portal:dashboard")
+            student = current_child
+        else:
+            student = get_object_or_404(Student, id=student_id)
+            if not verify_parent_access(request.user, student):
+                messages.error(request, "You don't have permission to access this report.")
+                return redirect("parent_portal:dashboard")
+        
+        # Get report data (reuse logic from progress_report_view)
+        current_school_year = SchoolYear.objects.filter(is_active=True).first()
+        enrollments = Enrollment.objects.filter(
+            student=student,
+            section__school_year=current_school_year,
+            is_active=True
+        ).select_related('section__course', 'section__teacher').prefetch_related('grades__assignment__category')
+        
+        # Create PDF response
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="progress_report_{student.last_name}_{student.first_name}_{timezone.now().strftime("%Y%m%d")}.pdf"'
+        
+        # Create PDF document
+        buffer = BytesIO()
+        doc = SimpleDocTemplate(buffer, pagesize=letter, topMargin=0.5*inch, bottomMargin=0.5*inch)
+        
+        # Define styles
+        styles = getSampleStyleSheet()
+        title_style = ParagraphStyle(
+            'CustomTitle',
+            parent=styles['Heading1'],
+            fontSize=16,
+            spaceAfter=30,
+            alignment=1  # Center alignment
+        )
+        
+        heading_style = ParagraphStyle(
+            'CustomHeading',
+            parent=styles['Heading2'],
+            fontSize=12,
+            spaceAfter=10,
+            textColor=colors.darkblue
+        )
+        
+        # Build PDF content
+        content = []
+        
+        # Title
+        content.append(Paragraph("PROGRESS REPORT", title_style))
+        content.append(Spacer(1, 20))
+        
+        # Student information
+        student_info = [
+            ['Student Name:', f"{student.first_name} {student.last_name}"],
+            ['Student ID:', student.student_id],
+            ['Grade Level:', student.grade_level.name if student.grade_level else 'N/A'],
+            ['School Year:', current_school_year.name if current_school_year else 'N/A'],
+            ['Report Date:', timezone.now().strftime('%B %d, %Y')]
+        ]
+        
+        student_table = Table(student_info, colWidths=[2*inch, 3*inch])
+        student_table.setStyle(TableStyle([
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 10),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+        ]))
+        content.append(student_table)
+        content.append(Spacer(1, 20))
+        
+        # Course grades
+        if enrollments.exists():
+            content.append(Paragraph("COURSE GRADES", heading_style))
+            
+            # Create grades table
+            grade_data = [['Course', 'Teacher', 'Current Grade', 'Percentage', 'Credits']]
+            
+            total_grade_points = 0
+            total_credits = 0
+            
+            for enrollment in enrollments:
+                calculated_grade = enrollment.calculate_grade()
+                current_percentage = round(calculated_grade, 1) if calculated_grade else None
+                current_letter = enrollment.get_letter_grade(calculated_grade) if calculated_grade else "N/A"
+                
+                grade_data.append([
+                    f"{enrollment.section.course.course_code}: {enrollment.section.course.name}",
+                    enrollment.section.teacher.get_full_name(),
+                    current_letter,
+                    f"{current_percentage}%" if current_percentage else "N/A",
+                    str(enrollment.section.course.credit_hours)
+                ])
+                
+                # Calculate GPA
+                if calculated_grade is not None:
+                    grade_points = {
+                        'A+': 4.0, 'A': 4.0, 'A-': 3.7,
+                        'B+': 3.3, 'B': 3.0, 'B-': 2.7,
+                        'C+': 2.3, 'C': 2.0, 'C-': 1.7,
+                        'D+': 1.3, 'D': 1.0, 'D-': 0.7,
+                        'F': 0.0
+                    }.get(current_letter, 0.0)
+                    
+                    total_grade_points += grade_points * float(enrollment.section.course.credit_hours)
+                    total_credits += float(enrollment.section.course.credit_hours)
+            
+            grades_table = Table(grade_data, colWidths=[2.5*inch, 1.5*inch, 1*inch, 1*inch, 0.7*inch])
+            grades_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, -1), 9),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+                ('GRID', (0, 0), (-1, -1), 1, colors.black)
+            ]))
+            content.append(grades_table)
+            content.append(Spacer(1, 15))
+            
+            # Overall GPA
+            if total_credits > 0:
+                overall_gpa = round(total_grade_points / total_credits, 2)
+                gpa_info = [['Overall GPA:', f"{overall_gpa} / 4.0"], ['Total Credits:', str(total_credits)]]
+                gpa_table = Table(gpa_info, colWidths=[2*inch, 2*inch])
+                gpa_table.setStyle(TableStyle([
+                    ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+                    ('FONTSIZE', (0, 0), (-1, -1), 10),
+                    ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                ]))
+                content.append(gpa_table)
+                content.append(Spacer(1, 20))
+        
+        # Attendance summary
+        attendance_records = Attendance.objects.filter(
+            enrollment__student=student,
+            enrollment__section__school_year=current_school_year
+        )
+        
+        if attendance_records.exists():
+            content.append(Paragraph("ATTENDANCE SUMMARY", heading_style))
+            
+            total_days = attendance_records.count()
+            present_days = attendance_records.filter(status='P').count()
+            absent_days = attendance_records.filter(status__in=['A', 'E']).count()
+            tardy_days = attendance_records.filter(status__in=['T', 'L']).count()
+            attendance_rate = round((present_days / total_days) * 100, 1) if total_days > 0 else 0
+            
+            attendance_data = [
+                ['Total School Days:', str(total_days)],
+                ['Days Present:', str(present_days)],
+                ['Days Absent:', str(absent_days)],
+                ['Days Tardy:', str(tardy_days)],
+                ['Attendance Rate:', f"{attendance_rate}%"]
+            ]
+            
+            attendance_table = Table(attendance_data, colWidths=[2*inch, 1.5*inch])
+            attendance_table.setStyle(TableStyle([
+                ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, -1), 10),
+                ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
+            ]))
+            content.append(attendance_table)
+        
+        # Build PDF
+        doc.build(content)
+        pdf = buffer.getvalue()
+        buffer.close()
+        response.write(pdf)
+        
+        return response
+        
+    except Exception as e:
+        logger.error(f"Error generating PDF report: {e}")
+        messages.error(request, "Unable to generate PDF report at this time.")
+        return redirect("parent_portal:dashboard")
+
+
+@login_required
+@role_required(["Parent"])
+def historical_reports_view(request, student_id=None):
+    """View historical report cards for student"""
+    try:
+        # Get student and verify access
+        if student_id is None:
+            current_child, children = get_current_child(request.user, request)
+            if not current_child:
+                messages.warning(request, "Please select a child to view historical reports.")
+                return redirect("parent_portal:dashboard")
+            student = current_child
+        else:
+            student = get_object_or_404(Student, id=student_id)
+            if not verify_parent_access(request.user, student):
+                messages.error(request, "You don't have permission to view this student's information.")
+                return redirect("parent_portal:dashboard")
+        
+        # Get all children for template context
+        _, children = get_current_child(request.user, request)
+        
+        # Get all school years the student has been enrolled in
+        historical_years = SchoolYear.objects.filter(
+            coursesection__enrollments__student=student
+        ).distinct().order_by('-start_date')
+        
+        reports_data = []
+        
+        for school_year in historical_years:
+            # Get enrollments for this school year
+            enrollments = Enrollment.objects.filter(
+                student=student,
+                section__school_year=school_year,
+                is_active=True
+            ).select_related('section__course', 'section__teacher')
+            
+            if enrollments.exists():
+                # Calculate summary data for this year
+                total_grade_points = 0
+                total_credits = 0
+                courses_completed = 0
+                
+                for enrollment in enrollments:
+                    calculated_grade = enrollment.calculate_grade()
+                    if calculated_grade is not None:
+                        courses_completed += 1
+                        letter_grade = enrollment.get_letter_grade(calculated_grade)
+                        grade_points = {
+                            'A+': 4.0, 'A': 4.0, 'A-': 3.7,
+                            'B+': 3.3, 'B': 3.0, 'B-': 2.7,
+                            'C+': 2.3, 'C': 2.0, 'C-': 1.7,
+                            'D+': 1.3, 'D': 1.0, 'D-': 0.7,
+                            'F': 0.0
+                        }.get(letter_grade, 0.0)
+                        
+                        total_grade_points += grade_points * float(enrollment.section.course.credit_hours)
+                        total_credits += float(enrollment.section.course.credit_hours)
+                
+                year_gpa = round(total_grade_points / total_credits, 2) if total_credits > 0 else 0.0
+                
+                reports_data.append({
+                    'school_year': school_year,
+                    'gpa': year_gpa,
+                    'total_credits': total_credits,
+                    'courses_completed': courses_completed,
+                    'is_current': school_year.is_active
+                })
+        
+        context = {
+            'student': student,
+            'current_child': student,
+            'children': children,
+            'reports_data': reports_data,
+            'page_title': f"Historical Reports - {student.display_name}"
+        }
+        
+        return render(request, "parent_portal/historical_reports.html", context)
+        
+    except Exception as e:
+        logger.error(f"Error loading historical reports: {e}")
+        messages.error(request, "Unable to load historical reports at this time.")
+        return redirect("parent_portal:dashboard")
+
+
+# Emergency Contact Management Views
+
+@login_required
+@role_required('parent')
+def emergency_contacts_view(request):
+    """View and manage emergency contacts"""
+    try:
+        # Get parent's children
+        children = Student.objects.filter(
+            verification_codes__user=request.user,
+            verification_codes__is_verified=True
+        ).distinct()
+        
+        if not children.exists():
+            messages.error(
+                request, 
+                "No student records found for your account. Please contact the school office."
+            )
+            return redirect('parent_portal:dashboard')
+        
+        # For multi-child support, get the selected child or default to first
+        child_id = request.GET.get('child')
+        if child_id:
+            try:
+                child = children.get(id=child_id)
+            except Student.DoesNotExist:
+                child = children.first()
+        else:
+            child = children.first()
+        
+        # Get emergency contacts for the child
+        emergency_contacts = child.emergency_contacts.all().order_by('is_primary', 'last_name', 'first_name')
+        
+        # Get authorized pickup persons
+        pickup_persons = child.authorized_pickup_persons.filter(is_active=True).order_by('last_name', 'first_name')
+        
+        # Get medical information
+        try:
+            medical_info = child.medical_information
+        except MedicalInformation.DoesNotExist:
+            medical_info = None
+        
+        context = {
+            'child': child,
+            'children': children,
+            'emergency_contacts': emergency_contacts,
+            'pickup_persons': pickup_persons,
+            'medical_info': medical_info,
+        }
+        
+        return render(request, 'parent_portal/emergency_contacts.html', context)
+        
+    except Exception as e:
+        logger.error(f"Error loading emergency contacts: {e}")
+        messages.error(request, "Unable to load emergency contact information.")
+        return redirect('parent_portal:dashboard')
+
+
+@login_required
+@role_required('parent')
+def add_emergency_contact_view(request):
+    """Add new emergency contact"""
+    try:
+        # Get parent's children
+        children = Student.objects.filter(
+            verification_codes__user=request.user,
+            verification_codes__is_verified=True
+        ).distinct()
+        
+        if not children.exists():
+            messages.error(request, "No student records found for your account.")
+            return redirect('parent_portal:dashboard')
+        
+        child_id = request.GET.get('child') or request.POST.get('child')
+        if child_id:
+            try:
+                child = children.get(id=child_id)
+            except Student.DoesNotExist:
+                child = children.first()
+        else:
+            child = children.first()
+        
+        if request.method == 'POST':
+            form = EmergencyContactForm(request.POST)
+            if form.is_valid():
+                emergency_contact = form.save(commit=False)
+                emergency_contact.save()
+                child.emergency_contacts.add(emergency_contact)
+                
+                messages.success(request, f"Emergency contact {emergency_contact.full_name} added successfully.")
+                return redirect(f'/parent/emergency-contacts/?child={child.id}')
+        else:
+            form = EmergencyContactForm()
+        
+        context = {
+            'form': form,
+            'child': child,
+            'children': children,
+            'action': 'Add'
+        }
+        
+        return render(request, 'parent_portal/emergency_contact_form.html', context)
+        
+    except Exception as e:
+        logger.error(f"Error adding emergency contact: {e}")
+        messages.error(request, "Unable to add emergency contact.")
+        return redirect('parent_portal:emergency_contacts')
+
+
+@login_required
+@role_required('parent')
+def edit_emergency_contact_view(request, contact_id):
+    """Edit existing emergency contact"""
+    try:
+        # Get parent's children
+        children = Student.objects.filter(
+            verification_codes__user=request.user,
+            verification_codes__is_verified=True
+        ).distinct()
+        
+        # Get the emergency contact and verify access
+        contact = get_object_or_404(EmergencyContact, id=contact_id)
+        
+        # Verify the contact belongs to one of the parent's children
+        if not children.filter(emergency_contacts=contact).exists():
+            messages.error(request, "You don't have permission to edit this contact.")
+            return redirect('parent_portal:emergency_contacts')
+        
+        child = children.filter(emergency_contacts=contact).first()
+        
+        if request.method == 'POST':
+            form = EmergencyContactForm(request.POST, instance=contact)
+            if form.is_valid():
+                form.save()
+                messages.success(request, f"Emergency contact {contact.full_name} updated successfully.")
+                return redirect(f'/parent/emergency-contacts/?child={child.id}')
+        else:
+            form = EmergencyContactForm(instance=contact)
+        
+        context = {
+            'form': form,
+            'contact': contact,
+            'child': child,
+            'children': children,
+            'action': 'Edit'
+        }
+        
+        return render(request, 'parent_portal/emergency_contact_form.html', context)
+        
+    except Exception as e:
+        logger.error(f"Error editing emergency contact: {e}")
+        messages.error(request, "Unable to edit emergency contact.")
+        return redirect('parent_portal:emergency_contacts')
+
+
+@login_required
+@role_required('parent')
+def add_pickup_person_view(request):
+    """Add authorized pickup person"""
+    try:
+        # Get parent's children
+        children = Student.objects.filter(
+            verification_codes__user=request.user,
+            verification_codes__is_verified=True
+        ).distinct()
+        
+        if not children.exists():
+            messages.error(request, "No student records found for your account.")
+            return redirect('parent_portal:dashboard')
+        
+        child_id = request.GET.get('child') or request.POST.get('child')
+        if child_id:
+            try:
+                child = children.get(id=child_id)
+            except Student.DoesNotExist:
+                child = children.first()
+        else:
+            child = children.first()
+        
+        if request.method == 'POST':
+            form = AuthorizedPickupPersonForm(request.POST)
+            if form.is_valid():
+                pickup_person = form.save(commit=False)
+                pickup_person.student = child
+                pickup_person.save()
+                
+                messages.success(request, f"Authorized pickup person {pickup_person.full_name} added successfully.")
+                return redirect(f'/parent/emergency-contacts/?child={child.id}')
+        else:
+            form = AuthorizedPickupPersonForm()
+        
+        context = {
+            'form': form,
+            'child': child,
+            'children': children,
+            'action': 'Add',
+            'form_type': 'pickup'
+        }
+        
+        return render(request, 'parent_portal/pickup_person_form.html', context)
+        
+    except Exception as e:
+        logger.error(f"Error adding pickup person: {e}")
+        messages.error(request, "Unable to add pickup person.")
+        return redirect('parent_portal:emergency_contacts')
+
+
+@login_required
+@role_required('parent')
+def edit_pickup_person_view(request, person_id):
+    """Edit authorized pickup person"""
+    try:
+        # Get parent's children
+        children = Student.objects.filter(
+            verification_codes__user=request.user,
+            verification_codes__is_verified=True
+        ).distinct()
+        
+        # Get the pickup person and verify access
+        pickup_person = get_object_or_404(AuthorizedPickupPerson, id=person_id)
+        
+        # Verify the pickup person belongs to one of the parent's children
+        if pickup_person.student not in children:
+            messages.error(request, "You don't have permission to edit this pickup person.")
+            return redirect('parent_portal:emergency_contacts')
+        
+        child = pickup_person.student
+        
+        if request.method == 'POST':
+            form = AuthorizedPickupPersonForm(request.POST, instance=pickup_person)
+            if form.is_valid():
+                form.save()
+                messages.success(request, f"Pickup person {pickup_person.full_name} updated successfully.")
+                return redirect(f'/parent/emergency-contacts/?child={child.id}')
+        else:
+            form = AuthorizedPickupPersonForm(instance=pickup_person)
+        
+        context = {
+            'form': form,
+            'pickup_person': pickup_person,
+            'child': child,
+            'children': children,
+            'action': 'Edit',
+            'form_type': 'pickup'
+        }
+        
+        return render(request, 'parent_portal/pickup_person_form.html', context)
+        
+    except Exception as e:
+        logger.error(f"Error editing pickup person: {e}")
+        messages.error(request, "Unable to edit pickup person.")
+        return redirect('parent_portal:emergency_contacts')
+
+
+@login_required
+@role_required('parent')
+def medical_information_view(request):
+    """View and update medical information"""
+    try:
+        # Get parent's children
+        children = Student.objects.filter(
+            verification_codes__user=request.user,
+            verification_codes__is_verified=True
+        ).distinct()
+        
+        if not children.exists():
+            messages.error(request, "No student records found for your account.")
+            return redirect('parent_portal:dashboard')
+        
+        child_id = request.GET.get('child') or request.POST.get('child')
+        if child_id:
+            try:
+                child = children.get(id=child_id)
+            except Student.DoesNotExist:
+                child = children.first()
+        else:
+            child = children.first()
+        
+        # Get or create medical information
+        try:
+            medical_info = child.medical_information
+        except MedicalInformation.DoesNotExist:
+            medical_info = None
+        
+        if request.method == 'POST':
+            if medical_info:
+                form = MedicalInformationForm(request.POST, instance=medical_info)
+            else:
+                form = MedicalInformationForm(request.POST)
+            
+            if form.is_valid():
+                medical_info = form.save(commit=False)
+                medical_info.student = child
+                medical_info.last_updated_by = request.user
+                medical_info.save()
+                
+                messages.success(request, f"Medical information for {child.full_name} updated successfully.")
+                return redirect(f'/parent/emergency-contacts/?child={child.id}')
+        else:
+            form = MedicalInformationForm(instance=medical_info)
+        
+        context = {
+            'form': form,
+            'child': child,
+            'children': children,
+            'medical_info': medical_info,
+            'action': 'Update' if medical_info else 'Add'
+        }
+        
+        return render(request, 'parent_portal/medical_information_form.html', context)
+        
+    except Exception as e:
+        logger.error(f"Error updating medical information: {e}")
+        messages.error(request, "Unable to update medical information.")
+        return redirect('parent_portal:emergency_contacts')

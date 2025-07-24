@@ -6,7 +6,7 @@ from django.http import HttpResponseRedirect
 from django.contrib import messages
 from django.views.generic import CreateView
 from django import forms
-from .roles import get_redirect_url_for_user
+from .roles import get_redirect_url_for_user, assign_role_to_user, UserRoles
 from .middleware import check_login_allowed
 
 
@@ -65,6 +65,7 @@ class CustomUserCreationForm(UserCreationForm):
             ("", "Select your role"),
             ("parent", "Parent"),
             ("student", "Student"),
+            ("staff", "Staff/Teacher"),
         ],
         required=True,
     )
@@ -89,8 +90,15 @@ class CustomUserCreationForm(UserCreationForm):
 
         if commit:
             user.save()
-            # You can add role assignment logic here if needed
-            # For now, we'll just save the user
+            # Assign role to user based on their selection
+            role_mapping = {
+                'parent': UserRoles.PARENT,
+                'student': UserRoles.STUDENT,
+                'staff': UserRoles.STAFF,
+            }
+            selected_role = self.cleaned_data.get('role')
+            if selected_role in role_mapping:
+                assign_role_to_user(user, role_mapping[selected_role])
 
         return user
 

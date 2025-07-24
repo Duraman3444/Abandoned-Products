@@ -1,0 +1,157 @@
+{% extends "teacher_base.html" %}
+
+{% block page_title %}Attendance Reports{% endblock %}
+{% block page_subtitle %}Generate attendance reports for {{ section.course.name }} - {{ section.name }}{% endblock %}
+
+{% block teacher_content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-bar text-primary me-2"></i>Generate Attendance Report
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" class="row g-3">
+                        {% csrf_token %}
+                        
+                        <div class="col-md-6">
+                            <label for="{{ form.report_type.id_for_label }}" class="form-label">Report Type</label>
+                            {{ form.report_type }}
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="{{ form.format.id_for_label }}" class="form-label">Format</label>
+                            {{ form.format }}
+                            <div class="form-text">
+                                <i class="fas fa-info-circle text-info"></i> CSV and HTML formats are available. PDF format is coming soon.
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="{{ form.date_start.id_for_label }}" class="form-label">Start Date</label>
+                            {{ form.date_start }}
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="{{ form.date_end.id_for_label }}" class="form-label">End Date</label>
+                            {{ form.date_end }}
+                        </div>
+                        
+                        <div class="col-12">
+                            <label class="form-label">Students (leave blank for all students)</label>
+                            <div class="row">
+                                {% for choice in form.students %}
+                                    <div class="col-md-4 mb-2">
+                                        <div class="form-check">
+                                            {{ choice.tag }}
+                                            <label class="form-check-label" for="{{ choice.id_for_label }}">
+                                                {{ choice.choice_label }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                {{ form.include_patterns }}
+                                <label class="form-check-label" for="{{ form.include_patterns.id_for_label }}">
+                                    Include attendance patterns analysis
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                {{ form.include_parent_contact }}
+                                <label class="form-check-label" for="{{ form.include_parent_contact.id_for_label }}">
+                                    Include parent contact information
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-download me-2"></i>Generate Report
+                            </button>
+                            <a href="{% url 'teacher_portal:teacher_attendance' %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Attendance
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Report Type Descriptions -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">Report Type Descriptions</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Daily Attendance Summary</h6>
+                            <p class="small text-muted">Shows overall attendance statistics by day, including present/absent counts and percentages.</p>
+                            
+                            <h6>Individual Student Report</h6>
+                            <p class="small text-muted">Detailed attendance record for each student, including patterns and trends.</p>
+                            
+                            <h6>Attendance Patterns Analysis</h6>
+                            <p class="small text-muted">Identifies patterns in attendance, such as frequent Monday absences or seasonal trends.</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Chronic Absenteeism Report</h6>
+                            <p class="small text-muted">Identifies students with chronic attendance issues (typically missing 10% or more of school days).</p>
+                            
+                            <h6>Tardiness Report</h6>
+                            <p class="small text-muted">Focuses on late arrivals, showing patterns and frequency of tardiness by student.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    // Show/hide student selection based on report type
+    $('#{{ form.report_type.id_for_label }}').change(function() {
+        var reportType = $(this).val();
+        var studentSection = $('#{{ form.students.id_for_label }}').closest('.col-12');
+        
+        if (reportType === 'student') {
+            studentSection.show();
+        } else {
+            studentSection.hide();
+            // Uncheck all students when hiding
+            $('#{{ form.students.id_for_label }} input[type="checkbox"]').prop('checked', false);
+        }
+    });
+    
+    // Trigger initial state
+    $('#{{ form.report_type.id_for_label }}').trigger('change');
+    
+    // Set HTML as default format for testing
+    $('#{{ form.format.id_for_label }}').val('html');
+    
+    // Show warning for PDF format
+    $('#{{ form.format.id_for_label }}').change(function() {
+        var format = $(this).val();
+        if (format === 'pdf') {
+            alert('Note: PDF format is not yet implemented. Please use CSV or HTML format.');
+        }
+    });
+});
+</script>
+{% endblock %}

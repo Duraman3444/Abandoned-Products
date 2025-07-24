@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Progress Note for {{ student.get_full_name }} - {{ school_name }}</title>
+    <title>Progress Note for {{ student.full_name }} - {{ school_name }}</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -107,7 +107,7 @@
         
         <div class="content">
             <div class="student-info">
-                <h3 style="margin: 0 0 10px 0;">Student: {{ student.get_full_name }}</h3>
+                <h3 style="margin: 0 0 10px 0;">Student: {{ student.full_name }}</h3>
                 {% if progress_note.course %}
                     <p style="margin: 0;"><strong>Course:</strong> {{ progress_note.course.course_name }}</p>
                 {% endif %}

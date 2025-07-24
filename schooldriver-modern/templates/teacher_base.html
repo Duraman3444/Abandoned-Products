@@ -5,30 +5,35 @@
 
 {% block extra_css %}
 <style>
+    /* Teacher Portal Theme - Consistent with Base Theme */
     .teacher-sidebar {
-        background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+        background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
         min-height: calc(100vh - 76px);
         border-radius: 0.75rem;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        border: 1px solid var(--border-primary);
     }
     
     .teacher-nav-item {
-        color: rgba(255, 255, 255, 0.8);
+        color: var(--text-primary) !important;
         padding: 12px 20px;
         margin: 4px 8px;
         border-radius: 0.5rem;
         transition: all 0.2s ease;
-        text-decoration: none;
+        text-decoration: none !important;
         display: flex;
         align-items: center;
         font-weight: 500;
+        opacity: 0.9;
     }
     
     .teacher-nav-item:hover, .teacher-nav-item.active {
-        background: rgba(255, 255, 255, 0.15);
-        color: white;
-        text-decoration: none;
+        background: linear-gradient(135deg, var(--accent-teal) 0%, var(--accent-teal-hover) 100%);
+        color: white !important;
+        text-decoration: none !important;
         transform: translateX(4px);
+        opacity: 1;
+        box-shadow: 0 2px 8px rgba(20, 184, 166, 0.3);
     }
     
     .teacher-nav-item i {
@@ -38,35 +43,36 @@
     }
     
     .teacher-content {
-        background: white;
+        background: var(--bg-card);
         border-radius: 0.75rem;
-        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         padding: 24px;
         margin-left: 16px;
+        border: 1px solid var(--border-primary);
     }
     
     .teacher-header {
-        border-bottom: 2px solid #e5e7eb;
+        border-bottom: 2px solid var(--border-primary);
         padding-bottom: 16px;
         margin-bottom: 24px;
     }
     
     .teacher-header h1 {
-        color: #1f2937;
+        color: var(--text-primary) !important;
         font-weight: 700;
         font-size: 1.875rem;
         margin: 0;
     }
     
     .teacher-header .subtitle {
-        color: #6b7280;
+        color: var(--text-secondary) !important;
         font-size: 0.875rem;
         margin-top: 4px;
     }
     
     .section-selector {
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-primary);
         border-radius: 0.5rem;
         padding: 12px 16px;
         margin-bottom: 20px;
@@ -79,7 +85,7 @@
         border: none;
         background: transparent;
         font-weight: 500;
-        color: #374151;
+        color: var(--text-primary) !important;
         font-size: 0.9rem;
     }
     
@@ -91,17 +97,129 @@
     }
     
     .stat-card {
-        background: linear-gradient(135deg, #0f766e 0%, #14b8a6 100%);
-        color: white;
+        background: linear-gradient(135deg, var(--accent-teal) 0%, var(--accent-teal-hover) 100%);
+        color: white !important;
         padding: 20px;
         border-radius: 0.75rem;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        border: 1px solid var(--border-primary);
+    }
+    
+    .stat-card * {
+        color: white !important;
     }
     
     .stat-card h3 {
         font-size: 2rem;
         font-weight: 700;
         margin: 0;
+    }
+    
+    /* Teacher Portal Text Visibility Override */
+    .teacher-content,
+    .teacher-content *,
+    .card,
+    .card *,
+    .table,
+    .table *,
+    .form-control,
+    .btn,
+    .badge {
+        color: var(--text-primary) !important;
+    }
+    
+    /* Card Styling */
+    .card {
+        background: var(--bg-card) !important;
+        border: 1px solid var(--border-primary) !important;
+        border-radius: 0.5rem !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+    }
+    
+    .card-header {
+        background: var(--bg-tertiary) !important;
+        border-bottom: 1px solid var(--border-primary) !important;
+        color: var(--text-primary) !important;
+    }
+    
+    .card-body {
+        background: var(--bg-card) !important;
+        color: var(--text-primary) !important;
+    }
+    
+    /* Table Styling */
+    .table {
+        background: var(--bg-card) !important;
+        color: var(--text-primary) !important;
+    }
+    
+    .table th {
+        background: var(--bg-tertiary) !important;
+        color: var(--text-primary) !important;
+        border-color: var(--border-primary) !important;
+    }
+    
+    .table td {
+        background: var(--bg-card) !important;
+        color: var(--text-primary) !important;
+        border-color: var(--border-primary) !important;
+    }
+    
+    /* Form Controls */
+    .form-control, .form-select {
+        background: var(--bg-input) !important;
+        color: var(--text-primary) !important;
+        border: 1px solid var(--border-primary) !important;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        background: var(--bg-input) !important;
+        color: var(--text-primary) !important;
+        border-color: var(--accent-teal) !important;
+        box-shadow: 0 0 0 0.2rem rgba(20, 184, 166, 0.25) !important;
+    }
+    
+    /* Button Overrides */
+    .btn-primary {
+        background: linear-gradient(135deg, var(--accent-primary) 0%, #1565c0 100%) !important;
+        border-color: var(--accent-primary) !important;
+        color: white !important;
+    }
+    
+    .btn-success {
+        background: linear-gradient(135deg, var(--accent-success) 0%, #047857 100%) !important;
+        border-color: var(--accent-success) !important;
+        color: white !important;
+    }
+    
+    .btn-warning {
+        background: linear-gradient(135deg, var(--accent-warning) 0%, #d97706 100%) !important;
+        border-color: var(--accent-warning) !important;
+        color: #000 !important;
+    }
+    
+    .btn-info {
+        background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%) !important;
+        border-color: #0ea5e9 !important;
+        color: white !important;
+    }
+    
+    /* Badge Styling */
+    .badge {
+        color: white !important;
+        font-weight: 600 !important;
+    }
+    
+    /* Text Color Overrides */
+    .text-muted {
+        color: var(--text-secondary) !important;
+    }
+    
+    /* Responsive Table */
+    .table-responsive {
+        border: 1px solid var(--border-primary);
+        border-radius: 0.5rem;
+        background: var(--bg-card);
     }
     
     .stat-card p {
@@ -125,43 +243,43 @@
                 </div>
                 
                 <div class="nav flex-column">
-                    <a href="{% url 'teacher_dashboard' %}" class="teacher-nav-item {% if request.resolver_match.url_name == 'teacher_dashboard' %}active{% endif %}">
+                    <a href="{% url 'teacher_portal:teacher_dashboard' %}" class="teacher-nav-item {% if request.resolver_match.url_name == 'teacher_dashboard' %}active{% endif %}">
                         <i class="fas fa-tachometer-alt"></i>
                         Dashboard
                     </a>
                     
-                    <a href="{% url 'teacher_gradebook' %}" class="teacher-nav-item {% if 'gradebook' in request.resolver_match.url_name %}active{% endif %}">
+                    <a href="{% url 'teacher_portal:teacher_gradebook' %}" class="teacher-nav-item {% if 'gradebook' in request.resolver_match.url_name %}active{% endif %}">
                         <i class="fas fa-book-open"></i>
                         Gradebook
                     </a>
                     
-                    <a href="{% url 'teacher_attendance' %}" class="teacher-nav-item {% if 'attendance' in request.resolver_match.url_name %}active{% endif %}">
+                    <a href="{% url 'teacher_portal:teacher_attendance' %}" class="teacher-nav-item {% if 'attendance' in request.resolver_match.url_name %}active{% endif %}">
                         <i class="fas fa-user-check"></i>
                         Attendance
                     </a>
                     
-                    <a href="{% url 'teacher_assignments' %}" class="teacher-nav-item {% if 'assignments' in request.resolver_match.url_name %}active{% endif %}">
+                    <a href="{% url 'teacher_portal:teacher_assignments' %}" class="teacher-nav-item {% if 'assignments' in request.resolver_match.url_name %}active{% endif %}">
                         <i class="fas fa-tasks"></i>
                         Assignments
                     </a>
                     
-                    <a href="{% url 'teacher_students' %}" class="teacher-nav-item {% if 'students' in request.resolver_match.url_name %}active{% endif %}">
+                    <a href="{% url 'teacher_portal:teacher_students' %}" class="teacher-nav-item {% if 'students' in request.resolver_match.url_name %}active{% endif %}">
                         <i class="fas fa-users"></i>
                         My Students
                     </a>
                     
-                    <a href="{% url 'teacher_reports' %}" class="teacher-nav-item {% if 'reports' in request.resolver_match.url_name %}active{% endif %}">
+                    <a href="{% url 'teacher_portal:teacher_reports' %}" class="teacher-nav-item {% if 'reports' in request.resolver_match.url_name %}active{% endif %}">
                         <i class="fas fa-chart-bar"></i>
                         Reports
                     </a>
                     
-                    <a href="{% url 'teacher_messages' %}" class="teacher-nav-item {% if 'messages' in request.resolver_match.url_name %}active{% endif %}">
+                    <a href="{% url 'teacher_portal:teacher_messages' %}" class="teacher-nav-item {% if 'messages' in request.resolver_match.url_name %}active{% endif %}">
                         <i class="fas fa-envelope"></i>
                         Messages
                     </a>
                     
                     <div class="mt-4 pt-3 border-top border-white-25">
-                        <a href="{% url 'teacher_settings' %}" class="teacher-nav-item {% if 'settings' in request.resolver_match.url_name %}active{% endif %}">
+                        <a href="{% url 'teacher_portal:teacher_settings' %}" class="teacher-nav-item {% if 'settings' in request.resolver_match.url_name %}active{% endif %}">
                             <i class="fas fa-cog"></i>
                             Settings
                         </a>

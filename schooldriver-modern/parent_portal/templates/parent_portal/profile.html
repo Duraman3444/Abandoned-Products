@@ -222,12 +222,8 @@
                         
                         <div class="row">
                             <div class="col-md-6">
-                                <label class="form-label">Preferred Language</label>
-                                <select class="form-select bg-dark border-secondary text-light">
-                                    <option>English</option>
-                                    <option>Spanish</option>
-                                    <option>French</option>
-                                </select>
+                                <label class="form-label">{{ form.preferred_language.label }}</label>
+                                {{ form.preferred_language }}
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Email Frequency</label>
@@ -288,66 +284,68 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form>
+                <form method="post" id="editProfileForm">
+                    {% csrf_token %}
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label for="editFirstName" class="form-label">First Name</label>
-                            <input type="text" class="form-control bg-dark border-secondary text-light" 
-                                   id="editFirstName" value="{{ user.first_name|default:'Sarah' }}">
+                            <label class="form-label">{{ form.first_name.label }}</label>
+                            {{ form.first_name }}
+                            {% if form.first_name.errors %}
+                                <div class="text-danger">{{ form.first_name.errors }}</div>
+                            {% endif %}
                         </div>
                         <div class="col-md-6">
-                            <label for="editLastName" class="form-label">Last Name</label>
-                            <input type="text" class="form-control bg-dark border-secondary text-light" 
-                                   id="editLastName" value="{{ user.last_name|default:'Johnson' }}">
+                            <label class="form-label">{{ form.last_name.label }}</label>
+                            {{ form.last_name }}
+                            {% if form.last_name.errors %}
+                                <div class="text-danger">{{ form.last_name.errors }}</div>
+                            {% endif %}
                         </div>
                         <div class="col-md-6">
-                            <label for="editEmail" class="form-label">Email Address</label>
-                            <input type="email" class="form-control bg-dark border-secondary text-light" 
-                                   id="editEmail" value="{{ user.email|default:'sarah.johnson@email.com' }}">
+                            <label class="form-label">{{ form.email.label }}</label>
+                            {{ form.email }}
+                            {% if form.email.errors %}
+                                <div class="text-danger">{{ form.email.errors }}</div>
+                            {% endif %}
                         </div>
                         <div class="col-md-6">
-                            <label for="editPhone" class="form-label">Phone Number</label>
-                            <input type="tel" class="form-control bg-dark border-secondary text-light" 
-                                   id="editPhone" value="(555) 987-6543">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="editWorkPhone" class="form-label">Work Phone</label>
-                            <input type="tel" class="form-control bg-dark border-secondary text-light" 
-                                   id="editWorkPhone" value="(555) 987-6544">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="editOccupation" class="form-label">Occupation</label>
-                            <input type="text" class="form-control bg-dark border-secondary text-light" 
-                                   id="editOccupation" value="Marketing Manager">
+                            <label class="form-label">{{ form.phone_number.label }}</label>
+                            {{ form.phone_number }}
+                            {% if form.phone_number.errors %}
+                                <div class="text-danger">{{ form.phone_number.errors }}</div>
+                            {% endif %}
                         </div>
                         <div class="col-12">
-                            <label for="editAddress" class="form-label">Home Address</label>
-                            <input type="text" class="form-control bg-dark border-secondary text-light" 
-                                   id="editAddress" value="123 Maple Street, Springfield, IL 62701">
+                            <label class="form-label">{{ form.address.label }}</label>
+                            {{ form.address }}
+                            {% if form.address.errors %}
+                                <div class="text-danger">{{ form.address.errors }}</div>
+                            {% endif %}
                         </div>
                         <div class="col-md-6">
-                            <label for="editContactMethod" class="form-label">Preferred Contact Method</label>
-                            <select class="form-select bg-dark border-secondary text-light" id="editContactMethod">
-                                <option selected>Email</option>
-                                <option>Phone</option>
-                                <option>Text Message</option>
-                            </select>
+                            <label class="form-label">{{ form.preferred_language.label }}</label>
+                            {{ form.preferred_language }}
+                            {% if form.preferred_language.errors %}
+                                <div class="text-danger">{{ form.preferred_language.errors }}</div>
+                            {% endif %}
                         </div>
                         <div class="col-md-6">
-                            <label for="editBestTime" class="form-label">Best Time to Call</label>
-                            <select class="form-select bg-dark border-secondary text-light" id="editBestTime">
-                                <option>Morning (8-11 AM)</option>
-                                <option>Afternoon (12-5 PM)</option>
-                                <option selected>Evening (6-8 PM)</option>
-                                <option>Anytime</option>
-                            </select>
+                            <h6 class="text-info mb-3">Notification Preferences</h6>
+                            <div class="form-check">
+                                {{ form.email_notifications }}
+                                <label class="form-check-label">{{ form.email_notifications.label }}</label>
+                            </div>
+                            <div class="form-check">
+                                {{ form.sms_notifications }}
+                                <label class="form-check-label">{{ form.sms_notifications.label }}</label>
+                            </div>
                         </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-teal">Save Changes</button>
+                <button type="submit" class="btn btn-teal" form="editProfileForm">Save Changes</button>
             </div>
         </div>
     </div>

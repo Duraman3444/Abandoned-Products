@@ -3,7 +3,12 @@ from django.core.validators import (
     RegexValidator,
     MinLengthValidator,
 )
+from django.contrib.auth.models import User
+from django.utils import timezone
+from datetime import timedelta
 import uuid
+import secrets
+import string
 
 
 class GradeLevel(models.Model):
@@ -156,6 +161,165 @@ class EmergencyContact(models.Model):
         return f"{self.first_name} {self.last_name}"
 
 
+class AuthorizedPickupPerson(models.Model):
+    """Authorized pickup persons for students"""
+    
+    RELATIONSHIP_CHOICES = [
+        ("parent", "Parent"),
+        ("guardian", "Legal Guardian"),
+        ("grandparent", "Grandparent"),
+        ("sibling", "Sibling"),
+        ("family_friend", "Family Friend"),
+        ("childcare", "Childcare Provider"),
+        ("other", "Other"),
+    ]
+    
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    student = models.ForeignKey(
+        'Student', on_delete=models.CASCADE, related_name='authorized_pickup_persons'
+    )
+    first_name = models.CharField(
+        max_length=100,
+        validators=[
+            RegexValidator(
+                regex=r"^[a-zA-Z\s\-\'\.]+$",
+                message="Name can only contain letters, spaces, hyphens, apostrophes, and periods",
+            ),
+            MinLengthValidator(1, message="First name is required"),
+        ],
+    )
+    last_name = models.CharField(
+        max_length=100,
+        validators=[
+            RegexValidator(
+                regex=r"^[a-zA-Z\s\-\'\.]+$",
+                message="Name can only contain letters, spaces, hyphens, apostrophes, and periods",
+            ),
+            MinLengthValidator(1, message="Last name is required"),
+        ],
+    )
+    relationship = models.CharField(max_length=20, choices=RELATIONSHIP_CHOICES)
+    phone = models.CharField(
+        max_length=20,
+        validators=[
+            RegexValidator(
+                regex=r"^\+?1?[-.\s]?\(?[0-9]{3}\)?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}$",
+                message="Enter a valid phone number (e.g., (555) 123-4567 or 555-123-4567)",
+            )
+        ],
+    )
+    email = models.EmailField(blank=True)
+    id_requirements = models.TextField(
+        blank=True, 
+        help_text="Special ID requirements or notes for pickup verification"
+    )
+    is_emergency_contact = models.BooleanField(
+        default=False,
+        help_text="Can this person be contacted in emergencies?"
+    )
+    is_active = models.BooleanField(default=True)
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ["last_name", "first_name"]
+        verbose_name = "Authorized Pickup Person"
+        verbose_name_plural = "Authorized Pickup Persons"
+    
+    def __str__(self):
+        return f"{self.first_name} {self.last_name} ({self.get_relationship_display()}) - {self.student.full_name}"
+    
+    @property
+    def full_name(self):
+        return f"{self.first_name} {self.last_name}"
+
+
+class MedicalInformation(models.Model):
+    """Medical information and health details for students"""
+    
+    SEVERITY_CHOICES = [
+        ("low", "Low"),
+        ("moderate", "Moderate"), 
+        ("high", "High"),
+        ("life_threatening", "Life Threatening"),
+    ]
+    
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    student = models.OneToOneField(
+        'Student', on_delete=models.CASCADE, related_name='medical_information'
+    )
+    
+    # Medical conditions and allergies
+    allergies = models.TextField(
+        blank=True,
+        help_text="List all known allergies and severity"
+    )
+    medical_conditions = models.TextField(
+        blank=True,
+        help_text="Ongoing medical conditions (asthma, diabetes, etc.)"
+    )
+    medications = models.TextField(
+        blank=True,
+        help_text="Current medications and dosages"
+    )
+    
+    # Emergency medical information
+    primary_physician = models.CharField(max_length=200, blank=True)
+    primary_physician_phone = models.CharField(
+        max_length=20,
+        blank=True,
+        validators=[
+            RegexValidator(
+                regex=r"^\+?1?[-.\s]?\(?[0-9]{3}\)?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}$",
+                message="Enter a valid phone number (e.g., (555) 123-4567 or 555-123-4567)",
+            )
+        ],
+    )
+    preferred_hospital = models.CharField(max_length=200, blank=True)
+    insurance_provider = models.CharField(max_length=200, blank=True)
+    
+    # Special accommodations
+    dietary_restrictions = models.TextField(
+        blank=True,
+        help_text="Food allergies, dietary restrictions, or special meal requirements"
+    )
+    physical_limitations = models.TextField(
+        blank=True,
+        help_text="Physical limitations or accommodations needed"
+    )
+    emergency_action_plan = models.TextField(
+        blank=True,
+        help_text="Specific emergency procedures for this student"
+    )
+    
+    # School health room permissions
+    can_self_medicate = models.BooleanField(
+        default=False,
+        help_text="Student is authorized to carry and self-administer medication"
+    )
+    nurse_notes = models.TextField(
+        blank=True,
+        help_text="Private notes for school nurse (not visible to parents)"
+    )
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    last_updated_by = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True,
+        help_text="User who last updated this information"
+    )
+    
+    class Meta:
+        verbose_name = "Medical Information"
+        verbose_name_plural = "Medical Information"
+    
+    def __str__(self):
+        return f"Medical Info - {self.student.full_name}"
+
+
 class Student(models.Model):
     """Modernized student model preserving legacy business logic"""
 
@@ -254,6 +418,14 @@ class Student(models.Model):
         blank=True,
         help_text="Parents, guardians, and emergency contacts",
     )
+    
+    # Parent portal access - users who can view this student's information
+    family_access_users = models.ManyToManyField(
+        'auth.User',
+        blank=True,
+        related_name='accessible_students',
+        help_text="Parent/Guardian users who can access this student's information via the parent portal",
+    )
 
     # Additional information
     special_needs = models.TextField(
@@ -342,3 +514,79 @@ class Student(models.Model):
                 < (self.date_of_birth.month, self.date_of_birth.day)
             )
         )
+
+
+class ParentVerificationCode(models.Model):
+    """Verification codes for parent account linking"""
+    
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='verification_codes')
+    code = models.CharField(max_length=8, unique=True, editable=False)
+    parent_email = models.EmailField(help_text="Email address of the parent requesting access")
+    parent_name = models.CharField(max_length=200, help_text="Full name of the parent requesting access")
+    
+    # Code status
+    is_used = models.BooleanField(default=False)
+    used_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='used_verification_codes')
+    used_at = models.DateTimeField(null=True, blank=True)
+    
+    # Expiration
+    expires_at = models.DateTimeField()
+    
+    # Audit trail
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_verification_codes')
+    created_at = models.DateTimeField(auto_now_add=True)
+    notes = models.TextField(blank=True, help_text="Administrative notes about this verification request")
+    
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['code']),
+            models.Index(fields=['parent_email']),
+            models.Index(fields=['expires_at']),
+        ]
+    
+    def __str__(self):
+        return f"Verification code {self.code} for {self.student.full_name} (expires {self.expires_at})"
+    
+    def save(self, *args, **kwargs):
+        if not self.code:
+            self.code = self.generate_code()
+        if not self.expires_at:
+            self.expires_at = timezone.now() + timedelta(days=7)  # 7-day expiration
+        super().save(*args, **kwargs)
+    
+    def generate_code(self):
+        """Generate a unique 8-character verification code"""
+        while True:
+            # Generate code with letters and numbers, avoiding confusing characters
+            alphabet = string.ascii_uppercase + string.digits
+            alphabet = alphabet.translate(str.maketrans('', '', '0O1IL'))  # Remove confusing chars
+            code = ''.join(secrets.choice(alphabet) for _ in range(8))
+            
+            # Ensure uniqueness
+            if not ParentVerificationCode.objects.filter(code=code).exists():
+                return code
+    
+    def is_expired(self):
+        """Check if the verification code has expired"""
+        return timezone.now() > self.expires_at
+    
+    def is_valid(self):
+        """Check if the verification code is valid for use"""
+        return not self.is_used and not self.is_expired()
+    
+    def use_code(self, user):
+        """Mark the code as used by a specific user"""
+        if not self.is_valid():
+            return False
+        
+        self.is_used = True
+        self.used_by = user
+        self.used_at = timezone.now()
+        self.save()
+        
+        # Add the user to the student's family_access_users
+        self.student.family_access_users.add(user)
+        
+        return True
