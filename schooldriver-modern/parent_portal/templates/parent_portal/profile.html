@@ -176,45 +176,195 @@
                     <div class="col-12">
                         <h6 class="text-info mb-3">Notification Preferences</h6>
                         
-                        <div class="form-check form-switch mb-3">
-                            <input class="form-check-input" type="checkbox" id="gradeNotifications" checked>
-                            <label class="form-check-label" for="gradeNotifications">
-                                <strong>Grade Notifications</strong><br>
-                                <small class="text-muted">Receive alerts when new grades are posted</small>
-                            </label>
-                        </div>
-                        
-                        <div class="form-check form-switch mb-3">
-                            <input class="form-check-input" type="checkbox" id="attendanceNotifications" checked>
-                            <label class="form-check-label" for="attendanceNotifications">
-                                <strong>Attendance Notifications</strong><br>
-                                <small class="text-muted">Receive alerts for absences and tardies</small>
-                            </label>
-                        </div>
-                        
-                        <div class="form-check form-switch mb-3">
-                            <input class="form-check-input" type="checkbox" id="assignmentReminders" checked>
-                            <label class="form-check-label" for="assignmentReminders">
-                                <strong>Assignment Reminders</strong><br>
-                                <small class="text-muted">Receive reminders for upcoming assignments</small>
-                            </label>
-                        </div>
-                        
-                        <div class="form-check form-switch mb-3">
-                            <input class="form-check-input" type="checkbox" id="schoolAnnouncements">
-                            <label class="form-check-label" for="schoolAnnouncements">
-                                <strong>School Announcements</strong><br>
-                                <small class="text-muted">Receive general school announcements and events</small>
-                            </label>
-                        </div>
-                        
-                        <div class="form-check form-switch mb-3">
-                            <input class="form-check-input" type="checkbox" id="emergencyAlerts" checked>
-                            <label class="form-check-label" for="emergencyAlerts">
-                                <strong>Emergency Alerts</strong><br>
-                                <small class="text-muted">Receive urgent notifications via SMS and email</small>
-                            </label>
-                        </div>
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="update_notifications" value="1">
+                            
+                            <!-- Grade Notifications -->
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <div class="form-check form-switch mb-2">
+                                        <input class="form-check-input" type="checkbox" 
+                                               id="gradeNotificationsEmail" 
+                                               name="grade_notifications_email"
+                                               {% if notification_prefs.grade_notifications_email %}checked{% endif %}>
+                                        <label class="form-check-label" for="gradeNotificationsEmail">
+                                            <strong>Grade Notifications (Email)</strong>
+                                        </label>
+                                    </div>
+                                    <div class="form-check form-switch mb-2">
+                                        <input class="form-check-input" type="checkbox" 
+                                               id="gradeNotificationsSMS" 
+                                               name="grade_notifications_sms"
+                                               {% if notification_prefs.grade_notifications_sms %}checked{% endif %}>
+                                        <label class="form-check-label" for="gradeNotificationsSMS">
+                                            <strong>Grade Notifications (SMS)</strong>
+                                        </label>
+                                    </div>
+                                    <select class="form-select form-select-sm mt-2" name="grade_frequency">
+                                        <option value="IMMEDIATE" {% if notification_prefs.grade_frequency == 'IMMEDIATE' %}selected{% endif %}>Immediate</option>
+                                        <option value="DAILY" {% if notification_prefs.grade_frequency == 'DAILY' %}selected{% endif %}>Daily Summary</option>
+                                        <option value="WEEKLY" {% if notification_prefs.grade_frequency == 'WEEKLY' %}selected{% endif %}>Weekly Summary</option>
+                                        <option value="OFF" {% if notification_prefs.grade_frequency == 'OFF' %}selected{% endif %}>Disabled</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <!-- Attendance Notifications -->
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <div class="form-check form-switch mb-2">
+                                        <input class="form-check-input" type="checkbox" 
+                                               id="attendanceNotificationsEmail" 
+                                               name="attendance_notifications_email"
+                                               {% if notification_prefs.attendance_notifications_email %}checked{% endif %}>
+                                        <label class="form-check-label" for="attendanceNotificationsEmail">
+                                            <strong>Attendance Notifications (Email)</strong>
+                                        </label>
+                                    </div>
+                                    <div class="form-check form-switch mb-2">
+                                        <input class="form-check-input" type="checkbox" 
+                                               id="attendanceNotificationsSMS" 
+                                               name="attendance_notifications_sms"
+                                               {% if notification_prefs.attendance_notifications_sms %}checked{% endif %}>
+                                        <label class="form-check-label" for="attendanceNotificationsSMS">
+                                            <strong>Attendance Notifications (SMS)</strong>
+                                        </label>
+                                    </div>
+                                    <select class="form-select form-select-sm mt-2" name="attendance_frequency">
+                                        <option value="IMMEDIATE" {% if notification_prefs.attendance_frequency == 'IMMEDIATE' %}selected{% endif %}>Immediate</option>
+                                        <option value="DAILY" {% if notification_prefs.attendance_frequency == 'DAILY' %}selected{% endif %}>Daily Summary</option>
+                                        <option value="WEEKLY" {% if notification_prefs.attendance_frequency == 'WEEKLY' %}selected{% endif %}>Weekly Summary</option>
+                                        <option value="OFF" {% if notification_prefs.attendance_frequency == 'OFF' %}selected{% endif %}>Disabled</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <!-- Assignment Reminders -->
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <div class="form-check form-switch mb-2">
+                                        <input class="form-check-input" type="checkbox" 
+                                               id="assignmentRemindersEmail" 
+                                               name="assignment_reminders_email"
+                                               {% if notification_prefs.assignment_reminders_email %}checked{% endif %}>
+                                        <label class="form-check-label" for="assignmentRemindersEmail">
+                                            <strong>Assignment Reminders (Email)</strong>
+                                        </label>
+                                    </div>
+                                    <div class="form-check form-switch mb-2">
+                                        <input class="form-check-input" type="checkbox" 
+                                               id="assignmentRemindersSMS" 
+                                               name="assignment_reminders_sms"
+                                               {% if notification_prefs.assignment_reminders_sms %}checked{% endif %}>
+                                        <label class="form-check-label" for="assignmentRemindersSMS">
+                                            <strong>Assignment Reminders (SMS)</strong>
+                                        </label>
+                                    </div>
+                                    <select class="form-select form-select-sm mt-2" name="assignment_frequency">
+                                        <option value="IMMEDIATE" {% if notification_prefs.assignment_frequency == 'IMMEDIATE' %}selected{% endif %}>Immediate</option>
+                                        <option value="DAILY" {% if notification_prefs.assignment_frequency == 'DAILY' %}selected{% endif %}>Daily Summary</option>
+                                        <option value="WEEKLY" {% if notification_prefs.assignment_frequency == 'WEEKLY' %}selected{% endif %}>Weekly Summary</option>
+                                        <option value="OFF" {% if notification_prefs.assignment_frequency == 'OFF' %}selected{% endif %}>Disabled</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <!-- School Announcements -->
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <div class="form-check form-switch mb-2">
+                                        <input class="form-check-input" type="checkbox" 
+                                               id="announcementNotificationsEmail" 
+                                               name="announcement_notifications_email"
+                                               {% if notification_prefs.announcement_notifications_email %}checked{% endif %}>
+                                        <label class="form-check-label" for="announcementNotificationsEmail">
+                                            <strong>School Announcements (Email)</strong>
+                                        </label>
+                                    </div>
+                                    <div class="form-check form-switch mb-2">
+                                        <input class="form-check-input" type="checkbox" 
+                                               id="announcementNotificationsSMS" 
+                                               name="announcement_notifications_sms"
+                                               {% if notification_prefs.announcement_notifications_sms %}checked{% endif %}>
+                                        <label class="form-check-label" for="announcementNotificationsSMS">
+                                            <strong>School Announcements (SMS)</strong>
+                                        </label>
+                                    </div>
+                                    <select class="form-select form-select-sm mt-2" name="announcement_frequency">
+                                        <option value="IMMEDIATE" {% if notification_prefs.announcement_frequency == 'IMMEDIATE' %}selected{% endif %}>Immediate</option>
+                                        <option value="DAILY" {% if notification_prefs.announcement_frequency == 'DAILY' %}selected{% endif %}>Daily Summary</option>
+                                        <option value="WEEKLY" {% if notification_prefs.announcement_frequency == 'WEEKLY' %}selected{% endif %}>Weekly Summary</option>
+                                        <option value="OFF" {% if notification_prefs.announcement_frequency == 'OFF' %}selected{% endif %}>Disabled</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <!-- Emergency Alerts -->
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <div class="form-check form-switch mb-2">
+                                        <input class="form-check-input" type="checkbox" 
+                                               id="emergencyNotificationsEmail" 
+                                               name="emergency_notifications_email"
+                                               {% if notification_prefs.emergency_notifications_email %}checked{% endif %}>
+                                        <label class="form-check-label" for="emergencyNotificationsEmail">
+                                            <strong>Emergency Alerts (Email)</strong>
+                                        </label>
+                                    </div>
+                                    <div class="form-check form-switch mb-2">
+                                        <input class="form-check-input" type="checkbox" 
+                                               id="emergencyNotificationsSMS" 
+                                               name="emergency_notifications_sms"
+                                               {% if notification_prefs.emergency_notifications_sms %}checked{% endif %}>
+                                        <label class="form-check-label" for="emergencyNotificationsSMS">
+                                            <strong>Emergency Alerts (SMS)</strong>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Conference Reminders -->
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <div class="form-check form-switch mb-2">
+                                        <input class="form-check-input" type="checkbox" 
+                                               id="conferenceRemindersEmail" 
+                                               name="conference_reminders_email"
+                                               {% if notification_prefs.conference_reminders_email %}checked{% endif %}>
+                                        <label class="form-check-label" for="conferenceRemindersEmail">
+                                            <strong>Conference Reminders (Email)</strong>
+                                        </label>
+                                    </div>
+                                    <div class="form-check form-switch mb-2">
+                                        <input class="form-check-input" type="checkbox" 
+                                               id="conferenceRemindersSMS" 
+                                               name="conference_reminders_sms"
+                                               {% if notification_prefs.conference_reminders_sms %}checked{% endif %}>
+                                        <label class="form-check-label" for="conferenceRemindersSMS">
+                                            <strong>Conference Reminders (SMS)</strong>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Weekend Notifications -->
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" 
+                                       id="weekendNotifications" 
+                                       name="weekend_notifications"
+                                       {% if notification_prefs.weekend_notifications %}checked{% endif %}>
+                                <label class="form-check-label" for="weekendNotifications">
+                                    <strong>Weekend Notifications</strong><br>
+                                    <small class="text-muted">Receive notifications during weekends</small>
+                                </label>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-bell me-1"></i>
+                                Update Notification Preferences
+                            </button>
+                        </form>
                     </div>
                     
                     <div class="col-12">

@@ -1065,6 +1065,64 @@ class Announcement(models.Model):
         ordering = ["-publish_date"]
 
 
+class ConferenceSlot(models.Model):
+    """Available conference time slots"""
+    
+    STATUS_CHOICES = [
+        ('AVAILABLE', 'Available'),
+        ('BOOKED', 'Booked'),
+        ('CANCELLED', 'Cancelled'),
+    ]
+    
+    teacher = models.ForeignKey(User, on_delete=models.CASCADE, related_name='conference_slots')
+    date = models.DateField()
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    duration_minutes = models.IntegerField(default=15)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='AVAILABLE')
+    location = models.CharField(max_length=200, default='Classroom')
+    notes = models.TextField(blank=True)
+    
+    # Booking information
+    booked_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='booked_conferences')
+    student = models.ForeignKey('students.Student', on_delete=models.CASCADE, null=True, blank=True)
+    booking_date = models.DateTimeField(null=True, blank=True)
+    parent_notes = models.TextField(blank=True, help_text="Notes from parent about conference topic")
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['date', 'start_time']
+        unique_together = ['teacher', 'date', 'start_time']
+    
+    def __str__(self):
+        return f"{self.teacher.get_full_name()} - {self.date} {self.start_time}"
+    
+    def is_available(self):
+        return self.status == 'AVAILABLE' and not self.booked_by
+    
+    def book_for_parent(self, parent_user, student, notes=""):
+        """Book this slot for a parent"""
+        if not self.is_available():
+            raise ValueError("Conference slot is not available")
+        
+        self.booked_by = parent_user
+        self.student = student
+        self.parent_notes = notes
+        self.status = 'BOOKED'
+        self.booking_date = timezone.now()
+        self.save()
+        
+        # Send confirmation emails
+        self.send_confirmation_emails()
+    
+    def send_confirmation_emails(self):
+        """Send confirmation emails to teacher and parent"""
+        # TODO: Implement email sending
+        pass
+
+
 class Message(models.Model):
     """Messages between users (teacher-parent, admin-parent, etc.)"""
 

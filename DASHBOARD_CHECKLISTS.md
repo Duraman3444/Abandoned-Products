@@ -216,10 +216,10 @@
   - ~~**🧪 Test**: Parent portal fully functional on smartphones~~
   - ~~**🧪 Test**: Touch interactions work smoothly (swipe, tap, pinch)~~
   - ~~**🧪 Test**: App-like experience when added to home screen~~
-- [ ] Multi-language support (if needed)
-  - **🧪 Test**: Interface translates completely to Spanish/other languages
-  - **🧪 Test**: Grades and academic terms localized appropriately
-  - **🧪 Test**: Language preference persists across sessions
+- [ ] Multi-language support (if needed) - SKIPPED per user request
+  - ~~**🧪 Test**: Interface translates completely to Spanish/other languages~~
+  - ~~**🧪 Test**: Grades and academic terms localized appropriately~~
+  - ~~**🧪 Test**: Language preference persists across sessions~~
 
 ### 📊 **Academic Overview** (Priority 1)
 - [x] Real-time grade viewing
@@ -242,9 +242,9 @@
   - ~~**🧪 Test**: Missing assignments trigger email/SMS notifications~~
   - ~~**🧪 Test**: Multiple missing assignments escalate alert priority~~
   - ~~**🧪 Test**: Alerts stop when assignments are submitted~~
-- [ ] Academic calendar integration
-  - **🧪 Test**: School calendar events appear with personal assignments
-  - **🧪 Test**: Test dates and project due dates highlighted
+- [x] Academic calendar integration
+  - ~~**🧪 Test**: School calendar events appear with personal assignments~~
+  - ~~**🧪 Test**: Test dates and project due dates highlighted~~
   - **🧪 Test**: Calendar can be exported to Google/Apple calendars
 
 ### 📅 **Attendance & Schedule** (Priority 1)
@@ -278,18 +278,18 @@
   - ~~**🧪 Test**: Send message to teacher → delivered and read receipt available~~
   - ~~**🧪 Test**: Attach files to messages → teachers can download attachments~~
   - ~~**🧪 Test**: Message threads maintain conversation context~~
-- [ ] School announcements viewing
-  - **🧪 Test**: All school announcements visible in chronological order
-  - **🧪 Test**: Important announcements pinned at top
-  - **🧪 Test**: Announcements can be filtered by category/importance
-- [ ] Parent-teacher conference scheduling
-  - **🧪 Test**: View available conference time slots
-  - **🧪 Test**: Book conference slot → confirmation sent to both parties
+- [x] School announcements viewing
+  - ~~**🧪 Test**: All school announcements visible in chronological order~~
+  - ~~**🧪 Test**: Important announcements pinned at top~~
+  - ~~**🧪 Test**: Announcements can be filtered by category/importance~~
+- [x] Parent-teacher conference scheduling
+  - ~~**🧪 Test**: View available conference time slots~~
+  - ~~**🧪 Test**: Book conference slot → confirmation sent to both parties~~
   - **🧪 Test**: Reschedule or cancel conferences with appropriate notice
-- [ ] Email and SMS notification preferences
-  - **🧪 Test**: Customize notification frequency (immediate, daily, weekly)
-  - **🧪 Test**: Choose between email, SMS, or both for different alert types
-  - **🧪 Test**: Notification preferences apply correctly to all communications
+- [x] Email and SMS notification preferences
+  - ~~**🧪 Test**: Customize notification frequency (immediate, daily, weekly)~~
+  - ~~**🧪 Test**: Choose between email, SMS, or both for different alert types~~
+  - ~~**🧪 Test**: Notification preferences apply correctly to all communications~~
 - [x] Message history and archiving
   - ~~**🧪 Test**: Search message history by teacher, date, or keyword~~
   - ~~**🧪 Test**: Archive old conversations while keeping important ones accessible~~

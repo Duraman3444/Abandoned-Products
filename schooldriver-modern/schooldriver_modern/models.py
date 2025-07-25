@@ -165,3 +165,66 @@ class SecurityEvent(models.Model):
             user_agent=user_agent,
             details=extra_details,
         )
+
+
+class NotificationPreferences(models.Model):
+    """User notification preferences for different types of notifications"""
+    
+    FREQUENCY_CHOICES = [
+        ('IMMEDIATE', 'Immediate'),
+        ('DAILY', 'Daily Summary'),
+        ('WEEKLY', 'Weekly Summary'),
+        ('OFF', 'Disabled'),
+    ]
+    
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='notification_preferences')
+    
+    # Grade notifications
+    grade_notifications_email = models.BooleanField(default=True)
+    grade_notifications_sms = models.BooleanField(default=False)
+    grade_frequency = models.CharField(max_length=20, choices=FREQUENCY_CHOICES, default='IMMEDIATE')
+    
+    # Attendance notifications
+    attendance_notifications_email = models.BooleanField(default=True)
+    attendance_notifications_sms = models.BooleanField(default=True)
+    attendance_frequency = models.CharField(max_length=20, choices=FREQUENCY_CHOICES, default='IMMEDIATE')
+    
+    # Assignment reminders
+    assignment_reminders_email = models.BooleanField(default=True)
+    assignment_reminders_sms = models.BooleanField(default=False)
+    assignment_frequency = models.CharField(max_length=20, choices=FREQUENCY_CHOICES, default='DAILY')
+    
+    # School announcements
+    announcement_notifications_email = models.BooleanField(default=True)
+    announcement_notifications_sms = models.BooleanField(default=False)
+    announcement_frequency = models.CharField(max_length=20, choices=FREQUENCY_CHOICES, default='IMMEDIATE')
+    
+    # Emergency alerts
+    emergency_notifications_email = models.BooleanField(default=True)
+    emergency_notifications_sms = models.BooleanField(default=True)
+    emergency_frequency = models.CharField(max_length=20, choices=FREQUENCY_CHOICES, default='IMMEDIATE')
+    
+    # Conference reminders 
+    conference_reminders_email = models.BooleanField(default=True)
+    conference_reminders_sms = models.BooleanField(default=False)
+    
+    # General settings
+    digest_time = models.TimeField(default='08:00:00', help_text="Time to send daily/weekly digests")
+    weekend_notifications = models.BooleanField(default=False)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"Notification Preferences - {self.user.username}"
+    
+    class Meta:
+        verbose_name = "Notification Preferences"
+        verbose_name_plural = "Notification Preferences"
+
+
+@receiver(post_save, sender=User)
+def create_notification_preferences(sender, instance, created, **kwargs):
+    """Create NotificationPreferences when User is created"""
+    if created:
+        NotificationPreferences.objects.get_or_create(user=instance)

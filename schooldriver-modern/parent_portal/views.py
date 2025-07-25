@@ -400,21 +400,15 @@ def dashboard_view(request):
                 "recent_activity": f"Last grade: {last_activity}"
             })
 
-        # Mock school announcements
-        announcements = [
-            {
-                "title": "Parent-Teacher Conferences",
-                "message": "Sign up for conferences scheduled for November 15-16.",
-                "date": timezone.now() - timedelta(days=2),
-                "urgent": True,
-            },
-            {
-                "title": "Fall Festival", 
-                "message": "Join us for our annual Fall Festival on October 30th.",
-                "date": timezone.now() - timedelta(days=5),
-                "urgent": False,
-            },
-        ]
+        # Get real school announcements for parents
+        from academics.models import Announcement
+        announcements = Announcement.objects.filter(
+            is_published=True,
+            audience__in=['ALL', 'PARENTS'],
+            publish_date__lte=timezone.now()
+        ).exclude(
+            expire_date__lt=timezone.now()
+        ).order_by('-priority', '-publish_date')[:10]
 
         context = {
             "current_child": current_child,
@@ -581,6 +575,76 @@ def early_dismissal_request_view(request):
         context = {"error": "Unable to load dismissal request form."}
     
     return render(request, "parent_portal/early_dismissal_request.html", context)
+
+
+@login_required
+@role_required(["Parent"])
+def conference_scheduling_view(request):
+    """View available conference slots and book appointments"""
+    try:
+        current_child, children = get_current_child(request.user, request)
+        
+        if not current_child:
+            return render(request, "parent_portal/conference_scheduling.html", {
+                "error": "Please select a child to view conference scheduling.",
+                "children": children,
+            })
+        
+        # Get teachers for the current child
+        from academics.models import ConferenceSlot, Enrollment
+        from django.db.models import Q
+        
+        # Get current child's teachers
+        enrollments = Enrollment.objects.filter(
+            student=current_child,
+            course__school_year__is_active=True
+        ).select_related('course__teacher')
+        
+        teachers = [enrollment.course.teacher for enrollment in enrollments if enrollment.course.teacher]
+        
+        # Get available conference slots for these teachers
+        available_slots = ConferenceSlot.objects.filter(
+            teacher__in=teachers,
+            status='AVAILABLE',
+            date__gte=timezone.now().date()
+        ).select_related('teacher').order_by('date', 'start_time')
+        
+        # Get booked conferences for current user
+        booked_conferences = ConferenceSlot.objects.filter(
+            booked_by=request.user,
+            student=current_child
+        ).select_related('teacher').order_by('date', 'start_time')
+        
+        # Handle booking
+        if request.method == "POST":
+            slot_id = request.POST.get('slot_id')
+            parent_notes = request.POST.get('parent_notes', '')
+            
+            try:
+                slot = ConferenceSlot.objects.get(id=slot_id)
+                slot.book_for_parent(request.user, current_child, parent_notes)
+                messages.success(request, f"Conference booked successfully with {slot.teacher.get_full_name()} on {slot.date} at {slot.start_time}")
+                return redirect('parent_portal:conference_scheduling')
+            except ConferenceSlot.DoesNotExist:
+                messages.error(request, "Conference slot not found.")
+            except ValueError as e:
+                messages.error(request, str(e))
+        
+        context = {
+            "current_child": current_child,
+            "children": children,
+            "available_slots": available_slots,
+            "booked_conferences": booked_conferences,
+            "teachers": teachers,
+        }
+        
+        return render(request, "parent_portal/conference_scheduling.html", context)
+        
+    except Exception as e:
+        return render(request, "parent_portal/conference_scheduling.html", {
+            "error": f"Error loading conference scheduling: {str(e)}",
+            "children": children if 'children' in locals() else [],
+        })
 
 
 @login_required
@@ -1308,13 +1372,42 @@ def profile_view(request):
     try:
         children = get_parent_children(request.user)
         
-        # Get or create user profile
-        from schooldriver_modern.models import UserProfile
+        # Get or create user profile and notification preferences
+        from schooldriver_modern.models import UserProfile, NotificationPreferences
         profile, created = UserProfile.objects.get_or_create(user=request.user)
+        notification_prefs, prefs_created = NotificationPreferences.objects.get_or_create(user=request.user)
 
         if request.method == "POST":
             form = ParentProfileForm(request.POST, instance=profile, user=request.user)
-            if form.is_valid():
+            
+            # Handle notification preferences update
+            if 'update_notifications' in request.POST:
+                # Update notification preferences
+                notification_prefs.grade_notifications_email = request.POST.get('grade_notifications_email') == 'on'
+                notification_prefs.grade_notifications_sms = request.POST.get('grade_notifications_sms') == 'on'
+                notification_prefs.attendance_notifications_email = request.POST.get('attendance_notifications_email') == 'on'
+                notification_prefs.attendance_notifications_sms = request.POST.get('attendance_notifications_sms') == 'on'
+                notification_prefs.assignment_reminders_email = request.POST.get('assignment_reminders_email') == 'on'
+                notification_prefs.assignment_reminders_sms = request.POST.get('assignment_reminders_sms') == 'on'
+                notification_prefs.announcement_notifications_email = request.POST.get('announcement_notifications_email') == 'on'
+                notification_prefs.announcement_notifications_sms = request.POST.get('announcement_notifications_sms') == 'on'
+                notification_prefs.emergency_notifications_email = request.POST.get('emergency_notifications_email') == 'on'
+                notification_prefs.emergency_notifications_sms = request.POST.get('emergency_notifications_sms') == 'on'
+                notification_prefs.conference_reminders_email = request.POST.get('conference_reminders_email') == 'on'
+                notification_prefs.conference_reminders_sms = request.POST.get('conference_reminders_sms') == 'on'
+                notification_prefs.weekend_notifications = request.POST.get('weekend_notifications') == 'on'
+                
+                # Update frequency settings
+                notification_prefs.grade_frequency = request.POST.get('grade_frequency', 'IMMEDIATE')
+                notification_prefs.attendance_frequency = request.POST.get('attendance_frequency', 'IMMEDIATE')
+                notification_prefs.assignment_frequency = request.POST.get('assignment_frequency', 'DAILY')
+                notification_prefs.announcement_frequency = request.POST.get('announcement_frequency', 'IMMEDIATE')
+                
+                notification_prefs.save()
+                messages.success(request, "Notification preferences updated successfully.")
+                return redirect("parent_portal:profile")
+            
+            elif form.is_valid():
                 form.save()
                 
                 # Update language preference in session for immediate effect
@@ -1344,6 +1437,7 @@ def profile_view(request):
             "form": form,
             "children": children,
             "emergency_contacts_by_child": emergency_contacts_by_child,
+            "notification_prefs": notification_prefs,
         }
 
     except Exception as e:

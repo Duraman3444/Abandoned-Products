@@ -20,6 +20,7 @@ urlpatterns = [
     path("attendance/", views.attendance_view, name="attendance_current"),
     path("attendance/<uuid:student_id>/", views.attendance_view, name="attendance"),
     path("early-dismissal-request/", views.early_dismissal_request_view, name="early_dismissal_request"),
+    path("conference-scheduling/", views.conference_scheduling_view, name="conference_scheduling"),
     path("school-calendar/", views.school_calendar_view, name="school_calendar"),
     path("progress-report/", views.progress_report_view, name="progress_report_current"),
     path("progress-report/<uuid:student_id>/", views.progress_report_view, name="progress_report"),

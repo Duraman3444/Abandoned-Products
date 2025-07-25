@@ -1,0 +1,231 @@
+{% extends "parent_base.html" %}
+{% load static %}
+
+{% block page_title %}Conference Scheduling{% endblock %}
+{% block page_subtitle %}
+    {% if current_child %}
+        {{ current_child.display_name }} - Parent-Teacher Conferences
+    {% else %}
+        Parent-Teacher Conference Scheduling
+    {% endif %}
+{% endblock %}
+
+{% block parent_content %}
+{% if error %}
+    <div class="alert alert-warning text-center">
+        <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+        <h4>{{ error }}</h4>
+    </div>
+{% else %}
+
+<div class="row">
+    <!-- Booked Conferences -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-calendar-check text-success me-2"></i>
+                    Your Booked Conferences
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if booked_conferences %}
+                    {% for conference in booked_conferences %}
+                    <div class="alert alert-success mb-3">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="alert-heading mb-1">
+                                    <i class="fas fa-user-tie me-1"></i>
+                                    {{ conference.teacher.get_full_name }}
+                                </h6>
+                                <p class="mb-1">
+                                    <i class="fas fa-calendar me-1"></i>
+                                    {{ conference.date|date:"l, F d, Y" }}
+                                </p>
+                                <p class="mb-1">
+                                    <i class="fas fa-clock me-1"></i>
+                                    {{ conference.start_time|time:"g:i A" }} - {{ conference.end_time|time:"g:i A" }}
+                                </p>
+                                <p class="mb-1">
+                                    <i class="fas fa-map-marker-alt me-1"></i>
+                                    {{ conference.location }}
+                                </p>
+                                {% if conference.parent_notes %}
+                                <small class="text-muted">
+                                    <strong>Your notes:</strong> {{ conference.parent_notes|truncatewords:15 }}
+                                </small>
+                                {% endif %}
+                            </div>
+                            <small class="text-muted">
+                                Booked {{ conference.booking_date|date:"M d" }}
+                            </small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No conferences booked yet.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Available Slots -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-calendar-plus text-primary me-2"></i>
+                    Available Conference Slots
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if available_slots %}
+                    {% for slot in available_slots %}
+                    <div class="card mb-3 border-primary">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="card-title mb-2">
+                                        <i class="fas fa-user-tie text-primary me-1"></i>
+                                        {{ slot.teacher.get_full_name }}
+                                    </h6>
+                                    <p class="card-text mb-1">
+                                        <i class="fas fa-calendar text-muted me-1"></i>
+                                        {{ slot.date|date:"l, F d, Y" }}
+                                    </p>
+                                    <p class="card-text mb-1">
+                                        <i class="fas fa-clock text-muted me-1"></i>
+                                        {{ slot.start_time|time:"g:i A" }} - {{ slot.end_time|time:"g:i A" }}
+                                        <small class="text-muted">({{ slot.duration_minutes }} min)</small>
+                                    </p>
+                                    <p class="card-text mb-2">
+                                        <i class="fas fa-map-marker-alt text-muted me-1"></i>
+                                        {{ slot.location }}
+                                    </p>
+                                    {% if slot.notes %}
+                                    <small class="text-muted">{{ slot.notes }}</small>
+                                    {% endif %}
+                                </div>
+                                <button class="btn btn-primary btn-sm" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#bookModal{{ slot.id }}">
+                                    <i class="fas fa-calendar-plus me-1"></i>
+                                    Book
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Booking Modal -->
+                    <div class="modal fade" id="bookModal{{ slot.id }}" tabindex="-1">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">
+                                        Book Conference with {{ slot.teacher.get_full_name }}
+                                    </h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <form method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="slot_id" value="{{ slot.id }}">
+                                    <div class="modal-body">
+                                        <div class="alert alert-info">
+                                            <strong>Conference Details:</strong><br>
+                                            <i class="fas fa-calendar me-1"></i> {{ slot.date|date:"l, F d, Y" }}<br>
+                                            <i class="fas fa-clock me-1"></i> {{ slot.start_time|time:"g:i A" }} - {{ slot.end_time|time:"g:i A" }}<br>
+                                            <i class="fas fa-map-marker-alt me-1"></i> {{ slot.location }}
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label for="parent_notes{{ slot.id }}" class="form-label">
+                                                Conference Topic/Notes <small class="text-muted">(Optional)</small>
+                                            </label>
+                                            <textarea class="form-control" 
+                                                      id="parent_notes{{ slot.id }}" 
+                                                      name="parent_notes" 
+                                                      rows="3" 
+                                                      placeholder="What would you like to discuss? (e.g., academic progress, behavior, concerns)"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                            Cancel
+                                        </button>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-calendar-check me-1"></i>
+                                            Book Conference
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No available conference slots at this time.</p>
+                        <small class="text-muted">
+                            Conference scheduling periods are typically announced through school announcements.
+                        </small>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Teachers Info -->
+{% if teachers %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-users text-info me-2"></i>
+                    {{ current_child.display_name }}'s Teachers
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for teacher in teachers %}
+                    <div class="col-md-4 mb-3">
+                        <div class="card border-info">
+                            <div class="card-body text-center">
+                                <i class="fas fa-user-tie fa-2x text-info mb-2"></i>
+                                <h6 class="card-title">{{ teacher.get_full_name }}</h6>
+                                <p class="card-text text-muted">{{ teacher.email }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Auto-focus on notes field when modal opens
+    document.addEventListener('DOMContentLoaded', function() {
+        const modals = document.querySelectorAll('.modal');
+        modals.forEach(modal => {
+            modal.addEventListener('shown.bs.modal', function() {
+                const textarea = modal.querySelector('textarea');
+                if (textarea) {
+                    textarea.focus();
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

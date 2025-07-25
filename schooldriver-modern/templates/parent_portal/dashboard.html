@@ -418,19 +418,24 @@
             <div class="card-body">
                 {% if announcements %}
                     {% for announcement in announcements %}
-                    <div class="alert alert-{% if announcement.urgent %}warning{% else %}info{% endif %} mb-3">
+                    <div class="alert alert-{% if announcement.priority == 'URGENT' or announcement.is_urgent %}warning{% elif announcement.priority == 'HIGH' %}danger{% else %}info{% endif %} mb-3">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
                                 <h6 class="alert-heading mb-1">
-                                    {% if announcement.urgent %}
+                                    {% if announcement.priority == 'URGENT' or announcement.is_urgent %}
                                         <i class="fas fa-exclamation-triangle me-1"></i>
+                                    {% elif announcement.priority == 'HIGH' %}
+                                        <i class="fas fa-exclamation-circle me-1"></i>
                                     {% endif %}
                                     {{ announcement.title }}
                                 </h6>
-                                <p class="mb-1">{{ announcement.message }}</p>
+                                <p class="mb-1">{{ announcement.content|truncatewords:20 }}</p>
                                 <small class="text-muted">
                                     <i class="fas fa-calendar me-1"></i>
-                                    {{ announcement.date|date:"M d, Y" }}
+                                    {{ announcement.publish_date|date:"M d, Y" }}
+                                    {% if announcement.priority != 'NORMAL' %}
+                                        <span class="badge bg-{{ announcement.priority|lower }} ms-2">{{ announcement.get_priority_display }}</span>
+                                    {% endif %}
                                 </small>
                             </div>
                         </div>
