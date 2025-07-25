@@ -1,498 +1,153 @@
 {% extends "base.html" %}
 {% load static %}
 
+{% block breadcrumb %}
+<nav aria-label="breadcrumb" class="bg-dark border-bottom border-secondary">
+    <div class="container">
+        <ol class="breadcrumb py-2 mb-0">
+            <li class="breadcrumb-item"><a href="{% url 'parent_portal:dashboard' %}" class="text-info">Parent Portal</a></li>
+            {% block breadcrumb_items %}{% endblock %}
+        </ol>
+    </div>
+</nav>
+{% endblock %}
+
 {% block extra_css %}
 <style>
 .child-switcher {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%);
     border-radius: 10px;
     padding: 1rem;
     margin-bottom: 1.5rem;
     color: white;
+    border: 1px solid #495057;
 }
 
 .child-card {
-    border: 2px solid transparent;
+    border: 2px solid #495057;
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.3s ease;
+    background: #212529;
+    color: #fff;
 }
 
 .child-card:hover {
-    border-color: #007bff;
+    border-color: #20c997;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,123,255,0.3);
+    box-shadow: 0 4px 12px rgba(32, 201, 151, 0.3);
 }
 
 .child-card.active {
-    border-color: #28a745;
-    background: linear-gradient(135deg, #28a745, #20c997);
+    border-color: #20c997;
+    background: linear-gradient(135deg, #20c997, #17a2b8);
     color: white;
-}
-
-.navbar-parent {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-
-.sidebar-parent {
-    background: #f8f9fa;
-    min-height: 100vh;
-    padding-top: 1rem;
-}
-
-.nav-item-parent {
-    margin-bottom: 0.5rem;
-}
-
-.nav-link-parent {
-    color: #495057;
-    border-radius: 8px;
-    margin: 0.2rem 0;
-    padding: 0.75rem 1rem;
-    transition: all 0.3s ease;
-}
-
-.nav-link-parent:hover {
-    background: #e9ecef;
-    color: #007bff;
-    transform: translateX(5px);
-}
-
-.nav-link-parent.active {
-    background: linear-gradient(135deg, #007bff, #6610f2);
-    color: white;
-}
-
-.main-content {
-    padding: 2rem;
-    background: #f8f9fa;
-    min-height: 100vh;
-}
-
-.page-header {
-    background: white;
-    border-radius: 10px;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
 .stats-card {
-    background: white;
+    background: #212529;
+    border: 1px solid #495057;
     border-radius: 10px;
     padding: 1.5rem;
     text-align: center;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
     transition: transform 0.3s ease;
+    color: #fff;
 }
 
 .stats-card:hover {
     transform: translateY(-5px);
-}
-
-.mobile-menu-btn {
-    display: none;
-}
-
-@media (max-width: 768px) {
-    .mobile-menu-btn {
-        display: block;
-    }
-    
-    .sidebar-parent {
-        display: none;
-        position: fixed;
-        top: 56px; /* Account for navbar height */
-        left: 0;
-        width: 100%;
-        height: calc(100% - 56px);
-        z-index: 1050;
-        background: white;
-        padding: 1rem;
-        overflow-y: auto;
-    }
-    
-    .sidebar-parent.show {
-        display: block;
-        animation: slideIn 0.3s ease-out;
-    }
-    
-    .main-content {
-        padding: 1rem;
-        margin-top: 0;
-    }
-    
-    .child-switcher {
-        padding: 0.75rem;
-        margin-bottom: 1rem;
-    }
-    
-    .child-card {
-        margin-bottom: 0.5rem;
-        padding: 0.75rem !important;
-    }
-    
-    .page-header {
-        padding: 1rem;
-        margin-bottom: 1rem;
-    }
-    
-    .page-header h1 {
-        font-size: 1.5rem;
-    }
-    
-    .stats-card {
-        padding: 1rem;
-        margin-bottom: 1rem;
-    }
-    
-    .nav-link-parent {
-        padding: 1rem;
-        font-size: 1rem;
-        border-radius: 8px;
-        margin-bottom: 0.5rem;
-    }
-    
-    .nav-link-parent i {
-        width: 20px;
-        text-align: center;
-    }
-}
-
-@keyframes slideIn {
-    from {
-        transform: translateX(-100%);
-    }
-    to {
-        transform: translateX(0);
-    }
-}
-
-/* Touch-friendly improvements */
-@media (max-width: 768px) and (hover: none) {
-    .child-card:hover {
-        transform: none;
-        box-shadow: none;
-    }
-    
-    .child-card:active {
-        transform: scale(0.98);
-        transition: transform 0.1s ease;
-    }
-    
-    .nav-link-parent:hover {
-        transform: none;
-    }
-    
-    .nav-link-parent:active {
-        transform: scale(0.98);
-        transition: transform 0.1s ease;
-    }
-    
-    .stats-card:hover {
-        transform: none;
-    }
-    
-    .stats-card:active {
-        transform: scale(0.98);
-        transition: transform 0.1s ease;
-    }
-}
-
-/* Improved tablet view */
-@media (min-width: 769px) and (max-width: 1024px) {
-    .main-content {
-        padding: 1.5rem;
-    }
-    
-    .sidebar-parent {
-        padding: 1rem;
-    }
-    
-    .child-switcher {
-        padding: 0.75rem;
-    }
+    border-color: #20c997;
 }
 </style>
 {% endblock %}
 
 {% block content %}
-<nav class="navbar navbar-expand-lg navbar-parent navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="{% url 'parent_portal:dashboard' %}">
-            <i class="fas fa-home me-2"></i>
-            Parent Portal
-        </a>
-        
-        <button class="navbar-toggler mobile-menu-btn" type="button" onclick="toggleMobileMenu()">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        
-        <div class="navbar-nav ms-auto">
-            <div class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown">
-                    <i class="fas fa-user-circle me-1"></i>
-                    {{ user.get_full_name|default:user.username }}
-                </a>
-                <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="{% url 'parent_portal:profile' %}">
-                        <i class="fas fa-user me-2"></i>Profile
-                    </a></li>
-                    <li><a class="dropdown-item" href="{% url 'parent_portal:verify_code' %}">
-                        <i class="fas fa-plus me-2"></i>Link Another Child
-                    </a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="{% url 'logout' %}">
-                        <i class="fas fa-sign-out-alt me-2"></i>Logout
-                    </a></li>
-                </ul>
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Sidebar Navigation -->
+        <div class="col-md-3 col-lg-2">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="bi bi-person-heart me-2"></i>Parent Menu</h6>
+                </div>
+                <div class="card-body p-0">
+                    <!-- Child Switcher -->
+                    {% if children and children|length > 1 %}
+                    <div class="child-switcher m-3">
+                        <h6 class="mb-3">
+                            <i class="fas fa-users me-2"></i>
+                            Select Child
+                        </h6>
+                        <div class="row g-2">
+                            {% for child in children %}
+                            <div class="col-12">
+                                <div class="child-card p-2 text-center {% if child.id == current_child.id %}active{% endif %}" 
+                                     onclick="switchChild('{{ child.id }}')">
+                                    <div class="fw-bold">{{ child.display_name }}</div>
+                                    <small>{{ child.grade_level.name }} • ID: {{ child.student_id }}</small>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% elif children and children|length == 1 %}
+                    <div class="child-switcher text-center m-3">
+                        <h6 class="mb-2">
+                            <i class="fas fa-user me-2"></i>
+                            {{ children.0.display_name }}
+                        </h6>
+                        <small>{{ children.0.grade_level.name }} • ID: {{ children.0.student_id }}</small>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Navigation -->
+                    <nav class="nav flex-column" role="navigation" aria-label="Parent portal navigation">
+                        <a class="nav-link {% if 'dashboard' in request.resolver_match.url_name %}active bg-teal text-white{% endif %}" 
+                           href="{% url 'parent_portal:dashboard' %}"
+                           aria-current="{% if 'dashboard' in request.resolver_match.url_name %}page{% endif %}"
+                           aria-label="Go to Dashboard - Overview of child's progress">
+                            <i class="bi bi-speedometer2 me-2" aria-hidden="true"></i>Dashboard
+                        </a>
+                        
+                        {% if current_child %}
+                        <a class="nav-link {% if 'child_detail' in request.resolver_match.url_name %}active bg-teal text-white{% endif %}" 
+                           href="{% url 'parent_portal:child_detail_current' %}{% if request.GET.child %}?child={{ request.GET.child }}{% endif %}"
+                           aria-current="{% if 'child_detail' in request.resolver_match.url_name %}page{% endif %}">
+                            <i class="bi bi-person me-2"></i>Student Profile
+                        </a>
+                        <a class="nav-link {% if 'grades' in request.resolver_match.url_name %}active bg-teal text-white{% endif %}" 
+                           href="{% url 'parent_portal:grades_current' %}{% if request.GET.child %}?child={{ request.GET.child }}{% endif %}">
+                            <i class="bi bi-bar-chart me-2"></i>Grades & Progress
+                        </a>
+                        <a class="nav-link {% if 'attendance' in request.resolver_match.url_name %}active bg-teal text-white{% endif %}" 
+                           href="{% url 'parent_portal:attendance_current' %}{% if request.GET.child %}?child={{ request.GET.child }}{% endif %}">
+                            <i class="bi bi-calendar-check me-2"></i>Attendance
+                        </a>
+                        {% endif %}
+                        
+                        <a class="nav-link {% if 'messages' in request.resolver_match.url_name %}active bg-teal text-white{% endif %}" 
+                           href="{% url 'parent_portal:messages' %}">
+                            <i class="bi bi-envelope me-2"></i>Messages
+                        </a>
+                        <a class="nav-link {% if 'emergency_contacts' in request.resolver_match.url_name %}active bg-teal text-white{% endif %}" 
+                           href="{% url 'parent_portal:emergency_contacts' %}">
+                            <i class="bi bi-person-lines-fill me-2"></i>Emergency Contacts
+                        </a>
+                    </nav>
+                </div>
             </div>
         </div>
-    </div>
-</nav>
-
-<div class="container-fluid">
-    <div class="row">
-        <!-- Sidebar -->
-        <nav class="col-md-3 col-lg-2 sidebar-parent" id="sidebar">
-            <div class="position-sticky">
-                <!-- Child Switcher -->
-                {% if children and children|length > 1 %}
-                <div class="child-switcher">
-                    <h6 class="mb-3">
-                        <i class="fas fa-users me-2"></i>
-                        Select Child
-                    </h6>
-                    <div class="row g-2">
-                        {% for child in children %}
-                        <div class="col-12">
-                            <div class="child-card p-2 text-center {% if child.id == current_child.id %}active{% endif %}" 
-                                 onclick="switchChild('{{ child.id }}')">
-                                <div class="fw-bold">{{ child.display_name }}</div>
-                                <small>{{ child.grade_level.name }} • ID: {{ child.student_id }}</small>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-                {% elif children and children|length == 1 %}
-                <div class="child-switcher text-center">
-                    <h6 class="mb-2">
-                        <i class="fas fa-user me-2"></i>
-                        {{ children.0.display_name }}
-                    </h6>
-                    <small>{{ children.0.grade_level.name }} • ID: {{ children.0.student_id }}</small>
-                </div>
-                {% endif %}
-                
-                <!-- Navigation -->
-                <ul class="nav flex-column">
-                    <li class="nav-item-parent">
-                        <a class="nav-link-parent {% if 'dashboard' in request.resolver_match.url_name %}active{% endif %}" 
-                           href="{% url 'parent_portal:dashboard' %}">
-                            <i class="fas fa-tachometer-alt me-2"></i>
-                            Dashboard
-                        </a>
-                    </li>
-                    
-                    {% if current_child %}
-                    <li class="nav-item-parent">
-                        <a class="nav-link-parent {% if 'child_detail' in request.resolver_match.url_name %}active{% endif %}" 
-                           href="{% url 'parent_portal:child_detail_current' %}{% if request.GET.child %}?child={{ request.GET.child }}{% endif %}">
-                            <i class="fas fa-user-graduate me-2"></i>
-                            Student Profile
-                        </a>
-                    </li>
-                    <li class="nav-item-parent">
-                        <a class="nav-link-parent {% if 'grades' in request.resolver_match.url_name %}active{% endif %}" 
-                           href="{% url 'parent_portal:grades_current' %}{% if request.GET.child %}?child={{ request.GET.child }}{% endif %}">
-                            <i class="fas fa-chart-line me-2"></i>
-                            Grades & Progress
-                        </a>
-                    </li>
-                    <li class="nav-item-parent">
-                        <a class="nav-link-parent {% if 'attendance' in request.resolver_match.url_name %}active{% endif %}" 
-                           href="{% url 'parent_portal:attendance_current' %}{% if request.GET.child %}?child={{ request.GET.child }}{% endif %}">
-                            <i class="fas fa-calendar-check me-2"></i>
-                            Attendance
-                        </a>
-                    </li>
-                    <li class="nav-item-parent">
-                        <a class="nav-link-parent {% if 'school_calendar' in request.resolver_match.url_name %}active{% endif %}" 
-                           href="{% url 'parent_portal:school_calendar' %}{% if request.GET.child %}?child={{ request.GET.child }}{% endif %}">
-                            <i class="fas fa-calendar me-2"></i>
-                            School Calendar
-                        </a>
-                    </li>
-                    <li class="nav-item-parent">
-                        <a class="nav-link-parent {% if 'progress_report' in request.resolver_match.url_name %}active{% endif %}" 
-                           href="{% url 'parent_portal:progress_report_current' %}{% if request.GET.child %}?child={{ request.GET.child }}{% endif %}">
-                            <i class="fas fa-file-alt me-2"></i>
-                            Progress Report
-                        </a>
-                    </li>
-                    {% endif %}
-                    
-                    <li class="nav-item-parent">
-                        <a class="nav-link-parent {% if 'messages' in request.resolver_match.url_name %}active{% endif %}" 
-                           href="{% url 'parent_portal:messages' %}">
-                            <i class="fas fa-envelope me-2"></i>
-                            Messages
-                        </a>
-                    </li>
-                    <li class="nav-item-parent">
-                        <a class="nav-link-parent {% if 'emergency_contacts' in request.resolver_match.url_name %}active{% endif %}" 
-                           href="{% url 'parent_portal:emergency_contacts' %}">
-                            <i class="fas fa-address-book me-2"></i>
-                            Emergency Contacts
-                        </a>
-                    </li>
-                    
-                    <!-- Analytics Section -->
-                    {% if current_child %}
-                    <li class="nav-item-parent dropdown">
-                        <a class="nav-link-parent dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-chart-line me-2"></i>
-                            Analytics & Insights
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-dark">
-                            <li><a class="dropdown-item" href="{% url 'student_analytics:dashboard' student_id=current_child.id %}">
-                                <i class="fas fa-tachometer-alt me-2"></i> Analytics Dashboard
-                            </a></li>
-                            <li><a class="dropdown-item" href="{% url 'student_analytics:progress_over_time' student_id=current_child.id %}">
-                                <i class="fas fa-chart-area me-2"></i> Progress Over Time
-                            </a></li>
-                            <li><a class="dropdown-item" href="{% url 'student_analytics:class_comparisons' student_id=current_child.id %}">
-                                <i class="fas fa-balance-scale me-2"></i> Class Comparisons
-                            </a></li>
-                            <li><a class="dropdown-item" href="{% url 'student_analytics:study_recommendations' student_id=current_child.id %}">
-                                <i class="fas fa-lightbulb me-2"></i> Study Recommendations
-                            </a></li>
-                            <li><a class="dropdown-item" href="{% url 'student_analytics:achievement_badges' student_id=current_child.id %}">
-                                <i class="fas fa-trophy me-2"></i> Achievement Badges
-                            </a></li>
-                            <li><a class="dropdown-item" href="{% url 'student_analytics:goal_tracking' student_id=current_child.id %}">
-                                <i class="fas fa-target me-2"></i> Goal Tracking
-                            </a></li>
-                            <li><a class="dropdown-item" href="{% url 'student_analytics:engagement_metrics' student_id=current_child.id %}">
-                                <i class="fas fa-chart-bar me-2"></i> Engagement Metrics
-                            </a></li>
-                        </ul>
-                    </li>
-                    {% endif %}
-                    
-                    <!-- School Services Section -->
-                    <li class="nav-item-parent dropdown">
-                        <a class="nav-link-parent dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-school me-2"></i>
-                            School Services
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-dark">
-                            <li><a class="dropdown-item" href="{% url 'school_services:lunch_account' %}">
-                                <i class="fas fa-wallet me-2"></i> Lunch Account
-                            </a></li>
-                            <li><a class="dropdown-item" href="{% url 'school_services:transportation' %}">
-                                <i class="fas fa-bus me-2"></i> Transportation
-                            </a></li>
-                            <li><a class="dropdown-item" href="{% url 'school_services:activities' %}">
-                                <i class="fas fa-running me-2"></i> Activities
-                            </a></li>
-                            <li><a class="dropdown-item" href="{% url 'school_services:supply_lists' %}">
-                                <i class="fas fa-list-ul me-2"></i> Supply Lists
-                            </a></li>
-                            <li><a class="dropdown-item" href="{% url 'school_services:events_rsvp' %}">
-                                <i class="fas fa-calendar-check me-2"></i> Event RSVP
-                            </a></li>
-                            <li><a class="dropdown-item" href="{% url 'school_services:volunteer_opportunities' %}">
-                                <i class="fas fa-hands-helping me-2"></i> Volunteer
-                            </a></li>
-                        </ul>
-                    </li>
-                    
-                    <li class="nav-item-parent">
-                        <a class="nav-link-parent {% if 'profile' in request.resolver_match.url_name %}active{% endif %}" 
-                           href="{% url 'parent_portal:profile' %}">
-                            <i class="fas fa-cog me-2"></i>
-                            Settings
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </nav>
         
-        <!-- Main content -->
-        <main class="col-md-9 ms-sm-auto col-lg-10 main-content">
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                {% endfor %}
-            {% endif %}
-            
-            <div class="page-header">
-                <h1 class="h2 mb-1">
-                    <i class="fas fa-{{ page_icon|default:'home' }} text-primary me-2"></i>
-                    {% block page_title %}Dashboard{% endblock %}
-                </h1>
-                <p class="text-muted mb-0">
-                    {% block page_subtitle %}Welcome to the parent portal{% endblock %}
-                </p>
-            </div>
-            
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10">
             {% block parent_content %}
-            <!-- Page content goes here -->
             {% endblock %}
-        </main>
+        </div>
     </div>
 </div>
 
 <script>
-// Enhanced child switching functionality moved below
-
-// Mobile menu toggle
-function toggleMobileMenu() {
-    const sidebar = document.getElementById('sidebar');
-    const isShowing = sidebar.classList.contains('show');
-    
-    if (isShowing) {
-        sidebar.classList.remove('show');
-        document.body.style.overflow = '';
-    } else {
-        sidebar.classList.add('show');
-        document.body.style.overflow = 'hidden'; // Prevent background scrolling
-    }
-}
-
-// Close mobile menu when clicking outside or navigating
-document.addEventListener('click', function(event) {
-    const sidebar = document.getElementById('sidebar');
-    const menuBtn = document.querySelector('.mobile-menu-btn');
-    
-    if (sidebar.classList.contains('show') && 
-        !sidebar.contains(event.target) && 
-        !menuBtn.contains(event.target)) {
-        sidebar.classList.remove('show');
-        document.body.style.overflow = '';
-    }
-});
-
-// Close mobile menu when clicking on navigation links
-document.addEventListener('DOMContentLoaded', function() {
-    const navLinks = document.querySelectorAll('.nav-link-parent');
-    navLinks.forEach(link => {
-        link.addEventListener('click', function() {
-            const sidebar = document.getElementById('sidebar');
-            if (sidebar.classList.contains('show')) {
-                sidebar.classList.remove('show');
-                document.body.style.overflow = '';
-            }
-        });
-    });
-});
-
-// Handle child switching with better UX on mobile
 function switchChild(childId) {
     // Show loading state
     const childCards = document.querySelectorAll('.child-card');
@@ -500,20 +155,11 @@ function switchChild(childId) {
         card.style.opacity = '0.7';
         card.style.pointerEvents = 'none';
     });
-    
+
     // Update URL and navigate
     const url = new URL(window.location);
     url.searchParams.set('child', childId);
     window.location.href = url.toString();
 }
-
-// Handle window resize to close mobile menu
-window.addEventListener('resize', function() {
-    if (window.innerWidth > 768) {
-        const sidebar = document.getElementById('sidebar');
-        sidebar.classList.remove('show');
-        document.body.style.overflow = '';
-    }
-});
 </script>
 {% endblock %}
