@@ -94,7 +94,7 @@ def request_verification_view(request):
                 "Your verification request has been submitted. The school office will contact you "
                 "with your verification code within 1-2 business days."
             )
-            return redirect('authentication:login')
+            return redirect('login')
     else:
         form = VerificationRequestForm()
     
