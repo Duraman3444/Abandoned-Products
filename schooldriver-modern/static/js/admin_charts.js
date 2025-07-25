@@ -1,6 +1,48 @@
 // Admin Dashboard Charts - External JavaScript
 // Fixes chart rendering issues by ensuring proper initialization timing
 
+// Simple data labels plugin for Chart.js v4
+const dataLabelsPlugin = {
+    id: 'dataLabels',
+    afterDatasetsDraw(chart) {
+        const { ctx } = chart;
+        ctx.save();
+        
+        chart.data.datasets.forEach((dataset, datasetIndex) => {
+            const meta = chart.getDatasetMeta(datasetIndex);
+            if (!meta.hidden) {
+                meta.data.forEach((element, index) => {
+                    const value = dataset.data[index];
+                    if (value > 0) {
+                        ctx.fillStyle = '#ffffff';
+                        ctx.font = 'bold 12px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        
+                        let text, x, y;
+                        
+                        // Check if it's horizontal bar chart (pipeline)
+                        if (chart.config.options.indexAxis === 'y') {
+                            text = value + ' applicants';
+                            x = element.x - 40;
+                            y = element.y;
+                        } else {
+                            // Vertical bar chart (documents)
+                            text = value + '%';
+                            x = element.x;
+                            y = element.y - 10;
+                        }
+                        
+                        ctx.fillText(text, x, y);
+                    }
+                });
+            }
+        });
+        
+        ctx.restore();
+    }
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     // Wait one frame so CSS has applied and layout is stable
     requestAnimationFrame(initializeAdminCharts);
@@ -28,6 +70,12 @@ function initializeAdminCharts() {
         buildDocumentsChart(data, theme);
         buildStatusChart(data, theme);
         buildTrendsChart(data, theme);
+        
+        // Force a refresh to ensure legends are rendered
+        setTimeout(() => {
+            if (pipelineChart) pipelineChart.update('active');
+            if (documentsChart) documentsChart.update('active');
+        }, 100);
     }, 150);
 }
 
@@ -38,15 +86,25 @@ function forceCanvasDimensions() {
         if (canvas) {
             const container = canvas.closest('.chart-container');
             if (container) {
-                // Force container dimensions
-                container.style.minHeight = '320px';
-                container.style.height = '320px';
+                // Force container dimensions - extra height for legends
+                if (id === 'pipelineChart' || id === 'documentsChart') {
+                    container.style.minHeight = '380px';
+                    container.style.height = '380px';
+                } else {
+                    container.style.minHeight = '320px';
+                    container.style.height = '320px';
+                }
             }
             // Force canvas dimensions
             canvas.style.width = '100%';
-            canvas.style.height = '280px';
+            if (id === 'pipelineChart' || id === 'documentsChart') {
+                canvas.style.height = '340px';
+                canvas.height = 340;
+            } else {
+                canvas.style.height = '280px';
+                canvas.height = 280;
+            }
             canvas.width = canvas.offsetWidth;
-            canvas.height = 280;
         }
     });
 }
@@ -85,17 +143,58 @@ function buildPipelineChart(data, theme) {
                 borderWidth: 1
             }]
         },
+        plugins: [dataLabelsPlugin],
         options: {
             indexAxis: 'y',
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: { display: false }
+                legend: { 
+                    display: true,
+                    position: 'bottom',
+                    labels: {
+                        color: textColor,
+                        padding: 15,
+                        font: { size: 11 },
+                        usePointStyle: true,
+                        generateLabels: function(chart) {
+                            const data = chart.data;
+                            if (data.labels.length && data.datasets.length) {
+                                const labels = data.labels.map((label, i) => {
+                                    const value = data.datasets[0].data[i];
+                                    return {
+                                        text: `${label} (${value} applicants)`,
+                                        fillStyle: data.datasets[0].backgroundColor[i],
+                                        strokeStyle: data.datasets[0].backgroundColor[i],
+                                        lineWidth: 0,
+                                        hidden: false,
+                                        index: i
+                                    };
+                                });
+                                console.log('Pipeline legend labels generated:', labels);
+                                return labels;
+                            }
+                            return [];
+                        }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.parsed.x + ' applicants';
+                        }
+                    }
+                }
             },
             scales: {
                 x: { 
                     beginAtZero: true,
-                    ticks: { color: textColor },
+                    ticks: { 
+                        color: textColor,
+                        callback: function(value) {
+                            return value + ' applicants';
+                        }
+                    },
                     grid: { color: gridColor }
                 },
                 y: {
@@ -136,15 +235,55 @@ function buildDocumentsChart(data, theme) {
                 borderWidth: 1
             }]
         },
+        plugins: [dataLabelsPlugin],
         options: {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: { display: false }
+                legend: { 
+                    display: true,
+                    position: 'bottom',
+                    labels: {
+                        color: textColor,
+                        padding: 15,
+                        font: { size: 11 },
+                        usePointStyle: true,
+                        generateLabels: function(chart) {
+                            const data = chart.data;
+                            if (data.labels.length && data.datasets.length) {
+                                const labels = data.labels.map((label, i) => {
+                                    const value = data.datasets[0].data[i];
+                                    return {
+                                        text: `${label} (${value}%)`,
+                                        fillStyle: data.datasets[0].backgroundColor[i],
+                                        strokeStyle: data.datasets[0].backgroundColor[i],
+                                        lineWidth: 0,
+                                        hidden: false,
+                                        index: i
+                                    };
+                                });
+                                console.log('Documents legend labels generated:', labels);
+                                return labels;
+                            }
+                            return [];
+                        }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.parsed.y + '% completion rate';
+                        }
+                    }
+                }
             },
             scales: {
                 x: {
-                    ticks: { color: textColor },
+                    ticks: { 
+                        color: textColor,
+                        maxRotation: 45,
+                        minRotation: 45
+                    },
                     grid: { color: gridColor }
                 },
                 y: { 

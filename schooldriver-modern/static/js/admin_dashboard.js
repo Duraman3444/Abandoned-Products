@@ -4,6 +4,48 @@
 // Dashboard data (will be set by template)
 let dashboardData = null;
 
+// Simple data labels plugin for Chart.js
+const dataLabelsPlugin = {
+    id: 'dataLabels',
+    afterDatasetsDraw(chart) {
+        const { ctx } = chart;
+        ctx.save();
+        
+        chart.data.datasets.forEach((dataset, datasetIndex) => {
+            const meta = chart.getDatasetMeta(datasetIndex);
+            if (!meta.hidden) {
+                meta.data.forEach((element, index) => {
+                    const value = dataset.data[index];
+                    if (value > 0) {
+                        ctx.fillStyle = '#ffffff';
+                        ctx.font = 'bold 12px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        
+                        let text, x, y;
+                        
+                        // Check if it's horizontal bar chart (pipeline)
+                        if (chart.config.options.indexAxis === 'y') {
+                            text = value + ' applicants';
+                            x = element.x - 40;
+                            y = element.y;
+                        } else {
+                            // Vertical bar chart (documents)
+                            text = value + '%';
+                            x = element.x;
+                            y = element.y - 10;
+                        }
+                        
+                        ctx.fillText(text, x, y);
+                    }
+                });
+            }
+        });
+        
+        ctx.restore();
+    }
+};
+
 // Chart instances
 let pipelineChart, documentsChart, statusChart, trendsChart;
 
@@ -73,12 +115,39 @@ function initializeCharts() {
                         borderWidth: 1
                     }]
                 },
+                plugins: [dataLabelsPlugin],
                 options: {
                     indexAxis: 'y',
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { display: false }
+                        legend: { 
+                            display: true,
+                            position: 'bottom',
+                            labels: {
+                                color: textColor,
+                                padding: 15,
+                                font: { size: 11 },
+                                usePointStyle: true,
+                                generateLabels: function(chart) {
+                                    const data = chart.data;
+                                    if (data.labels.length && data.datasets.length) {
+                                        return data.labels.map((label, i) => {
+                                            const value = data.datasets[0].data[i];
+                                            return {
+                                                text: `${label} (${value} applicants)`,
+                                                fillStyle: data.datasets[0].backgroundColor[i],
+                                                strokeStyle: data.datasets[0].backgroundColor[i],
+                                                lineWidth: 0,
+                                                hidden: false,
+                                                index: i
+                                            };
+                                        });
+                                    }
+                                    return [];
+                                }
+                            }
+                        }
                     },
                     scales: {
                         x: { 
@@ -115,11 +184,38 @@ function initializeCharts() {
                         borderWidth: 1
                     }]
                 },
+                plugins: [dataLabelsPlugin],
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { display: false }
+                        legend: { 
+                            display: true,
+                            position: 'bottom',
+                            labels: {
+                                color: textColor,
+                                padding: 15,
+                                font: { size: 11 },
+                                usePointStyle: true,
+                                generateLabels: function(chart) {
+                                    const data = chart.data;
+                                    if (data.labels.length && data.datasets.length) {
+                                        return data.labels.map((label, i) => {
+                                            const value = data.datasets[0].data[i];
+                                            return {
+                                                text: `${label} (${value}%)`,
+                                                fillStyle: data.datasets[0].backgroundColor[i],
+                                                strokeStyle: data.datasets[0].backgroundColor[i],
+                                                lineWidth: 0,
+                                                hidden: false,
+                                                index: i
+                                            };
+                                        });
+                                    }
+                                    return [];
+                                }
+                            }
+                        }
                     },
                     scales: {
                         x: {
