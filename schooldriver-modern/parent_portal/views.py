@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.db.models import Q, Avg
 from django.core.paginator import Paginator
 from django.utils import timezone
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.template.loader import get_template
 from datetime import timedelta, date
 from authentication.decorators import role_required
@@ -2195,3 +2195,151 @@ def medical_information_view(request):
         logger.error(f"Error updating medical information: {e}")
         messages.error(request, "Unable to update medical information.")
         return redirect('parent_portal:emergency_contacts')
+
+
+@login_required
+@role_required(["Parent"])
+def upload_document_view(request):
+    """Upload documents/photos for students"""
+    try:
+        current_child, children = get_current_child(request.user, request)
+        
+        if request.method == "POST":
+            from academics.models import DocumentUpload
+            
+            child_id = request.POST.get('student_id')
+            if child_id:
+                try:
+                    student = next((child for child in children if str(child.id) == child_id), None)
+                    if not student:
+                        messages.error(request, "Invalid student selected.")
+                        return redirect('parent_portal:upload_document')
+                except:
+                    messages.error(request, "Invalid student selected.")
+                    return redirect('parent_portal:upload_document')
+            else:
+                student = current_child
+                
+            if not student:
+                messages.error(request, "Please select a student.")
+                return redirect('parent_portal:upload_document')
+            
+            # Handle file upload
+            uploaded_file = request.FILES.get('document')
+            if not uploaded_file:
+                messages.error(request, "Please select a file to upload.")
+                return redirect('parent_portal:upload_document')
+            
+            # Validate file size (max 10MB)
+            if uploaded_file.size > 10 * 1024 * 1024:
+                messages.error(request, "File size must be less than 10MB.")
+                return redirect('parent_portal:upload_document')
+            
+            # Create document upload
+            document = DocumentUpload.objects.create(
+                uploaded_by=request.user,
+                student=student,
+                title=request.POST.get('title', uploaded_file.name),
+                description=request.POST.get('description', ''),
+                document_type=request.POST.get('document_type', 'OTHER'),
+                file=uploaded_file,
+                shared_with_teachers=request.POST.get('shared_with_teachers') == 'on',
+                shared_with_nurse=request.POST.get('shared_with_nurse') == 'on',
+                is_private=request.POST.get('is_private') == 'on'
+            )
+            
+            messages.success(request, f"Document '{document.title}' uploaded successfully.")
+            return redirect('parent_portal:document_list')
+        
+        context = {
+            "current_child": current_child,
+            "children": children,
+        }
+        
+        return render(request, "parent_portal/upload_document.html", context)
+        
+    except Exception as e:
+        logger.error(f"Error in document upload view: {e}")
+        return render(request, "parent_portal/upload_document.html", {
+            "error": "Unable to load document upload form.",
+            "children": children if 'children' in locals() else [],
+        })
+
+
+@login_required
+@role_required(["Parent"])
+def document_list_view(request):
+    """List uploaded documents"""
+    try:
+        current_child, children = get_current_child(request.user, request)
+        from academics.models import DocumentUpload
+        
+        # Get documents for current child or all children
+        if current_child:
+            documents = DocumentUpload.objects.filter(
+                uploaded_by=request.user,
+                student=current_child
+            ).order_by('-uploaded_at')
+        else:
+            documents = DocumentUpload.objects.filter(
+                uploaded_by=request.user,
+                student__in=children
+            ).order_by('-uploaded_at')
+        
+        context = {
+            "current_child": current_child,
+            "children": children,
+            "documents": documents,
+        }
+        
+        return render(request, "parent_portal/document_list.html", context)
+        
+    except Exception as e:
+        logger.error(f"Error in document list view: {e}")
+        return render(request, "parent_portal/document_list.html", {
+            "error": "Unable to load documents.",
+            "children": children if 'children' in locals() else [],
+        })
+
+
+@login_required
+@role_required(["Parent"])
+def quick_grades_api(request):
+    """API endpoint for quick grade widget"""
+    try:
+        children = get_parent_children(request.user)
+        
+        children_data = []
+        for child in children:
+            # Get recent grades
+            recent_grades = []
+            enrollments = child.enrollments.filter(
+                course__school_year__is_active=True
+            ).select_related('course')[:5]
+            
+            for enrollment in enrollments:
+                if hasattr(enrollment, 'grades') and enrollment.grades.exists():
+                    latest_grade = enrollment.grades.order_by('-date_assigned').first()
+                    if latest_grade:
+                        recent_grades.append({
+                            'subject': enrollment.course.name,
+                            'grade': latest_grade.grade or 'N/A'
+                        })
+            
+            # Calculate GPA (simplified)
+            gpa = child.current_gpa if hasattr(child, 'current_gpa') else None
+            
+            children_data.append({
+                'name': child.display_name,
+                'gpa': f"{gpa:.2f}" if gpa else 'N/A',
+                'recent_grades': recent_grades[:3]  # Show last 3
+            })
+        
+        return JsonResponse({
+            'children': children_data,
+            'updated_at': timezone.now().isoformat()
+        })
+        
+    except Exception as e:
+        logger.error(f"Error in quick grades API: {e}")
+        return JsonResponse({'error': 'Unable to load grade data'}, status=500)

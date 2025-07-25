@@ -1,0 +1,530 @@
+{% extends "parent_base.html" %}
+{% load static %}
+
+{% block page_title %}Progress Over Time{% endblock %}
+{% block page_subtitle %}Detailed timeline of {{ current_child.display_name }}'s academic progress{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+.timeline-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    margin-bottom: 1.5rem;
+}
+
+.filter-controls {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.filter-btn {
+    background: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    margin: 0.25rem;
+    transition: all 0.3s ease;
+}
+
+.filter-btn:hover, .filter-btn.active {
+    background: rgba(255,255,255,0.3);
+    color: white;
+}
+
+.chart-container {
+    position: relative;
+    height: 400px;
+    margin: 1.5rem 0;
+}
+
+.progress-metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.metric-item {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: center;
+    border-left: 4px solid #007bff;
+}
+
+.metric-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #007bff;
+}
+
+.trend-indicator {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.trend-up {
+    background: rgba(40, 167, 69, 0.1);
+    color: #28a745;
+}
+
+.trend-down {
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+}
+
+.trend-stable {
+    background: rgba(108, 117, 125, 0.1);
+    color: #6c757d;
+}
+
+.milestone-timeline {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.milestone-timeline::before {
+    content: '';
+    position: absolute;
+    left: 0.75rem;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #e9ecef;
+}
+
+.milestone-item {
+    position: relative;
+    margin-bottom: 1.5rem;
+    background: white;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.milestone-item::before {
+    content: '';
+    position: absolute;
+    left: -1.875rem;
+    top: 1rem;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #007bff;
+    border: 3px solid white;
+    box-shadow: 0 0 0 3px #e9ecef;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #6c757d;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+@media (max-width: 768px) {
+    .timeline-card {
+        padding: 1rem;
+    }
+    
+    .filter-controls {
+        padding: 1rem;
+    }
+    
+    .chart-container {
+        height: 300px;
+    }
+    
+    .milestone-timeline {
+        padding-left: 1.5rem;
+    }
+    
+    .milestone-item::before {
+        left: -1.375rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block parent_content %}
+<!-- Filter Controls -->
+<div class="filter-controls">
+    <h5 class="mb-3">
+        <i class="fas fa-filter me-2"></i>
+        View Progress
+    </h5>
+    <div class="row">
+        <div class="col-md-6">
+            <label class="form-label">Time Period</label>
+            <div class="btn-group-toggle" data-toggle="buttons">
+                <button class="filter-btn active" data-period="semester">This Semester</button>
+                <button class="filter-btn" data-period="year">This Year</button>
+                <button class="filter-btn" data-period="all">All Time</button>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Subject</label>
+            <select class="form-select" id="subjectFilter">
+                <option value="all">All Subjects</option>
+                {% for subject in subjects %}
+                <option value="{{ subject.id }}">{{ subject.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+</div>
+
+<!-- Progress Metrics -->
+<div class="timeline-card">
+    <h5 class="mb-3">
+        <i class="fas fa-chart-line text-primary me-2"></i>
+        Progress Summary
+    </h5>
+    
+    {% if progress_data %}
+    <div class="progress-metrics">
+        <div class="metric-item">
+            <div class="metric-value">{{ progress_data.gpa_change|floatformat:2 }}</div>
+            <div class="text-muted">GPA Change</div>
+            <div class="mt-1">
+                {% if progress_data.gpa_trend == 'up' %}
+                    <span class="trend-indicator trend-up">
+                        <i class="fas fa-arrow-up me-1"></i>Improving
+                    </span>
+                {% elif progress_data.gpa_trend == 'down' %}
+                    <span class="trend-indicator trend-down">
+                        <i class="fas fa-arrow-down me-1"></i>Declining
+                    </span>
+                {% else %}
+                    <span class="trend-indicator trend-stable">
+                        <i class="fas fa-minus me-1"></i>Stable
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="metric-item">
+            <div class="metric-value">{{ progress_data.assignments_completed }}</div>
+            <div class="text-muted">Assignments Completed</div>
+            <div class="mt-1">
+                <span class="trend-indicator trend-up">
+                    <i class="fas fa-check me-1"></i>{{ progress_data.completion_rate }}% Rate
+                </span>
+            </div>
+        </div>
+        
+        <div class="metric-item">
+            <div class="metric-value">{{ progress_data.attendance_change }}%</div>
+            <div class="text-muted">Attendance Change</div>
+            <div class="mt-1">
+                {% if progress_data.attendance_trend == 'up' %}
+                    <span class="trend-indicator trend-up">
+                        <i class="fas fa-arrow-up me-1"></i>Better
+                    </span>
+                {% elif progress_data.attendance_trend == 'down' %}
+                    <span class="trend-indicator trend-down">
+                        <i class="fas fa-arrow-down me-1"></i>Lower
+                    </span>
+                {% else %}
+                    <span class="trend-indicator trend-stable">
+                        <i class="fas fa-minus me-1"></i>Consistent
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="metric-item">
+            <div class="metric-value">{{ progress_data.engagement_score }}%</div>
+            <div class="text-muted">Engagement Score</div>
+            <div class="mt-1">
+                {% if progress_data.engagement_trend == 'up' %}
+                    <span class="trend-indicator trend-up">
+                        <i class="fas fa-arrow-up me-1"></i>More Engaged
+                    </span>
+                {% elif progress_data.engagement_trend == 'down' %}
+                    <span class="trend-indicator trend-down">
+                        <i class="fas fa-arrow-down me-1"></i>Less Engaged
+                    </span>
+                {% else %}
+                    <span class="trend-indicator trend-stable">
+                        <i class="fas fa-minus me-1"></i>Steady
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Interactive Charts -->
+<div class="row">
+    <div class="col-lg-8 mb-4">
+        <div class="timeline-card">
+            <h5 class="mb-3">
+                <i class="fas fa-chart-area text-success me-2"></i>
+                Academic Performance Timeline
+            </h5>
+            {% if chart_data %}
+                <div class="chart-container">
+                    <canvas id="progressChart"></canvas>
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-chart-line"></i>
+                    <h6>No progress data available</h6>
+                    <p>Progress data will appear here as grades are recorded.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="col-lg-4 mb-4">
+        <div class="timeline-card">
+            <h5 class="mb-3">
+                <i class="fas fa-bullseye text-warning me-2"></i>
+                Goal Progress
+            </h5>
+            {% if goals %}
+                {% for goal in goals %}
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="fw-medium">{{ goal.title }}</span>
+                        <span class="text-primary">{{ goal.progress }}%</span>
+                    </div>
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar bg-primary" style="width: {{ goal.progress }}%"></div>
+                    </div>
+                    <small class="text-muted">Due: {{ goal.target_date|date:"M d, Y" }}</small>
+                </div>
+                {% endfor %}
+                <a href="{% url 'student_analytics:goal_tracking' %}" class="btn btn-outline-primary btn-sm">
+                    View All Goals
+                </a>
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-target"></i>
+                    <h6>No goals set</h6>
+                    <p>Set academic goals to track progress.</p>
+                    <a href="{% url 'student_analytics:create_goal' %}" class="btn btn-primary btn-sm">
+                        Set First Goal
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Milestone Timeline -->
+<div class="timeline-card">
+    <h5 class="mb-3">
+        <i class="fas fa-history text-info me-2"></i>
+        Academic Milestones
+    </h5>
+    
+    {% if milestones %}
+    <div class="milestone-timeline">
+        {% for milestone in milestones %}
+        <div class="milestone-item">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <h6 class="mb-1">{{ milestone.title }}</h6>
+                    <p class="text-muted mb-2">{{ milestone.description }}</p>
+                    <small class="text-primary">
+                        <i class="fas fa-calendar me-1"></i>
+                        {{ milestone.date|date:"M d, Y" }}
+                    </small>
+                </div>
+                <div class="text-end">
+                    {% if milestone.type == 'achievement' %}
+                        <span class="badge bg-success">Achievement</span>
+                    {% elif milestone.type == 'improvement' %}
+                        <span class="badge bg-primary">Improvement</span>
+                    {% elif milestone.type == 'goal' %}
+                        <span class="badge bg-warning">Goal Met</span>
+                    {% else %}
+                        <span class="badge bg-info">Milestone</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-clock"></i>
+        <h6>No milestones yet</h6>
+        <p>Academic milestones and achievements will appear here as they're earned.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let progressChart;
+    
+    // Initialize chart
+    function initChart() {
+        {% if chart_data %}
+        const ctx = document.getElementById('progressChart').getContext('2d');
+        
+        progressChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: {{ chart_labels|safe }},
+                datasets: [
+                    {
+                        label: 'GPA',
+                        data: {{ gpa_data|safe }},
+                        borderColor: '#007bff',
+                        backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                        borderWidth: 3,
+                        fill: false,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'Attendance %',
+                        data: {{ attendance_data|safe }},
+                        borderColor: '#28a745',
+                        backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                        borderWidth: 3,
+                        fill: false,
+                        yAxisID: 'y1'
+                    },
+                    {
+                        label: 'Assignment Completion %',
+                        data: {{ completion_data|safe }},
+                        borderColor: '#ffc107',
+                        backgroundColor: 'rgba(255, 193, 7, 0.1)',
+                        borderWidth: 3,
+                        fill: false,
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                scales: {
+                    x: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Date'
+                        }
+                    },
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'GPA'
+                        },
+                        min: 0,
+                        max: 4
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'Percentage'
+                        },
+                        min: 0,
+                        max: 100,
+                        grid: {
+                            drawOnChartArea: false,
+                        },
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            afterLabel: function(context) {
+                                if (context.datasetIndex === 0) {
+                                    return 'GPA Scale: 0-4.0';
+                                }
+                                return '';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        {% endif %}
+    }
+    
+    // Filter controls
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            const period = this.dataset.period;
+            updateChart(period);
+        });
+    });
+    
+    document.getElementById('subjectFilter').addEventListener('change', function() {
+        const subjectId = this.value;
+        const activePeriod = document.querySelector('.filter-btn.active').dataset.period;
+        updateChart(activePeriod, subjectId);
+    });
+    
+    function updateChart(period, subject = 'all') {
+        // Show loading state
+        if (progressChart) {
+            progressChart.data.datasets.forEach(dataset => {
+                dataset.data = [];
+            });
+            progressChart.update();
+        }
+        
+        // Fetch new data
+        fetch(`{% url 'student_analytics:progress_data' %}?period=${period}&subject=${subject}`)
+            .then(response => response.json())
+            .then(data => {
+                if (progressChart && data.labels) {
+                    progressChart.data.labels = data.labels;
+                    progressChart.data.datasets[0].data = data.gpa_data;
+                    progressChart.data.datasets[1].data = data.attendance_data;
+                    progressChart.data.datasets[2].data = data.completion_data;
+                    progressChart.update();
+                }
+            })
+            .catch(error => {
+                console.error('Error updating chart:', error);
+            });
+    }
+    
+    initChart();
+});
+</script>
+{% endblock %}

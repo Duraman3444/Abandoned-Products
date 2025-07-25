@@ -1,0 +1,835 @@
+{% extends "parent_base.html" %}
+{% load static %}
+
+{% block page_title %}Create Academic Goal{% endblock %}
+{% block page_subtitle %}Set a new goal for {{ current_child.display_name }}{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+.form-container {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    margin-bottom: 1.5rem;
+}
+
+.form-section {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.form-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.section-title {
+    color: #495057;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+}
+
+.section-title i {
+    margin-right: 0.5rem;
+    color: #007bff;
+}
+
+.goal-templates {
+    background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.template-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.template-card {
+    background: white;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    padding: 1.25rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    color: inherit;
+}
+
+.template-card:hover {
+    border-color: #007bff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,123,255,0.2);
+    color: inherit;
+    text-decoration: none;
+}
+
+.template-card.selected {
+    border-color: #007bff;
+    background: rgba(0,123,255,0.05);
+}
+
+.template-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+}
+
+.template-academic {
+    background: rgba(0, 123, 255, 0.1);
+    color: #007bff;
+}
+
+.template-attendance {
+    background: rgba(40, 167, 69, 0.1);
+    color: #28a745;
+}
+
+.template-behavior {
+    background: rgba(255, 193, 7, 0.1);
+    color: #ffc107;
+}
+
+.template-participation {
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+}
+
+.template-improvement {
+    background: rgba(102, 16, 242, 0.1);
+    color: #6610f2;
+}
+
+.template-custom {
+    background: rgba(108, 117, 125, 0.1);
+    color: #6c757d;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    font-weight: 500;
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
+.form-control, .form-select {
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+}
+
+.milestone-section {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-top: 1rem;
+}
+
+.milestone-item {
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    position: relative;
+}
+
+.milestone-item:last-child {
+    margin-bottom: 0;
+}
+
+.remove-milestone {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: #dc3545;
+    border: none;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    cursor: pointer;
+}
+
+.btn-add-milestone {
+    background: #007bff;
+    border: 2px dashed #007bff;
+    color: white;
+    padding: 0.75rem;
+    border-radius: 6px;
+    width: 100%;
+    margin-top: 1rem;
+    transition: all 0.3s ease;
+}
+
+.btn-add-milestone:hover {
+    background: transparent;
+    color: #007bff;
+}
+
+.goal-preview {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    position: sticky;
+    top: 2rem;
+}
+
+.preview-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+.preview-description {
+    opacity: 0.9;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+
+.preview-metadata {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    font-size: 0.875rem;
+    opacity: 0.9;
+}
+
+.preview-item {
+    display: flex;
+    align-items: center;
+}
+
+.preview-item i {
+    margin-right: 0.5rem;
+    width: 16px;
+}
+
+.smart-suggestions {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 1rem;
+}
+
+.suggestion-item {
+    background: white;
+    border-radius: 6px;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.suggestion-item:hover {
+    background: #f8f9fa;
+    transform: translateX(5px);
+}
+
+.suggestion-item:last-child {
+    margin-bottom: 0;
+}
+
+.form-actions {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.btn-primary-lg {
+    padding: 0.875rem 2rem;
+    font-size: 1.125rem;
+    border-radius: 8px;
+}
+
+@media (max-width: 768px) {
+    .form-container {
+        padding: 1.5rem;
+    }
+    
+    .template-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .preview-metadata {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+    
+    .goal-preview {
+        position: static;
+        margin-top: 1.5rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block parent_content %}
+<div class="row">
+    <div class="col-lg-8">
+        <!-- Goal Templates -->
+        <div class="goal-templates">
+            <h5 class="mb-3">
+                <i class="fas fa-templates text-primary me-2"></i>
+                Choose a Goal Template
+            </h5>
+            <p class="text-muted mb-3">Select a template to get started, or create a custom goal from scratch.</p>
+            
+            <div class="template-grid">
+                <div class="template-card" onclick="selectTemplate('academic')">
+                    <div class="template-icon template-academic">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <h6 class="mb-2">Academic Performance</h6>
+                    <p class="text-muted small mb-0">Improve grades, GPA, or subject-specific performance</p>
+                </div>
+                
+                <div class="template-card" onclick="selectTemplate('attendance')">
+                    <div class="template-icon template-attendance">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <h6 class="mb-2">Attendance</h6>
+                    <p class="text-muted small mb-0">Maintain regular attendance and punctuality</p>
+                </div>
+                
+                <div class="template-card" onclick="selectTemplate('behavior')">
+                    <div class="template-icon template-behavior">
+                        <i class="fas fa-smile"></i>
+                    </div>
+                    <h6 class="mb-2">Behavior</h6>
+                    <p class="text-muted small mb-0">Improve classroom behavior and participation</p>
+                </div>
+                
+                <div class="template-card" onclick="selectTemplate('participation')">
+                    <div class="template-icon template-participation">
+                        <i class="fas fa-hand-paper"></i>
+                    </div>
+                    <h6 class="mb-2">Class Participation</h6>
+                    <p class="text-muted small mb-0">Increase engagement and class participation</p>
+                </div>
+                
+                <div class="template-card" onclick="selectTemplate('improvement')">
+                    <div class="template-icon template-improvement">
+                        <i class="fas fa-arrow-up"></i>
+                    </div>
+                    <h6 class="mb-2">Skill Improvement</h6>
+                    <p class="text-muted small mb-0">Focus on specific skills or learning areas</p>
+                </div>
+                
+                <div class="template-card" onclick="selectTemplate('custom')">
+                    <div class="template-icon template-custom">
+                        <i class="fas fa-pencil-alt"></i>
+                    </div>
+                    <h6 class="mb-2">Custom Goal</h6>
+                    <p class="text-muted small mb-0">Create a completely custom goal</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Goal Form -->
+        <form method="post" class="form-container" id="goalForm">
+            {% csrf_token %}
+            <input type="hidden" id="selectedTemplate" name="template" value="">
+            
+            <!-- Basic Information -->
+            <div class="form-section">
+                <h5 class="section-title">
+                    <i class="fas fa-info-circle"></i>
+                    Goal Information
+                </h5>
+                
+                <div class="form-group">
+                    <label for="title" class="form-label">Goal Title *</label>
+                    <input type="text" class="form-control" id="title" name="title" 
+                           placeholder="Enter a clear, specific goal title" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea class="form-control" id="description" name="description" rows="3"
+                              placeholder="Describe what this goal aims to achieve and why it's important"></textarea>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="category" class="form-label">Category *</label>
+                            <select class="form-select" id="category" name="category" required>
+                                <option value="">Select category...</option>
+                                <option value="academic">Academic Performance</option>
+                                <option value="attendance">Attendance</option>
+                                <option value="behavior">Behavior</option>
+                                <option value="participation">Participation</option>
+                                <option value="improvement">Skill Improvement</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="priority" class="form-label">Priority *</label>
+                            <select class="form-select" id="priority" name="priority" required>
+                                <option value="">Select priority...</option>
+                                <option value="high">High - Critical for success</option>
+                                <option value="medium">Medium - Important but not urgent</option>
+                                <option value="low">Low - Nice to have</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="subject" class="form-label">Subject (Optional)</label>
+                            <select class="form-select" id="subject" name="subject">
+                                <option value="">All subjects</option>
+                                {% for subject in subjects %}
+                                <option value="{{ subject.id }}">{{ subject.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="target_date" class="form-label">Target Date</label>
+                            <input type="date" class="form-control" id="target_date" name="target_date"
+                                   min="{{ today|date:'Y-m-d' }}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Measurement & Tracking -->
+            <div class="form-section">
+                <h5 class="section-title">
+                    <i class="fas fa-chart-line"></i>
+                    Measurement & Tracking
+                </h5>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="metric_type" class="form-label">How will progress be measured? *</label>
+                            <select class="form-select" id="metric_type" name="metric_type" required onchange="updateMetricOptions()">
+                                <option value="">Select measurement type...</option>
+                                <option value="percentage">Percentage (0-100%)</option>
+                                <option value="grade">Grade/GPA</option>
+                                <option value="points">Points/Score</option>
+                                <option value="days">Days/Frequency</option>
+                                <option value="completion">Task Completion</option>
+                                <option value="custom">Custom Metric</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="target_value" class="form-label">Target Value *</label>
+                            <input type="number" class="form-control" id="target_value" name="target_value" 
+                                   placeholder="What value do you want to achieve?" required>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="current_value" class="form-label">Current Value</label>
+                            <input type="number" class="form-control" id="current_value" name="current_value" 
+                                   placeholder="What's the current value?" value="0">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="tracking_frequency" class="form-label">Check Progress *</label>
+                            <select class="form-select" id="tracking_frequency" name="tracking_frequency" required>
+                                <option value="">How often to check progress...</option>
+                                <option value="daily">Daily</option>
+                                <option value="weekly">Weekly</option>
+                                <option value="biweekly">Every 2 weeks</option>
+                                <option value="monthly">Monthly</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Milestones -->
+            <div class="form-section">
+                <h5 class="section-title">
+                    <i class="fas fa-flag"></i>
+                    Milestones (Optional)
+                </h5>
+                <p class="text-muted mb-3">Break down your goal into smaller, achievable milestones.</p>
+                
+                <div class="milestone-section">
+                    <div id="milestoneContainer">
+                        <!-- Milestones will be added here dynamically -->
+                    </div>
+                    
+                    <button type="button" class="btn-add-milestone" onclick="addMilestone()">
+                        <i class="fas fa-plus me-2"></i>Add Milestone
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Smart Suggestions -->
+            <div id="smartSuggestions" class="smart-suggestions" style="display: none;">
+                <h6>
+                    <i class="fas fa-lightbulb me-2"></i>
+                    Smart Suggestions
+                </h6>
+                <div id="suggestionsContainer">
+                    <!-- Suggestions will be populated here -->
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Goal Preview -->
+    <div class="col-lg-4">
+        <div class="goal-preview">
+            <h5 class="mb-3">
+                <i class="fas fa-eye me-2"></i>
+                Goal Preview
+            </h5>
+            
+            <div class="preview-title" id="previewTitle">Enter a goal title...</div>
+            <div class="preview-description" id="previewDescription">Goal description will appear here...</div>
+            
+            <div class="preview-metadata">
+                <div class="preview-item">
+                    <i class="fas fa-tag"></i>
+                    <span id="previewCategory">Category</span>
+                </div>
+                <div class="preview-item">
+                    <i class="fas fa-star"></i>
+                    <span id="previewPriority">Priority</span>
+                </div>
+                <div class="preview-item">
+                    <i class="fas fa-calendar"></i>
+                    <span id="previewTargetDate">Target Date</span>
+                </div>
+                <div class="preview-item">
+                    <i class="fas fa-chart-line"></i>
+                    <span id="previewMetric">Progress Metric</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Form Actions -->
+        <div class="form-actions">
+            <button type="submit" form="goalForm" class="btn btn-primary btn-primary-lg">
+                <i class="fas fa-bullseye me-2"></i>Create Goal
+            </button>
+            <div class="mt-2">
+                <a href="{% url 'student_analytics:goal_tracking' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Goals
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let milestoneCount = 0;
+const templates = {
+    academic: {
+        title: "Improve Academic Performance",
+        description: "Focus on improving grades and academic achievement",
+        category: "academic",
+        priority: "high",
+        metric_type: "grade",
+        target_value: 3.5,
+        tracking_frequency: "weekly"
+    },
+    attendance: {
+        title: "Perfect Attendance Goal",
+        description: "Maintain excellent attendance throughout the semester",
+        category: "attendance",
+        priority: "high",
+        metric_type: "percentage",
+        target_value: 95,
+        tracking_frequency: "weekly"
+    },
+    behavior: {
+        title: "Improve Classroom Behavior",
+        description: "Demonstrate positive behavior and follow classroom rules",
+        category: "behavior",
+        priority: "medium",
+        metric_type: "points",
+        target_value: 100,
+        tracking_frequency: "weekly"
+    },
+    participation: {
+        title: "Increase Class Participation",
+        description: "Actively participate in class discussions and activities",
+        category: "participation",
+        priority: "medium",
+        metric_type: "days",
+        target_value: 20,
+        tracking_frequency: "weekly"
+    },
+    improvement: {
+        title: "Skill Improvement Goal",
+        description: "Focus on developing specific academic or social skills",
+        category: "improvement",
+        priority: "medium",
+        metric_type: "percentage",
+        target_value: 80,
+        tracking_frequency: "biweekly"
+    }
+};
+
+function selectTemplate(templateName) {
+    // Remove previous selection
+    document.querySelectorAll('.template-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+    
+    // Select current template
+    event.target.closest('.template-card').classList.add('selected');
+    
+    // Set template value
+    document.getElementById('selectedTemplate').value = templateName;
+    
+    // Fill form with template data
+    if (templates[templateName]) {
+        const template = templates[templateName];
+        Object.keys(template).forEach(key => {
+            const element = document.getElementById(key);
+            if (element) {
+                element.value = template[key];
+                element.dispatchEvent(new Event('input'));
+            }
+        });
+        
+        // Show smart suggestions
+        showSmartSuggestions(templateName);
+    }
+    
+    updatePreview();
+}
+
+function addMilestone() {
+    milestoneCount++;
+    const container = document.getElementById('milestoneContainer');
+    const milestoneHtml = `
+        <div class="milestone-item" id="milestone-${milestoneCount}">
+            <button type="button" class="remove-milestone" onclick="removeMilestone(${milestoneCount})">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="form-group">
+                        <label class="form-label">Milestone Title</label>
+                        <input type="text" class="form-control" name="milestone_title_${milestoneCount}" 
+                               placeholder="What needs to be accomplished?">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="form-label">Due Date</label>
+                        <input type="date" class="form-control" name="milestone_date_${milestoneCount}"
+                               min="${new Date().toISOString().split('T')[0]}">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Description (Optional)</label>
+                <textarea class="form-control" name="milestone_description_${milestoneCount}" rows="2"
+                          placeholder="Additional details about this milestone"></textarea>
+            </div>
+        </div>
+    `;
+    container.insertAdjacentHTML('beforeend', milestoneHtml);
+}
+
+function removeMilestone(id) {
+    const milestone = document.getElementById(`milestone-${id}`);
+    if (milestone) {
+        milestone.remove();
+    }
+}
+
+function updateMetricOptions() {
+    const metricType = document.getElementById('metric_type').value;
+    const targetValue = document.getElementById('target_value');
+    
+    // Update placeholder and validation based on metric type
+    switch (metricType) {
+        case 'percentage':
+            targetValue.placeholder = 'Enter percentage (0-100)';
+            targetValue.min = 0;
+            targetValue.max = 100;
+            break;
+        case 'grade':
+            targetValue.placeholder = 'Enter GPA (0.0-4.0)';
+            targetValue.min = 0;
+            targetValue.max = 4;
+            targetValue.step = 0.1;
+            break;
+        case 'points':
+            targetValue.placeholder = 'Enter target points';
+            targetValue.min = 0;
+            targetValue.removeAttribute('max');
+            targetValue.step = 1;
+            break;
+        case 'days':
+            targetValue.placeholder = 'Enter number of days';
+            targetValue.min = 1;
+            targetValue.removeAttribute('max');
+            targetValue.step = 1;
+            break;
+        default:
+            targetValue.placeholder = 'Enter target value';
+            targetValue.removeAttribute('min');
+            targetValue.removeAttribute('max');
+            targetValue.step = 'any';
+    }
+    
+    updatePreview();
+}
+
+function updatePreview() {
+    const title = document.getElementById('title').value || 'Enter a goal title...';
+    const description = document.getElementById('description').value || 'Goal description will appear here...';
+    const category = document.getElementById('category').selectedOptions[0]?.text || 'Category';
+    const priority = document.getElementById('priority').selectedOptions[0]?.text || 'Priority';
+    const targetDate = document.getElementById('target_date').value || 'No target date';
+    const metricType = document.getElementById('metric_type').selectedOptions[0]?.text || 'Progress Metric';
+    
+    document.getElementById('previewTitle').textContent = title;
+    document.getElementById('previewDescription').textContent = description;
+    document.getElementById('previewCategory').textContent = category;
+    document.getElementById('previewPriority').textContent = priority;
+    document.getElementById('previewTargetDate').textContent = targetDate === 'No target date' ? targetDate : new Date(targetDate).toLocaleDateString();
+    document.getElementById('previewMetric').textContent = metricType;
+}
+
+function showSmartSuggestions(templateName) {
+    const suggestions = {
+        academic: [
+            "Set a specific GPA target for the semester",
+            "Focus on one challenging subject first",
+            "Schedule regular study sessions",
+            "Track assignment completion rates"
+        ],
+        attendance: [
+            "Aim for 100% attendance this month",
+            "Set morning routine reminders",
+            "Track punctuality along with attendance",
+            "Plan for sick day makeup work"
+        ],
+        behavior: [
+            "Focus on one behavior at a time",
+            "Set daily behavior goals",
+            "Track positive interactions with teachers",
+            "Celebrate weekly improvements"
+        ]
+    };
+    
+    const container = document.getElementById('suggestionsContainer');
+    const smartSuggestions = document.getElementById('smartSuggestions');
+    
+    if (suggestions[templateName]) {
+        container.innerHTML = '';
+        suggestions[templateName].forEach(suggestion => {
+            const suggestionDiv = document.createElement('div');
+            suggestionDiv.className = 'suggestion-item';
+            suggestionDiv.textContent = suggestion;
+            suggestionDiv.onclick = () => applySuggestion(suggestion);
+            container.appendChild(suggestionDiv);
+        });
+        smartSuggestions.style.display = 'block';
+    }
+}
+
+function applySuggestion(suggestion) {
+    // This could be enhanced to automatically fill form fields based on the suggestion
+    const description = document.getElementById('description');
+    if (!description.value) {
+        description.value = suggestion;
+        updatePreview();
+    }
+}
+
+// Form validation and submission
+document.getElementById('goalForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Basic validation
+    const required = ['title', 'category', 'priority', 'metric_type', 'target_value', 'tracking_frequency'];
+    let isValid = true;
+    
+    required.forEach(field => {
+        const element = document.getElementById(field);
+        if (!element.value) {
+            element.classList.add('is-invalid');
+            isValid = false;
+        } else {
+            element.classList.remove('is-invalid');
+        }
+    });
+    
+    if (!isValid) {
+        alert('Please fill in all required fields.');
+        return;
+    }
+    
+    // Submit form
+    this.submit();
+});
+
+// Real-time preview updates
+document.addEventListener('DOMContentLoaded', function() {
+    const formInputs = ['title', 'description', 'category', 'priority', 'target_date', 'metric_type'];
+    formInputs.forEach(inputId => {
+        const element = document.getElementById(inputId);
+        if (element) {
+            element.addEventListener('input', updatePreview);
+            element.addEventListener('change', updatePreview);
+        }
+    });
+    
+    // Pre-select template if provided in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const template = urlParams.get('template');
+    if (template && templates[template]) {
+        selectTemplate(template);
+    }
+});
+</script>
+{% endblock %}

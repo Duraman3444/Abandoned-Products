@@ -1,0 +1,661 @@
+{% extends "parent_base.html" %}
+{% load static %}
+
+{% block page_title %}Achievement Badges{% endblock %}
+{% block page_subtitle %}{{ current_child.display_name }}'s academic achievements and milestones{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+.badges-container {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    margin-bottom: 1.5rem;
+}
+
+.achievement-stats {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 1rem;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    opacity: 0.9;
+}
+
+.filter-tabs {
+    margin-bottom: 1.5rem;
+}
+
+.filter-tab {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    color: #495057;
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.filter-tab:hover {
+    background: #e9ecef;
+    color: #495057;
+    text-decoration: none;
+}
+
+.filter-tab.active {
+    background: #007bff;
+    border-color: #007bff;
+    color: white;
+}
+
+.badges-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.badge-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.badge-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.badge-card.earned {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+}
+
+.badge-card.in-progress {
+    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+    color: white;
+}
+
+.badge-card.locked {
+    background: #f8f9fa;
+    color: #6c757d;
+    opacity: 0.7;
+}
+
+.badge-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    font-size: 2rem;
+    position: relative;
+}
+
+.badge-icon.earned {
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(10px);
+}
+
+.badge-icon.in-progress {
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(10px);
+}
+
+.badge-icon.locked {
+    background: #e9ecef;
+    color: #adb5bd;
+}
+
+.badge-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.badge-description {
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+    opacity: 0.9;
+}
+
+.badge-progress {
+    margin-top: 1rem;
+}
+
+.progress-bar-custom {
+    height: 6px;
+    border-radius: 3px;
+    background: rgba(255,255,255,0.3);
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.progress-fill {
+    height: 100%;
+    background: rgba(255,255,255,0.8);
+    border-radius: 3px;
+    transition: width 0.8s ease;
+}
+
+.badge-metadata {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(0,0,0,0.1);
+    color: inherit;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.recent-achievements {
+    background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.achievement-item {
+    background: white;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    display: flex;
+    align-items: center;
+}
+
+.achievement-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    flex-shrink: 0;
+}
+
+.achievement-content {
+    flex-grow: 1;
+}
+
+.achievement-title {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.achievement-date {
+    color: #6c757d;
+    font-size: 0.875rem;
+}
+
+.share-achievement {
+    background: #007bff;
+    border: none;
+    color: white;
+    padding: 0.5rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.share-achievement:hover {
+    background: #0056b3;
+    transform: scale(1.05);
+}
+
+.categories-nav {
+    background: white;
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.category-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    color: inherit;
+}
+
+.category-item:hover {
+    background: #f8f9fa;
+    color: inherit;
+    text-decoration: none;
+}
+
+.category-item.active {
+    background: #007bff;
+    color: white;
+}
+
+.category-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    background: rgba(0,123,255,0.1);
+    color: #007bff;
+}
+
+.category-item.active .category-icon {
+    background: rgba(255,255,255,0.2);
+    color: white;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #6c757d;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+@media (max-width: 768px) {
+    .badges-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .badge-card {
+        padding: 1.25rem;
+    }
+    
+    .badge-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 1.5rem;
+    }
+    
+    .achievement-item {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .achievement-icon {
+        margin-right: 0;
+        margin-bottom: 0.75rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block parent_content %}
+<!-- Achievement Statistics -->
+<div class="achievement-stats">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="stat-item">
+                <div class="stat-number">{{ stats.total_earned|default:0 }}</div>
+                <div class="stat-label">Badges Earned</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-item">
+                <div class="stat-number">{{ stats.total_points|default:0 }}</div>
+                <div class="stat-label">Achievement Points</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-item">
+                <div class="stat-number">{{ stats.current_streak|default:0 }}</div>
+                <div class="stat-label">Current Streak</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-item">
+                <div class="stat-number">{{ stats.next_level_progress|default:0 }}%</div>
+                <div class="stat-label">To Next Level</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Categories Navigation -->
+    <div class="col-lg-3 mb-4">
+        <div class="categories-nav">
+            <h6 class="mb-3">Categories</h6>
+            
+            <a href="?category=all" class="category-item {% if not current_category or current_category == 'all' %}active{% endif %}">
+                <div class="category-icon">
+                    <i class="fas fa-trophy"></i>
+                </div>
+                <div>
+                    <div class="fw-medium">All Badges</div>
+                    <small>{{ badge_counts.all|default:0 }} total</small>
+                </div>
+            </a>
+            
+            <a href="?category=academic" class="category-item {% if current_category == 'academic' %}active{% endif %}">
+                <div class="category-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <div>
+                    <div class="fw-medium">Academic</div>
+                    <small>{{ badge_counts.academic|default:0 }} badges</small>
+                </div>
+            </a>
+            
+            <a href="?category=attendance" class="category-item {% if current_category == 'attendance' %}active{% endif %}">
+                <div class="category-icon">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <div>
+                    <div class="fw-medium">Attendance</div>
+                    <small>{{ badge_counts.attendance|default:0 }} badges</small>
+                </div>
+            </a>
+            
+            <a href="?category=participation" class="category-item {% if current_category == 'participation' %}active{% endif %}">
+                <div class="category-icon">
+                    <i class="fas fa-hand-paper"></i>
+                </div>
+                <div>
+                    <div class="fw-medium">Participation</div>
+                    <small>{{ badge_counts.participation|default:0 }} badges</small>
+                </div>
+            </a>
+            
+            <a href="?category=improvement" class="category-item {% if current_category == 'improvement' %}active{% endif %}">
+                <div class="category-icon">
+                    <i class="fas fa-arrow-up"></i>
+                </div>
+                <div>
+                    <div class="fw-medium">Improvement</div>
+                    <small>{{ badge_counts.improvement|default:0 }} badges</small>
+                </div>
+            </a>
+            
+            <a href="?category=special" class="category-item {% if current_category == 'special' %}active{% endif %}">
+                <div class="category-icon">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div>
+                    <div class="fw-medium">Special</div>
+                    <small>{{ badge_counts.special|default:0 }} badges</small>
+                </div>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Badges Display -->
+    <div class="col-lg-9">
+        <!-- Filter Tabs -->
+        <div class="filter-tabs">
+            <a href="?category={{ current_category }}&filter=all" 
+               class="filter-tab {% if not current_filter or current_filter == 'all' %}active{% endif %}">
+                All Badges
+            </a>
+            <a href="?category={{ current_category }}&filter=earned" 
+               class="filter-tab {% if current_filter == 'earned' %}active{% endif %}">
+                Earned ({{ stats.total_earned|default:0 }})
+            </a>
+            <a href="?category={{ current_category }}&filter=in-progress" 
+               class="filter-tab {% if current_filter == 'in-progress' %}active{% endif %}">
+                In Progress ({{ stats.in_progress|default:0 }})
+            </a>
+            <a href="?category={{ current_category }}&filter=locked" 
+               class="filter-tab {% if current_filter == 'locked' %}active{% endif %}">
+                Locked ({{ stats.locked|default:0 }})
+            </a>
+        </div>
+        
+        <!-- Badges Grid -->
+        <div class="badges-container">
+            {% if badges %}
+            <div class="badges-grid">
+                {% for badge in badges %}
+                <div class="badge-card {{ badge.status }}">
+                    <div class="badge-metadata">
+                        {% if badge.points %}{{ badge.points }} pts{% endif %}
+                    </div>
+                    
+                    <div class="badge-icon {{ badge.status }}">
+                        <i class="fas fa-{{ badge.icon|default:'medal' }}"></i>
+                        {% if badge.status == 'earned' %}
+                            <div class="position-absolute top-0 end-0">
+                                <i class="fas fa-check-circle text-success"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="badge-title">{{ badge.title }}</div>
+                    <div class="badge-description">{{ badge.description }}</div>
+                    
+                    {% if badge.earned_date %}
+                        <div class="small mb-2">
+                            <i class="fas fa-calendar me-1"></i>
+                            Earned: {{ badge.earned_date|date:"M d, Y" }}
+                        </div>
+                    {% endif %}
+                    
+                    {% if badge.status == 'in-progress' %}
+                        <div class="badge-progress">
+                            <div class="progress-bar-custom">
+                                <div class="progress-fill" style="width: {{ badge.progress }}%"></div>
+                            </div>
+                            <div class="small">{{ badge.progress }}% complete</div>
+                            {% if badge.requirements %}
+                                <div class="small mt-1">{{ badge.requirements }}</div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                    
+                    {% if badge.status == 'locked' %}
+                        <div class="small text-muted">
+                            {% if badge.unlock_requirements %}
+                                <i class="fas fa-lock me-1"></i>
+                                {{ badge.unlock_requirements }}
+                            {% else %}
+                                <i class="fas fa-lock me-1"></i>
+                                Requirements not met
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                    
+                    {% if badge.status == 'earned' %}
+                        <button class="share-achievement mt-2" onclick="shareBadge('{{ badge.id }}', '{{ badge.title }}')">
+                            <i class="fas fa-share"></i>
+                        </button>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-trophy"></i>
+                <h6>No badges in this category</h6>
+                <p>Badges will appear here as achievements are unlocked and earned.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Recent Achievements -->
+{% if recent_achievements %}
+<div class="recent-achievements">
+    <h5 class="mb-3">
+        <i class="fas fa-clock text-primary me-2"></i>
+        Recent Achievements
+    </h5>
+    
+    {% for achievement in recent_achievements %}
+    <div class="achievement-item">
+        <div class="achievement-icon">
+            <i class="fas fa-{{ achievement.icon|default:'medal' }}"></i>
+        </div>
+        <div class="achievement-content">
+            <div class="achievement-title">{{ achievement.title }}</div>
+            <div class="achievement-date">{{ achievement.earned_date|date:"M d, Y" }}</div>
+        </div>
+        <button class="share-achievement" onclick="shareBadge('{{ achievement.id }}', '{{ achievement.title }}')">
+            <i class="fas fa-share"></i>
+        </button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Achievement Goals -->
+<div class="badges-container">
+    <h5 class="mb-3">
+        <i class="fas fa-bullseye text-warning me-2"></i>
+        Upcoming Achievements
+    </h5>
+    
+    {% if upcoming_badges %}
+        <div class="row">
+            {% for badge in upcoming_badges %}
+            <div class="col-md-6 mb-3">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                    <div class="me-3">
+                        <i class="fas fa-{{ badge.icon|default:'target' }} fa-2x text-primary"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6 class="mb-1">{{ badge.title }}</h6>
+                        <div class="progress mb-1" style="height: 6px;">
+                            <div class="progress-bar" style="width: {{ badge.progress }}%"></div>
+                        </div>
+                        <small class="text-muted">{{ badge.requirements }}</small>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <i class="fas fa-target"></i>
+            <h6>No upcoming achievements</h6>
+            <p>Keep working hard! New achievement opportunities will appear based on performance.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function shareBadge(badgeId, badgeTitle) {
+    if (navigator.share) {
+        navigator.share({
+            title: `Achievement Unlocked: ${badgeTitle}`,
+            text: `{{ current_child.display_name }} just earned the "${badgeTitle}" achievement!`,
+            url: window.location.href
+        }).catch(console.error);
+    } else {
+        // Fallback: copy to clipboard
+        const text = `{{ current_child.display_name }} just earned the "${badgeTitle}" achievement! ${window.location.href}`;
+        navigator.clipboard.writeText(text).then(() => {
+            // Show success message
+            const button = event.target;
+            const originalHtml = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-check"></i>';
+            button.style.background = '#28a745';
+            
+            setTimeout(() => {
+                button.innerHTML = originalHtml;
+                button.style.background = '#007bff';
+            }, 2000);
+        });
+    }
+}
+
+// Animate progress bars on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const progressBars = document.querySelectorAll('.progress-fill');
+    progressBars.forEach(bar => {
+        const width = bar.style.width;
+        bar.style.width = '0%';
+        setTimeout(() => {
+            bar.style.width = width;
+        }, 500);
+    });
+});
+
+// Check for new achievements periodically
+setInterval(function() {
+    fetch(`{% url 'student_analytics:check_new_achievements' %}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.new_achievements && data.new_achievements.length > 0) {
+                showNewAchievementNotification(data.new_achievements[0]);
+            }
+        })
+        .catch(error => {
+            console.error('Error checking for new achievements:', error);
+        });
+}, 60000); // Check every minute
+
+function showNewAchievementNotification(achievement) {
+    const notification = document.createElement('div');
+    notification.className = 'alert alert-success alert-dismissible fade show position-fixed';
+    notification.style.top = '20px';
+    notification.style.right = '20px';
+    notification.style.zIndex = '9999';
+    notification.style.minWidth = '300px';
+    notification.innerHTML = `
+        <div class="d-flex align-items-center">
+            <i class="fas fa-trophy fa-2x text-warning me-3"></i>
+            <div>
+                <strong>New Achievement!</strong><br>
+                <span>${achievement.title}</span>
+            </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    document.body.appendChild(notification);
+    
+    // Auto-remove after 10 seconds
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+        }
+    }, 10000);
+}
+</script>
+{% endblock %}

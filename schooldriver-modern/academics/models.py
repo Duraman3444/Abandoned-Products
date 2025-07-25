@@ -647,7 +647,7 @@ class AttendanceNotification(models.Model):
         'students.Student', on_delete=models.CASCADE, related_name='attendance_notifications'
     )
     recipient = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='received_notifications'
+        User, on_delete=models.CASCADE, related_name='attendance_notifications_received'
     )
     notification_type = models.CharField(max_length=20, choices=NOTIFICATION_TYPES)
     message = models.TextField()
@@ -1074,7 +1074,7 @@ class ConferenceSlot(models.Model):
         ('CANCELLED', 'Cancelled'),
     ]
     
-    teacher = models.ForeignKey(User, on_delete=models.CASCADE, related_name='conference_slots')
+    teacher = models.ForeignKey(User, on_delete=models.CASCADE, related_name='academic_conference_slots')
     date = models.DateField()
     start_time = models.TimeField()
     end_time = models.TimeField()
@@ -1121,6 +1121,71 @@ class ConferenceSlot(models.Model):
         """Send confirmation emails to teacher and parent"""
         # TODO: Implement email sending
         pass
+
+
+class DocumentUpload(models.Model):
+    """Parent-uploaded documents (photos, medical forms, etc.)"""
+    
+    DOCUMENT_TYPES = [
+        ('MEDICAL', 'Medical Document'),
+        ('HOMEWORK', 'Homework/Assignment'),
+        ('PERMISSION', 'Permission Slip'),
+        ('PHOTO', 'Photo'),
+        ('OTHER', 'Other'),
+    ]
+    
+    uploaded_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='uploaded_documents')
+    student = models.ForeignKey('students.Student', on_delete=models.CASCADE, related_name='documents')
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    document_type = models.CharField(max_length=20, choices=DOCUMENT_TYPES, default='OTHER')
+    file = models.FileField(upload_to='parent_uploads/%Y/%m/')
+    file_size = models.IntegerField(default=0)  # in bytes
+    mime_type = models.CharField(max_length=100, blank=True)
+    
+    # Privacy and sharing
+    is_private = models.BooleanField(default=False, help_text="Only viewable by parent and admin")
+    shared_with_teachers = models.BooleanField(default=True)
+    shared_with_nurse = models.BooleanField(default=False)
+    
+    # Metadata
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField(null=True, blank=True)
+    
+    # Processing status
+    is_processed = models.BooleanField(default=False)
+    thumbnail = models.ImageField(upload_to='thumbnails/%Y/%m/', null=True, blank=True)
+    
+    class Meta:
+        ordering = ['-uploaded_at']
+    
+    def __str__(self):
+        return f"{self.title} - {self.student.display_name}"
+    
+    @property
+    def file_size_formatted(self):
+        """Return human-readable file size"""
+        if self.file_size < 1024:
+            return f"{self.file_size} bytes"
+        elif self.file_size < 1024 * 1024:
+            return f"{self.file_size / 1024:.1f} KB"
+        else:
+            return f"{self.file_size / (1024 * 1024):.1f} MB"
+    
+    @property
+    def is_image(self):
+        """Check if the uploaded file is an image"""
+        image_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+        return self.mime_type in image_types
+    
+    def save(self, *args, **kwargs):
+        if self.file:
+            self.file_size = self.file.size
+            # Set mime type if not set
+            if not self.mime_type:
+                import mimetypes
+                self.mime_type, _ = mimetypes.guess_type(self.file.name)
+        super().save(*args, **kwargs)
 
 
 class Message(models.Model):

@@ -1,0 +1,829 @@
+{% extends "parent_base.html" %}
+{% load static %}
+
+{% block page_title %}Engagement Metrics{% endblock %}
+{% block page_subtitle %}Track {{ current_child.display_name }}'s classroom engagement and participation{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+.engagement-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    margin-bottom: 1.5rem;
+}
+
+.engagement-overview {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.engagement-score {
+    text-align: center;
+    padding: 2rem;
+    background: rgba(255,255,255,0.1);
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+}
+
+.score-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: conic-gradient(#28a745 0deg, #28a745 calc(var(--score) * 3.6deg), rgba(255,255,255,0.3) calc(var(--score) * 3.6deg));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    position: relative;
+}
+
+.score-circle::before {
+    content: '';
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.9);
+    position: absolute;
+}
+
+.score-value {
+    position: relative;
+    z-index: 1;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #495057;
+}
+
+.score-label {
+    font-size: 1.125rem;
+    font-weight: 500;
+    opacity: 0.9;
+}
+
+.metric-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.metric-item {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1.25rem;
+    text-align: center;
+    border-left: 4px solid #007bff;
+    transition: transform 0.3s ease;
+}
+
+.metric-item:hover {
+    transform: translateY(-3px);
+}
+
+.metric-value {
+    font-size: 1.75rem;
+    font-weight: bold;
+    color: #007bff;
+    margin-bottom: 0.5rem;
+}
+
+.metric-label {
+    color: #6c757d;
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+}
+
+.metric-trend {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-weight: 500;
+}
+
+.trend-up {
+    background: rgba(40, 167, 69, 0.1);
+    color: #28a745;
+}
+
+.trend-down {
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+}
+
+.trend-stable {
+    background: rgba(108, 117, 125, 0.1);
+    color: #6c757d;
+}
+
+.chart-container {
+    position: relative;
+    height: 300px;
+    margin: 1rem 0;
+}
+
+.participation-timeline {
+    background: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.timeline-filters {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    color: #495057;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-size: 0.875rem;
+}
+
+.filter-btn:hover {
+    background: #e9ecef;
+    color: #495057;
+    text-decoration: none;
+}
+
+.filter-btn.active {
+    background: #007bff;
+    border-color: #007bff;
+    color: white;
+}
+
+.subject-breakdown {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.subject-card {
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 1.25rem;
+    transition: all 0.3s ease;
+}
+
+.subject-card:hover {
+    border-color: #007bff;
+    box-shadow: 0 4px 12px rgba(0,123,255,0.15);
+}
+
+.subject-header {
+    display: flex;
+    justify-content: between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.subject-name {
+    font-weight: 600;
+    color: #495057;
+}
+
+.subject-score {
+    background: #007bff;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.engagement-indicators {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.indicator-item {
+    display: flex;
+    align-items: center;
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.indicator-icon {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+    flex-shrink: 0;
+}
+
+.icon-high {
+    background: #28a745;
+}
+
+.icon-medium {
+    background: #ffc107;
+}
+
+.icon-low {
+    background: #dc3545;
+}
+
+.engagement-patterns {
+    background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.pattern-item {
+    background: white;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: start;
+}
+
+.pattern-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    flex-shrink: 0;
+}
+
+.pattern-positive {
+    background: rgba(40, 167, 69, 0.1);
+    color: #28a745;
+}
+
+.pattern-neutral {
+    background: rgba(255, 193, 7, 0.1);
+    color: #ffc107;
+}
+
+.pattern-improvement {
+    background: rgba(0, 123, 255, 0.1);
+    color: #007bff;
+}
+
+.recommendations-section {
+    background: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.recommendation-item {
+    background: #f8f9fa;
+    border-left: 4px solid #007bff;
+    border-radius: 6px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.recommendation-title {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
+.recommendation-description {
+    color: #6c757d;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.weekly-summary {
+    background: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.week-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.week-day {
+    text-align: center;
+    padding: 1rem 0.5rem;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.week-day.active {
+    background: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.day-name {
+    font-size: 0.75rem;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    font-weight: 500;
+}
+
+.day-score {
+    font-size: 1.25rem;
+    font-weight: bold;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #6c757d;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+@media (max-width: 768px) {
+    .engagement-card {
+        padding: 1rem;
+    }
+    
+    .metric-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+    }
+    
+    .subject-breakdown {
+        grid-template-columns: 1fr;
+    }
+    
+    .chart-container {
+        height: 250px;
+    }
+    
+    .week-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.75rem;
+    }
+    
+    .engagement-indicators {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}
+
+{% block parent_content %}
+<!-- Engagement Overview -->
+<div class="engagement-overview">
+    <div class="row align-items-center">
+        <div class="col-md-8">
+            <h5 class="mb-2">
+                <i class="fas fa-users me-2"></i>
+                Classroom Engagement Analysis
+            </h5>
+            <p class="mb-0 opacity-75">Comprehensive tracking of participation, interaction, and involvement in class activities</p>
+        </div>
+        <div class="col-md-4">
+            <div class="engagement-score">
+                <div class="score-circle" style="--score: {{ overall_engagement_score|default:0 }}">
+                    <div class="score-value">{{ overall_engagement_score|default:0 }}%</div>
+                </div>
+                <div class="score-label">Overall Engagement</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Key Metrics -->
+<div class="metric-grid">
+    <div class="metric-item">
+        <div class="metric-value">{{ participation_rate|default:0 }}%</div>
+        <div class="metric-label">Class Participation</div>
+        <div class="metric-trend trend-{{ participation_trend|default:'stable' }}">
+            <i class="fas fa-arrow-{{ participation_trend|default:'minus' }}{% if participation_trend == 'stable' %} fa-minus{% elif participation_trend == 'up' %}-up{% else %}-down{% endif %} me-1"></i>
+            {{ participation_change|default:0 }}% from last week
+        </div>
+    </div>
+    
+    <div class="metric-item">
+        <div class="metric-value">{{ question_frequency|default:0 }}</div>
+        <div class="metric-label">Questions Asked</div>
+        <div class="metric-trend trend-{{ questions_trend|default:'stable' }}">
+            <i class="fas fa-arrow-{{ questions_trend|default:'minus' }}{% if questions_trend == 'stable' %} fa-minus{% elif questions_trend == 'up' %}-up{% else %}-down{% endif %} me-1"></i>
+            {{ questions_change|default:0 }} from last week
+        </div>
+    </div>
+    
+    <div class="metric-item">
+        <div class="metric-value">{{ interaction_score|default:0 }}%</div>
+        <div class="metric-label">Peer Interaction</div>
+        <div class="metric-trend trend-{{ interaction_trend|default:'stable' }}">
+            <i class="fas fa-arrow-{{ interaction_trend|default:'minus' }}{% if interaction_trend == 'stable' %} fa-minus{% elif interaction_trend == 'up' %}-up{% else %}-down{% endif %} me-1"></i>
+            {{ interaction_change|default:0 }}% from last week
+        </div>
+    </div>
+    
+    <div class="metric-item">
+        <div class="metric-value">{{ focus_time|default:0 }}%</div>
+        <div class="metric-label">Time on Task</div>
+        <div class="metric-trend trend-{{ focus_trend|default:'stable' }}">
+            <i class="fas fa-arrow-{{ focus_trend|default:'minus' }}{% if focus_trend == 'stable' %} fa-minus{% elif focus_trend == 'up' %}-up{% else %}-down{% endif %} me-1"></i>
+            {{ focus_change|default:0 }}% from last week
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Participation Timeline -->
+    <div class="col-lg-8 mb-4">
+        <div class="participation-timeline">
+            <h5 class="mb-3">
+                <i class="fas fa-chart-line text-primary me-2"></i>
+                Engagement Timeline
+            </h5>
+            
+            <div class="timeline-filters">
+                <a href="?period=week" class="filter-btn {% if current_period == 'week' or not current_period %}active{% endif %}">
+                    This Week
+                </a>
+                <a href="?period=month" class="filter-btn {% if current_period == 'month' %}active{% endif %}">
+                    This Month
+                </a>
+                <a href="?period=semester" class="filter-btn {% if current_period == 'semester' %}active{% endif %}">
+                    Semester
+                </a>
+                <a href="?period=year" class="filter-btn {% if current_period == 'year' %}active{% endif %}">
+                    Year
+                </a>
+            </div>
+            
+            {% if engagement_timeline %}
+                <div class="chart-container">
+                    <canvas id="engagementChart"></canvas>
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-chart-line"></i>
+                    <h6>No engagement data</h6>
+                    <p>Engagement tracking will appear here as classroom data is recorded.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Weekly Summary -->
+    <div class="col-lg-4 mb-4">
+        <div class="weekly-summary">
+            <h5 class="mb-3">
+                <i class="fas fa-calendar-week text-success me-2"></i>
+                This Week's Engagement
+            </h5>
+            
+            {% if weekly_data %}
+                <div class="week-grid">
+                    {% for day in weekly_data %}
+                    <div class="week-day {% if day.is_today %}active{% endif %}">
+                        <div class="day-name">{{ day.name }}</div>
+                        <div class="day-score">{{ day.score|default:"-" }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-calendar"></i>
+                    <h6>No weekly data</h6>
+                    <p>Weekly engagement summary will appear here.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Subject Breakdown -->
+<div class="engagement-card">
+    <h5 class="mb-3">
+        <i class="fas fa-book-open text-info me-2"></i>
+        Subject-by-Subject Engagement
+    </h5>
+    
+    {% if subject_engagement %}
+        <div class="subject-breakdown">
+            {% for subject in subject_engagement %}
+            <div class="subject-card">
+                <div class="subject-header">
+                    <div class="subject-name">{{ subject.name }}</div>
+                    <div class="subject-score">{{ subject.engagement_score }}%</div>
+                </div>
+                
+                <div class="engagement-indicators">
+                    <div class="indicator-item">
+                        <div class="indicator-icon icon-{{ subject.participation_level }}"></div>
+                        Participation: {{ subject.participation_level|title }}
+                    </div>
+                    <div class="indicator-item">
+                        <div class="indicator-icon icon-{{ subject.interaction_level }}"></div>
+                        Interaction: {{ subject.interaction_level|title }}
+                    </div>
+                    <div class="indicator-item">
+                        <div class="indicator-icon icon-{{ subject.attention_level }}"></div>
+                        Attention: {{ subject.attention_level|title }}
+                    </div>
+                    <div class="indicator-item">
+                        <div class="indicator-icon icon-{{ subject.completion_level }}"></div>
+                        Task Completion: {{ subject.completion_level|title }}
+                    </div>
+                </div>
+                
+                {% if subject.recent_activities %}
+                <div class="mt-2">
+                    <small class="text-muted">Recent: {{ subject.recent_activities|join:", " }}</small>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <i class="fas fa-books"></i>
+            <h6>No subject data available</h6>
+            <p>Subject-specific engagement data will appear here as classroom observations are recorded.</p>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Engagement Patterns -->
+<div class="engagement-patterns">
+    <h5 class="mb-3">
+        <i class="fas fa-brain text-primary me-2"></i>
+        Engagement Patterns & Insights
+    </h5>
+    
+    {% if patterns %}
+        {% for pattern in patterns %}
+        <div class="pattern-item">
+            <div class="pattern-icon pattern-{{ pattern.type }}">
+                <i class="fas fa-{{ pattern.icon }}"></i>
+            </div>
+            <div>
+                <h6 class="mb-1">{{ pattern.title }}</h6>
+                <p class="mb-0">{{ pattern.description }}</p>
+                {% if pattern.suggestion %}
+                <small class="text-primary">
+                    <i class="fas fa-lightbulb me-1"></i>
+                    {{ pattern.suggestion }}
+                </small>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="pattern-item">
+            <div class="pattern-icon pattern-neutral">
+                <i class="fas fa-chart-bar"></i>
+            </div>
+            <div>
+                <h6 class="mb-1">Analyzing Patterns</h6>
+                <p class="mb-0">Engagement patterns will be identified as more classroom data becomes available.</p>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Recommendations -->
+<div class="recommendations-section">
+    <h5 class="mb-3">
+        <i class="fas fa-lightbulb text-warning me-2"></i>
+        Engagement Recommendations
+    </h5>
+    
+    {% if recommendations %}
+        {% for recommendation in recommendations %}
+        <div class="recommendation-item">
+            <div class="recommendation-title">{{ recommendation.title }}</div>
+            <div class="recommendation-description">{{ recommendation.description }}</div>
+            {% if recommendation.specific_actions %}
+                <div class="mt-2">
+                    <small class="text-primary">
+                        <strong>Try:</strong> {{ recommendation.specific_actions|join:", " }}
+                    </small>
+                </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="recommendation-item">
+            <div class="recommendation-title">Building Engagement Profile</div>
+            <div class="recommendation-description">
+                Personalized engagement recommendations will appear here as we gather more data about 
+                {{ current_child.display_name }}'s classroom participation and learning style.
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Comparison with Peers -->
+{% if peer_comparison %}
+<div class="engagement-card">
+    <h5 class="mb-3">
+        <i class="fas fa-users-cog text-secondary me-2"></i>
+        Class Engagement Comparison
+    </h5>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <canvas id="comparisonChart" style="max-height: 200px;"></canvas>
+        </div>
+        <div class="col-md-6">
+            <div class="d-flex align-items-center h-100">
+                <div>
+                    <h6 class="text-primary">{{ current_child.display_name }}'s Position</h6>
+                    <p class="mb-1">
+                        <strong>{{ peer_comparison.percentile }}th percentile</strong> in class engagement
+                    </p>
+                    <p class="text-muted mb-0">
+                        {% if peer_comparison.percentile >= 75 %}
+                            Excellent engagement compared to peers
+                        {% elif peer_comparison.percentile >= 50 %}
+                            Good engagement level
+                        {% elif peer_comparison.percentile >= 25 %}
+                            Room for improvement in engagement
+                        {% else %}
+                            Focus area: increasing classroom participation
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Engagement Timeline Chart
+    {% if engagement_timeline %}
+    const engagementCtx = document.getElementById('engagementChart').getContext('2d');
+    new Chart(engagementCtx, {
+        type: 'line',
+        data: {
+            labels: {{ timeline_labels|safe }},
+            datasets: [
+                {
+                    label: 'Overall Engagement',
+                    data: {{ engagement_data|safe }},
+                    borderColor: '#007bff',
+                    backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4
+                },
+                {
+                    label: 'Class Participation',
+                    data: {{ participation_data|safe }},
+                    borderColor: '#28a745',
+                    backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                    borderWidth: 2,
+                    fill: false,
+                    tension: 0.4
+                },
+                {
+                    label: 'Peer Interaction',
+                    data: {{ interaction_data|safe }},
+                    borderColor: '#ffc107',
+                    backgroundColor: 'rgba(255, 193, 7, 0.1)',
+                    borderWidth: 2,
+                    fill: false,
+                    tension: 0.4
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    title: {
+                        display: true,
+                        text: 'Engagement Score (%)'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'top'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.dataset.label + ': ' + context.parsed.y + '%';
+                        }
+                    }
+                }
+            }
+        }
+    });
+    {% endif %}
+    
+    // Peer Comparison Chart
+    {% if peer_comparison %}
+    const comparisonCtx = document.getElementById('comparisonChart').getContext('2d');
+    new Chart(comparisonCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Your Child', 'Class Average'],
+            datasets: [{
+                data: [{{ peer_comparison.student_score }}, {{ peer_comparison.class_average }}],
+                backgroundColor: ['#007bff', '#e9ecef'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+    {% endif %}
+});
+
+// Auto-refresh engagement data every 10 minutes
+setInterval(function() {
+    fetch(`{% url 'student_analytics:engagement_updates' %}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.has_updates) {
+                // Update key metrics
+                if (data.metrics) {
+                    Object.keys(data.metrics).forEach(key => {
+                        const element = document.querySelector(`[data-metric="${key}"]`);
+                        if (element) {
+                            element.textContent = data.metrics[key];
+                        }
+                    });
+                }
+                
+                // Show notification for significant changes
+                if (data.significant_change) {
+                    showEngagementNotification(data.change_message);
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error checking engagement updates:', error);
+        });
+}, 600000); // 10 minutes
+
+function showEngagementNotification(message) {
+    const notification = document.createElement('div');
+    notification.className = 'alert alert-info alert-dismissible fade show position-fixed';
+    notification.style.top = '20px';
+    notification.style.right = '20px';
+    notification.style.zIndex = '9999';
+    notification.style.minWidth = '350px';
+    notification.innerHTML = `
+        <div class="d-flex align-items-center">
+            <i class="fas fa-chart-line fa-lg text-primary me-3"></i>
+            <div>
+                <strong>Engagement Update</strong><br>
+                <span>${message}</span>
+            </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    document.body.appendChild(notification);
+    
+    // Auto-remove after 8 seconds
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+        }
+    }, 8000);
+}
+</script>
+{% endblock %}

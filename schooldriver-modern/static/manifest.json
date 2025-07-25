@@ -1,0 +1,87 @@
+{
+  "name": "SchoolDriver Parent Portal",
+  "short_name": "SchoolDriver",
+  "description": "Access your child's grades, attendance, and school information",
+  "start_url": "/parent/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#007bff",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/static/img/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/static/img/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/static/img/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/static/img/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/static/img/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/static/img/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/static/img/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/static/img/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Grades",
+      "short_name": "Grades",
+      "description": "View your child's grades",
+      "url": "/parent/grades/",
+      "icons": [{ "src": "/static/img/icon-96x96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Attendance",
+      "short_name": "Attendance",
+      "description": "Check attendance records",
+      "url": "/parent/attendance/",
+      "icons": [{ "src": "/static/img/icon-96x96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Messages",
+      "short_name": "Messages",
+      "description": "View messages from teachers",
+      "url": "/parent/messages/",
+      "icons": [{ "src": "/static/img/icon-96x96.png", "sizes": "96x96" }]
+    }
+  ],
+  "categories": ["education", "productivity"],
+  "lang": "en-US",
+  "dir": "ltr"
+}

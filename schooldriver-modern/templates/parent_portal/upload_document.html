@@ -1,0 +1,309 @@
+{% extends "parent_base.html" %}
+{% load static %}
+
+{% block page_title %}Upload Document{% endblock %}
+{% block page_subtitle %}
+    {% if current_child %}
+        Upload Document for {{ current_child.display_name }}
+    {% else %}
+        Upload Student Document
+    {% endif %}
+{% endblock %}
+
+{% block parent_content %}
+{% if error %}
+    <div class="alert alert-warning text-center">
+        <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+        <h4>{{ error }}</h4>
+    </div>
+{% else %}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-cloud-upload-alt text-primary me-2"></i>
+                    Upload Document or Photo
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data" id="documentUploadForm">
+                    {% csrf_token %}
+                    
+                    <!-- Student Selection (if multiple children) -->
+                    {% if children.count > 1 %}
+                    <div class="mb-3">
+                        <label for="student_id" class="form-label">Select Student</label>
+                        <select class="form-select" id="student_id" name="student_id" required>
+                            <option value="">Choose student...</option>
+                            {% for child in children %}
+                            <option value="{{ child.id }}" {% if child == current_child %}selected{% endif %}>
+                                {{ child.display_name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% elif current_child %}
+                    <input type="hidden" name="student_id" value="{{ current_child.id }}">
+                    {% endif %}
+                    
+                    <!-- File Upload -->
+                    <div class="mb-3">
+                        <label for="document" class="form-label">
+                            Choose File <span class="text-danger">*</span>
+                        </label>
+                        <input type="file" 
+                               class="form-control" 
+                               id="document" 
+                               name="document" 
+                               accept="image/*,.pdf,.doc,.docx,.txt"
+                               required>
+                        <div class="form-text">
+                            Supported formats: Images (JPG, PNG, GIF), PDF, Word documents, Text files.
+                            Maximum file size: 10MB.
+                        </div>
+                        <div id="filePreview" class="mt-3" style="display: none;">
+                            <img id="imagePreview" class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
+                        </div>
+                    </div>
+                    
+                    <!-- Document Title -->
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Document Title</label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="title" 
+                               name="title" 
+                               placeholder="Will use filename if left blank">
+                    </div>
+                    
+                    <!-- Document Type -->
+                    <div class="mb-3">
+                        <label for="document_type" class="form-label">Document Type</label>
+                        <select class="form-select" id="document_type" name="document_type">
+                            <option value="OTHER">Other</option>
+                            <option value="MEDICAL">Medical Document</option>
+                            <option value="HOMEWORK">Homework/Assignment</option>
+                            <option value="PERMISSION">Permission Slip</option>
+                            <option value="PHOTO">Photo</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Description -->
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" 
+                                  id="description" 
+                                  name="description" 
+                                  rows="3" 
+                                  placeholder="Optional description or notes about this document"></textarea>
+                    </div>
+                    
+                    <!-- Sharing Options -->
+                    <div class="mb-3">
+                        <h6 class="text-primary">Sharing Options</h6>
+                        
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" 
+                                   type="checkbox" 
+                                   id="shared_with_teachers" 
+                                   name="shared_with_teachers" 
+                                   checked>
+                            <label class="form-check-label" for="shared_with_teachers">
+                                <strong>Share with Teachers</strong><br>
+                                <small class="text-muted">Teachers can view this document</small>
+                            </label>
+                        </div>
+                        
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" 
+                                   type="checkbox" 
+                                   id="shared_with_nurse" 
+                                   name="shared_with_nurse">
+                            <label class="form-check-label" for="shared_with_nurse">
+                                <strong>Share with School Nurse</strong><br>
+                                <small class="text-muted">Recommended for medical documents</small>
+                            </label>
+                        </div>
+                        
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" 
+                                   type="checkbox" 
+                                   id="is_private" 
+                                   name="is_private">
+                            <label class="form-check-label" for="is_private">
+                                <strong>Private Document</strong><br>
+                                <small class="text-muted">Only you and administrators can view this</small>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Upload Progress -->
+                    <div id="uploadProgress" class="mb-3" style="display: none;">
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                 role="progressbar" 
+                                 style="width: 0%">
+                                <span class="sr-only">0% Complete</span>
+                            </div>
+                        </div>
+                        <small class="text-muted">Uploading...</small>
+                    </div>
+                    
+                    <!-- Submit Buttons -->
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary" id="uploadBtn">
+                            <i class="fas fa-cloud-upload-alt me-1"></i>
+                            Upload Document
+                        </button>
+                        <a href="{% url 'parent_portal:document_list' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-list me-1"></i>
+                            View Documents
+                        </a>
+                        <a href="{% url 'parent_portal:dashboard' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-arrow-left me-1"></i>
+                            Back to Dashboard
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Upload Tips -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-lightbulb text-warning me-2"></i>
+                    Upload Tips
+                </h6>
+            </div>
+            <div class="card-body">
+                <ul class="mb-0">
+                    <li><strong>Photos:</strong> Take clear, well-lit photos. Avoid shadows and blur.</li>
+                    <li><strong>Medical Forms:</strong> Make sure all text is readable and enable nurse sharing.</li>
+                    <li><strong>Homework:</strong> Include assignment name in the title for easy identification.</li>
+                    <li><strong>File Size:</strong> Keep files under 10MB for faster upload.</li>
+                    <li><strong>Privacy:</strong> Use private documents for sensitive information.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.getElementById('document');
+    const titleInput = document.getElementById('title');
+    const docTypeSelect = document.getElementById('document_type');
+    const sharedWithNurse = document.getElementById('shared_with_nurse');
+    const form = document.getElementById('documentUploadForm');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const uploadProgress = document.getElementById('uploadProgress');
+    const progressBar = uploadProgress.querySelector('.progress-bar');
+    
+    // File preview functionality
+    fileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        // Auto-fill title if empty
+        if (!titleInput.value) {
+            titleInput.value = file.name.split('.')[0];
+        }
+        
+        // Auto-detect document type based on filename
+        const filename = file.name.toLowerCase();
+        if (filename.includes('medical') || filename.includes('doctor') || filename.includes('health')) {
+            docTypeSelect.value = 'MEDICAL';
+            sharedWithNurse.checked = true;
+        } else if (filename.includes('homework') || filename.includes('assignment')) {
+            docTypeSelect.value = 'HOMEWORK';
+        } else if (filename.includes('permission') || filename.includes('consent')) {
+            docTypeSelect.value = 'PERMISSION';
+        } else if (file.type.startsWith('image/')) {
+            docTypeSelect.value = 'PHOTO';
+        }
+        
+        // Image preview
+        if (file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('imagePreview');
+                preview.src = e.target.result;
+                document.getElementById('filePreview').style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        } else {
+            document.getElementById('filePreview').style.display = 'none';
+        }
+        
+        // File size validation
+        if (file.size > 10 * 1024 * 1024) {
+            alert('File size must be less than 10MB. Please choose a smaller file.');
+            fileInput.value = '';
+            return;
+        }
+    });
+    
+    // Form submission with progress
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(form);
+        
+        // Show progress
+        uploadProgress.style.display = 'block';
+        uploadBtn.disabled = true;
+        uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Uploading...';
+        
+        // Simulate upload progress (replace with actual XMLHttpRequest for real progress)
+        let progress = 0;
+        const progressInterval = setInterval(() => {
+            progress += Math.random() * 30;
+            if (progress > 90) progress = 90;
+            progressBar.style.width = progress + '%';
+            progressBar.querySelector('.sr-only').textContent = Math.round(progress) + '% Complete';
+        }, 200);
+        
+        // Submit form
+        fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+            }
+        })
+        .then(response => {
+            clearInterval(progressInterval);
+            progressBar.style.width = '100%';
+            
+            if (response.ok) {
+                // Redirect on success
+                window.location.href = "{% url 'parent_portal:document_list' %}";
+            } else {
+                throw new Error('Upload failed');
+            }
+        })
+        .catch(error => {
+            clearInterval(progressInterval);
+            uploadProgress.style.display = 'none';
+            uploadBtn.disabled = false;
+            uploadBtn.innerHTML = '<i class="fas fa-cloud-upload-alt me-1"></i>Upload Document';
+            alert('Upload failed. Please try again.');
+        });
+    });
+    
+    // Auto-suggest nurse sharing for medical documents
+    docTypeSelect.addEventListener('change', function() {
+        if (this.value === 'MEDICAL') {
+            sharedWithNurse.checked = true;
+        }
+    });
+});
+</script>
+{% endblock %}

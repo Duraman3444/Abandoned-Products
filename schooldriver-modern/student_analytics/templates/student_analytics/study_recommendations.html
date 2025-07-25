@@ -1,0 +1,588 @@
+{% extends "parent_base.html" %}
+{% load static %}
+
+{% block page_title %}Study Recommendations{% endblock %}
+{% block page_subtitle %}Personalized study tips and resources for {{ current_child.display_name }}{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+.recommendation-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    margin-bottom: 1.5rem;
+    transition: transform 0.3s ease;
+}
+
+.recommendation-card:hover {
+    transform: translateY(-3px);
+}
+
+.priority-high {
+    border-left: 4px solid #dc3545;
+}
+
+.priority-medium {
+    border-left: 4px solid #ffc107;
+}
+
+.priority-low {
+    border-left: 4px solid #28a745;
+}
+
+.priority-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.priority-high-badge {
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+}
+
+.priority-medium-badge {
+    background: rgba(255, 193, 7, 0.1);
+    color: #ffc107;
+}
+
+.priority-low-badge {
+    background: rgba(40, 167, 69, 0.1);
+    color: #28a745;
+}
+
+.analysis-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.strength-item {
+    background: rgba(40, 167, 69, 0.1);
+    border: 1px solid rgba(40, 167, 69, 0.3);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.improvement-item {
+    background: rgba(255, 193, 7, 0.1);
+    border: 1px solid rgba(255, 193, 7, 0.3);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.resource-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.resource-item {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1.25rem;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.resource-item:hover {
+    color: inherit;
+    background: white;
+    border-color: #007bff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,123,255,0.2);
+}
+
+.resource-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+}
+
+.resource-video {
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+}
+
+.resource-practice {
+    background: rgba(0, 123, 255, 0.1);
+    color: #007bff;
+}
+
+.resource-reading {
+    background: rgba(40, 167, 69, 0.1);
+    color: #28a745;
+}
+
+.resource-tool {
+    background: rgba(255, 193, 7, 0.1);
+    color: #ffc107;
+}
+
+.study-schedule {
+    background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+}
+
+.schedule-item {
+    background: white;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    border-left: 4px solid #007bff;
+}
+
+.time-slot {
+    font-weight: 600;
+    color: #007bff;
+    margin-bottom: 0.5rem;
+}
+
+.activity-tags {
+    margin-top: 0.75rem;
+}
+
+.activity-tag {
+    background: rgba(0, 123, 255, 0.1);
+    color: #007bff;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    margin-right: 0.5rem;
+    margin-bottom: 0.25rem;
+    display: inline-block;
+}
+
+.progress-tracker {
+    background: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    border: 2px solid #e9ecef;
+}
+
+.progress-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f8f9fa;
+}
+
+.progress-check {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid #e9ecef;
+    margin-right: 1rem;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.progress-check.completed {
+    background: #28a745;
+    border-color: #28a745;
+}
+
+.progress-check.completed::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #6c757d;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+@media (max-width: 768px) {
+    .recommendation-card {
+        padding: 1rem;
+    }
+    
+    .resource-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .analysis-section {
+        padding: 1rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block parent_content %}
+<!-- Performance Analysis -->
+<div class="analysis-section">
+    <h5 class="mb-3">
+        <i class="fas fa-brain me-2"></i>
+        Performance Analysis
+    </h5>
+    <div class="row">
+        <div class="col-md-6">
+            <h6 class="mb-2">
+                <i class="fas fa-star me-2"></i>
+                Strengths
+            </h6>
+            {% if strengths %}
+                {% for strength in strengths %}
+                <div class="strength-item">
+                    <strong>{{ strength.subject }}</strong>: {{ strength.description }}
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="strength-item">
+                    <strong>General Performance</strong>: Strengths will be identified as more data becomes available.
+                </div>
+            {% endif %}
+        </div>
+        <div class="col-md-6">
+            <h6 class="mb-2">
+                <i class="fas fa-target me-2"></i>
+                Areas for Improvement
+            </h6>
+            {% if improvements %}
+                {% for improvement in improvements %}
+                <div class="improvement-item">
+                    <strong>{{ improvement.subject }}</strong>: {{ improvement.description }}
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="improvement-item">
+                    <strong>Overall Development</strong>: Improvement areas will be identified as performance data is analyzed.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Personalized Recommendations -->
+<div class="row">
+    {% if recommendations %}
+        {% for recommendation in recommendations %}
+        <div class="col-lg-6 mb-3">
+            <div class="recommendation-card priority-{{ recommendation.priority }}">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <h6 class="mb-0">
+                        <i class="fas fa-{{ recommendation.icon }} text-primary me-2"></i>
+                        {{ recommendation.title }}
+                    </h6>
+                    <span class="priority-badge priority-{{ recommendation.priority }}-badge">
+                        {{ recommendation.priority }} priority
+                    </span>
+                </div>
+                
+                <p class="text-muted mb-3">{{ recommendation.description }}</p>
+                
+                <div class="mb-3">
+                    <small class="text-primary fw-medium">
+                        <i class="fas fa-graduation-cap me-1"></i>
+                        Subject: {{ recommendation.subject }}
+                    </small>
+                </div>
+                
+                <div class="mb-3">
+                    <small class="text-success">
+                        <i class="fas fa-clock me-1"></i>
+                        Estimated time: {{ recommendation.time_estimate }}
+                    </small>
+                </div>
+                
+                {% if recommendation.action_steps %}
+                <div class="mt-3">
+                    <h6 class="small text-uppercase text-muted mb-2">Action Steps:</h6>
+                    <ol class="small mb-0">
+                        {% for step in recommendation.action_steps %}
+                        <li>{{ step }}</li>
+                        {% endfor %}
+                    </ol>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-12">
+            <div class="recommendation-card">
+                <div class="empty-state">
+                    <i class="fas fa-lightbulb"></i>
+                    <h6>Generating Recommendations</h6>
+                    <p>Personalized study recommendations will appear here as we analyze your child's performance data.</p>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Study Resources -->
+<div class="recommendation-card">
+    <h5 class="mb-3">
+        <i class="fas fa-book-open text-success me-2"></i>
+        Recommended Study Resources
+    </h5>
+    
+    {% if resources %}
+    <div class="resource-grid">
+        {% for resource in resources %}
+        <a href="{{ resource.url }}" class="resource-item" target="_blank" rel="noopener">
+            <div class="resource-icon resource-{{ resource.type }}">
+                <i class="fas fa-{{ resource.icon }}"></i>
+            </div>
+            <h6 class="mb-2">{{ resource.title }}</h6>
+            <p class="text-muted small mb-2">{{ resource.description }}</p>
+            <div class="d-flex justify-content-between align-items-center">
+                <small class="text-primary">{{ resource.subject }}</small>
+                <small class="text-muted">{{ resource.duration }}</small>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-book"></i>
+        <h6>No specific resources yet</h6>
+        <p>Study resources will be recommended based on your child's performance and learning needs.</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Suggested Study Schedule -->
+<div class="study-schedule">
+    <h5 class="mb-3">
+        <i class="fas fa-calendar-alt text-primary me-2"></i>
+        Suggested Study Schedule
+    </h5>
+    
+    {% if schedule %}
+        {% for day in schedule %}
+        <div class="schedule-item">
+            <div class="time-slot">{{ day.day }} - {{ day.time }}</div>
+            <div class="fw-medium">{{ day.activity }}</div>
+            <div class="text-muted small">{{ day.description }}</div>
+            <div class="activity-tags">
+                {% for tag in day.tags %}
+                <span class="activity-tag">{{ tag }}</span>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="schedule-item">
+            <div class="time-slot">Weekdays - After School</div>
+            <div class="fw-medium">Review Daily Assignments</div>
+            <div class="text-muted small">Spend 30-45 minutes reviewing the day's lessons and completing homework.</div>
+            <div class="activity-tags">
+                <span class="activity-tag">Homework</span>
+                <span class="activity-tag">Review</span>
+            </div>
+        </div>
+        
+        <div class="schedule-item">
+            <div class="time-slot">Weekends - Morning</div>
+            <div class="fw-medium">Practice Problem Areas</div>
+            <div class="text-muted small">Focus on subjects that need improvement using recommended resources.</div>
+            <div class="activity-tags">
+                <span class="activity-tag">Practice</span>
+                <span class="activity-tag">Improvement</span>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Progress Tracker -->
+<div class="progress-tracker">
+    <h5 class="mb-3">
+        <i class="fas fa-tasks text-info me-2"></i>
+        Study Goals Progress
+    </h5>
+    
+    {% if study_goals %}
+        {% for goal in study_goals %}
+        <div class="progress-item">
+            <div class="progress-check {% if goal.completed %}completed{% endif %}" 
+                 onclick="toggleGoal('{{ goal.id }}')"></div>
+            <div class="flex-grow-1">
+                <div class="fw-medium">{{ goal.title }}</div>
+                <div class="text-muted small">{{ goal.description }}</div>
+                {% if goal.due_date %}
+                <div class="text-primary small">
+                    <i class="fas fa-calendar me-1"></i>
+                    Due: {{ goal.due_date|date:"M d, Y" }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-state">
+            <i class="fas fa-bullseye"></i>
+            <h6>No study goals set</h6>
+            <p>Study goals will help track progress on recommendations.</p>
+            <a href="{% url 'student_analytics:create_goal' %}" class="btn btn-primary btn-sm">
+                Create Study Goals
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Additional Tips -->
+<div class="recommendation-card">
+    <h5 class="mb-3">
+        <i class="fas fa-lightbulb text-warning me-2"></i>
+        General Study Tips
+    </h5>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <h6 class="text-primary">For Parents:</h6>
+            <ul class="list-unstyled">
+                <li class="mb-2">
+                    <i class="fas fa-check text-success me-2"></i>
+                    Create a quiet, dedicated study space
+                </li>
+                <li class="mb-2">
+                    <i class="fas fa-check text-success me-2"></i>
+                    Establish a consistent daily routine
+                </li>
+                <li class="mb-2">
+                    <i class="fas fa-check text-success me-2"></i>
+                    Encourage breaks every 25-30 minutes
+                </li>
+                <li class="mb-2">
+                    <i class="fas fa-check text-success me-2"></i>
+                    Celebrate small achievements
+                </li>
+            </ul>
+        </div>
+        <div class="col-md-6">
+            <h6 class="text-primary">For Students:</h6>
+            <ul class="list-unstyled">
+                <li class="mb-2">
+                    <i class="fas fa-check text-success me-2"></i>
+                    Ask questions when confused
+                </li>
+                <li class="mb-2">
+                    <i class="fas fa-check text-success me-2"></i>
+                    Practice active reading techniques
+                </li>
+                <li class="mb-2">
+                    <i class="fas fa-check text-success me-2"></i>
+                    Use visual aids and diagrams
+                </li>
+                <li class="mb-2">
+                    <i class="fas fa-check text-success me-2"></i>
+                    Form study groups with classmates
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function toggleGoal(goalId) {
+    const checkbox = event.target;
+    const isCompleted = checkbox.classList.contains('completed');
+    
+    // Update UI immediately
+    if (isCompleted) {
+        checkbox.classList.remove('completed');
+    } else {
+        checkbox.classList.add('completed');
+    }
+    
+    // Send update to server
+    fetch(`{% url 'student_analytics:toggle_study_goal' %}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify({
+            goal_id: goalId,
+            completed: !isCompleted
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (!data.success) {
+            // Revert UI change if server update failed
+            if (isCompleted) {
+                checkbox.classList.add('completed');
+            } else {
+                checkbox.classList.remove('completed');
+            }
+            console.error('Failed to update goal status');
+        }
+    })
+    .catch(error => {
+        // Revert UI change if request failed
+        if (isCompleted) {
+            checkbox.classList.add('completed');
+        } else {
+            checkbox.classList.remove('completed');
+        }
+        console.error('Error updating goal:', error);
+    });
+}
+
+// Auto-refresh recommendations based on performance changes
+document.addEventListener('DOMContentLoaded', function() {
+    // Check for updates every 5 minutes
+    setInterval(function() {
+        fetch(`{% url 'student_analytics:check_recommendation_updates' %}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.has_updates) {
+                    // Show update notification
+                    const notification = document.createElement('div');
+                    notification.className = 'alert alert-info alert-dismissible fade show position-fixed';
+                    notification.style.top = '20px';
+                    notification.style.right = '20px';
+                    notification.style.zIndex = '9999';
+                    notification.innerHTML = `
+                        <i class="fas fa-info-circle me-2"></i>
+                        New study recommendations are available.
+                        <a href="#" onclick="location.reload()" class="alert-link">Refresh to see them</a>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    `;
+                    document.body.appendChild(notification);
+                }
+            })
+            .catch(error => {
+                console.error('Error checking for updates:', error);
+            });
+    }, 300000); // 5 minutes
+});
+</script>
+{% endblock %}

@@ -43,6 +43,9 @@ urlpatterns = [
     path("student/", include("student_portal.urls")),
     path("parent/", include("parent_portal.urls")),
     path("teacher/", include("teacher_portal.urls")),
+    path("services/", include("school_services.urls")),
+    path("analytics/", include("student_analytics.urls")),
+    path("notifications/", include("notification_system.urls")),
     path("search/", include("search.urls")),
     # Admin and general authenticated areas
     path("admin/", admin.site.urls),

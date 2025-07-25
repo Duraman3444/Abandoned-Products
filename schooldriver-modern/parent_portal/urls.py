@@ -42,4 +42,11 @@ urlpatterns = [
     path("pickup-persons/add/", views.add_pickup_person_view, name="add_pickup_person"),
     path("pickup-persons/<uuid:person_id>/edit/", views.edit_pickup_person_view, name="edit_pickup_person"),
     path("medical-information/", views.medical_information_view, name="medical_information"),
+    
+    # Document Upload
+    path("upload-document/", views.upload_document_view, name="upload_document"),
+    path("documents/", views.document_list_view, name="document_list"),
+    
+    # API endpoints
+    path("api/quick-grades/", views.quick_grades_api, name="quick_grades_api"),
 ]

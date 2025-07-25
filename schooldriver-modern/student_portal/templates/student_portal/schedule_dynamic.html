@@ -15,7 +15,7 @@
                 <div class="row align-items-center">
                     <div class="col-md-8">
                         <h2 class="text-info mb-2">My Class Schedule</h2>
-                        <p class="text-muted mb-0">Spring Semester 2025 • Week of January 20-24, 2025</p>
+                        <p class="text-muted mb-0">Current Academic Year</p>
                     </div>
                     <div class="col-md-4 text-end">
                         <div class="dropdown d-inline-block me-2">
@@ -52,46 +52,103 @@
                     <i class="bi bi-calendar-week me-2"></i>Weekly Schedule
                 </h5>
             </div>
-            <div class="card-body">
-                {% if daily_schedule %}
-                    <!-- Show dynamic schedule by day -->
-                    <div class="row g-3">
-                        {% for day, classes in daily_schedule.items %}
-                            <div class="col-md-6 col-lg-12">
-                                <div class="card bg-dark border-secondary">
-                                    <div class="card-header">
-                                        <h6 class="mb-0 text-info">{{ day }}</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        {% for class in classes %}
-                                            <div class="d-flex justify-content-between align-items-center mb-3 p-2 bg-{% cycle 'primary' 'success' 'warning' 'info' 'danger' %} bg-opacity-25 rounded">
-                                                <div>
-                                                    <strong>{{ class.course }}</strong><br>
-                                                    <small class="text-muted">{{ class.room }} • {{ class.teacher }}</small>
-                                                </div>
-                                                <div class="text-end">
-                                                    <small class="fw-bold">{{ class.time }}</small><br>
-                                                    <small class="text-muted">{{ class.period }}</small>
-                                                </div>
-                                            </div>
-                                        {% empty %}
-                                            <p class="text-muted text-center mb-0">No classes scheduled</p>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-dark table-bordered mb-0">
+                        <thead>
+                            <tr>
+                                <th style="width: 120px;">Time</th>
+                                <th>Monday</th>
+                                <th>Tuesday</th>
+                                <th>Wednesday</th>
+                                <th>Thursday</th>
+                                <th>Friday</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% regroup daily_schedule.Monday|add:daily_schedule.Tuesday|add:daily_schedule.Wednesday|add:daily_schedule.Thursday|add:daily_schedule.Friday by time as schedule_times %}
+                            {% if schedule_times %}
+                                {% for time_group in schedule_times %}
+                                    <tr>
+                                        <td class="fw-bold">{{ time_group.grouper }}</td>
+                                        {% for day in "Monday,Tuesday,Wednesday,Thursday,Friday"|split:"," %}
+                                            <td>
+                                                {% for class in daily_schedule|lookup:day %}
+                                                    {% if class.time == time_group.grouper %}
+                                                        <div class="bg-{% cycle 'primary' 'success' 'warning' 'info' 'danger' %} bg-opacity-25 p-2 rounded">
+                                                            <strong>{{ class.course }}</strong><br>
+                                                            <small class="text-muted">{{ class.room }} • {{ class.teacher }}</small>
+                                                        </div>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </td>
                                         {% endfor %}
-                                    </div>
-                                </div>
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <div class="alert alert-info">
-                        <i class="bi bi-info-circle me-2"></i>
-                        No schedule data available. Please contact your administrator.
-                    </div>
-                {% endif %}
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <!-- Show available time slots from the schedule -->
+                                {% for hour in "9,10,11,12,13,14,15"|split:"," %}
+                                    <tr>
+                                        <td class="fw-bold">{{ hour }}:00 - {{ hour|add:1 }}:00</td>
+                                        {% for day in "Monday,Tuesday,Wednesday,Thursday,Friday"|split:"," %}
+                                            <td>
+                                                {% for class in daily_schedule|lookup:day %}
+                                                    {% if class.time|slice:":2" == hour %}
+                                                        <div class="bg-{% cycle 'primary' 'success' 'warning' 'info' 'danger' %} bg-opacity-25 p-2 rounded">
+                                                            <strong>{{ class.course }}</strong><br>
+                                                            <small class="text-muted">{{ class.room }} • {{ class.teacher }}</small>
+                                                        </div>
+                                                    {% endif %}
+                                                {% empty %}
+                                                    <div class="text-muted text-center py-2">-</div>
+                                                {% endfor %}
+                                            </td>
+                                        {% endfor %}
+                                    </tr>
+                                {% endfor %}
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Today's Schedule -->
+{% if today_schedule %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0 text-info">
+                    <i class="bi bi-calendar-day me-2"></i>Today's Schedule ({{ today }})
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    {% for class in today_schedule %}
+                        <div class="col-md-6 col-lg-4">
+                            <div class="card bg-dark border-{% cycle 'primary' 'success' 'warning' 'info' 'danger' %}">
+                                <div class="card-body">
+                                    <h6 class="card-title text-{% cycle 'primary' 'success' 'warning' 'info' 'danger' %}">{{ class.course_name }}</h6>
+                                    <p class="card-text">
+                                        <small class="text-muted">
+                                            <i class="bi bi-clock me-1"></i>{{ class.start_time }} - {{ class.end_time }}<br>
+                                            <i class="bi bi-geo-alt me-1"></i>{{ class.room }}<br>
+                                            <i class="bi bi-person me-1"></i>{{ class.teacher }}
+                                        </small>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
 
 <!-- Course Details -->
 <div class="row g-4">

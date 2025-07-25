@@ -1,0 +1,160 @@
+{% extends "parent_base.html" %}
+{% load static %}
+
+{% block page_title %}Transportation{% endblock %}
+{% block page_subtitle %}
+    {% if current_child %}
+        Transportation for {{ current_child.display_name }}
+    {% else %}
+        Student Transportation Information
+    {% endif %}
+{% endblock %}
+
+{% block parent_content %}
+{% if error %}
+    <div class="alert alert-warning text-center">
+        <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+        <h4>{{ error }}</h4>
+    </div>
+{% else %}
+
+<div class="row">
+    <!-- Transportation Info -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-bus me-2"></i>
+                    Transportation Details
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <strong>Transportation Type:</strong>
+                    <span class="badge bg-primary ms-2">{{ transportation.get_transport_type_display }}</span>
+                </div>
+                
+                {% if transportation.transport_type == 'BUS' %}
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <strong>Bus Route:</strong><br>
+                        <span class="h5 text-primary">{{ transportation.bus_route|default:"Not assigned" }}</span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <strong>Bus Number:</strong><br>
+                        <span class="h5 text-info">{{ transportation.bus_number|default:"TBD" }}</span>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <strong>Pickup Time:</strong><br>
+                        {% if transportation.pickup_time %}
+                            <span class="h6 text-success">{{ transportation.pickup_time|time:"g:i A" }}</span>
+                        {% else %}
+                            <span class="text-muted">Not scheduled</span>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <strong>Dropoff Time:</strong><br>
+                        {% if transportation.dropoff_time %}
+                            <span class="h6 text-success">{{ transportation.dropoff_time|time:"g:i A" }}</span>
+                        {% else %}
+                            <span class="text-muted">Not scheduled</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                {% if transportation.pickup_location %}
+                <div class="mb-3">
+                    <strong>Pickup Location:</strong><br>
+                    <address class="mb-0">{{ transportation.pickup_location }}</address>
+                </div>
+                {% endif %}
+                {% endif %}
+                
+                {% if transportation.special_instructions %}
+                <div class="alert alert-info">
+                    <strong>Special Instructions:</strong><br>
+                    {{ transportation.special_instructions }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Transportation Alerts -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Transportation Alerts
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if alerts %}
+                    {% for alert in alerts %}
+                    <div class="alert alert-{% if alert.alert_type == 'EMERGENCY' %}danger{% elif alert.alert_type == 'DELAY' %}warning{% else %}info{% endif %} mb-3">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="alert-heading mb-1">
+                                    {{ alert.title }}
+                                </h6>
+                                <p class="mb-1">{{ alert.message }}</p>
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>
+                                    {{ alert.created_at|date:"M d, Y g:i A" }}
+                                </small>
+                            </div>
+                            <span class="badge bg-{{ alert.alert_type|lower }}">
+                                {{ alert.get_alert_type_display }}
+                            </span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                        <h5 class="text-success">No Current Alerts</h5>
+                        <p class="text-muted">All transportation services are running normally.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Emergency Contact Info -->
+{% if transportation.emergency_transport_contact %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-phone me-2"></i>
+                    Emergency Transportation Contact
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <strong>Contact Name:</strong><br>
+                        {{ transportation.emergency_transport_contact }}
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Phone Number:</strong><br>
+                        <a href="tel:{{ transportation.emergency_transport_phone }}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-phone me-1"></i>
+                            {{ transportation.emergency_transport_phone }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endif %}
+{% endblock %}

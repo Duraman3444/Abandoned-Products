@@ -1,0 +1,342 @@
+{% extends "parent_base.html" %}
+{% load static %}
+
+{% block page_title %}My Documents{% endblock %}
+{% block page_subtitle %}
+    {% if current_child %}
+        Documents for {{ current_child.display_name }}
+    {% else %}
+        All Student Documents
+    {% endif %}
+{% endblock %}
+
+{% block parent_content %}
+{% if error %}
+    <div class="alert alert-warning text-center">
+        <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+        <h4>{{ error }}</h4>
+    </div>
+{% else %}
+
+<div class="row">
+    <!-- Upload Button -->
+    <div class="col-12 mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">
+                <i class="fas fa-folder-open text-primary me-2"></i>
+                My Documents
+            </h4>
+            <a href="{% url 'parent_portal:upload_document' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i>
+                Upload New Document
+            </a>
+        </div>
+    </div>
+    
+    <!-- Document List -->
+    <div class="col-12">
+        {% if documents %}
+            <div class="row">
+                {% for document in documents %}
+                <div class="col-lg-6 col-xl-4 mb-4">
+                    <div class="card h-100 document-card">
+                        <div class="card-header d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="card-title mb-1">{{ document.title }}</h6>
+                                <small class="text-muted">{{ document.student.display_name }}</small>
+                            </div>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" 
+                                        type="button" 
+                                        data-bs-toggle="dropdown">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="dropdown-item" href="{{ document.file.url }}" target="_blank">
+                                            <i class="fas fa-eye me-2"></i>View
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ document.file.url }}" download>
+                                            <i class="fas fa-download me-2"></i>Download
+                                        </a>
+                                    </li>
+                                    {% if document.is_image %}
+                                    <li>
+                                        <a class="dropdown-item" href="#" 
+                                           onclick="shareDocument('{{ document.title }}', '{{ document.file.url }}')">
+                                            <i class="fas fa-share me-2"></i>Share
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="card-body">
+                            <!-- Document Preview -->
+                            <div class="document-preview mb-3">
+                                {% if document.is_image %}
+                                    <img src="{{ document.file.url }}" 
+                                         class="img-fluid rounded document-thumbnail"
+                                         alt="{{ document.title }}"
+                                         onclick="showImageModal('{{ document.file.url }}', '{{ document.title }}')">
+                                {% else %}
+                                    <div class="file-icon-preview text-center p-4">
+                                        {% if document.mime_type == 'application/pdf' %}
+                                            <i class="fas fa-file-pdf fa-4x text-danger"></i>
+                                        {% elif 'word' in document.mime_type %}
+                                            <i class="fas fa-file-word fa-4x text-primary"></i>
+                                        {% elif 'text' in document.mime_type %}
+                                            <i class="fas fa-file-alt fa-4x text-secondary"></i>
+                                        {% else %}
+                                            <i class="fas fa-file fa-4x text-muted"></i>
+                                        {% endif %}
+                                        <div class="mt-2">
+                                            <small class="text-muted">{{ document.file_size_formatted }}</small>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Document Info -->
+                            <div class="document-info">
+                                <div class="mb-2">
+                                    <span class="badge bg-{{ document.document_type|lower }} text-white">
+                                        {{ document.get_document_type_display }}
+                                    </span>
+                                    {% if document.is_private %}
+                                        <span class="badge bg-warning">
+                                            <i class="fas fa-lock me-1"></i>Private
+                                        </span>
+                                    {% endif %}
+                                </div>
+                                
+                                {% if document.description %}
+                                <p class="text-muted small mb-2">{{ document.description|truncatewords:15 }}</p>
+                                {% endif %}
+                                
+                                <div class="small text-muted">
+                                    <div>
+                                        <i class="fas fa-calendar me-1"></i>
+                                        {{ document.uploaded_at|date:"M d, Y g:i A" }}
+                                    </div>
+                                    <div class="mt-1">
+                                        <i class="fas fa-file-alt me-1"></i>
+                                        {{ document.file_size_formatted }}
+                                    </div>
+                                </div>
+                                
+                                <!-- Sharing Status -->
+                                <div class="sharing-status mt-2">
+                                    <small class="text-muted">
+                                        <strong>Shared with:</strong>
+                                        {% if document.shared_with_teachers %}
+                                            <span class="badge bg-light text-dark">Teachers</span>
+                                        {% endif %}
+                                        {% if document.shared_with_nurse %}
+                                            <span class="badge bg-light text-dark">Nurse</span>
+                                        {% endif %}
+                                        {% if not document.shared_with_teachers and not document.shared_with_nurse %}
+                                            <span class="badge bg-light text-dark">Nobody</span>
+                                        {% endif %}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card-footer">
+                            <div class="d-flex gap-2">
+                                <a href="{{ document.file.url }}" 
+                                   target="_blank" 
+                                   class="btn btn-sm btn-outline-primary flex-fill">
+                                    <i class="fas fa-eye me-1"></i>View
+                                </a>
+                                <button type="button" 
+                                        class="btn btn-sm btn-outline-secondary"
+                                        onclick="copyToClipboard('{{ document.file.url }}')">
+                                    <i class="fas fa-copy me-1"></i>Copy Link
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Pagination if needed -->
+            {% if documents|length >= 20 %}
+            <div class="d-flex justify-content-center mt-4">
+                <button class="btn btn-outline-primary" onclick="loadMoreDocuments()">
+                    <i class="fas fa-arrow-down me-1"></i>
+                    Load More Documents
+                </button>
+            </div>
+            {% endif %}
+        {% else %}
+            <!-- Empty State -->
+            <div class="text-center py-5">
+                <div class="mb-4">
+                    <i class="fas fa-folder-open fa-5x text-muted"></i>
+                </div>
+                <h4 class="text-muted">No Documents Yet</h4>
+                <p class="text-muted mb-4">
+                    You haven't uploaded any documents yet. Get started by uploading your first document.
+                </p>
+                <a href="{% url 'parent_portal:upload_document' %}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-cloud-upload-alt me-2"></i>
+                    Upload Your First Document
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Image Modal -->
+<div class="modal fade" id="imageModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="imageModalLabel">Document Preview</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="modalImage" class="img-fluid" alt="Document preview">
+            </div>
+            <div class="modal-footer">
+                <a id="modalDownloadBtn" href="#" class="btn btn-primary" download>
+                    <i class="fas fa-download me-1"></i>Download
+                </a>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.document-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid #e0e0e0;
+}
+
+.document-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.document-thumbnail {
+    max-height: 150px;
+    object-fit: cover;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.document-thumbnail:hover {
+    opacity: 0.8;
+}
+
+.file-icon-preview {
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 2px dashed #dee2e6;
+}
+
+.sharing-status .badge {
+    font-size: 0.7em;
+    margin-right: 4px;
+}
+
+@media (max-width: 768px) {
+    .document-card {
+        margin-bottom: 1rem;
+    }
+    
+    .document-thumbnail {
+        max-height: 120px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function showImageModal(imageSrc, title) {
+    const modal = new bootstrap.Modal(document.getElementById('imageModal'));
+    document.getElementById('modalImage').src = imageSrc;
+    document.getElementById('imageModalLabel').textContent = title;
+    document.getElementById('modalDownloadBtn').href = imageSrc;
+    modal.show();
+}
+
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(window.location.origin + text).then(function() {
+        // Show success message
+        const alert = document.createElement('div');
+        alert.className = 'alert alert-success alert-dismissible fade show position-fixed';
+        alert.style.cssText = 'top: 20px; right: 20px; z-index: 1060; max-width: 300px;';
+        alert.innerHTML = `
+            <strong>Copied!</strong> Document link copied to clipboard.
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.body.appendChild(alert);
+        
+        setTimeout(() => {
+            if (alert.parentElement) {
+                alert.remove();
+            }
+        }, 3000);
+    }).catch(function(err) {
+        console.error('Could not copy text: ', err);
+        alert('Failed to copy link to clipboard');
+    });
+}
+
+function shareDocument(title, url) {
+    if (navigator.share) {
+        navigator.share({
+            title: title,
+            text: 'Check out this document: ' + title,
+            url: window.location.origin + url
+        }).catch((error) => console.log('Error sharing', error));
+    } else {
+        // Fallback to copy to clipboard
+        copyToClipboard(url);
+    }
+}
+
+function loadMoreDocuments() {
+    // Implementation for pagination/infinite scroll
+    console.log('Load more documents functionality');
+}
+
+// Lazy loading for images
+document.addEventListener('DOMContentLoaded', function() {
+    const images = document.querySelectorAll('.document-thumbnail');
+    
+    if ('IntersectionObserver' in window) {
+        const imageObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    img.style.opacity = '1';
+                    observer.unobserve(img);
+                }
+            });
+        });
+        
+        images.forEach(img => {
+            img.style.opacity = '0';
+            img.style.transition = 'opacity 0.3s';
+            imageObserver.observe(img);
+        });
+    }
+});
+</script>
+{% endblock %}

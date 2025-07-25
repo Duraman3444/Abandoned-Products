@@ -63,6 +63,9 @@ INSTALLED_APPS = [
     "student_portal",
     "parent_portal",
     "teacher_portal",
+    "school_services",
+    "student_analytics",
+    "notification_system",
     "search",
     "api",
 ]

@@ -785,7 +785,7 @@ def attendance_view(request):
             return redirect("student_portal:dashboard")
 
         # Get current school year for consistency with dashboard
-        current_school_year = SchoolYear.objects.get(is_current=True)
+        current_school_year = SchoolYear.objects.filter(is_active=True).first()
         
         # Use same attendance calculation as dashboard for consistency
         attendance_records_db = Attendance.objects.filter(

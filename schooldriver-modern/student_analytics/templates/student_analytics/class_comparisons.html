@@ -1,0 +1,534 @@
+{% extends "parent_base.html" %}
+{% load static %}
+
+{% block page_title %}Class Comparisons{% endblock %}
+{% block page_subtitle %}See how {{ current_child.display_name }} compares with class averages{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+.comparison-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    margin-bottom: 1.5rem;
+}
+
+.subject-selector {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.comparison-metric {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    border-left: 4px solid #007bff;
+}
+
+.metric-header {
+    display: flex;
+    justify-content: between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.metric-title {
+    font-weight: 600;
+    color: #495057;
+}
+
+.metric-values {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+    text-align: center;
+}
+
+.value-item {
+    padding: 0.75rem;
+    border-radius: 6px;
+}
+
+.student-value {
+    background: rgba(0, 123, 255, 0.1);
+    border: 2px solid #007bff;
+}
+
+.class-value {
+    background: rgba(108, 117, 125, 0.1);
+    border: 2px solid #6c757d;
+}
+
+.difference-value {
+    background: rgba(40, 167, 69, 0.1);
+    border: 2px solid #28a745;
+}
+
+.difference-negative {
+    background: rgba(220, 53, 69, 0.1);
+    border: 2px solid #dc3545;
+}
+
+.value-number {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 0.25rem;
+}
+
+.value-label {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.chart-container {
+    position: relative;
+    height: 300px;
+    margin: 1rem 0;
+}
+
+.performance-indicator {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 500;
+    margin: 0.25rem;
+}
+
+.above-average {
+    background: rgba(40, 167, 69, 0.1);
+    color: #28a745;
+    border: 1px solid rgba(40, 167, 69, 0.3);
+}
+
+.below-average {
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+    border: 1px solid rgba(220, 53, 69, 0.3);
+}
+
+.at-average {
+    background: rgba(255, 193, 7, 0.1);
+    color: #ffc107;
+    border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+.insights-section {
+    background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+}
+
+.insight-item {
+    display: flex;
+    align-items: start;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.insight-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    flex-shrink: 0;
+}
+
+.insight-positive {
+    background: rgba(40, 167, 69, 0.1);
+    color: #28a745;
+}
+
+.insight-neutral {
+    background: rgba(255, 193, 7, 0.1);
+    color: #ffc107;
+}
+
+.insight-improvement {
+    background: rgba(0, 123, 255, 0.1);
+    color: #007bff;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #6c757d;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+@media (max-width: 768px) {
+    .comparison-card {
+        padding: 1rem;
+    }
+    
+    .metric-values {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+    
+    .value-number {
+        font-size: 1.25rem;
+    }
+    
+    .insight-item {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .insight-icon {
+        margin-right: 0;
+        margin-bottom: 0.5rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block parent_content %}
+<!-- Subject Selector -->
+<div class="subject-selector">
+    <h5 class="mb-3">
+        <i class="fas fa-chart-bar me-2"></i>
+        Compare Performance
+    </h5>
+    <div class="row">
+        <div class="col-md-6">
+            <label class="form-label">Subject</label>
+            <select class="form-select" id="subjectSelect">
+                <option value="overall">Overall Performance</option>
+                {% for subject in subjects %}
+                <option value="{{ subject.id }}" {% if subject.id == selected_subject %}selected{% endif %}>
+                    {{ subject.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Comparison Period</label>
+            <select class="form-select" id="periodSelect">
+                <option value="current">Current Semester</option>
+                <option value="previous">Previous Semester</option>
+                <option value="year">Full Academic Year</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+{% if comparison_data %}
+<!-- Performance Overview -->
+<div class="comparison-card">
+    <h5 class="mb-3">
+        <i class="fas fa-tachometer-alt text-primary me-2"></i>
+        Performance Overview
+    </h5>
+    
+    <div class="d-flex flex-wrap mb-3">
+        {% if comparison_data.overall_status == 'above' %}
+        <span class="performance-indicator above-average">
+            <i class="fas fa-arrow-up me-2"></i>
+            Above Class Average
+        </span>
+        {% elif comparison_data.overall_status == 'below' %}
+        <span class="performance-indicator below-average">
+            <i class="fas fa-arrow-down me-2"></i>
+            Below Class Average
+        </span>
+        {% else %}
+        <span class="performance-indicator at-average">
+            <i class="fas fa-minus me-2"></i>
+            At Class Average
+        </span>
+        {% endif %}
+        
+        <span class="performance-indicator" style="background: rgba(0,123,255,0.1); color: #007bff;">
+            <i class="fas fa-users me-2"></i>
+            Rank: {{ comparison_data.class_rank }} of {{ comparison_data.total_students }}
+        </span>
+    </div>
+</div>
+
+<!-- Detailed Comparisons -->
+<div class="row">
+    <div class="col-lg-8 mb-4">
+        <div class="comparison-card">
+            <h5 class="mb-3">
+                <i class="fas fa-chart-line text-success me-2"></i>
+                Grade Comparison
+            </h5>
+            
+            <div class="comparison-metric">
+                <div class="metric-header">
+                    <span class="metric-title">Overall GPA</span>
+                </div>
+                <div class="metric-values">
+                    <div class="value-item student-value">
+                        <div class="value-number">{{ comparison_data.student_gpa|floatformat:2 }}</div>
+                        <div class="value-label">Your Child</div>
+                    </div>
+                    <div class="value-item class-value">
+                        <div class="value-number">{{ comparison_data.class_avg_gpa|floatformat:2 }}</div>
+                        <div class="value-label">Class Average</div>
+                    </div>
+                    <div class="value-item {% if comparison_data.gpa_difference >= 0 %}difference-value{% else %}difference-negative{% endif %}">
+                        <div class="value-number">
+                            {% if comparison_data.gpa_difference >= 0 %}+{% endif %}{{ comparison_data.gpa_difference|floatformat:2 }}
+                        </div>
+                        <div class="value-label">Difference</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="comparison-metric">
+                <div class="metric-header">
+                    <span class="metric-title">Assignment Completion Rate</span>
+                </div>
+                <div class="metric-values">
+                    <div class="value-item student-value">
+                        <div class="value-number">{{ comparison_data.student_completion }}%</div>
+                        <div class="value-label">Your Child</div>
+                    </div>
+                    <div class="value-item class-value">
+                        <div class="value-number">{{ comparison_data.class_avg_completion }}%</div>
+                        <div class="value-label">Class Average</div>
+                    </div>
+                    <div class="value-item {% if comparison_data.completion_difference >= 0 %}difference-value{% else %}difference-negative{% endif %}">
+                        <div class="value-number">
+                            {% if comparison_data.completion_difference >= 0 %}+{% endif %}{{ comparison_data.completion_difference }}%
+                        </div>
+                        <div class="value-label">Difference</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="comparison-metric">
+                <div class="metric-header">
+                    <span class="metric-title">Attendance Rate</span>
+                </div>
+                <div class="metric-values">
+                    <div class="value-item student-value">
+                        <div class="value-number">{{ comparison_data.student_attendance }}%</div>
+                        <div class="value-label">Your Child</div>
+                    </div>
+                    <div class="value-item class-value">
+                        <div class="value-number">{{ comparison_data.class_avg_attendance }}%</div>
+                        <div class="value-label">Class Average</div>
+                    </div>
+                    <div class="value-item {% if comparison_data.attendance_difference >= 0 %}difference-value{% else %}difference-negative{% endif %}">
+                        <div class="value-number">
+                            {% if comparison_data.attendance_difference >= 0 %}+{% endif %}{{ comparison_data.attendance_difference }}%
+                        </div>
+                        <div class="value-label">Difference</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 mb-4">
+        <div class="comparison-card">
+            <h5 class="mb-3">
+                <i class="fas fa-chart-pie text-info me-2"></i>
+                Class Distribution
+            </h5>
+            {% if distribution_data %}
+                <div class="chart-container">
+                    <canvas id="distributionChart"></canvas>
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-chart-pie"></i>
+                    <h6>No distribution data</h6>
+                    <p>Class distribution will appear here.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Subject Performance Chart -->
+<div class="comparison-card">
+    <h5 class="mb-3">
+        <i class="fas fa-chart-bar text-warning me-2"></i>
+        Subject-by-Subject Comparison
+    </h5>
+    {% if subject_comparison_data %}
+        <div class="chart-container">
+            <canvas id="subjectChart"></canvas>
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <i class="fas fa-chart-bar"></i>
+            <h6>No subject comparison data</h6>
+            <p>Subject comparisons will appear here when data is available.</p>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Insights and Recommendations -->
+<div class="insights-section">
+    <h5 class="mb-3">
+        <i class="fas fa-lightbulb text-primary me-2"></i>
+        Insights & Recommendations
+    </h5>
+    
+    {% if insights %}
+        {% for insight in insights %}
+        <div class="insight-item">
+            <div class="insight-icon insight-{{ insight.type }}">
+                <i class="fas fa-{{ insight.icon }}"></i>
+            </div>
+            <div>
+                <h6 class="mb-1">{{ insight.title }}</h6>
+                <p class="mb-0">{{ insight.description }}</p>
+                {% if insight.action %}
+                <small class="text-primary">
+                    <i class="fas fa-arrow-right me-1"></i>
+                    {{ insight.action }}
+                </small>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="insight-item">
+            <div class="insight-icon insight-neutral">
+                <i class="fas fa-info"></i>
+            </div>
+            <div>
+                <h6 class="mb-1">More data needed</h6>
+                <p class="mb-0">Insights will appear here as more academic data becomes available for comparison.</p>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+{% else %}
+<!-- No Data State -->
+<div class="comparison-card">
+    <div class="empty-state">
+        <i class="fas fa-chart-bar"></i>
+        <h4>No Comparison Data Available</h4>
+        <p>Class comparison data will appear here once:</p>
+        <ul class="text-start">
+            <li>Your child has completed assignments</li>
+            <li>Grades have been recorded</li>
+            <li>Other students in the class have data to compare against</li>
+        </ul>
+        <a href="{% url 'student_analytics:analytics_dashboard' %}" class="btn btn-primary mt-3">
+            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+        </a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Distribution Chart
+    {% if distribution_data %}
+    const distributionCtx = document.getElementById('distributionChart').getContext('2d');
+    new Chart(distributionCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Above Average', 'At Average', 'Below Average'],
+            datasets: [{
+                data: [{{ distribution_data.above }}, {{ distribution_data.at }}, {{ distribution_data.below }}],
+                backgroundColor: ['#28a745', '#ffc107', '#dc3545'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+    {% endif %}
+    
+    // Subject Comparison Chart
+    {% if subject_comparison_data %}
+    const subjectCtx = document.getElementById('subjectChart').getContext('2d');
+    new Chart(subjectCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ subject_labels|safe }},
+            datasets: [
+                {
+                    label: 'Your Child',
+                    data: {{ student_scores|safe }},
+                    backgroundColor: 'rgba(0, 123, 255, 0.8)',
+                    borderColor: '#007bff',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Class Average',
+                    data: {{ class_averages|safe }},
+                    backgroundColor: 'rgba(108, 117, 125, 0.8)',
+                    borderColor: '#6c757d',
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    title: {
+                        display: true,
+                        text: 'Grade (%)'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'top'
+                }
+            }
+        }
+    });
+    {% endif %}
+    
+    // Filter controls
+    document.getElementById('subjectSelect').addEventListener('change', function() {
+        updateComparison();
+    });
+    
+    document.getElementById('periodSelect').addEventListener('change', function() {
+        updateComparison();
+    });
+    
+    function updateComparison() {
+        const subject = document.getElementById('subjectSelect').value;
+        const period = document.getElementById('periodSelect').value;
+        
+        window.location.href = `{% url 'student_analytics:class_comparisons' %}?subject=${subject}&period=${period}`;
+    }
+});
+</script>
+{% endblock %}

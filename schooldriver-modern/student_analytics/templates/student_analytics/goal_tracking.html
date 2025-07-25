@@ -1,0 +1,705 @@
+{% extends "parent_base.html" %}
+{% load static %}
+
+{% block page_title %}Goal Tracking{% endblock %}
+{% block page_subtitle %}Track and manage {{ current_child.display_name }}'s academic goals{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+.goal-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.goal-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.goal-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.goal-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.stat-card {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1.25rem;
+    text-align: center;
+    border-left: 4px solid #007bff;
+}
+
+.stat-number {
+    font-size: 1.75rem;
+    font-weight: bold;
+    color: #007bff;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    color: #6c757d;
+    font-size: 0.875rem;
+}
+
+.goal-item {
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.goal-item.completed {
+    border-color: #28a745;
+    background: linear-gradient(135deg, rgba(40, 167, 69, 0.05), rgba(32, 201, 151, 0.05));
+}
+
+.goal-item.in-progress {
+    border-color: #007bff;
+    background: linear-gradient(135deg, rgba(0, 123, 255, 0.05), rgba(102, 16, 242, 0.05));
+}
+
+.goal-item.overdue {
+    border-color: #dc3545;
+    background: linear-gradient(135deg, rgba(220, 53, 69, 0.05), rgba(253, 126, 20, 0.05));
+}
+
+.goal-status {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-completed {
+    background: rgba(40, 167, 69, 0.1);
+    color: #28a745;
+}
+
+.status-in-progress {
+    background: rgba(0, 123, 255, 0.1);
+    color: #007bff;
+}
+
+.status-overdue {
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+}
+
+.status-pending {
+    background: rgba(108, 117, 125, 0.1);
+    color: #6c757d;
+}
+
+.goal-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    margin-right: 6rem; /* Space for status badge */
+}
+
+.goal-description {
+    color: #6c757d;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+
+.goal-progress {
+    margin-bottom: 1rem;
+}
+
+.progress-header {
+    display: flex;
+    justify-content: between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.progress-percentage {
+    font-weight: 600;
+    color: #007bff;
+}
+
+.progress-bar-container {
+    height: 8px;
+    background: #e9ecef;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.8s ease;
+}
+
+.progress-completed {
+    background: linear-gradient(90deg, #28a745, #20c997);
+}
+
+.progress-in-progress {
+    background: linear-gradient(90deg, #007bff, #6610f2);
+}
+
+.progress-overdue {
+    background: linear-gradient(90deg, #dc3545, #fd7e14);
+}
+
+.goal-metadata {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.metadata-item {
+    display: flex;
+    align-items: center;
+}
+
+.metadata-item i {
+    margin-right: 0.5rem;
+    width: 16px;
+}
+
+.goal-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.btn-goal {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
+}
+
+.quick-actions {
+    background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.filter-controls {
+    background: white;
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.filter-btn {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    color: #495057;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    margin: 0.25rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.filter-btn:hover {
+    background: #e9ecef;
+    color: #495057;
+    text-decoration: none;
+}
+
+.filter-btn.active {
+    background: #007bff;
+    border-color: #007bff;
+    color: white;
+}
+
+.milestone-timeline {
+    position: relative;
+    padding-left: 2rem;
+    margin-top: 1rem;
+}
+
+.milestone-timeline::before {
+    content: '';
+    position: absolute;
+    left: 0.75rem;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #e9ecef;
+}
+
+.milestone-item {
+    position: relative;
+    margin-bottom: 1rem;
+    background: white;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.milestone-item::before {
+    content: '';
+    position: absolute;
+    left: -1.875rem;
+    top: 1rem;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #007bff;
+    border: 3px solid white;
+    box-shadow: 0 0 0 3px #e9ecef;
+}
+
+.milestone-completed::before {
+    background: #28a745;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #6c757d;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+@media (max-width: 768px) {
+    .goal-card {
+        padding: 1rem;
+    }
+    
+    .goal-stats {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+    }
+    
+    .stat-card {
+        padding: 1rem;
+    }
+    
+    .goal-title {
+        font-size: 1.125rem;
+        margin-right: 0;
+        margin-bottom: 0.5rem;
+    }
+    
+    .goal-status {
+        position: static;
+        display: inline-block;
+        margin-bottom: 1rem;
+    }
+    
+    .goal-metadata {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .goal-actions {
+        flex-direction: column;
+    }
+    
+    .btn-goal {
+        width: 100%;
+        text-align: center;
+    }
+}
+</style>
+{% endblock %}
+
+{% block parent_content %}
+<!-- Goal Header -->
+<div class="goal-header">
+    <div class="row align-items-center">
+        <div class="col-md-8">
+            <h5 class="mb-2">
+                <i class="fas fa-bullseye me-2"></i>
+                Academic Goals Dashboard
+            </h5>
+            <p class="mb-0 opacity-75">Track progress toward academic achievements and milestones</p>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <a href="{% url 'student_analytics:create_goal' %}" class="btn btn-light">
+                <i class="fas fa-plus me-2"></i>New Goal
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Goal Statistics -->
+<div class="goal-stats">
+    <div class="stat-card">
+        <div class="stat-number">{{ stats.total_goals|default:0 }}</div>
+        <div class="stat-label">Total Goals</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">{{ stats.completed_goals|default:0 }}</div>
+        <div class="stat-label">Completed</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">{{ stats.in_progress_goals|default:0 }}</div>
+        <div class="stat-label">In Progress</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">{{ stats.completion_rate|default:0 }}%</div>
+        <div class="stat-label">Success Rate</div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="quick-actions">
+    <h6 class="mb-3">
+        <i class="fas fa-zap text-primary me-2"></i>
+        Quick Actions
+    </h6>
+    <div class="row">
+        <div class="col-md-6">
+            <a href="{% url 'student_analytics:create_goal' %}?template=academic" class="btn btn-outline-primary btn-sm me-2 mb-2">
+                <i class="fas fa-graduation-cap me-1"></i>Academic Goal
+            </a>
+            <a href="{% url 'student_analytics:create_goal' %}?template=attendance" class="btn btn-outline-success btn-sm me-2 mb-2">
+                <i class="fas fa-calendar-check me-1"></i>Attendance Goal
+            </a>
+            <a href="{% url 'student_analytics:create_goal' %}?template=behavior" class="btn btn-outline-info btn-sm mb-2">
+                <i class="fas fa-smile me-1"></i>Behavior Goal
+            </a>
+        </div>
+        <div class="col-md-6">
+            <a href="{% url 'student_analytics:goal_templates' %}" class="btn btn-outline-secondary btn-sm me-2 mb-2">
+                <i class="fas fa-templates me-1"></i>Goal Templates
+            </a>
+            <a href="{% url 'student_analytics:goal_history' %}" class="btn btn-outline-secondary btn-sm mb-2">
+                <i class="fas fa-history me-1"></i>Goal History
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Filter Controls -->
+<div class="filter-controls">
+    <div class="d-flex flex-wrap align-items-center">
+        <span class="me-3 fw-medium">Filter:</span>
+        <a href="?filter=all" class="filter-btn {% if not current_filter or current_filter == 'all' %}active{% endif %}">
+            All Goals
+        </a>
+        <a href="?filter=active" class="filter-btn {% if current_filter == 'active' %}active{% endif %}">
+            Active
+        </a>
+        <a href="?filter=completed" class="filter-btn {% if current_filter == 'completed' %}active{% endif %}">
+            Completed
+        </a>
+        <a href="?filter=overdue" class="filter-btn {% if current_filter == 'overdue' %}active{% endif %}">
+            Overdue
+        </a>
+        
+        <span class="ms-4 me-3 fw-medium">Sort:</span>
+        <select class="form-select form-select-sm" style="width: auto;" onchange="updateSort(this.value)">
+            <option value="created">Newest First</option>
+            <option value="due_date">Due Date</option>
+            <option value="progress">Progress</option>
+            <option value="priority">Priority</option>
+        </select>
+    </div>
+</div>
+
+<!-- Goals List -->
+<div class="goal-card">
+    {% if goals %}
+        {% for goal in goals %}
+        <div class="goal-item {{ goal.status }}">
+            <div class="goal-status status-{{ goal.status }}">
+                {{ goal.get_status_display }}
+            </div>
+            
+            <div class="goal-title">{{ goal.title }}</div>
+            
+            {% if goal.description %}
+            <div class="goal-description">{{ goal.description }}</div>
+            {% endif %}
+            
+            <div class="goal-progress">
+                <div class="progress-header">
+                    <span>Progress</span>
+                    <span class="progress-percentage">{{ goal.progress }}%</span>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar progress-{{ goal.status }}" style="width: {{ goal.progress }}%"></div>
+                </div>
+            </div>
+            
+            <div class="goal-metadata">
+                <div class="metadata-item">
+                    <i class="fas fa-calendar"></i>
+                    Created: {{ goal.created_date|date:"M d, Y" }}
+                </div>
+                
+                {% if goal.target_date %}
+                <div class="metadata-item">
+                    <i class="fas fa-flag-checkered"></i>
+                    Target: {{ goal.target_date|date:"M d, Y" }}
+                </div>
+                {% endif %}
+                
+                {% if goal.subject %}
+                <div class="metadata-item">
+                    <i class="fas fa-book"></i>
+                    Subject: {{ goal.subject.name }}
+                </div>
+                {% endif %}
+                
+                <div class="metadata-item">
+                    <i class="fas fa-star"></i>
+                    Priority: {{ goal.get_priority_display }}
+                </div>
+                
+                {% if goal.category %}
+                <div class="metadata-item">
+                    <i class="fas fa-tag"></i>
+                    {{ goal.get_category_display }}
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Milestones -->
+            {% if goal.milestones.exists %}
+            <div class="milestone-timeline">
+                {% for milestone in goal.milestones.all %}
+                <div class="milestone-item {% if milestone.completed %}milestone-completed{% endif %}">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="mb-1">{{ milestone.title }}</h6>
+                            {% if milestone.description %}
+                            <p class="text-muted small mb-0">{{ milestone.description }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="text-end">
+                            {% if milestone.completed %}
+                                <span class="badge bg-success">Completed</span>
+                                <div class="small text-muted">{{ milestone.completed_date|date:"M d" }}</div>
+                            {% elif milestone.due_date %}
+                                <div class="small text-muted">Due: {{ milestone.due_date|date:"M d" }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <div class="goal-actions">
+                {% if goal.status != 'completed' %}
+                <a href="{% url 'student_analytics:update_goal_progress' goal.id %}" class="btn btn-primary btn-goal">
+                    <i class="fas fa-chart-line me-1"></i>Update Progress
+                </a>
+                {% endif %}
+                
+                <a href="{% url 'student_analytics:edit_goal' goal.id %}" class="btn btn-outline-secondary btn-goal">
+                    <i class="fas fa-edit me-1"></i>Edit
+                </a>
+                
+                {% if goal.status == 'completed' %}
+                <button class="btn btn-outline-success btn-goal" onclick="shareGoal('{{ goal.id }}', '{{ goal.title }}')">
+                    <i class="fas fa-share me-1"></i>Share
+                </button>
+                {% endif %}
+                
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary btn-goal dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-ellipsis-h"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'student_analytics:goal_detail' goal.id %}">
+                            <i class="fas fa-eye me-2"></i>View Details
+                        </a></li>
+                        <li><a class="dropdown-item" href="{% url 'student_analytics:duplicate_goal' goal.id %}">
+                            <i class="fas fa-copy me-2"></i>Duplicate
+                        </a></li>
+                        {% if goal.status != 'completed' %}
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="{% url 'student_analytics:delete_goal' goal.id %}" onclick="return confirm('Are you sure?')">
+                            <i class="fas fa-trash me-2"></i>Delete
+                        </a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-state">
+            <i class="fas fa-bullseye"></i>
+            <h6>No Goals Set Yet</h6>
+            <p>Start tracking academic progress by setting your first goal.</p>
+            <a href="{% url 'student_analytics:create_goal' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Create First Goal
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Goal Insights -->
+{% if insights %}
+<div class="goal-card">
+    <h5 class="mb-3">
+        <i class="fas fa-lightbulb text-warning me-2"></i>
+        Goal Insights
+    </h5>
+    
+    {% for insight in insights %}
+    <div class="alert alert-{{ insight.type }} d-flex align-items-start">
+        <i class="fas fa-{{ insight.icon }} me-3 mt-1"></i>
+        <div>
+            <h6 class="alert-heading">{{ insight.title }}</h6>
+            <p class="mb-0">{{ insight.message }}</p>
+            {% if insight.action_url %}
+            <a href="{{ insight.action_url }}" class="alert-link">{{ insight.action_text }}</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function updateSort(sortBy) {
+    const url = new URL(window.location);
+    url.searchParams.set('sort', sortBy);
+    window.location.href = url.toString();
+}
+
+function shareGoal(goalId, goalTitle) {
+    if (navigator.share) {
+        navigator.share({
+            title: `Goal Completed: ${goalTitle}`,
+            text: `{{ current_child.display_name }} has completed the goal: "${goalTitle}"!`,
+            url: window.location.href
+        }).catch(console.error);
+    } else {
+        // Fallback: copy to clipboard
+        const text = `{{ current_child.display_name }} has completed the goal: "${goalTitle}"! ${window.location.href}`;
+        navigator.clipboard.writeText(text).then(() => {
+            // Show success message
+            const button = event.target.closest('button');
+            const originalHtml = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-check me-1"></i>Copied!';
+            button.classList.remove('btn-outline-success');
+            button.classList.add('btn-success');
+            
+            setTimeout(() => {
+                button.innerHTML = originalHtml;
+                button.classList.remove('btn-success');
+                button.classList.add('btn-outline-success');
+            }, 2000);
+        });
+    }
+}
+
+// Auto-refresh goal progress every 5 minutes
+setInterval(function() {
+    fetch(`{% url 'student_analytics:check_goal_updates' %}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.has_updates) {
+                // Update progress bars
+                data.updates.forEach(update => {
+                    const goalElement = document.querySelector(`[data-goal-id="${update.goal_id}"]`);
+                    if (goalElement) {
+                        const progressBar = goalElement.querySelector('.progress-bar');
+                        const progressText = goalElement.querySelector('.progress-percentage');
+                        
+                        if (progressBar && progressText) {
+                            progressBar.style.width = `${update.progress}%`;
+                            progressText.textContent = `${update.progress}%`;
+                        }
+                        
+                        // Update status if changed
+                        if (update.status_changed) {
+                            goalElement.className = `goal-item ${update.new_status}`;
+                            const statusBadge = goalElement.querySelector('.goal-status');
+                            if (statusBadge) {
+                                statusBadge.className = `goal-status status-${update.new_status}`;
+                                statusBadge.textContent = update.status_display;
+                            }
+                        }
+                    }
+                });
+                
+                // Show notification for completed goals
+                data.completed_goals.forEach(goal => {
+                    showGoalCompletionNotification(goal);
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error checking for goal updates:', error);
+        });
+}, 300000); // 5 minutes
+
+function showGoalCompletionNotification(goal) {
+    const notification = document.createElement('div');
+    notification.className = 'alert alert-success alert-dismissible fade show position-fixed';
+    notification.style.top = '20px';
+    notification.style.right = '20px';
+    notification.style.zIndex = '9999';
+    notification.style.minWidth = '350px';
+    notification.innerHTML = `
+        <div class="d-flex align-items-center">
+            <i class="fas fa-trophy fa-2x text-warning me-3"></i>
+            <div>
+                <strong>Goal Completed!</strong><br>
+                <span>${goal.title}</span>
+            </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    document.body.appendChild(notification);
+    
+    // Auto-remove after 10 seconds
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+        }
+    }, 10000);
+}
+
+// Initialize progress bar animations
+document.addEventListener('DOMContentLoaded', function() {
+    const progressBars = document.querySelectorAll('.progress-bar');
+    progressBars.forEach(bar => {
+        const width = bar.style.width;
+        bar.style.width = '0%';
+        setTimeout(() => {
+            bar.style.width = width;
+        }, 500);
+    });
+});
+</script>
+{% endblock %}

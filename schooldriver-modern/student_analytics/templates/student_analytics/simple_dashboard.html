@@ -1,0 +1,129 @@
+{% extends "parent_base.html" %}
+
+{% block page_title %}Analytics Dashboard{% endblock %}
+{% block page_subtitle %}Student analytics for {{ student.first_name }} {{ student.last_name }}{% endblock %}
+
+{% block parent_content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3>📊 Analytics Dashboard</h3>
+                </div>
+                <div class="card-body">
+                    <p>Welcome to the analytics dashboard for <strong>{{ student.first_name }} {{ student.last_name }}</strong>!</p>
+                    
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="card bg-primary text-white">
+                                <div class="card-body">
+                                    <h5>Academic Progress</h5>
+                                    <p>{{ recent_progress|length }} recent records</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-success text-white">
+                                <div class="card-body">
+                                    <h5>Active Goals</h5>
+                                    <p>{{ active_goals|length }} goals</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-warning text-white">
+                                <div class="card-body">
+                                    <h5>Badges Earned</h5>
+                                    <p>{{ recent_badges|length }} badges</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-info text-white">
+                                <div class="card-body">
+                                    <h5>Recommendations</h5>
+                                    <p>{{ recommendations|length }} active</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <h4>Recent Academic Progress</h4>
+                            {% if recent_progress %}
+                                <div class="list-group">
+                                    {% for progress in recent_progress %}
+                                    <div class="list-group-item">
+                                        <strong>{{ progress.subject }}</strong> - Grade: {{ progress.grade_value }}
+                                        <br><small class="text-muted">{{ progress.period }} {{ progress.year }}</small>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p class="text-muted">No recent progress data available.</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <h4>Active Goals</h4>
+                            {% if active_goals %}
+                                <div class="list-group">
+                                    {% for goal in active_goals %}
+                                    <div class="list-group-item">
+                                        <strong>{{ goal.title }}</strong>
+                                        <div class="progress mt-2">
+                                            <div class="progress-bar" style="width: {{ goal.progress_percentage }}%"></div>
+                                        </div>
+                                        <small class="text-muted">{{ goal.progress_percentage }}% complete</small>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p class="text-muted">No active goals set.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <h4>Recent Badges</h4>
+                            {% if recent_badges %}
+                                <div class="list-group">
+                                    {% for badge in recent_badges %}
+                                    <div class="list-group-item">
+                                        <span class="badge bg-{{ badge.badge.category }} me-2">{{ badge.badge.icon }}</span>
+                                        <strong>{{ badge.badge.name }}</strong>
+                                        <br><small class="text-muted">Earned: {{ badge.earned_date|date:"M d, Y" }}</small>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p class="text-muted">No badges earned yet.</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <h4>Study Recommendations</h4>
+                            {% if recommendations %}
+                                <div class="list-group">
+                                    {% for rec in recommendations %}
+                                    <div class="list-group-item">
+                                        <span class="badge bg-{{ rec.priority }} me-2">{{ rec.get_priority_display }}</span>
+                                        <strong>{{ rec.title }}</strong>
+                                        <br><small class="text-muted">{{ rec.subject }} - {{ rec.get_recommendation_type_display }}</small>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p class="text-muted">No recommendations available.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

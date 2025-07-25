@@ -1,0 +1,338 @@
+{% extends "parent_base.html" %}
+{% load static %}
+
+{% block page_title %}Student Analytics Dashboard{% endblock %}
+{% block page_subtitle %}Comprehensive overview of {{ current_child.display_name }}'s academic performance{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+.analytics-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+    margin-bottom: 1.5rem;
+}
+
+.analytics-card:hover {
+    transform: translateY(-3px);
+}
+
+.metric-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 10px;
+    padding: 1.25rem;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.metric-value {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.chart-container {
+    position: relative;
+    height: 300px;
+    margin: 1rem 0;
+}
+
+.progress-indicator {
+    width: 100%;
+    height: 8px;
+    background: #e9ecef;
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 0.5rem 0;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #28a745, #20c997);
+    transition: width 0.8s ease;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #6c757d;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.quick-action-btn {
+    background: linear-gradient(135deg, #007bff, #6610f2);
+    border: none;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+    margin: 0.5rem;
+}
+
+.quick-action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,123,255,0.3);
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .analytics-card {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .metric-value {
+        font-size: 1.5rem;
+    }
+    
+    .chart-container {
+        height: 250px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block parent_content %}
+<div class="row">
+    <!-- Key Metrics -->
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="metric-card">
+            <div class="metric-value">{{ overall_gpa|floatformat:1|default:"--" }}</div>
+            <div>Overall GPA</div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="metric-card">
+            <div class="metric-value">{{ attendance_rate|floatformat:0|default:"--" }}%</div>
+            <div>Attendance Rate</div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="metric-card">
+            <div class="metric-value">{{ assignments_completed|default:"--" }}</div>
+            <div>Assignments Completed</div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="metric-card">
+            <div class="metric-value">{{ engagement_score|floatformat:0|default:"--" }}%</div>
+            <div>Engagement Score</div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- GPA Trend Chart -->
+    <div class="col-lg-8 mb-4">
+        <div class="analytics-card">
+            <h5 class="mb-3">
+                <i class="fas fa-chart-line text-primary me-2"></i>
+                GPA Trend Over Time
+            </h5>
+            {% if gpa_data %}
+                <div class="chart-container">
+                    <canvas id="gpaChart"></canvas>
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-chart-line"></i>
+                    <h6>No GPA data available</h6>
+                    <p>Grade data will appear here once assignments are completed.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Subject Performance -->
+    <div class="col-lg-4 mb-4">
+        <div class="analytics-card">
+            <h5 class="mb-3">
+                <i class="fas fa-graduation-cap text-success me-2"></i>
+                Subject Performance
+            </h5>
+            {% if subject_grades %}
+                {% for subject in subject_grades %}
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>{{ subject.name }}</span>
+                        <span class="fw-bold">{{ subject.grade|floatformat:1 }}</span>
+                    </div>
+                    <div class="progress-indicator">
+                        <div class="progress-bar" style="width: {{ subject.percentage }}%"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-book-open"></i>
+                    <h6>No subject data</h6>
+                    <p>Subject grades will appear here.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Attendance Overview -->
+    <div class="col-lg-6 mb-4">
+        <div class="analytics-card">
+            <h5 class="mb-3">
+                <i class="fas fa-calendar-check text-info me-2"></i>
+                Attendance Overview
+            </h5>
+            {% if attendance_data %}
+                <div class="chart-container">
+                    <canvas id="attendanceChart"></canvas>
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-calendar-alt"></i>
+                    <h6>No attendance data</h6>
+                    <p>Attendance records will appear here.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Recent Achievements -->
+    <div class="col-lg-6 mb-4">
+        <div class="analytics-card">
+            <h5 class="mb-3">
+                <i class="fas fa-trophy text-warning me-2"></i>
+                Recent Achievements
+            </h5>
+            {% if recent_achievements %}
+                {% for achievement in recent_achievements %}
+                <div class="d-flex align-items-center mb-3">
+                    <div class="me-3">
+                        <i class="fas fa-medal text-warning fa-2x"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-1">{{ achievement.title }}</h6>
+                        <small class="text-muted">{{ achievement.date_earned|date:"M d, Y" }}</small>
+                    </div>
+                </div>
+                {% endfor %}
+                <a href="{% url 'student_analytics:achievement_badges' %}" class="btn btn-outline-primary btn-sm">
+                    View All Achievements
+                </a>
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-trophy"></i>
+                    <h6>No achievements yet</h6>
+                    <p>Achievements will appear here as goals are met.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="analytics-card">
+    <h5 class="mb-3">
+        <i class="fas fa-bolt text-primary me-2"></i>
+        Quick Actions
+    </h5>
+    <div class="text-center">
+        <a href="{% url 'student_analytics:progress_over_time' %}" class="quick-action-btn">
+            <i class="fas fa-chart-line me-2"></i>View Progress Timeline
+        </a>
+        <a href="{% url 'student_analytics:class_comparisons' %}" class="quick-action-btn">
+            <i class="fas fa-users me-2"></i>Class Comparisons
+        </a>
+        <a href="{% url 'student_analytics:study_recommendations' %}" class="quick-action-btn">
+            <i class="fas fa-lightbulb me-2"></i>Study Tips
+        </a>
+        <a href="{% url 'student_analytics:goal_tracking' %}" class="quick-action-btn">
+            <i class="fas fa-target me-2"></i>Goals & Progress
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // GPA Trend Chart
+    {% if gpa_data %}
+    const gpaCtx = document.getElementById('gpaChart').getContext('2d');
+    new Chart(gpaCtx, {
+        type: 'line',
+        data: {
+            labels: {{ gpa_labels|safe }},
+            datasets: [{
+                label: 'GPA',
+                data: {{ gpa_values|safe }},
+                borderColor: '#007bff',
+                backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 4.0,
+                    ticks: {
+                        callback: function(value) {
+                            return value.toFixed(1);
+                        }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+    {% endif %}
+    
+    // Attendance Chart
+    {% if attendance_data %}
+    const attendanceCtx = document.getElementById('attendanceChart').getContext('2d');
+    new Chart(attendanceCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Present', 'Absent', 'Late'],
+            datasets: [{
+                data: [{{ attendance_data.present }}, {{ attendance_data.absent }}, {{ attendance_data.late }}],
+                backgroundColor: ['#28a745', '#dc3545', '#ffc107'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+    {% endif %}
+});
+</script>
+{% endblock %}
