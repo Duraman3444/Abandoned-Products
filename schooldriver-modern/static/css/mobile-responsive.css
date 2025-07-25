@@ -60,12 +60,13 @@
     .gradebook-table .student-name {
         position: sticky;
         left: 0;
-        background: var(--bs-white);
+        background: var(--bs-dark, #212529);
         z-index: 10;
         min-width: 120px;
         max-width: 120px;
         overflow: hidden;
         text-overflow: ellipsis;
+        color: #ffffff;
     }
     
     .grade-input {
@@ -82,10 +83,11 @@
     }
     
     .attendance-card {
-        border: 1px solid #dee2e6;
+        border: 1px solid #495057;
         border-radius: 0.375rem;
         padding: 0.75rem;
-        background: white;
+        background: #212529;
+        color: #ffffff;
     }
     
     .attendance-student-name {
@@ -106,8 +108,9 @@
         padding: 0.5rem 0.25rem;
         font-size: 0.8rem;
         border-radius: 0.25rem;
-        border: 1px solid #dee2e6;
-        background: white;
+        border: 1px solid #495057;
+        background: #212529;
+        color: #ffffff;
         cursor: pointer;
         transition: all 0.2s;
     }
@@ -206,8 +209,10 @@
         padding: 1rem;
         margin-bottom: 1rem;
         border-radius: 0.5rem;
-        background: white;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        background: #212529;
+        color: #ffffff;
+        border: 1px solid #495057;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
     }
     
     .stats-number {

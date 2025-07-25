@@ -1,0 +1,495 @@
+{% extends "parent_base.html" %}
+
+{% block title %}Messages - SchoolDriver Modern{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item active">Messages</li>
+{% endblock %}
+
+{% block parent_content %}
+<!-- Page Header -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h2 class="text-info mb-2">Messages</h2>
+                        <p class="text-muted mb-0">Communicate with teachers and school staff</p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <a href="{% url 'parent_portal:compose_message' %}" class="btn btn-teal">
+                            <i class="bi bi-pencil-square me-1"></i>New Message
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Message Filters -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-3">
+                        <select class="form-select bg-dark border-secondary text-light">
+                            <option>All Messages</option>
+                            <option>Unread</option>
+                            <option>Read</option>
+                            <option>Starred</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select bg-dark border-secondary text-light">
+                            <option>All Children</option>
+                            <option>Emma Johnson</option>
+                            <option>Jake Johnson</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select bg-dark border-secondary text-light">
+                            <option>All Teachers</option>
+                            <option>Mr. Johnson (Math)</option>
+                            <option>Ms. Davis (English)</option>
+                            <option>Dr. Wilson (Chemistry)</option>
+                            <option>Mr. Garcia (History)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="input-group">
+                            <input type="text" class="form-control bg-dark border-secondary text-light" 
+                                   placeholder="Search messages...">
+                            <button class="btn btn-outline-info" type="button">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Messages List -->
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 text-info">
+                    <i class="bi bi-inbox me-2"></i>Inbox ({{ total_unread }} unread)
+                </h5>
+                <div class="btn-group btn-group-sm">
+                    <button class="btn btn-outline-info">
+                        <i class="bi bi-check-all"></i> Mark All Read
+                    </button>
+                    <button class="btn btn-outline-secondary">
+                        <i class="bi bi-trash"></i> Delete Selected
+                    </button>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    {% for thread in page_obj %}
+                    <a href="{% url 'parent_portal:message_thread' thread.thread_id %}" class="list-group-item bg-transparent border-secondary message-item {% if thread.unread_count > 0 %}unread{% endif %} text-decoration-none">
+                        <div class="d-flex align-items-start">
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <h6 class="mb-1 {% if thread.unread_count > 0 %}fw-bold text-info{% else %}text-light{% endif %}">
+                                            {% for participant in thread.participants %}
+                                                {{ participant.get_full_name }}{% if not forloop.last %}, {% endif %}
+                                            {% endfor %}
+                                        </h6>
+                                        {% if thread.student_context %}
+                                        <div class="text-muted small">
+                                            <i class="bi bi-person-graduation me-1"></i>{{ thread.student_context.first_name }} {{ thread.student_context.last_name }}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="text-end">
+                                        <small class="text-muted">{{ thread.latest_message.sent_at|timesince }} ago</small>
+                                        {% if thread.unread_count > 0 %}
+                                        <div class="mt-1">
+                                            <span class="badge bg-primary rounded-pill">{{ thread.unread_count }}</span>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <h6 class="mb-1 text-light">{{ thread.subject }}</h6>
+                                <p class="mb-2 text-muted">
+                                    {{ thread.latest_message.body|truncatewords:15 }}
+                                </p>
+                                {% if thread.has_attachments %}
+                                <div class="d-flex gap-2">
+                                    <small class="text-muted">
+                                        <i class="bi bi-paperclip me-1"></i>Has attachments
+                                    </small>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </a>
+                    {% empty %}
+                    <div class="list-group-item bg-transparent border-secondary text-center text-muted py-5">
+                        <i class="bi bi-inbox fs-1 mb-3"></i>
+                        <h5>No messages yet</h5>
+                        <p>Start a conversation with your child's teachers</p>
+                        <button class="btn btn-teal" data-bs-toggle="modal" data-bs-target="#composeModal">
+                            <i class="bi bi-pencil-square me-1"></i>Send First Message
+                        </button>
+                    </div>
+                    {% endfor %}
+                    
+                    <!-- Unread Message -->
+                    <div class="list-group-item bg-transparent border-secondary message-item unread">
+                        <div class="d-flex align-items-start">
+                            <div class="form-check me-3 mt-1">
+                                <input class="form-check-input" type="checkbox" id="msg2">
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <h6 class="mb-1 fw-bold text-info">School Nurse</h6>
+                                        <div class="text-muted small">
+                                            <i class="bi bi-person-graduation me-1"></i>Jake Johnson
+                                        </div>
+                                    </div>
+                                    <div class="text-end">
+                                        <small class="text-muted">4 hours ago</small>
+                                        <div class="mt-1">
+                                            <button class="btn btn-sm btn-link text-muted p-0">
+                                                <i class="bi bi-star"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <h6 class="mb-1">Health Room Visit</h6>
+                                <p class="mb-2 text-muted">
+                                    Jake visited the health room today at 10:30 AM with a minor headache. 
+                                    He rested for 15 minutes and returned to class feeling better...
+                                </p>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-sm btn-teal">
+                                        <i class="bi bi-reply me-1"></i>Reply
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-info">
+                                        <i class="bi bi-telephone me-1"></i>Call
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Read Message -->
+                    <div class="list-group-item bg-transparent border-secondary message-item">
+                        <div class="d-flex align-items-start">
+                            <div class="form-check me-3 mt-1">
+                                <input class="form-check-input" type="checkbox" id="msg3">
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <h6 class="mb-1">Dr. Wilson (Chemistry Teacher)</h6>
+                                        <div class="text-muted small">
+                                            <i class="bi bi-person-graduation me-1"></i>Emma Johnson
+                                        </div>
+                                    </div>
+                                    <div class="text-end">
+                                        <small class="text-muted">Yesterday</small>
+                                        <div class="mt-1">
+                                            <button class="btn btn-sm btn-link text-warning p-0">
+                                                <i class="bi bi-star-fill"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <h6 class="mb-1">Lab Report Feedback</h6>
+                                <p class="mb-2 text-muted">
+                                    Emma did an excellent job on her recent chemistry lab report. 
+                                    Her analysis was thorough and her conclusions were well-supported...
+                                </p>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-sm btn-teal">
+                                        <i class="bi bi-reply me-1"></i>Reply
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-info">
+                                        <i class="bi bi-eye me-1"></i>View Report
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Read Message -->
+                    <div class="list-group-item bg-transparent border-secondary message-item">
+                        <div class="d-flex align-items-start">
+                            <div class="form-check me-3 mt-1">
+                                <input class="form-check-input" type="checkbox" id="msg4">
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <h6 class="mb-1">Mr. Peterson (Math Teacher)</h6>
+                                        <div class="text-muted small">
+                                            <i class="bi bi-person-graduation me-1"></i>Jake Johnson
+                                        </div>
+                                    </div>
+                                    <div class="text-end">
+                                        <small class="text-muted">2 days ago</small>
+                                        <div class="mt-1">
+                                            <button class="btn btn-sm btn-link text-muted p-0">
+                                                <i class="bi bi-star"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <h6 class="mb-1">Math Tutoring Recommendation</h6>
+                                <p class="mb-2 text-muted">
+                                    I recommend that Jake consider attending our after-school math tutoring sessions. 
+                                    He's struggling with some concepts that could benefit from extra practice...
+                                </p>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-sm btn-teal">
+                                        <i class="bi bi-reply me-1"></i>Reply
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-info">
+                                        <i class="bi bi-info-circle me-1"></i>Tutoring Info
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- School Announcement -->
+                    <div class="list-group-item bg-transparent border-secondary message-item">
+                        <div class="d-flex align-items-start">
+                            <div class="form-check me-3 mt-1">
+                                <input class="form-check-input" type="checkbox" id="msg5">
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <h6 class="mb-1">School Administration</h6>
+                                        <div class="text-muted small">
+                                            <i class="bi bi-megaphone me-1"></i>General Announcement
+                                        </div>
+                                    </div>
+                                    <div class="text-end">
+                                        <small class="text-muted">3 days ago</small>
+                                        <div class="mt-1">
+                                            <button class="btn btn-sm btn-link text-muted p-0">
+                                                <i class="bi bi-star"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <h6 class="mb-1">Spring Semester Important Dates</h6>
+                                <p class="mb-2 text-muted">
+                                    Please note the following important dates for the spring semester: 
+                                    Parent-Teacher conferences (Feb 15-16), Spring Break (Mar 25-29)...
+                                </p>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-sm btn-outline-info">
+                                        <i class="bi bi-calendar-event me-1"></i>Add to Calendar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Pagination -->
+                <div class="card-footer bg-transparent">
+                    <nav>
+                        <ul class="pagination pagination-sm justify-content-center mb-0">
+                            <li class="page-item disabled">
+                                <span class="page-link bg-dark border-secondary">Previous</span>
+                            </li>
+                            <li class="page-item active">
+                                <span class="page-link bg-teal border-teal">1</span>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link bg-dark border-secondary text-light" href="#">2</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link bg-dark border-secondary text-light" href="#">3</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link bg-dark border-secondary text-light" href="#">Next</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- Message Stats -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="mb-0 text-info">
+                    <i class="bi bi-bar-chart me-2"></i>Message Summary
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-6">
+                        <h5 class="text-danger mb-0">4</h5>
+                        <small class="text-muted">Unread</small>
+                    </div>
+                    <div class="col-6">
+                        <h5 class="text-info mb-0">23</h5>
+                        <small class="text-muted">Total</small>
+                    </div>
+                </div>
+                <hr>
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item bg-transparent border-secondary d-flex justify-content-between">
+                        <span>Starred</span>
+                        <span class="badge bg-warning text-dark">2</span>
+                    </div>
+                    <div class="list-group-item bg-transparent border-secondary d-flex justify-content-between">
+                        <span>Archived</span>
+                        <span class="badge bg-secondary">15</span>
+                    </div>
+                    <div class="list-group-item bg-transparent border-secondary d-flex justify-content-between">
+                        <span>Sent</span>
+                        <span class="badge bg-info">8</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0 text-info">
+                    <i class="bi bi-lightning me-2"></i>Quick Actions
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <button class="btn btn-teal" data-bs-toggle="modal" data-bs-target="#composeModal">
+                        <i class="bi bi-pencil-square me-2"></i>New Message
+                    </button>
+                    <button class="btn btn-outline-info">
+                        <i class="bi bi-calendar-check me-2"></i>Schedule Conference
+                    </button>
+                    <button class="btn btn-outline-info">
+                        <i class="bi bi-telephone me-2"></i>Request Call
+                    </button>
+                    <button class="btn btn-outline-secondary">
+                        <i class="bi bi-archive me-2"></i>Archive Selected
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Compose Message Modal -->
+<div class="modal fade" id="composeModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content bg-dark">
+            <div class="modal-header">
+                <h5 class="modal-title text-info">Compose Message</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="recipient" class="form-label">Recipient</label>
+                            <select class="form-select bg-dark border-secondary text-light" id="recipient">
+                                <option>Select a teacher...</option>
+                                <option>Mr. Johnson (Mathematics)</option>
+                                <option>Ms. Davis (English Literature)</option>
+                                <option>Dr. Wilson (Chemistry)</option>
+                                <option>Mr. Garcia (World History)</option>
+                                <option>School Nurse</option>
+                                <option>School Administration</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="regarding" class="form-label">Regarding Child</label>
+                            <select class="form-select bg-dark border-secondary text-light" id="regarding">
+                                <option>Select a child...</option>
+                                <option>Emma Johnson (Grade 11)</option>
+                                <option>Jake Johnson (Grade 8)</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label for="subject" class="form-label">Subject</label>
+                            <input type="text" class="form-control bg-dark border-secondary text-light" 
+                                   id="subject" placeholder="Enter subject...">
+                        </div>
+                        <div class="col-12">
+                            <label for="message" class="form-label">Message</label>
+                            <textarea class="form-control bg-dark border-secondary text-light" 
+                                      id="message" rows="6" 
+                                      placeholder="Type your message here..."></textarea>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="urgent">
+                                <label class="form-check-label" for="urgent">
+                                    Mark as urgent
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-teal">
+                    <i class="bi bi-send me-1"></i>Send Message
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+    .message-item.unread {
+        background-color: rgba(20, 184, 166, 0.1) !important;
+        border-left: 3px solid var(--teal-primary);
+    }
+    
+    .message-item {
+        transition: background-color 0.2s ease;
+    }
+    
+    .message-item:hover {
+        background-color: var(--dark-border) !important;
+    }
+    
+    .form-control:focus,
+    .form-select:focus {
+        background-color: var(--dark-card);
+        border-color: var(--teal-primary);
+        color: var(--text-light);
+        box-shadow: 0 0 0 0.2rem rgba(20, 184, 166, 0.25);
+    }
+    
+    .bg-teal {
+        background-color: var(--teal-primary) !important;
+    }
+    
+    .border-teal {
+        border-color: var(--teal-primary) !important;
+    }
+    
+    .form-check-input:checked {
+        background-color: var(--teal-primary);
+        border-color: var(--teal-primary);
+    }
+</style>
+{% endblock %}

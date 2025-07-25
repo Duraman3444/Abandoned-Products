@@ -32,6 +32,7 @@ urlpatterns = [
     path("messages/compose/", views.compose_message_view, name="compose_message"),
     path("messages/thread/<str:thread_id>/", views.message_thread_view, name="message_thread"),
     path("messages/attachment/<int:attachment_id>/download/", views.download_attachment_view, name="download_attachment"),
+    path("messages/mark-all-read/", views.mark_all_read_view, name="mark_all_read"),
     path("profile/", views.profile_view, name="profile"),
     path("set-language/", set_language_view, name="set_language"),
     

@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login
+from django.contrib.auth.models import User
 from django.contrib import messages
 from django.db.models import Q, Avg
 from django.core.paginator import Paginator
@@ -169,42 +170,24 @@ def dashboard_view(request):
 
         # If we have a current child selected, show detailed view for that child
         if current_child:
-            # Get real academic data for the current child
-            enrollments = Enrollment.objects.filter(
-                student=current_child,
-                section__school_year=current_school_year,
-                is_active=True
-            ).select_related('section__course', 'section__teacher').prefetch_related('grades__assignment')
+            # Use centralized academic data function for consistency with student portal
+            from student_portal.views import get_student_academic_data
+            academic_data = get_student_academic_data(current_child)
             
-            # Calculate overall GPA
-            total_grade_points = 0
-            total_credits = 0
+            current_gpa = academic_data["gpa_data"]["gpa4"]
             course_grades = []
             
-            for enrollment in enrollments:
-                calculated_grade = enrollment.calculate_grade()
-                if calculated_grade is not None:
-                    course_grades.append({
-                        'course': enrollment.section.course.name,
-                        'teacher': enrollment.section.teacher.get_full_name(),
-                        'grade': enrollment.get_letter_grade(calculated_grade),
-                        'percentage': round(calculated_grade, 1)
-                    })
-                    
-                    # Calculate GPA points (A=4.0, B=3.0, etc.)
-                    letter = enrollment.get_letter_grade(calculated_grade)
-                    grade_points = {
-                        'A+': 4.0, 'A': 4.0, 'A-': 3.7,
-                        'B+': 3.3, 'B': 3.0, 'B-': 2.7,
-                        'C+': 2.3, 'C': 2.0, 'C-': 1.7,
-                        'D+': 1.3, 'D': 1.0, 'D-': 0.7,
-                        'F': 0.0
-                    }.get(letter, 0.0)
-                    
-                    total_grade_points += grade_points * float(enrollment.section.course.credit_hours)
-                    total_credits += float(enrollment.section.course.credit_hours)
+            # Convert academic data format to parent portal format
+            for course in academic_data["current_courses"]:
+                course_grades.append({
+                    'course': course['name'],
+                    'teacher': course['teacher'],
+                    'grade': course['current_grade'],
+                    'percentage': course['percentage']
+                })
             
-            current_gpa = round(total_grade_points / total_credits, 2) if total_credits > 0 else 0.0
+            enrollments = academic_data["enrollments"]
+            attendance_summary = academic_data["attendance_summary"]
 
             # Get recent grades (last 5 graded assignments)
             recent_grades = Grade.objects.filter(
@@ -273,23 +256,10 @@ def dashboard_view(request):
                 date__lte=today
             ).order_by('-date')[:10]
             
-            # Get attendance summary for the school year
-            all_enrollments = Enrollment.objects.filter(
-                student=current_child,
-                section__school_year=current_school_year,
-                is_active=True
-            )
-            
-            attendance_summary = {'total_days': 0, 'present_days': 0, 'absent_days': 0, 'tardy_days': 0, 'attendance_rate': 0.0}
-            if all_enrollments.exists():
-                # Use the first enrollment for attendance summary (they should all have same attendance)
-                enrollment = all_enrollments.first()
-                attendance_summary = Attendance.get_attendance_summary(enrollment)
-            
-            # Get attendance patterns
+            # Get attendance patterns (using centralized attendance_summary from above)
             attendance_patterns = {}
-            if all_enrollments.exists():
-                enrollment = all_enrollments.first()
+            if enrollments.exists():
+                enrollment = enrollments.first()
                 attendance_patterns = Attendance.get_attendance_patterns(enrollment, days=30)
                 
             # Get class schedule for today
@@ -297,7 +267,7 @@ def dashboard_view(request):
             weekdays = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
             today_weekday = weekdays[today.weekday()]
             
-            for enrollment in all_enrollments:
+            for enrollment in enrollments:
                 schedules = enrollment.section.schedules.filter(
                     day_of_week=today_weekday,
                     is_active=True
@@ -341,46 +311,8 @@ def dashboard_view(request):
         # Combined view for families with multiple children
         children_summary = []
         for child in children:
-            # Get real academic data for each child
-            child_enrollments = Enrollment.objects.filter(
-                student=child,
-                section__school_year=current_school_year,
-                is_active=True
-            ).select_related('section__course')
-            
-            # Calculate GPA for this child
-            child_total_grade_points = 0
-            child_total_credits = 0
-            
-            for enrollment in child_enrollments:
-                calculated_grade = enrollment.calculate_grade()
-                if calculated_grade is not None:
-                    letter = enrollment.get_letter_grade(calculated_grade)
-                    grade_points = {
-                        'A+': 4.0, 'A': 4.0, 'A-': 3.7,
-                        'B+': 3.3, 'B': 3.0, 'B-': 2.7,
-                        'C+': 2.3, 'C': 2.0, 'C-': 1.7,
-                        'D+': 1.3, 'D': 1.0, 'D-': 0.7,
-                        'F': 0.0
-                    }.get(letter, 0.0)
-                    
-                    child_total_grade_points += grade_points * float(enrollment.section.course.credit_hours)
-                    child_total_credits += float(enrollment.section.course.credit_hours)
-            
-            child_gpa = round(child_total_grade_points / child_total_credits, 2) if child_total_credits > 0 else 0.0
-            
-            # Calculate attendance for this child
-            child_attendance_records = Attendance.objects.filter(
-                enrollment__student=child,
-                enrollment__section__school_year=current_school_year
-            )
-            
-            if child_attendance_records.exists():
-                child_total_days = child_attendance_records.count()
-                child_present_days = child_attendance_records.filter(status='P').count()
-                child_attendance_rate = round((child_present_days / child_total_days) * 100, 1) if child_total_days > 0 else 0.0
-            else:
-                child_attendance_rate = 0.0
+            # Use centralized academic data function for each child
+            child_academic_data = get_student_academic_data(child)
             
             # Get most recent activity
             recent_grade = Grade.objects.filter(
@@ -395,8 +327,8 @@ def dashboard_view(request):
             
             children_summary.append({
                 "student": child,
-                "current_gpa": child_gpa,
-                "attendance_rate": child_attendance_rate,
+                "current_gpa": child_academic_data["gpa_data"]["gpa4"],
+                "attendance_rate": child_academic_data["attendance_summary"]["attendance_rate"],
                 "recent_activity": f"Last grade: {last_activity}"
             })
 
@@ -1149,7 +1081,10 @@ def grades_view(request, student_id=None):
 def messages_view(request):
     """Enhanced teacher messaging with threads, attachments, and read receipts"""
     try:
-        children = get_parent_children(request.user)
+        current_child, children = get_current_child(request.user, request)
+        
+        # Get filter parameter from URL
+        filter_type = request.GET.get('filter', '').lower()
         
         # Get message threads (group by thread_id)
         from django.db.models import Q, Max
@@ -1162,7 +1097,14 @@ def messages_view(request):
         # Group messages by thread_id
         threads = {}
         for message in all_messages:
-            thread_id = message.thread_id or f"single_{message.id}"
+            thread_id = message.thread_id
+            if not thread_id:
+                # Create a thread ID for messages without one
+                import uuid
+                thread_id = str(uuid.uuid4())[:12]
+                message.thread_id = thread_id
+                message.save()
+            
             if thread_id not in threads:
                 threads[thread_id] = []
             threads[thread_id].append(message)
@@ -1202,6 +1144,12 @@ def messages_view(request):
         # Sort threads by latest message date
         thread_data.sort(key=lambda x: x['latest_message'].sent_at, reverse=True)
         
+        # Apply filters
+        if filter_type == 'unread':
+            thread_data = [thread for thread in thread_data if thread['unread_count'] > 0]
+        elif filter_type == 'urgent':
+            thread_data = [thread for thread in thread_data if thread['has_urgent']]
+        
         # Paginate threads
         paginator = Paginator(thread_data, 10)
         page_number = request.GET.get("page")
@@ -1212,10 +1160,12 @@ def messages_view(request):
         total_urgent = Message.objects.filter(recipient=request.user, is_read=False, is_urgent=True).count()
         
         context = {
+            "current_child": current_child,
             "children": children,
             "page_obj": page_obj,
             "total_unread": total_unread,
             "total_urgent": total_urgent,
+            "current_filter": filter_type,
         }
         
     except Exception as e:
@@ -1227,10 +1177,35 @@ def messages_view(request):
 
 @login_required
 @role_required(["Parent"])
+def mark_all_read_view(request):
+    """Mark all messages as read for the current parent"""
+    if request.method == 'POST':
+        try:
+            updated_count = Message.objects.filter(
+                recipient=request.user,
+                is_read=False
+            ).update(is_read=True, read_at=timezone.now())
+            
+            return JsonResponse({
+                'success': True,
+                'message': f'Marked {updated_count} messages as read.'
+            })
+        except Exception as e:
+            logger.error(f"Error marking messages as read: {e}")
+            return JsonResponse({
+                'success': False,
+                'error': 'Unable to mark messages as read.'
+            })
+    
+    return JsonResponse({'success': False, 'error': 'Invalid request method.'})
+
+
+@login_required
+@role_required(["Parent"])
 def compose_message_view(request):
     """Compose new message to teachers"""
     try:
-        children = get_parent_children(request.user)
+        current_child, children = get_current_child(request.user, request)
         
         # Get available teachers (teachers of this parent's children)
         teacher_ids = set()
@@ -1268,6 +1243,7 @@ def compose_message_view(request):
         
         context = {
             'form': form,
+            'current_child': current_child,
             'children': children,
             'available_teachers': available_teachers,
         }
@@ -1285,6 +1261,8 @@ def compose_message_view(request):
 def message_thread_view(request, thread_id):
     """View individual message thread with reply functionality"""
     try:
+        # Get current child and children for sidebar context
+        current_child, children = get_current_child(request.user, request)
         # Get all messages in thread
         thread_messages = Message.objects.filter(
             thread_id=thread_id
@@ -1327,6 +1305,8 @@ def message_thread_view(request, thread_id):
             'thread_id': thread_id,
             'original_message': original_message,
             'form': form,
+            'current_child': current_child,
+            'children': children,
         }
         
     except Exception as e:
@@ -1883,15 +1863,11 @@ def historical_reports_view(request, student_id=None):
 # Emergency Contact Management Views
 
 @login_required
-@role_required('parent')
+@role_required(["Parent"])
 def emergency_contacts_view(request):
     """View and manage emergency contacts"""
     try:
-        # Get parent's children
-        children = Student.objects.filter(
-            verification_codes__user=request.user,
-            verification_codes__is_verified=True
-        ).distinct()
+        current_child, children = get_current_child(request.user, request)
         
         if not children.exists():
             messages.error(
@@ -1900,15 +1876,10 @@ def emergency_contacts_view(request):
             )
             return redirect('parent_portal:dashboard')
         
-        # For multi-child support, get the selected child or default to first
-        child_id = request.GET.get('child')
-        if child_id:
-            try:
-                child = children.get(id=child_id)
-            except Student.DoesNotExist:
-                child = children.first()
-        else:
-            child = children.first()
+        if not current_child:
+            current_child = children.first()
+        
+        child = current_child
         
         # Get emergency contacts for the child
         emergency_contacts = child.emergency_contacts.all().order_by('is_primary', 'last_name', 'first_name')
@@ -1916,14 +1887,15 @@ def emergency_contacts_view(request):
         # Get authorized pickup persons
         pickup_persons = child.authorized_pickup_persons.filter(is_active=True).order_by('last_name', 'first_name')
         
-        # Get medical information
+        # Get medical information (if model exists)
         try:
-            medical_info = child.medical_information
-        except MedicalInformation.DoesNotExist:
+            medical_info = getattr(child, 'medical_information', None)
+        except:
             medical_info = None
         
         context = {
             'child': child,
+            'current_child': current_child,
             'children': children,
             'emergency_contacts': emergency_contacts,
             'pickup_persons': pickup_persons,
@@ -1939,15 +1911,12 @@ def emergency_contacts_view(request):
 
 
 @login_required
-@role_required('parent')
+@role_required(["Parent"])
 def add_emergency_contact_view(request):
     """Add new emergency contact"""
     try:
         # Get parent's children
-        children = Student.objects.filter(
-            verification_codes__user=request.user,
-            verification_codes__is_verified=True
-        ).distinct()
+        children = request.user.accessible_students.filter(is_active=True)
         
         if not children.exists():
             messages.error(request, "No student records found for your account.")
@@ -1990,15 +1959,12 @@ def add_emergency_contact_view(request):
 
 
 @login_required
-@role_required('parent')
+@role_required(["Parent"])
 def edit_emergency_contact_view(request, contact_id):
     """Edit existing emergency contact"""
     try:
         # Get parent's children
-        children = Student.objects.filter(
-            verification_codes__user=request.user,
-            verification_codes__is_verified=True
-        ).distinct()
+        children = request.user.accessible_students.filter(is_active=True)
         
         # Get the emergency contact and verify access
         contact = get_object_or_404(EmergencyContact, id=contact_id)
@@ -2036,15 +2002,12 @@ def edit_emergency_contact_view(request, contact_id):
 
 
 @login_required
-@role_required('parent')
+@role_required(["Parent"])
 def add_pickup_person_view(request):
     """Add authorized pickup person"""
     try:
         # Get parent's children
-        children = Student.objects.filter(
-            verification_codes__user=request.user,
-            verification_codes__is_verified=True
-        ).distinct()
+        children = request.user.accessible_students.filter(is_active=True)
         
         if not children.exists():
             messages.error(request, "No student records found for your account.")
@@ -2088,15 +2051,12 @@ def add_pickup_person_view(request):
 
 
 @login_required
-@role_required('parent')
+@role_required(["Parent"])
 def edit_pickup_person_view(request, person_id):
     """Edit authorized pickup person"""
     try:
         # Get parent's children
-        children = Student.objects.filter(
-            verification_codes__user=request.user,
-            verification_codes__is_verified=True
-        ).distinct()
+        children = request.user.accessible_students.filter(is_active=True)
         
         # Get the pickup person and verify access
         pickup_person = get_object_or_404(AuthorizedPickupPerson, id=person_id)
@@ -2135,28 +2095,19 @@ def edit_pickup_person_view(request, person_id):
 
 
 @login_required
-@role_required('parent')
+@role_required(["Parent"])
 def medical_information_view(request):
     """View and update medical information"""
     try:
-        # Get parent's children
-        children = Student.objects.filter(
-            verification_codes__user=request.user,
-            verification_codes__is_verified=True
-        ).distinct()
+        # Get current child and children using the helper function
+        current_child, children = get_current_child(request.user, request)
         
-        if not children.exists():
+        if not current_child:
             messages.error(request, "No student records found for your account.")
             return redirect('parent_portal:dashboard')
         
-        child_id = request.GET.get('child') or request.POST.get('child')
-        if child_id:
-            try:
-                child = children.get(id=child_id)
-            except Student.DoesNotExist:
-                child = children.first()
-        else:
-            child = children.first()
+        # Use current_child as the selected child
+        child = current_child
         
         # Get or create medical information
         try:
@@ -2184,6 +2135,7 @@ def medical_information_view(request):
         context = {
             'form': form,
             'child': child,
+            'current_child': current_child,
             'children': children,
             'medical_info': medical_info,
             'action': 'Update' if medical_info else 'Add'

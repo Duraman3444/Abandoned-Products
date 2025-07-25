@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb" class="bg-dark border-bottom border-secondary">
+    <div class="container">
+        <ol class="breadcrumb py-2 mb-0">
+            <li class="breadcrumb-item"><a href="{% url 'parent_portal:dashboard' %}" class="text-info">Parent Portal</a></li>
+            {% block breadcrumb_items %}{% endblock %}
+        </ol>
+    </div>
+</nav>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.child-switcher {
+    background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%);
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    color: white;
+    border: 1px solid #495057;
+}
+
+.child-card {
+    border: 2px solid #495057;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #212529;
+    color: #fff;
+}
+
+.child-card:hover {
+    border-color: #20c997;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(32, 201, 151, 0.3);
+}
+
+.child-card.active {
+    border-color: #20c997;
+    background: linear-gradient(135deg, #20c997, #17a2b8);
+    color: white;
+}
+
+.stats-card {
+    background: #212529;
+    border: 1px solid #495057;
+    border-radius: 10px;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    transition: transform 0.3s ease;
+    color: #fff;
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+    border-color: #20c997;
+}
+
+/* Sidebar Navigation */
+.nav-link {
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    margin-bottom: 0.25rem;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.nav-link:hover {
+    background-color: #f8f9fa;
+    color: #212529;
+}
+
+.nav-link.active {
+    background-color: #198754 !important;
+    color: #ffffff !important;
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Sidebar Navigation -->
+        <div class="col-md-3 col-lg-2">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="bi bi-person-heart me-2"></i>Parent Menu</h6>
+                </div>
+                <div class="card-body p-0">
+                    <!-- Child Switcher -->
+                    {% if children and children|length > 1 %}
+                    <div class="child-switcher m-3">
+                        <h6 class="mb-3">
+                            <i class="fas fa-users me-2"></i>
+                            Select Child
+                        </h6>
+                        <div class="row g-2">
+                            {% for child in children %}
+                            <div class="col-12">
+                                <div class="child-card p-2 text-center {% if child.id == current_child.id %}active{% endif %}" 
+                                     onclick="switchChild('{{ child.id }}')">
+                                    <div class="fw-bold">{{ child.display_name }}</div>
+                                    <small>{{ child.grade_level.name }} • ID: {{ child.student_id }}</small>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% elif children and children|length == 1 %}
+                    <div class="child-switcher text-center m-3">
+                        <h6 class="mb-2">
+                            <i class="fas fa-user me-2"></i>
+                            {{ children.0.display_name }}
+                        </h6>
+                        <small>{{ children.0.grade_level.name }} • ID: {{ children.0.student_id }}</small>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Navigation -->
+                    <nav class="nav flex-column" role="navigation" aria-label="Parent portal navigation">
+                        <a class="nav-link text-dark {% if 'dashboard' in request.resolver_match.url_name %}active bg-success text-white{% endif %}" 
+                           href="{% url 'parent_portal:dashboard' %}"
+                           aria-current="{% if 'dashboard' in request.resolver_match.url_name %}page{% endif %}"
+                           aria-label="Go to Dashboard - Overview of child's progress">
+                            <i class="fas fa-tachometer-alt me-2" aria-hidden="true"></i>Dashboard
+                        </a>
+                        
+                        {% if current_child %}
+                        <a class="nav-link text-dark {% if 'child_detail' in request.resolver_match.url_name %}active bg-success text-white{% endif %}" 
+                           href="{% url 'parent_portal:child_detail_current' %}{% if request.GET.child %}?child={{ request.GET.child }}{% endif %}"
+                           aria-current="{% if 'child_detail' in request.resolver_match.url_name %}page{% endif %}">
+                            <i class="fas fa-user me-2"></i>Student Profile
+                        </a>
+                        <a class="nav-link text-dark {% if 'grades' in request.resolver_match.url_name %}active bg-success text-white{% endif %}" 
+                           href="{% url 'parent_portal:grades_current' %}{% if request.GET.child %}?child={{ request.GET.child }}{% endif %}">
+                            <i class="fas fa-chart-bar me-2"></i>Grades & Progress
+                        </a>
+                        <a class="nav-link text-dark {% if 'attendance' in request.resolver_match.url_name %}active bg-success text-white{% endif %}" 
+                           href="{% url 'parent_portal:attendance_current' %}{% if request.GET.child %}?child={{ request.GET.child }}{% endif %}">
+                            <i class="fas fa-calendar-check me-2"></i>Attendance
+                        </a>
+                        {% endif %}
+                        
+                        <a class="nav-link text-dark {% if 'messages' in request.resolver_match.url_name %}active bg-success text-white{% endif %}" 
+                           href="{% url 'parent_portal:messages' %}">
+                            <i class="fas fa-envelope me-2"></i>Messages
+                        </a>
+                        <a class="nav-link text-dark {% if 'emergency_contacts' in request.resolver_match.url_name %}active bg-success text-white{% endif %}" 
+                           href="{% url 'parent_portal:emergency_contacts' %}">
+                            <i class="fas fa-phone-alt me-2"></i>Emergency Contacts
+                        </a>
+                    </nav>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10">
+            {% block parent_content %}
+            {% endblock %}
+        </div>
+    </div>
+</div>
+
+<script>
+function switchChild(childId) {
+    // Show loading state
+    const childCards = document.querySelectorAll('.child-card');
+    childCards.forEach(card => {
+        card.style.opacity = '0.7';
+        card.style.pointerEvents = 'none';
+    });
+
+    // Update URL and navigate
+    const url = new URL(window.location);
+    url.searchParams.set('child', childId);
+    window.location.href = url.toString();
+}
+</script>
+{% endblock %}

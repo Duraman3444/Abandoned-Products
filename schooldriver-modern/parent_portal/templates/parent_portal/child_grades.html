@@ -1,4 +1,4 @@
-{% extends "parent_base.html" %}
+{% extends "parent_portal/parent_base.html" %}
 
 {% block title %}Child Grades - SchoolDriver Modern{% endblock %}
 
@@ -414,15 +414,117 @@
 {% block extra_css %}
 {{ block.super }}
 <style>
-    .progress-bar {
-        transition: width 0.6s ease;
-    }
-    
-    .form-select:focus {
-        background-color: var(--dark-card);
-        border-color: var(--teal-primary);
-        color: var(--text-light);
-        box-shadow: 0 0 0 0.2rem rgba(20, 184, 166, 0.25);
-    }
+/* Dark theme for all cards and white boxes */
+.card {
+    background-color: #212529 !important;
+    border: 1px solid #495057 !important;
+    color: #ffffff !important;
+}
+
+.card-header {
+    background-color: #495057 !important;
+    border-bottom: 1px solid #6c757d !important;
+    color: #ffffff !important;
+}
+
+.card-body {
+    background-color: #212529 !important;
+    color: #ffffff !important;
+}
+
+.list-group-item {
+    background-color: transparent !important;
+    color: #ffffff !important;
+    border-color: #495057 !important;
+}
+
+.list-group-item:hover {
+    background-color: rgba(255,255,255,0.05) !important;
+}
+
+/* Table styling for dark theme */
+.table-dark {
+    background-color: #212529 !important;
+    color: #ffffff !important;
+}
+
+.table-dark th {
+    background-color: #495057 !important;
+    border-color: #6c757d !important;
+    color: #ffffff !important;
+}
+
+.table-dark td {
+    background-color: #212529 !important;
+    border-color: #495057 !important;
+    color: #ffffff !important;
+}
+
+.table-dark tbody tr:hover {
+    background-color: rgba(255,255,255,0.05) !important;
+}
+
+/* Badge styling for visibility */
+.badge.bg-light {
+    background-color: #495057 !important;
+    color: #ffffff !important;
+}
+
+.text-dark {
+    color: #ffffff !important;
+}
+
+/* Progress bar in dark theme */
+.progress {
+    background-color: #495057 !important;
+}
+
+.progress-bar {
+    transition: width 0.6s ease;
+}
+
+/* Form elements dark styling */
+.form-select {
+    background-color: #212529 !important;
+    border-color: #495057 !important;
+    color: #ffffff !important;
+}
+
+.form-select:focus {
+    background-color: #212529 !important;
+    border-color: #20c997 !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 0 0.2rem rgba(32, 201, 151, 0.25);
+}
+
+/* Text colors */
+.text-muted {
+    color: #adb5bd !important;
+}
+
+/* Ensure all text within cards is visible */
+.card h1, .card h2, .card h3, .card h4, .card h5, .card h6 {
+    color: #ffffff !important;
+}
+
+.card p {
+    color: #ffffff !important;
+}
+
+.card small {
+    color: #adb5bd !important;
+}
+
+.card strong {
+    color: #ffffff !important;
+}
+
+.card span {
+    color: #ffffff !important;
+}
+
+.card div {
+    color: #ffffff !important;
+}
 </style>
 {% endblock %}

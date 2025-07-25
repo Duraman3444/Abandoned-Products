@@ -114,7 +114,8 @@ class PWAManager {
     }
 
     showUpdateAvailable() {
-        this.showToast('A new version is available. Refresh to update.', 'info', 10000);
+        // Disabled - no longer showing update notifications
+        // this.showToast('A new version is available. Refresh to update.', 'info', 10000);
     }
 
     async requestNotificationPermission() {
@@ -294,9 +295,8 @@ class GradeWidget {
     }
 
     shouldShowWidget() {
-        // Only show on dashboard and main pages
-        const path = window.location.pathname;
-        return path.includes('/parent/') || path === '/';
+        // Widget disabled - no longer showing Quick Grade Check
+        return false;
     }
 
     async createWidget() {

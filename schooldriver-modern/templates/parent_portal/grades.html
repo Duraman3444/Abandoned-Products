@@ -1,0 +1,414 @@
+{% extends "parent_portal/parent_base.html" %}
+{% load static %}
+
+{% block page_title %}Grades{% endblock %}
+{% block page_subtitle %}
+    {% if current_child %}
+        Academic performance for {{ current_child.display_name }}
+    {% else %}
+        Grade information
+    {% endif %}
+{% endblock %}
+
+{% block parent_content %}
+{% if error %}
+    <div class="alert alert-warning text-center">
+        <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+        <h4>{{ error }}</h4>
+        <p>Please contact the school office if this problem persists.</p>
+    </div>
+{% else %}
+
+<!-- GPA Overview -->
+<div class="row mb-4">
+    <div class="col-lg-4 mb-3">
+        <div class="stats-card">
+            <div class="text-primary mb-2">
+                <i class="fas fa-chart-line fa-2x"></i>
+            </div>
+            <h3 class="text-primary">{{ overall_gpa }}</h3>
+            <p class="text-muted mb-0">Overall GPA</p>
+            <small class="text-muted">{{ semester }}</small>
+        </div>
+    </div>
+    <div class="col-lg-4 mb-3">
+        <div class="stats-card">
+            <div class="text-success mb-2">
+                <i class="fas fa-graduation-cap fa-2x"></i>
+            </div>
+            <h3 class="text-success">{{ courses_with_grades|length }}</h3>
+            <p class="text-muted mb-0">Current Courses</p>
+        </div>
+    </div>
+    <div class="col-lg-4 mb-3">
+        <div class="stats-card">
+            <div class="text-warning mb-2">
+                <i class="fas fa-exclamation-triangle fa-2x"></i>
+            </div>
+            <h3 class="text-warning">{{ missing_assignments|length }}</h3>
+            <p class="text-muted mb-0">Missing Assignments</p>
+        </div>
+    </div>
+</div>
+
+<!-- Grade Trends -->
+{% if grade_trends %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-area text-info me-2"></i>
+                    Grade Trends (Last 8 Weeks)
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-end" style="height: 150px;">
+                    {% for trend in grade_trends %}
+                    <div class="text-center" style="flex: 1;">
+                        {% if trend.average %}
+                            <div class="progress" style="height: 100px; writing-mode: vertical-lr;">
+                                <div class="progress-bar {% if trend.average >= 90 %}bg-success{% elif trend.average >= 80 %}bg-info{% elif trend.average >= 70 %}bg-warning{% else %}bg-danger{% endif %}" 
+                                     role="progressbar" 
+                                     style="width: {{ trend.average }}%" 
+                                     aria-valuenow="{{ trend.average }}" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100">
+                                </div>
+                            </div>
+                            <small class="text-muted d-block mt-2">{{ trend.average }}%</small>
+                        {% else %}
+                            <div style="height: 100px;"></div>
+                            <small class="text-muted d-block mt-2">No data</small>
+                        {% endif %}
+                        <small class="text-muted">{{ trend.week }}</small>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Current Courses and Grades -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-book text-primary me-2"></i>
+                    Current Courses
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if courses_with_grades %}
+                    {% for course in courses_with_grades %}
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <div class="row align-items-center">
+                                <div class="col-md-6">
+                                    <h6 class="mb-1">{{ course.name }}</h6>
+                                    <small class="text-muted">
+                                        {{ course.course_code }} | {{ course.teacher }} | {{ course.credit_hours }} credits
+                                        {% if course.section %} | Section: {{ course.section }}{% endif %}
+                                    </small>
+                                </div>
+                                <div class="col-md-6 text-md-end">
+                                    <span class="badge {% if course.current_grade == 'A' or course.current_grade == 'A+' or course.current_grade == 'A-' %}bg-success{% elif course.current_grade == 'B' or course.current_grade == 'B+' or course.current_grade == 'B-' %}bg-info{% elif course.current_grade == 'C' or course.current_grade == 'C+' or course.current_grade == 'C-' %}bg-warning text-dark{% elif course.current_grade == 'D' or course.current_grade == 'D+' or course.current_grade == 'D-' %}bg-danger{% else %}bg-secondary{% endif %} fs-6">
+                                        {{ course.current_grade }}
+                                    </span>
+                                    {% if course.percentage %}
+                                        <span class="text-muted ms-2">{{ course.percentage }}%</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% if course.assignments %}
+                        <div class="card-body">
+                            <h6 class="mb-3">Recent Assignments</h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Assignment</th>
+                                            <th>Category</th>
+                                            <th>Score</th>
+                                            <th>Grade</th>
+                                            <th>Date</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for assignment in course.assignments|slice:":10" %}
+                                        <tr>
+                                            <td>
+                                                <strong>{{ assignment.name }}</strong>
+                                                {% if assignment.comments %}
+                                                    <br><small class="text-muted">{{ assignment.comments|truncatechars:50 }}</small>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-light text-dark">{{ assignment.category }}</span>
+                                                {% if assignment.weight %}
+                                                    <br><small class="text-muted">Weight: {{ assignment.weight }}%</small>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if assignment.grade %}
+                                                    {{ assignment.grade }}/{{ assignment.max_points }}
+                                                {% else %}
+                                                    <span class="text-muted">-</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if assignment.letter_grade %}
+                                                    <span class="badge {% if assignment.letter_grade == 'A' or assignment.letter_grade == 'A+' or assignment.letter_grade == 'A-' %}bg-success{% elif assignment.letter_grade == 'B' or assignment.letter_grade == 'B+' or assignment.letter_grade == 'B-' %}bg-info{% elif assignment.letter_grade == 'C' or assignment.letter_grade == 'C+' or assignment.letter_grade == 'C-' %}bg-warning text-dark{% elif assignment.letter_grade == 'D' or assignment.letter_grade == 'D+' or assignment.letter_grade == 'D-' %}bg-danger{% else %}bg-secondary{% endif %}">
+                                                        {{ assignment.letter_grade }}
+                                                    </span>
+                                                    {% if assignment.percentage %}
+                                                        <br><small class="text-muted">{{ assignment.percentage }}%</small>
+                                                    {% endif %}
+                                                {% else %}
+                                                    <span class="text-muted">-</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <small>{{ assignment.date|date:"M d, Y" }}</small>
+                                            </td>
+                                            <td>
+                                                {% if assignment.is_late %}
+                                                    <span class="badge bg-warning text-dark">Late</span>
+                                                {% else %}
+                                                    <span class="badge bg-success">On Time</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% if course.assignments|length > 10 %}
+                                <div class="text-center mt-3">
+                                    <small class="text-muted">Showing 10 of {{ course.assignments|length }} assignments</small>
+                                </div>
+                            {% endif %}
+                        </div>
+                        {% else %}
+                        <div class="card-body">
+                            <p class="text-muted text-center mb-0">No assignments have been graded yet.</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="alert alert-info text-center">
+                        <i class="fas fa-info-circle fa-2x mb-3"></i>
+                        <h5>No Grade Information Available</h5>
+                        <p class="mb-0">Grade information will appear here once assignments have been graded.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Missing Assignments -->
+{% if missing_assignments %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-warning">
+            <div class="card-header bg-warning">
+                <h5 class="mb-0 text-dark">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Missing Assignments
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Course</th>
+                                <th>Assignment</th>
+                                <th>Category</th>
+                                <th>Due Date</th>
+                                <th>Days Overdue</th>
+                                <th>Points</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for assignment in missing_assignments %}
+                            <tr>
+                                <td><strong>{{ assignment.course }}</strong></td>
+                                <td>{{ assignment.title }}</td>
+                                <td>
+                                    <span class="badge bg-light text-dark">{{ assignment.category }}</span>
+                                </td>
+                                <td>{{ assignment.due_date|date:"M d, Y" }}</td>
+                                <td>
+                                    <span class="badge {% if assignment.days_overdue > 7 %}bg-danger{% elif assignment.days_overdue > 3 %}bg-warning text-dark{% else %}bg-info{% endif %}">
+                                        {{ assignment.days_overdue }} day{{ assignment.days_overdue|pluralize }}
+                                    </span>
+                                </td>
+                                <td>{{ assignment.max_points }} pts</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Action Buttons -->
+<div class="row">
+    <div class="col-12 text-center">
+        <a href="{% url 'parent_portal:dashboard' %}{% if request.GET.child %}?child={{ request.GET.child }}{% endif %}" class="btn btn-outline-secondary me-2">
+            <i class="fas fa-arrow-left me-1"></i>
+            Back to Dashboard
+        </a>
+        <a href="{% url 'parent_portal:progress_report_current' %}{% if request.GET.child %}?child={{ request.GET.child }}{% endif %}" class="btn btn-primary me-2">
+            <i class="fas fa-file-alt me-1"></i>
+            Progress Report
+        </a>
+        <a href="{% url 'parent_portal:attendance_current' %}{% if request.GET.child %}?child={{ request.GET.child }}{% endif %}" class="btn btn-outline-success">
+            <i class="fas fa-calendar-check me-1"></i>
+            View Attendance
+        </a>
+    </div>
+</div>
+
+{% endif %}
+{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+/* Dark theme for all cards and white boxes */
+.card {
+    background-color: #212529 !important;
+    border: 1px solid #495057 !important;
+    color: #ffffff !important;
+}
+
+.card-header {
+    background-color: #495057 !important;
+    border-bottom: 1px solid #6c757d !important;
+    color: #ffffff !important;
+}
+
+.card-body {
+    background-color: #212529 !important;
+    color: #ffffff !important;
+}
+
+/* Table styling for dark theme */
+.table {
+    color: #ffffff !important;
+    background-color: #212529 !important;
+}
+
+.table thead th {
+    background-color: #495057 !important;
+    border-color: #6c757d !important;
+    color: #ffffff !important;
+}
+
+.table tbody td {
+    background-color: #212529 !important;
+    border-color: #495057 !important;
+    color: #ffffff !important;
+}
+
+.table tbody tr:hover {
+    background-color: rgba(255,255,255,0.05) !important;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(255,255,255,0.05) !important;
+}
+
+.table-responsive {
+    background-color: #212529 !important;
+}
+
+/* Badge styling for visibility */
+.badge.bg-light {
+    background-color: #495057 !important;
+    color: #ffffff !important;
+}
+
+.text-dark {
+    color: #ffffff !important;
+}
+
+/* Alert styling */
+.alert {
+    border: 1px solid #495057;
+}
+
+.alert-info {
+    background-color: rgba(13, 202, 240, 0.1) !important;
+    border-color: #0dcaf0 !important;
+    color: #ffffff !important;
+}
+
+.alert-warning {
+    background-color: rgba(255, 193, 7, 0.1) !important;
+    border-color: #ffc107 !important;
+    color: #ffffff !important;
+}
+
+/* Progress bar in dark theme */
+.progress {
+    background-color: #495057 !important;
+}
+
+/* Text colors */
+.text-muted {
+    color: #adb5bd !important;
+}
+
+/* Card header with warning */
+.card-header.bg-warning {
+    background-color: #ffc107 !important;
+    color: #212529 !important;
+}
+
+.card.border-warning {
+    border-color: #ffc107 !important;
+}
+
+/* Ensure all text within cards is visible */
+.card h1, .card h2, .card h3, .card h4, .card h5, .card h6 {
+    color: #ffffff !important;
+}
+
+.card p {
+    color: #ffffff !important;
+}
+
+.card small {
+    color: #adb5bd !important;
+}
+
+.card strong {
+    color: #ffffff !important;
+}
+
+.card td strong {
+    color: #ffffff !important;
+}
+
+.card td {
+    color: #ffffff !important;
+}
+
+.card th {
+    color: #ffffff !important;
+}
+</style>
+{% endblock %}

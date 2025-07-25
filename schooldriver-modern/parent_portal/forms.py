@@ -378,6 +378,11 @@ class MessageForm(forms.ModelForm):
         instance = super().save(commit=False)
         instance.sender = self.sender
         
+        # Generate thread_id for new messages
+        if not instance.thread_id:
+            import uuid
+            instance.thread_id = str(uuid.uuid4())[:12]
+        
         if commit:
             instance.save()
             
